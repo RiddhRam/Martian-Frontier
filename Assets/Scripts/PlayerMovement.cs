@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -25,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
         if (joystickVec.x != 0 && joystickVec.y != 0) {
             // Calculate the angle in degrees from the joystick vector
-            float joystickDegAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg;
+            /*float joystickDegAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg;
 
             // Subtract 90 to align with the sprite’s orientation (facing north)
             joystickDegAngle -= 90;
@@ -33,16 +34,37 @@ public class PlayerMovement : MonoBehaviour
             // Normalize the angle to ensure it’s between 0 and 360 degrees
             joystickDegAngle = (joystickDegAngle + 360) % 360;
 
-            float steeringAngle = ((transform.rotation.eulerAngles.z - joystickDegAngle + 360) % 360) - 180;
+            // Normalize angle again and then subtract 180, negative value means turn left, positive means turn right
+            int steeringAngle = Mathf.RoundToInt(((transform.rotation.eulerAngles.z - joystickDegAngle + 360) % 360) - 180);
 
-            float rotationSpeed = 150f; // Adjust this as needed
+            int rotationSpeed = 150;
 
             // Rotate only if the angle is beyond the threshold
-            if (Mathf.Abs(steeringAngle) > 1.5 && Mathf.Abs(steeringAngle) < 180 - 1.5)
+            if (Mathf.Abs(steeringAngle) > 10 && Mathf.Abs(steeringAngle) < 180 - 10)
             {
                 float direction = Mathf.Sign(steeringAngle); // -1 for left, 1 for right
                 transform.Rotate(0, 0, direction * rotationSpeed * Time.deltaTime);
+            }*/
+
+            if (joystickVec.x != 0 || joystickVec.y != 0)
+            {
+                // Calculate target angle in degrees
+                float targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
+
+                // Normalize the angle to keep it within [0, 360] degrees
+                targetAngle = (targetAngle + 360) % 360;
+
+                // Smoothly rotate towards the target angle over time (1 second)
+                float currentAngle = transform.eulerAngles.z;
+                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
+
+                // This checks if the user is trying to go straight forward or reverse, if neither then rotate
+                if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
+                    // Apply the new rotation
+                    transform.rotation = Quaternion.Euler(0, 0, newAngle);
+                }
             }
+
         }
 
         // Smooth camera follow

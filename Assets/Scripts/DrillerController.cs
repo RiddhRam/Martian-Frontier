@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -6,16 +5,19 @@ public class DrillerController : MonoBehaviour
 {
     public Tilemap tilemap;
 
-    void OnCollisionEnter2D(Collision2D collision)
+    // Not actually a radius, it's a 1x1 square
+    private readonly int radius = 1;
+
+    void OnTriggerEnter2D(Collider2D collision)
     {
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-        float closestDistance = float.MaxValue;
+        float closestDistance = 10;
         Vector3Int nearestTilePos = Vector3Int.zero;
 
         // Iterate over nearby tiles within the radius
-        int radius = Mathf.CeilToInt(1f);
+        // Not actually a radius, it's a 1x1 square
         for (int x = -radius; x <= radius; x++)
         {
             for (int y = -radius; y <= radius; y++)
@@ -40,8 +42,11 @@ public class DrillerController : MonoBehaviour
 
         if (closestDistance < float.MaxValue)
         {
-            Vector3 nearestTileWorldPos = tilemap.GetCellCenterWorld(nearestTilePos);
             tilemap.SetTile(nearestTilePos, null);
+
+            // Enable and renable quickly so the trigger event can occur again
+            tilemap.GetComponent<TilemapCollider2D>().enabled = false;
+            tilemap.GetComponent<TilemapCollider2D>().enabled = true;
         }
     }
 }
