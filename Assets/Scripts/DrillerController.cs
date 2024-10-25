@@ -3,13 +3,17 @@ using UnityEngine.Tilemaps;
 
 public class DrillerController : MonoBehaviour
 {
-    public Tilemap tilemap;
-
     // Not actually a radius, it's a 1x1 square
     private readonly int radius = 1;
 
     void OnTriggerEnter2D(Collider2D collision)
     {
+        Tilemap tilemap = collision.GetComponent<Tilemap>();
+
+        if (!tilemap) {
+            return;
+        }
+        
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 

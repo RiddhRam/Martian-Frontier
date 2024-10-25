@@ -1,6 +1,5 @@
 using System;
 using UnityEngine;
-
 public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
@@ -57,14 +56,15 @@ public class PlayerMovement : MonoBehaviour
                 // Smoothly rotate towards the target angle over time (1 second)
                 float currentAngle = transform.eulerAngles.z;
                 float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
-
+                
                 // This checks if the user is trying to go straight forward or reverse, if neither then rotate
                 if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
                     // Apply the new rotation
                     transform.rotation = Quaternion.Euler(0, 0, newAngle);
+                } else {
+                    transform.rotation = Quaternion.Euler(0, 0, targetAngle);
                 }
             }
-
         }
 
         // Smooth camera follow
