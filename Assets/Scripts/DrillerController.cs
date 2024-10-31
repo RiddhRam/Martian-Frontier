@@ -8,12 +8,13 @@ public class DrillerController : MonoBehaviour
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        Tilemap tilemap = collision.GetComponent<Tilemap>();
 
-        if (!tilemap) {
+        if (!collision.gameObject.CompareTag("Mine Tag")) {
             return;
         }
         
+        Tilemap tilemap = collision.GetComponent<Tilemap>();
+
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
