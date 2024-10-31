@@ -3,12 +3,25 @@ using UnityEngine.Tilemaps;
 
 public class DrillerController : MonoBehaviour
 {
+    public TileBase IronOre;
+    public GameObject Iron;
+    public TileBase SulfurOre;
+    public GameObject Sulfur;
+    public TileBase LimestoneRock;
+    public GameObject Limestone;
+
     // Not actually a radius, it's a 1x1 square
     private readonly int radius = 1;
+    private TileBase[] ores;
+    private GameObject[] materials;
+
+    void Start() {
+        ores = new TileBase[] { IronOre, SulfurOre, LimestoneRock };
+        materials = new GameObject[] { Iron, Sulfur, Limestone };
+    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-
         if (!collision.gameObject.CompareTag("Mine Tag")) {
             return;
         }
@@ -18,8 +31,9 @@ public class DrillerController : MonoBehaviour
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-        float closestDistance = 10;
+        float closestDistance = 5;
         Vector3Int nearestTilePos = Vector3Int.zero;
+        Vector3 centerTilePos = Vector3.zero;
 
         // Iterate over nearby tiles within the radius
         // Not actually a radius, it's a 1x1 square
@@ -30,28 +44,80 @@ public class DrillerController : MonoBehaviour
                 Vector3Int currentTilePos = spriteTilePos + new Vector3Int(x, y, 0);
 
                 // Check if the tile exists
-                if (tilemap.HasTile(currentTilePos))
-                {
-                    Vector3 tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
-                    float distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
-
-                    // Keep track of the closest tile
-                    if (distance < closestDistance)
-                    {
-                        closestDistance = distance;
-                        nearestTilePos = currentTilePos;
-                    }
+                if (!tilemap.HasTile(currentTilePos)) {
+                    continue;
                 }
+
+                Vector3 tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
+                float distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
+
+                if (distance >= closestDistance) {
+                    continue;
+                }
+
+                // Keep track of the closest tile
+                closestDistance = distance;
+                nearestTilePos = currentTilePos;
+                centerTilePos = tileWorldPos; 
             }
         }
 
-        if (closestDistance < float.MaxValue)
-        {
-            tilemap.SetTile(nearestTilePos, null);
-
-            // Enable and renable quickly so the trigger event can occur again
-            tilemap.GetComponent<TilemapCollider2D>().enabled = false;
-            tilemap.GetComponent<TilemapCollider2D>().enabled = true;
+        if (closestDistance >= float.MaxValue) {
+            return;
         }
+
+        TileBase tileToDestroy = tilemap.GetTile(nearestTilePos);
+
+        for (int i = 0; i != ores.Length; i++) {
+            if (tileToDestroy != ores[i]) {
+                continue;
+            }
+
+            GameObject materialToUse = materials[i];
+
+            // If no neighbouring materials then this stays 0 and the new object will have a count of 1
+            int oldCount = 0;
+
+            for (int x = -3; x <= 3; x++)
+            {
+                for (int y = -3; y <= 3; y++)
+                { 
+
+                    Collider2D[] hitColliders = Physics2D.OverlapCircleAll(new Vector2(x + centerTilePos.x, y + centerTilePos.y), 0.1f);
+                    
+                    foreach (var hitCollider in hitColliders)
+                    {       
+                        // Make sure a gameobject was hit
+                        if (hitCollider == null) {
+                            continue;
+                        }
+                        
+                        // Make sure they are the same materials
+                        if (hitCollider.gameObject.name != materialToUse.name + "(Clone)") {
+                            continue;
+                        }
+                
+                        // If a neighbouring material was found, delete it,
+                        // and keep track of that value deleted
+                        // Don't set oldCount, use += in case there are more than 1;
+                        // Also don't break for the same reason
+                        Destroy(hitCollider.gameObject);
+                        oldCount += hitCollider.gameObject.GetComponent<MaterialManager>().count;
+                        break;
+                    }
+                }
+            }
+
+            GameObject material = Instantiate(materialToUse);
+            material.transform.position = centerTilePos;
+            material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
+            break;
+        }
+
+        tilemap.SetTile(nearestTilePos, null);
+
+        // Disable and renable quickly so the trigger event can occur again
+        tilemap.GetComponent<TilemapCollider2D>().enabled = false;
+        tilemap.GetComponent<TilemapCollider2D>().enabled = true;
     }
 }
