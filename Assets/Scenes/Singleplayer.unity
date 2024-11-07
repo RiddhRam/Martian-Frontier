@@ -18591,8 +18591,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mineTilemapPrefab: {fileID: 395500911926318891, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
-  mineBackground: {fileID: 11400000, guid: 00135434b71b948dfad6b918c6f3511e, type: 2}
-  mapMine: {fileID: 1655545807}
+  unknownTile: {fileID: 11400000, guid: ce4126fcb414141c3932232d868e8cf4, type: 2}
   level1Rock: {fileID: 11400000, guid: b08b25b5facac4e60913f5a32d60775e, type: 2}
   IronOre: {fileID: 11400000, guid: f2766694834964d0d922f0ead04e291e, type: 2}
   SulfurOre: {fileID: 11400000, guid: 20e065fecd0844ea1afc54154cd68a17, type: 2}
@@ -20166,50 +20165,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1308672357}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &1655545807
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1655545808}
-  - component: {fileID: 1655545809}
-  m_Layer: 0
-  m_Name: MapMine
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1655545808
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1655545807}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 300, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!156049354 &1655545809
-Grid:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1655545807}
-  m_Enabled: 1
-  m_CellSize: {x: 1, y: 1, z: 0}
-  m_CellGap: {x: 0, y: 0, z: 0}
-  m_CellLayout: 0
-  m_CellSwizzle: 0
 --- !u!1 &1828223857
 GameObject:
   m_ObjectHideFlags: 0
@@ -21032,4 +20987,3 @@ SceneRoots:
   - {fileID: 319486925}
   - {fileID: 1012335946}
   - {fileID: 1093208306}
-  - {fileID: 1655545808}
