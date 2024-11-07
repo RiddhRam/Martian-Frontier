@@ -4,6 +4,8 @@ using UnityEngine.Tilemaps;
 public class MineRenderer : MonoBehaviour
 {
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
+    public TileBase mineBackground;
+    public GameObject mapMine;
     public RuleTile level1Rock;  // Tile to place on the grid
     public TileBase IronOre;
     public TileBase SulfurOre;
@@ -17,6 +19,10 @@ public class MineRenderer : MonoBehaviour
     {
         // These ores are used for the veins of level 1 chunks
         level1Ores = new TileBase[] { LimestoneRock, SulfurOre, IronOre };
+
+        for (int i = 1; i != 5; i++) {
+            CreateTiles(i);
+        }
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward
@@ -26,7 +32,14 @@ public class MineRenderer : MonoBehaviour
         mineTilemapGameObject.transform.SetParent(transform);
         mineTilemapGameObject.name = "Row " + chunkRow;
 
+        GameObject mapMineTilemapGameObject = Instantiate(mineTilemapPrefab);
+        mapMineTilemapGameObject.transform.SetParent(mapMine.transform);
+        mapMineTilemapGameObject.name = "Row " + chunkRow;
+        // This won't need a collider, just for display
+        //Destroy(mapMineTilemapGameObject.GetComponent<TilemapCollider2D>());
+
         Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
+        Tilemap mapMineTilemap = mapMineTilemapGameObject.GetComponent<Tilemap>();
 
         // Find the level of the rocks
         /*
@@ -51,6 +64,7 @@ public class MineRenderer : MonoBehaviour
                 {
                     Vector3Int tilePosition = new(i + x, (chunkRow - 1) * -12 - 5 - y, 0);
                     mineTilemap.SetTile(tilePosition, level1Rock);
+                    mapMineTilemap.SetTile(new(tilePosition.x + 300, tilePosition.y, tilePosition.z), mineBackground);
                 }
             }
 

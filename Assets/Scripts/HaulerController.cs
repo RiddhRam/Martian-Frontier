@@ -1,7 +1,6 @@
 using UnityEngine;
 using TMPro; // Use TextMeshPro if you're using TextMeshPro
 using System.Collections;
-using System;
 
 public class HaulerController : MonoBehaviour
 {
@@ -77,7 +76,7 @@ public class HaulerController : MonoBehaviour
         }
 
         // Fade out by reducing alpha over time and also keep rotation straight
-        float fadeDuration = 3f;
+        float fadeDuration = 1f;
         float startAlpha = 1;
         elapsedTime = 0f;
 
