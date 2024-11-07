@@ -1,23 +1,21 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
-using System;
 
 public class DrillerController : MonoBehaviour
 {
-    public TileBase IronOre;
     public GameObject Iron;
-    public TileBase SulfurOre;
     public GameObject Sulfur;
-    public TileBase LimestoneRock;
     public GameObject Limestone;
 
     // Not actually a radius, it's a 1x1 square
     private readonly int radius = 1;
     private TileBase[] ores;
     private GameObject[] materials;
+    private MineRenderer mineRenderer;
 
     void Start() {
-        ores = new TileBase[] { IronOre, SulfurOre, LimestoneRock };
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        ores = mineRenderer.GetOres();
         materials = new GameObject[] { Iron, Sulfur, Limestone };
     }
 
@@ -114,8 +112,8 @@ public class DrillerController : MonoBehaviour
             material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
             break;
         }
-
-        tilemap.SetTile(nearestTilePos, null);
+        
+        mineRenderer.DestroyTile(nearestTilePos);
 
         // Disable and renable quickly so the trigger event can occur again
         tilemap.GetComponent<TilemapCollider2D>().enabled = false;
