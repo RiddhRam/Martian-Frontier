@@ -6,6 +6,7 @@ public class MineRenderer : MonoBehaviour
 {
     // Have to change through hierarchy not through here
     public int visionRadius = 20;
+    public GameObject largeFogOfWar;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public TileBase unknownTile;
     public RuleTile level1Rock;  // Tile to place on the grid
@@ -34,17 +35,20 @@ public class MineRenderer : MonoBehaviour
         // These are used to reveal which tile is at a position
         tileValues = new TileBase[] { level1Rock, LimestoneRock, SulfurOre, IronOre };
 
+        // Create first 4 rows
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
 
-        // Reveal the entry blocks
-        RevealTile(new(-3, -5));
-        RevealTile(new(-2, -5));
-        RevealTile(new(-1, -5));
-        RevealTile(new(0, -5));
-        RevealTile(new(1, -5));
-        RevealTile(new(2, -5));
+        // Reveal the entry blocks, by calling destroy the tiles above the first 6 surface blocks
+        // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
+        // This is better since it doesn't just reveal the first 6 surface blocks
+        DestroyTile(new(-3, -4));
+        DestroyTile(new(-2, -4));
+        DestroyTile(new(-1, -4));
+        DestroyTile(new(0, -4));
+        DestroyTile(new(1, -4));
+        DestroyTile(new(2, -4));
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward
@@ -90,22 +94,31 @@ public class MineRenderer : MonoBehaviour
             }
 
             // Now place ore veins throughout the chunk
-            int oreVeinCount = Random.Range(3, 5);
-            GenerateOreVeins(chunkTileCoordinates, oreVeinCount, i, chunkRow);
+            GenerateOreVeins(chunkTileCoordinates, i, chunkRow);
         }
 
         tilemapsTileValues[chunkRow - 1] = chunkTileCoordinates;
         tilemaps[chunkRow-1] = mineTilemap;
+
+        // If the last row, delete the fog of war
+        if (chunkRow == 36) {
+            Destroy(largeFogOfWar);
+            return;
+        }
+        // If not last row, just move it down
+        largeFogOfWar.transform.position = new Vector3(largeFogOfWar.transform.position.x, largeFogOfWar.transform.position.y - 12, largeFogOfWar.transform.position.z);
     }
 
-    private void GenerateOreVeins(Dictionary<Vector2Int, int> chunkTileCoordinates, int veinCount, int chunkX, int chunkRow)
+    private void GenerateOreVeins(Dictionary<Vector2Int, int> chunkTileCoordinates, int chunkX, int chunkRow)
     {
+        int veinCount = Random.Range(2, 5);
+
         for (int v = 0; v < veinCount; v++)
         {
             // Randomly choose the center position for each vein within the chunk
             int centerX = Random.Range(0, gridSize.x);
             int centerY = Random.Range(0, gridSize.y);
-            int radius = Random.Range(2, 5); // Radius of 2-6 tiles for variation
+            int radius = Random.Range(2, 4); // Radius of 2-4 tiles for variation
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
             int oreToPlace = SelectOreBasedOnDepth(chunkRow, 1);
@@ -171,12 +184,19 @@ public class MineRenderer : MonoBehaviour
             for (int y = -visionRadius; y <= visionRadius; y++) {
                 Vector2Int checkPos = new(tileToDestroy.x + x, tileToDestroy.y + y);
 
-                tilemapIndex = Mathf.FloorToInt((tileToDestroy.y + y + 5) / -12f);
-                tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
-                
-                // Check if the tile exists in tilemapsTileValues
-                if (tilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
-                    RevealTile(checkPos);
+                // Calculate the Manhattan distance from the center tile
+                int distance = Mathf.Abs(x) + Mathf.Abs(y);
+
+                // If within the circular radius
+                if (distance <= visionRadius) {
+                    // Get the tilemap index, shouldbe anywhere between 0 and 35
+                    tilemapIndex = Mathf.FloorToInt((tileToDestroy.y + y + 5) / -12f);
+                    tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
+                    
+                    // Check if the tile exists in tilemapsTileValues
+                    if (tilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
+                        RevealTile(checkPos);
+                    }
                 }
             }
         }
