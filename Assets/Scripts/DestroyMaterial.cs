@@ -29,11 +29,18 @@ public class DestroyMaterial : MonoBehaviour
 
     // Highlight new material and change slider values and stuff
     public void SelectMaterial(GameObject materialSelected) {
+
+        // materialSelected is the material sprite, not the button. In UIDelegation OnMaterialButtonClick, the sprite is passed
+        // The sprite is more important because it has MaterialManager, the button just needs to change colours
+
+        if (materialSelected == previouslySelectedMaterial) {
+            return;
+        }
         indexToDestroy = materialSelected.GetComponent<MaterialManagerUI>().materialIndex;
-        materialSelected.GetComponent<Image>().color = new Color(57f / 255f, 255f / 255f, 20f / 255f);
+        materialSelected.transform.parent.GetComponent<Image>().color = new Color(57f / 255f, 255f / 255f, 20f / 255f);
 
         if (previouslySelectedMaterial != null) {
-            previouslySelectedMaterial.GetComponent<Image>().color = new Color(181f / 255f, 181f / 255f, 181f / 255f);
+            previouslySelectedMaterial.transform.parent.GetComponent<Image>().color = new Color(181f / 255f, 181f / 255f, 181f / 255f);
         }
 
         previouslySelectedMaterial = materialSelected;

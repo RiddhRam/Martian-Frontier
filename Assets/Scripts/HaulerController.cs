@@ -41,10 +41,15 @@ public class HaulerController : MonoBehaviour
                         amountPickedUp = maxMaterials - GetTotalMaterialCount();
                         // then increase the count at that index
                         materialCount[i] += amountPickedUp;
-                        ShowFloatingText(amountPickedUp);
 
+                        if (amountPickedUp == 0) {
+                            return;
+                        }
+
+                        ShowFloatingText(amountPickedUp);
                         // Reduce the count of the material
                         materialManager.SetCount(materialManager.count - amountPickedUp);
+                        
                         return;
                     }
 
