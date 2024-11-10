@@ -25,6 +25,7 @@ public class MineRenderer : MonoBehaviour
     private readonly Dictionary<Vector2Int, int>[] tilemapsTileValues = new Dictionary<Vector2Int, int>[36];
     // Array of the tilemap Game objects
     private Tilemap[] tilemaps = new Tilemap[36];
+    private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
 
     // Start is called before the first frame update
     void Start()
@@ -204,6 +205,10 @@ public class MineRenderer : MonoBehaviour
 
     public TileBase[] GetOres() {
         return new TileBase[] { IronOre, SulfurOre, LimestoneRock };
+    }
+
+    public string[] GetMaterialNames() {
+        return materialNames;
     }
 }
 

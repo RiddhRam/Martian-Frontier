@@ -24,15 +24,15 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5012642251454584554}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -1, w: 0}
-  m_LocalPosition: {x: 9.153293, y: 0.08551693, z: -3.9819064}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 3138251058670933263}
   - {fileID: 7377501095417282983}
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!1 &7031562478272536015
 GameObject:
   m_ObjectHideFlags: 0
@@ -59,8 +59,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7031562478272536015}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 1, w: 0}
-  m_LocalPosition: {x: 9.153293, y: 0.08551693, z: 4.0636625}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.93, y: 0.93, z: 0.93}
   m_ConstrainProportionsScale: 1
   m_Children: []
@@ -190,13 +190,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8043309845443493750}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: 1, w: 0}
-  m_LocalPosition: {x: 9.153293, y: -1.7164831, z: 4.0636625}
+  m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
+  m_LocalPosition: {x: 0, y: -1.82, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 4104116432694905664}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 180}
 --- !u!212 &717764798788663567
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -261,11 +261,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4983a1cfd3b4714a7cdb5048fcb4f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IronOre: {fileID: 11400000, guid: f2766694834964d0d922f0ead04e291e, type: 2}
   Iron: {fileID: 5836944365000543928, guid: 142ceec66bd614b03b91a376cac47757, type: 3}
-  SulfurOre: {fileID: 11400000, guid: 20e065fecd0844ea1afc54154cd68a17, type: 2}
   Sulfur: {fileID: 7003855559659621168, guid: 509ba637d3c894eb699adc2fec86c843, type: 3}
-  LimestoneRock: {fileID: 11400000, guid: 4b0fefc129b1044d6870a24fa0fa160a, type: 2}
   Limestone: {fileID: 6711909364478728060, guid: 1a26670d6a8f54f7c81fc46772e0ac71, type: 3}
 --- !u!61 &8406575153667273620
 BoxCollider2D:

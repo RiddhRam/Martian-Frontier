@@ -4,13 +4,19 @@ using System.Collections;
 
 public class HaulerController : MonoBehaviour
 {
-    private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
+    private string[] materialNames;
     public int[] materialCount = new int[3];
+    public int initializeMaxMaterials;
     private GameObject floatingText; // Display the amount picked up
+    // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
+    private int maxMaterials;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
+        materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
+        // Do it like this to prevent public access
+        maxMaterials = initializeMaxMaterials;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -24,16 +30,30 @@ public class HaulerController : MonoBehaviour
 
             for (int i = 0; i < materialNames.Length; i++)
             {
-                // If it matches, then increase the count at that index and destroy the game object
+                // If it matches
                 if (materialNames[i] == materialName)
                 {
                     int amountPickedUp = materialManager.count;
-                    materialCount[i] += amountPickedUp;
 
+                    // If limit is exceeded then just reduce the count of the material
+                    if (amountPickedUp + GetTotalMaterialCount() > maxMaterials) {
+                        // Only pick up what we can
+                        amountPickedUp = maxMaterials - GetTotalMaterialCount();
+                        // then increase the count at that index
+                        materialCount[i] += amountPickedUp;
+                        ShowFloatingText(amountPickedUp);
+
+                        // Reduce the count of the material
+                        materialManager.SetCount(materialManager.count - amountPickedUp);
+                        return;
+                    }
+
+                    // If limit isn't exceeded then destroy the game object
+                    materialCount[i] += amountPickedUp;
                     // Show floating text
                     ShowFloatingText(amountPickedUp);
                     Destroy(other.gameObject); // Destroy the material object
-                    break;
+                    return;
                 }
             }
         }
@@ -96,5 +116,17 @@ public class HaulerController : MonoBehaviour
 
         // Ensure it's fully transparent
         textComponent.alpha = 0f;
+    }
+
+    public int GetTotalMaterialCount() {
+        int count = 0;
+        for (int i = 0; i != materialCount.Length; i++) {
+            count += materialCount[i];
+        }
+        return count;
+    }
+
+    public int GetMaxMaterials() {
+        return maxMaterials;
     }
 }

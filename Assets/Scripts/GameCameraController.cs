@@ -1,7 +1,9 @@
+using System;
 using UnityEngine;
 
 public class GameCameraController : MonoBehaviour
 {
+    public Boolean zoomingEnabled;
     public float zoomOutMin;
     public float zoomOutMax;
 
@@ -22,6 +24,11 @@ public class GameCameraController : MonoBehaviour
 
     // Update is called once per frame
     void Update () {
+        // If zooming was disabled, do nothing. Usually disabled if a secondary UI element with a scroll view is open
+        if (!zoomingEnabled) {
+            return;
+        }
+
         // If zooming, but now there's only 1 input, then start position will be from where user last released the screen
         // Maybe delete this
 
@@ -65,15 +72,7 @@ public class GameCameraController : MonoBehaviour
         yLimit = -1 * Camera.main.orthographicSize + (8f * baseAspect / screenAspect);
     }
 
-    private void AdjustZoomBasedOnResolution() {
-        float screenAspect = (float) Screen.width / Screen.height;
-        float targetAspect = 1080.0f / 1920.0f; // Target resolution aspect ratio
-
-        // Adjust zoom min and max based on the aspect ratio compared to the target aspect ratio
-        float aspectRatioFactor = targetAspect / screenAspect;
-
-        zoomOutMin *= aspectRatioFactor;
-        zoomOutMax *= aspectRatioFactor;
-        Camera.main.orthographicSize = zoomOutMax;
+    public void ToggleZooming() {
+        zoomingEnabled = !zoomingEnabled;
     }
 }

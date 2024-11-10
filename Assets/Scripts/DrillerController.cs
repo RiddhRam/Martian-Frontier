@@ -113,6 +113,7 @@ public class DrillerController : MonoBehaviour
             break;
         }
         
+        // Destroy the tile and reveal new tiles in the vision radius
         mineRenderer.DestroyTile(nearestTilePos);
 
         // Disable and renable quickly so the trigger event can occur again
