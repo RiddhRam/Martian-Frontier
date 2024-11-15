@@ -8,7 +8,11 @@ public class GenerationTrigger : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mineRenderer = mineGameObject.GetComponent<MineRenderer>();
+        // If the initial load, this will not be null
+        // But if RefineryController calls it, it will be null
+        if (mineGameObject) {
+            SetMineGameObject(mineGameObject);
+        }
     }
 
     // Upon touching a trigger
@@ -29,5 +33,9 @@ public class GenerationTrigger : MonoBehaviour
         }
 
     }
- }
+ 
+    public void SetMineGameObject(GameObject mine) {
+        mineRenderer = mine.GetComponent<MineRenderer>();
+    }
+}
 

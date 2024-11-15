@@ -14,9 +14,12 @@ public class DestroyMaterial : MonoBehaviour
 
     public void DestroyMaterialFunc() {
         // Get the first child of player vehicle which should be a hauler so it must have hauler controller script
-        // Access the public int[] materialCount and change its material count at the index by the amount specified
-        playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().materialCount[indexToDestroy] -= amountToDestroy;
-        previouslySelectedMaterial.GetComponent<MaterialManagerUI>().SetCount(playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().materialCount[indexToDestroy]);
+        // Access the private int[] materialCount and change its material count at the index by the amount specified
+        HaulerController haulerController = playerVehicle.transform.GetChild(0).GetComponent<HaulerController>();
+        int[] tempMaterialCount = haulerController.GetMaterialCount();
+        tempMaterialCount[indexToDestroy] -= amountToDestroy;
+        haulerController.SetMaterialCount(tempMaterialCount);
+        previouslySelectedMaterial.GetComponent<MaterialManagerUI>().SetCount(tempMaterialCount[indexToDestroy]);
 
         if (previouslySelectedMaterial.GetComponent<MaterialManagerUI>().count <= 0) {
             Destroy(previouslySelectedMaterial.transform.parent.gameObject);
@@ -55,8 +58,8 @@ public class DestroyMaterial : MonoBehaviour
         int newAmount = (int) sliderCounter.GetComponent<Slider>().value;
 
         // In case a glitch happens where it exceeds the right value
-        if (newAmount > playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().materialCount[indexToDestroy]) {
-            newAmount = playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().materialCount[indexToDestroy];
+        if (newAmount > playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().GetMaterialCount()[indexToDestroy]) {
+            newAmount = playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().GetMaterialCount()[indexToDestroy];
         }
 
         amountToDestroy = newAmount;

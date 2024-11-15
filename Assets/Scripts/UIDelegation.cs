@@ -101,7 +101,7 @@ public class UIDelegation : MonoBehaviour
         // Get the child of player vehicle, which should be a hauler, otherwise the cargo button would not show
         // Then get the HaulerController script of that hauler's game object
         // Then get it's material count
-        int[] materialCount = playerVehicle.transform.GetChild(0).gameObject.GetComponent<HaulerController>().materialCount;
+        int[] materialCount = playerVehicle.transform.GetChild(0).gameObject.GetComponent<HaulerController>().GetMaterialCount();
     
         int itemsToDisplay = 0;
 

@@ -36,6 +36,11 @@ public class MineRenderer : MonoBehaviour
         // These are used to reveal which tile is at a position
         tileValues = new TileBase[] { level1Rock, LimestoneRock, SulfurOre, IronOre };
 
+        InitializeMine();
+    }
+
+    // Called when game first loads, and the RefineryController calls this when it's power reaches 0
+    public void InitializeMine() {
         // Create first 4 rows
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);

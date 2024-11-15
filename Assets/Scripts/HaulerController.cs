@@ -5,8 +5,10 @@ using System.Collections;
 public class HaulerController : MonoBehaviour
 {
     private string[] materialNames;
-    public int[] materialCount = new int[3];
-    public int initializeMaxMaterials;
+    [SerializeField]
+    private int[] materialCount = new int[3];
+    [SerializeField]
+    private int initializeMaxMaterials;
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
@@ -133,5 +135,13 @@ public class HaulerController : MonoBehaviour
 
     public int GetMaxMaterials() {
         return maxMaterials;
+    }
+
+    public int[] GetMaterialCount() {
+        return materialCount;
+    }
+
+    public void SetMaterialCount(int[] newMaterialCount) {
+        materialCount = newMaterialCount;
     }
 }
