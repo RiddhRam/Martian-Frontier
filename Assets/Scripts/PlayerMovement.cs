@@ -20,11 +20,13 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector2 joystickVec = joystickMovement.joystickVec;
 
+        // Translate the vehicle position
         rb.velocity = new Vector2(
             joystickVec.x * playerSpeed,
             joystickVec.y * playerSpeed
         );
 
+        // Rotate the vehicle
         if (joystickVec.x != 0 && joystickVec.y != 0) {
 
             if (joystickVec.x != 0 || joystickVec.y != 0)
@@ -35,12 +37,13 @@ public class PlayerMovement : MonoBehaviour
                 // Normalize the angle to keep it within [0, 360] degrees
                 targetAngle = (targetAngle + 360) % 360;
 
-                // Smoothly rotate towards the target angle over time (1 second)
+                // Smoothly rotate towards the target angle over time (0.4 second)
                 float currentAngle = transform.eulerAngles.z;
-                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
+                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.5f);
                 
                 // This checks if the user is trying to go straight forward or reverse, if neither then rotate
-                if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
+                Debug.Log(Math.Abs(transform.rotation.eulerAngles.z - newAngle));
+                if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 6) {
                     // Apply the new rotation
                     transform.rotation = Quaternion.Euler(0, 0, newAngle);
                 } else {
