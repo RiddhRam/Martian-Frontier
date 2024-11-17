@@ -7,8 +7,8 @@ public class DrillerController : MonoBehaviour
     public GameObject Sulfur;
     public GameObject Limestone;
 
-    // Not actually a radius, it's a 1x1 square
-    private readonly int radius = 1;
+    // Not actually a radius, it's a square
+    private int radius;
     private TileBase[] ores;
     private GameObject[] materials;
     private MineRenderer mineRenderer;
@@ -17,6 +17,7 @@ public class DrillerController : MonoBehaviour
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         ores = mineRenderer.GetOres();
         materials = new GameObject[] { Iron, Sulfur, Limestone };
+        radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -35,7 +36,7 @@ public class DrillerController : MonoBehaviour
         Vector3 centerTilePos = Vector3.zero;
 
         // Iterate over nearby tiles within the radius
-        // Not actually a radius, it's a 1x1 square
+        // Not actually a radius, it's a square
         for (int x = -radius; x <= radius; x++)
         {
             for (int y = -radius; y <= radius; y++)
@@ -110,6 +111,7 @@ public class DrillerController : MonoBehaviour
             GameObject material = Instantiate(materialToUse);
             material.transform.position = centerTilePos;
             material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
+            material.transform.SetParent(GameObject.Find("Mine").transform);
             break;
         }
         

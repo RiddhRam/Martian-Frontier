@@ -3,8 +3,10 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
-    public float playerSpeed;
-    public float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
+    [SerializeField]
+    private float playerSpeed;
+    [SerializeField]
+    private float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
 
     // Start is called before the first frame update
@@ -24,26 +26,6 @@ public class PlayerMovement : MonoBehaviour
         );
 
         if (joystickVec.x != 0 && joystickVec.y != 0) {
-            // Calculate the angle in degrees from the joystick vector
-            /*float joystickDegAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg;
-
-            // Subtract 90 to align with the sprite’s orientation (facing north)
-            joystickDegAngle -= 90;
-
-            // Normalize the angle to ensure it’s between 0 and 360 degrees
-            joystickDegAngle = (joystickDegAngle + 360) % 360;
-
-            // Normalize angle again and then subtract 180, negative value means turn left, positive means turn right
-            int steeringAngle = Mathf.RoundToInt(((transform.rotation.eulerAngles.z - joystickDegAngle + 360) % 360) - 180);
-
-            int rotationSpeed = 150;
-
-            // Rotate only if the angle is beyond the threshold
-            if (Mathf.Abs(steeringAngle) > 10 && Mathf.Abs(steeringAngle) < 180 - 10)
-            {
-                float direction = Mathf.Sign(steeringAngle); // -1 for left, 1 for right
-                transform.Rotate(0, 0, direction * rotationSpeed * Time.deltaTime);
-            }*/
 
             if (joystickVec.x != 0 || joystickVec.y != 0)
             {

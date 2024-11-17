@@ -5,7 +5,9 @@ using UnityEngine.Tilemaps;
 public class MineRenderer : MonoBehaviour
 {
     // Have to change through hierarchy not through here
-    public int visionRadius = 20;
+    [SerializeField]
+    private int visionRadius;
+    public GameObject playerState;
     public GameObject largeFogOfWar;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public TileBase unknownTile;
@@ -13,9 +15,6 @@ public class MineRenderer : MonoBehaviour
     public TileBase IronOre;
     public TileBase SulfurOre;
     public TileBase LimestoneRock;
-
-    // These ores are used for the veins of level 1 chunks
-    private TileBase[] level1Ores;
 
     // These are used to reveal which tile is at a position
     private TileBase[] tileValues;
@@ -30,8 +29,6 @@ public class MineRenderer : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // These ores are used for the veins of level 1 chunks
-        level1Ores = new TileBase[] { LimestoneRock, SulfurOre, IronOre };
 
         // These are used to reveal which tile is at a position
         tileValues = new TileBase[] { level1Rock, LimestoneRock, SulfurOre, IronOre };
@@ -39,22 +36,24 @@ public class MineRenderer : MonoBehaviour
         InitializeMine();
     }
 
-    // Called when game first loads, and the RefineryController calls this when it's power reaches 0
+    // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
     public void InitializeMine() {
         // Create first 4 rows
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
 
-        // Reveal the entry blocks, by calling destroy the tiles above the first 6 surface blocks
+        // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
-        // This is better since it doesn't just reveal the first 6 surface blocks
+        // This is better since it doesn't just reveal the first few surface blocks
+        DestroyTile(new(-4, -4));
         DestroyTile(new(-3, -4));
         DestroyTile(new(-2, -4));
         DestroyTile(new(-1, -4));
         DestroyTile(new(0, -4));
         DestroyTile(new(1, -4));
         DestroyTile(new(2, -4));
+        DestroyTile(new(3, -4));
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward
@@ -106,13 +105,15 @@ public class MineRenderer : MonoBehaviour
         tilemapsTileValues[chunkRow - 1] = chunkTileCoordinates;
         tilemaps[chunkRow-1] = mineTilemap;
 
-        // If the last row, delete the fog of war
+        // If the last row, send it very far down where it won't be seen at the edge of the map
         if (chunkRow == 36) {
-            Destroy(largeFogOfWar);
+            largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(largeFogOfWar.transform.position.x, largeFogOfWar.transform.position.y - 12, largeFogOfWar.transform.position.z);
+        largeFogOfWar.transform.position = new Vector3(0, largeFogOfWar.transform.position.y - 12, 0);
+        
+        //Debug.Log(chunkRow + ": [" + counters[0] + ", " + counters[1] + ", " + counters[2] + "]");
     }
 
     private void GenerateOreVeins(Dictionary<Vector2Int, int> chunkTileCoordinates, int chunkX, int chunkRow)
@@ -137,18 +138,21 @@ public class MineRenderer : MonoBehaviour
                     float distanceFromCenter = Mathf.Sqrt(x * x + y * y) + Random.Range(-0.5f, 0.5f);
 
                     // Only place tiles within the defined radius and randomness threshold
-                    if (distanceFromCenter <= radius)
-                    {
-                        int tileX = centerX + x;
-                        int tileY = centerY + y;
-
-                        // Ensure we stay within grid bounds
-                        if (tileX >= 0 && tileX < gridSize.x && tileY >= 0 && tileY < gridSize.y)
-                        {
-                            Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -12 - 5 - tileY);
-                            chunkTileCoordinates[tilePosition] = oreToPlace;
-                        }
+                    if (distanceFromCenter > radius) {
+                        continue;
                     }
+
+                    int tileX = centerX + x;
+                    int tileY = centerY + y;
+
+                    // Ensure we stay within grid bounds
+                    if (tileX < 0 || tileX >= gridSize.x || tileY < 0 || tileY >= gridSize.y) {
+                        continue;
+                    }
+
+                    // Get the position and place it in the Dictionary
+                    Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -12 - 5 - tileY);
+                    chunkTileCoordinates[tilePosition] = oreToPlace;
                 }
             }
         }
@@ -205,6 +209,10 @@ public class MineRenderer : MonoBehaviour
                     }
                 }
             }
+        }
+   
+        if (tileToDestroy.y != -4) {
+            playerState.GetComponent<PlayerState>().NewBlockMined();
         }
     }
 

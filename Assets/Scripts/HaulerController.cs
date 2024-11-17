@@ -6,9 +6,13 @@ public class HaulerController : MonoBehaviour
 {
     private string[] materialNames;
     [SerializeField]
+    // Initializes array with all values at 0
     private int[] materialCount = new int[3];
     [SerializeField]
     private int initializeMaxMaterials;
+    [SerializeField]
+    // This is how much of the battery each material of this hauler will use. The compacter hauler uses half the amount as the others ones
+    private float materialEnergyUsage;
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
@@ -143,5 +147,9 @@ public class HaulerController : MonoBehaviour
 
     public void SetMaterialCount(int[] newMaterialCount) {
         materialCount = newMaterialCount;
+    }
+
+    public float GetMaterialEnergyUsage() {
+        return materialEnergyUsage;
     }
 }

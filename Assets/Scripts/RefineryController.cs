@@ -13,17 +13,28 @@ public class RefineryController : MonoBehaviour
     public GameObject refineryProgressSliderWorld;
     public GameObject refineryProgressSliderUI;
     public GameObject refineryProgressSliderUIPercentageText;
+    public GameObject playerState;
 
     [SerializeField]
-    private int refineryPower;
+    private float refineryBattery;
     
-    private int initialPower;
+    private float initialBattery;
+
+    // The price of each material, before boosts
+    // Aligns with materialCount's index from HaulerController
+    // REMEMBER TO UPDATE IN PlayerState TOO
+    private readonly int[] materialPrices = {50, 150, 250};
     
     void Start() {
-        // TODO: Make this be set to the user's refineryPower level according to their upgrades
-        initialPower = refineryPower;
-        refineryProgressSliderWorld.GetComponent<Slider>().value = initialPower;
-        refineryProgressSliderUI.GetComponent<Slider>().value = initialPower;
+        // TODO: Make this be set to the user's refineryBattery level according to their upgrades
+        if (refineryBattery > 0) {
+            initialBattery = refineryBattery;
+        } else {
+            initialBattery = 1;
+            StartCoroutine(ResetMine());
+        }
+        
+        UpdateRefineryProgressBars();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -36,29 +47,42 @@ public class RefineryController : MonoBehaviour
         }
         
         int[] materialCount = haulerController.GetMaterialCount();
+        float materialEnergyUsage = haulerController.GetMaterialEnergyUsage();
 
-        // Refinery each ore by reducing refinery power and adding money to user's account
+        // Track what's being added so we can verify the cash amount
+        int[] savedMaterialCount = new int[materialCount.Length];
+
+        // Refinery each ore by reducing refinery battery and adding money to user's account
         for (int i = 0; i != materialCount.Length; i++) {
             // Have to start j in the negative because the values will meet in the middle at 0
             // j increases by 1, but materialCount[i] also decreases by 1
             for (int j = -materialCount[i]; j < materialCount[i]; j++) {
-                if (refineryPower != 0) {
-                    refineryPower--;
+                if (refineryBattery != 0) {
+                    refineryBattery -= materialEnergyUsage;
                     materialCount[i]--;
+                    playerState.GetComponent<PlayerState>().NewMaterialSold();
+                    savedMaterialCount[i]++;
                     continue;
                 }
                 break;
             }
         }
 
+        // Calculate how much money to add
+        int cashToAdd = 0;
+        for (int i = 0; i != savedMaterialCount.Length; i++) {
+            cashToAdd += savedMaterialCount[i] * materialPrices[i];
+        }
+
+        // Verify that this is the right amount
+        playerState.GetComponent<PlayerState>().AddCash(cashToAdd, savedMaterialCount);
+
         haulerController.SetMaterialCount(materialCount);
 
-        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryPower;
-        refineryProgressSliderUI.GetComponent<Slider>().value = refineryPower;
-        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryPower * 100 / initialPower) + "%";
+        UpdateRefineryProgressBars();
 
         // Reset the mine if needed
-        if (refineryPower == 0) {
+        if (refineryBattery == 0) {
             // Stop user from user dropoff or mine
             gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
             StartCoroutine(ResetMine());
@@ -66,12 +90,16 @@ public class RefineryController : MonoBehaviour
     }
 
     private IEnumerator ResetMine() {
+
         // Disable mine temporarily
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOff;
         // Move player off the dropoff area, and move all players inside the mine to the outside
         GameObject playerVehicle = GameObject.Find("Player Vehicle");
         playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
         mineEntrance.GetComponent<BoxCollider2D>().enabled = true;
+
+        // Cover the map
+        GameObject.Find("Large Fog Of War").transform.position = new(0, -220, 0);
 
         // Reset the mine
         for (int i = 0; i != mine.transform.childCount; i++) {
@@ -86,9 +114,19 @@ public class RefineryController : MonoBehaviour
             if (child.name.Contains("Row") || child.name.Contains("Generation")) {
                 Destroy(child);
             }
+            
+            // Destroy all leftover materials, we do it this way, in case someone mined something 
+            // just as the mine was shutting down, and the ore didn't have enough time to have 
+            // the mine set as its parent
+            MaterialManager[] materials = FindObjectsOfType<MaterialManager>();
+
+            foreach (var material in materials) {
+                Destroy(material.gameObject);
+            }
+            
         }
 
-        StartCoroutine(GraduallyIncreasePower(initialPower));
+        StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
         // Sleep for 3 seconds
         yield return new WaitForSeconds(3);        
@@ -115,7 +153,7 @@ public class RefineryController : MonoBehaviour
         gameObject.GetComponent<BoxCollider2D>().enabled = true;
     }
 
-    private IEnumerator GraduallyIncreasePower(int powerToUse)
+    private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
     {
         float duration = 3f; // Duration of the increase in seconds
         float elapsed = 0f;
@@ -123,18 +161,23 @@ public class RefineryController : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            refineryPower = (int) Mathf.Lerp(0, powerToUse, elapsed / duration);
-            refineryProgressSliderWorld.GetComponent<Slider>().value = refineryPower;
-            refineryProgressSliderUI.GetComponent<Slider>().value = refineryPower;
-
-            refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryPower * 100 / powerToUse) + "%";
+            refineryBattery = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
+            UpdateRefineryProgressBars();
             yield return null; // Wait for the next frame
         }
 
         // Ensure the final value is exactly the target
-        refineryPower = initialPower;
-        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryPower;
-        refineryProgressSliderUI.GetComponent<Slider>().value = refineryPower;
+        refineryBattery = initialBattery;
+        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
+        refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
         refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = "100%";
+    }
+
+    private void UpdateRefineryProgressBars() {
+        refineryProgressSliderWorld.GetComponent<Slider>().maxValue = initialBattery;
+        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
+        refineryProgressSliderUI.GetComponent<Slider>().maxValue = initialBattery;
+        refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
+        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryBattery * 100 / initialBattery) + "%";
     }
 }
