@@ -3,7 +3,6 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
-    [SerializeField]
     private float playerSpeed;
     [SerializeField]
     private float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
@@ -13,6 +12,7 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        UpdateSpeed();
     }
 
     // Update is called once per frame
@@ -26,34 +26,50 @@ public class PlayerMovement : MonoBehaviour
             joystickVec.y * playerSpeed
         );
 
-        // Rotate the vehicle
-        if (joystickVec.x != 0 && joystickVec.y != 0) {
-
-            if (joystickVec.x != 0 || joystickVec.y != 0)
-            {
-                // Calculate target angle in degrees
-                float targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
-
-                // Normalize the angle to keep it within [0, 360] degrees
-                targetAngle = (targetAngle + 360) % 360;
-
-                // Smoothly rotate towards the target angle over time (0.4 second)
-                float currentAngle = transform.eulerAngles.z;
-                float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.5f);
-                
-                // This checks if the user is trying to go straight forward or reverse, if neither then rotate
-                Debug.Log(Math.Abs(transform.rotation.eulerAngles.z - newAngle));
-                if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 6) {
-                    // Apply the new rotation
-                    transform.rotation = Quaternion.Euler(0, 0, newAngle);
-                } else {
-                    transform.rotation = Quaternion.Euler(0, 0, targetAngle);
-                }
-            }
-        }
-
         // Smooth camera follow
         Vector3 targetPosition = new(transform.position.x, transform.position.y, Camera.main.transform.position.z);
         Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+
+        // Make sure vehicle is trying to rotate
+        if (joystickVec.x == 0 && joystickVec.y == 0) { 
+            return;
+        }
+
+        // Rotate the vehicle
+        // Calculate target angle in degrees
+        float targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
+
+        // Normalize the angle to keep it within [0, 360] degrees
+        targetAngle = (targetAngle + 360) % 360;
+
+        // Smoothly rotate towards the target angle over time (0.4 second)
+        float currentAngle = transform.eulerAngles.z;
+        float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.5f);
+        
+        // This checks if the user is trying to go straight forward or reverse, if neither then rotate
+        if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 6) {
+            // Apply the new rotation
+            transform.rotation = Quaternion.Euler(0, 0, newAngle);
+        } else {
+            transform.rotation = Quaternion.Euler(0, 0, targetAngle);
+        }
+    }
+
+    public void UpdateSpeed() {
+        GameObject vehicle = transform.GetChild(0).gameObject;
+        // DrillerController is in second child of child
+        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
+
+        if (drillerController) {
+            playerSpeed = drillerController.GetPlayerSpeed();
+        } else {
+            // HaulerController is in child
+            HaulerController haulerController = vehicle.GetComponent<HaulerController>();
+            playerSpeed = haulerController.GetPlayerSpeed();
+        }
+    }
+
+    public void UpdateSpeed(float newPlayerSpeed) {
+        playerSpeed = newPlayerSpeed;
     }
 }

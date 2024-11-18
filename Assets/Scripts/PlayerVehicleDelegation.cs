@@ -28,12 +28,14 @@ public class PlayerVehicleDelegation : MonoBehaviour
             // Display the hauler cargo button
             cargoButton.SetActive(true);
             UI.GetComponent<UIDelegation>().UpdatePrimaryElements();
+            gameObject.GetComponent<PlayerMovement>().UpdateSpeed(newPlayerVehicle.GetComponent<HaulerController>().GetPlayerSpeed());
             return;
         }
 
         // If not a hauler, hide the hauler cargo button
         cargoButton.SetActive(false);
         UI.GetComponent<UIDelegation>().UpdatePrimaryElements();
+        gameObject.GetComponent<PlayerMovement>().UpdateSpeed(newPlayerVehicle.GetComponent<DrillerController>().GetPlayerSpeed());
     }
 
 }

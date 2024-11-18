@@ -9,20 +9,19 @@ public class HaulerController : MonoBehaviour
     // Initializes array with all values at 0
     private int[] materialCount = new int[3];
     [SerializeField]
-    private int initializeMaxMaterials;
+    private int maxMaterials;
     [SerializeField]
     // This is how much of the battery each material of this hauler will use. The compacter hauler uses half the amount as the others ones
     private float materialEnergyUsage;
+    [SerializeField]
+    private float playerSpeed;
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
-    private int maxMaterials;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
-        // Do it like this to prevent public access
-        maxMaterials = initializeMaxMaterials;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -151,5 +150,9 @@ public class HaulerController : MonoBehaviour
 
     public float GetMaterialEnergyUsage() {
         return materialEnergyUsage;
+    }
+
+    public float GetPlayerSpeed() {
+        return playerSpeed;
     }
 }

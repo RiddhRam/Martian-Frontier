@@ -125,18 +125,16 @@ public class UIDelegation : MonoBehaviour
                 // Get the Button component
                 Button button = newMaterialButton.GetComponent<Button>();
                 
-                if (button != null) {
-                    // Add an OnClick listener to the button
-                    int index = i;  // Capture the value of 'i' to avoid closure issues
-                    button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
-                }
+
+                // Add an OnClick listener to the button
+                button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
             }
         }
     
         // Calculate the number of rows
         GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();
         int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
-        int rows = Mathf.CeilToInt((float)itemsToDisplay / columns);
+        int rows = Mathf.CeilToInt((float) itemsToDisplay / columns);
 
         // Resize the scroll view content height to fit the rows (400 * # of rows)
         RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();

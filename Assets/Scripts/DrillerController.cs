@@ -12,6 +12,12 @@ public class DrillerController : MonoBehaviour
     private TileBase[] ores;
     private GameObject[] materials;
     private MineRenderer mineRenderer;
+    [SerializeField]
+    private float playerSpeed;
+    [SerializeField]
+    private int drillTier;
+    // Does nothing, just for showing the user in the Garage
+    public int width;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -121,5 +127,13 @@ public class DrillerController : MonoBehaviour
         // Disable and renable quickly so the trigger event can occur again
         tilemap.GetComponent<TilemapCollider2D>().enabled = false;
         tilemap.GetComponent<TilemapCollider2D>().enabled = true;
+    }
+
+    public float GetPlayerSpeed() {
+        return playerSpeed;
+    }
+
+    public int GetDrillTier() {
+        return drillTier;
     }
 }
