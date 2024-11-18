@@ -15,10 +15,14 @@ public class GarageDelegator : MonoBehaviour
     public GameObject[] drillers;
     public Sprite[] drillersImages;
     public GameObject[] haulers;
-
+    public GameObject playerState;
+    public GameObject playerVehicleDelegation;
+    public GameObject UIDelegation;
     private string activePanel = "Drillers";
+    private PlayerState playerStateScript;
 
     void Start() {
+        playerStateScript = playerState.GetComponent<PlayerState>();
         ActivatePanel(activePanel);
     }
 
@@ -52,7 +56,8 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Tier " + (i+1).ToString();
             }
 
-            //int itemsToDisplay = 0;
+            // Track number of items in each tier, to dynamically resize content height based on rows
+            int[] tierItems = new int[3];
 
             for (int i = 0; i != drillers.Length; i++) {
 
@@ -62,9 +67,10 @@ public class GarageDelegator : MonoBehaviour
                 int width = drillerController.width;
                 float drillSpeed = drillerController.GetPlayerSpeed();
                 int tier = drillerController.GetDrillTier();
+                int price = drillerController.GetPrice();
 
-                GameObject newVehicleButton = Instantiate(drillerDisplayPanel);
-                Transform panelTransform = newVehicleButton.transform;
+                GameObject newVehiclePanel = Instantiate(drillerDisplayPanel);
+                Transform panelTransform = newVehiclePanel.transform;
                 // Add panel to the content scroll view of the right tier panel
                 // This should just be a regular panel with a photo
                 panelTransform.SetParent(tierPanels[tier - 1].transform.GetChild(1));
@@ -76,6 +82,7 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
                 panelTransform.GetChild(3).GetComponent<Slider>().value = drillSpeed;
                 panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
+                panelTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);;
 
                 // Multiply the width and height of the panel image relative to the proportion of 
                 // (base body width and height * new vehicle body width and height) * new vehicle game object scale
@@ -87,14 +94,44 @@ public class GarageDelegator : MonoBehaviour
 
                 float bodyLength = drillersImages[i].bounds.size.x / 2.89f * drillers[i].transform.localScale.x * 3;
                 panelTransform.GetChild(0).transform.localScale = new(bodyLength, bodyLength, 3);
-                //itemsToDisplay++;
+                
+                tierItems[tier-1]++;
 
-                // Get the Button component
-                //Button button = newVehicleButton.GetComponent<Button>();
+                // Get the Buy Button component
+                Button buyButton = newVehiclePanel.transform.GetChild(5).GetComponent<Button>();
+                // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
+                int index = i;
+                
+                // If vehicle is owned
+                if (playerStateScript.CheckVehicleOwnerShip(drillers[i].name)) {
+                    PurchasedVehicle(newVehiclePanel, drillers[i]);
+                    continue;
+                }
 
-                // Add an OnClick listener to the button
-                //button.onClick.AddListener(() => OnVehicleButtonClick(newVehicleButton));
+                // If not owned
+                // Add an OnClick listener to the button and pass in the prefab of the vehicle
+                buyButton.onClick.AddListener(() => OnDrillBuyButtonClick(newVehiclePanel, drillers[index]));
             }
+
+            float bigContentHeight = 0;
+            // Resize each tier panel
+            for (int i = 0; i != 3; i++) {
+                Transform scrollViewContent = tierPanels[i].transform.GetChild(1);
+                // Calculate the number of rows
+                GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();
+                int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
+                int rows = Mathf.CeilToInt((float) tierItems[i] / columns);
+
+                // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing * (rows - 1))
+                RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
+                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 100 + 1200 * rows + 40 * (rows - 1));
+                tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
+                bigContentHeight += contentRect.sizeDelta.y;
+            }
+
+            RectTransform bigContentRect = drillersContent.GetComponent<RectTransform>();
+            // Resize the scroll view content height to fit the rows using the height of all panels and then factor in the spacing * tiers - 1 (150 * 2)
+            bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight + 150 * 2);
 
             Activation(drillersPanel, drillersButton, "Drillers");
             return;
@@ -115,8 +152,50 @@ public class GarageDelegator : MonoBehaviour
         activePanel = panelName;
     }
 
-    public void OnVehicleButtonClick (GameObject vehicleButton) {
-        Debug.Log(vehicleButton.name);
+    public void OnDrillBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle) {
+        bool canBuy = playerStateScript.VerifyEnoughCash(vehicle);
+
+        if (!canBuy) {
+            // If not enough money display quick error, but later change this to prompt to pay money for for in game cash
+            return;
+        }
+        playerStateScript.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
+
+        if (playerStateScript.CheckVehicleOwnerShip(vehicle.name)) {
+            PurchasedVehicle(panelPurchasingFrom, vehicle);
+        }
+    }
+
+    private string FormatPrice(int price)
+    {
+        if (price >= 1_000_000)
+        {
+            return (price / 1_000_000f).ToString("0.#") + "m"; // For millions
+        }
+        else if (price >= 1_000)
+        {
+            return (price / 1_000f).ToString("0.#") + "k"; // For thousands
+        }
+        else
+        {
+            return price.ToString(); // For smaller numbers
+        }
+    }
+
+    public void OnDeployButtonClick (GameObject vehicle) {
+        UIDelegation.GetComponent<UIDelegation>().HideElement(gameObject);
+        UIDelegation.GetComponent<UIDelegation>().RevealAll();
+        playerVehicleDelegation.GetComponent<PlayerVehicleDelegation>().SwitchVehicle(vehicle);
+    }
+
+    public void PurchasedVehicle(GameObject panelPurchasedFrom, GameObject vehiclePrefab) {
+        // Won't need the buy button at all
+        Destroy(panelPurchasedFrom.transform.GetChild(5).GetComponent<Button>());
+
+        GameObject deployButtonGO = panelPurchasedFrom.transform.GetChild(6).gameObject;
+        deployButtonGO.SetActive(true);
+        // Add an OnClick listener to the button and pass in the prefab of the vehicle
+        deployButtonGO.GetComponent<Button>().onClick.AddListener(() => OnDeployButtonClick(vehiclePrefab));
     }
 
 }

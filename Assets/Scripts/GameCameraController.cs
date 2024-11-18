@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class GameCameraController : MonoBehaviour
 {
-    public Boolean zoomingEnabled;
+    private Boolean zoomingEnabled = true;
     public float zoomOutMin;
     public float zoomOutMax;
 
@@ -72,7 +72,7 @@ public class GameCameraController : MonoBehaviour
         yLimit = -1 * Camera.main.orthographicSize + (8f * baseAspect / screenAspect);
     }
 
-    public void ToggleZooming() {
-        zoomingEnabled = !zoomingEnabled;
+    public void ToggleZooming(bool newValue) {
+        zoomingEnabled = newValue;
     }
 }

@@ -1,20 +1,23 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class PlayerState : MonoBehaviour
 {
     [SerializeField]
-    private int userCash = 0;
+    private int userCash;
     [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
-    private int savedAmountSubtract = 0;
-    private int userXP = 0;
-    private int savedAmountXP = 0;
+    private int savedAmountSubtract;
+    private int userXP;
+    private int savedAmountXP;
     [SerializeField]
-    private int blocksMined = 0;
+    private int blocksMined;
     [SerializeField]
-    private int materialsSold = 0;
+    private int materialsSold;
     [SerializeField]
-    private int moneyEarned = 0;
+    private int moneyEarned;
+    [SerializeField]
+    private List<string> vehiclesOwned = new();
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
     // REMEMBER TO UPDATE IN RefineryController TOO
@@ -41,10 +44,14 @@ public class PlayerState : MonoBehaviour
     // Only call if VerifyEnoughCash was called
     public void SubtractCash(int amountToSubtract, GameObject objectBeingPurchased) {
         // objectBeingPurchased is some upgrade or vehicle being bought
+        UpdateSubtractedAmount(objectBeingPurchased);
 
         if (amountToSubtract == savedAmountSubtract) {
             userCash -= amountToSubtract;
-            // Complete Action
+            // If it has a driller or hauler controller, add it to the list of vehicles owned
+            if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>() || objectBeingPurchased.GetComponent<HaulerController>()) {
+                vehiclesOwned.Add(objectBeingPurchased.name);
+            }
         }
     }
 
@@ -61,7 +68,7 @@ public class PlayerState : MonoBehaviour
     // Make sure user has enough money to buy something
     public bool VerifyEnoughCash(GameObject objectBeingPurchased) {
         // objectBeingPurchased is some upgrade or vehicle being bought
-        // savedAmountSubtract = 
+        UpdateSubtractedAmount(objectBeingPurchased);
 
         if (userCash - savedAmountSubtract >= 0) {
             return true;
@@ -76,5 +83,25 @@ public class PlayerState : MonoBehaviour
 
     public void NewMaterialSold() {
         materialsSold++;
+    }
+
+    private void UpdateSubtractedAmount(GameObject objectBeingPurchased) {
+        // If hauler
+        if (objectBeingPurchased.GetComponent<HaulerController>()) {
+            //savedAmountSubtract = objectBeingPurchased.GetComponent<HaulerController>().GetPrice();
+        } 
+        // If driller
+        else {
+            savedAmountSubtract = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetPrice();
+        }
+    }
+
+    public bool CheckVehicleOwnerShip(string vehicleName) {
+
+        if (vehiclesOwned.Contains(vehicleName)) {
+            return true;
+        }
+
+        return false;
     }
 }

@@ -5,6 +5,7 @@ public class GenerationTrigger : MonoBehaviour
     public GameObject mineGameObject;
 
     private MineRenderer mineRenderer;
+    private bool needToGenerate = true;
     // Start is called before the first frame update
     void Start()
     {
@@ -17,6 +18,12 @@ public class GenerationTrigger : MonoBehaviour
 
     // Upon touching a trigger
     private void OnTriggerEnter2D(Collider2D collider) {
+        if (!needToGenerate) {
+            return;
+        }
+        // Set to false so no duplicate generations, and this won't move the large fog of war down twice
+        // Used to prevent this function from running twice in case 2 players touch the trigger at the same time
+        needToGenerate = false;
 
         // Get the numbers between the game object bracket
         int startIndex = name.IndexOf('(') + 1;
@@ -27,13 +34,14 @@ public class GenerationTrigger : MonoBehaviour
 
             // Turn the number into an int then pass it to CreateTiles to create a new row
             mineRenderer.CreateTiles(int.Parse(numberStr));
-
-            // Destroy the trigger to save memory
-            Destroy(gameObject);
         }
 
+        // Destroy to save memory
+        Destroy(gameObject);
     }
- 
+
+    
+    // Also called from RefineryController, thats why its in a public function
     public void SetMineGameObject(GameObject mine) {
         mineRenderer = mine.GetComponent<MineRenderer>();
     }
