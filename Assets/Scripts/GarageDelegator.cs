@@ -23,7 +23,8 @@ public class GarageDelegator : MonoBehaviour
 
     void Start() {
         playerStateScript = playerState.GetComponent<PlayerState>();
-        ActivatePanel(activePanel);
+        GeneratePanel("Drillers");
+        GeneratePanel("Haulers");
     }
 
     public void DeactivatePanel() {
@@ -41,7 +42,7 @@ public class GarageDelegator : MonoBehaviour
         haulersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
     }
 
-    public void ActivatePanel(string panelToActivate) {
+    public void GeneratePanel(string panelToActivate) {
         // If drillers
         if (panelToActivate == "Drillers") {
 
@@ -132,24 +133,27 @@ public class GarageDelegator : MonoBehaviour
             RectTransform bigContentRect = drillersContent.GetComponent<RectTransform>();
             // Resize the scroll view content height to fit the rows using the height of all panels and then factor in the spacing * tiers - 1 (150 * 2)
             bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight + 150 * 2);
-
-            Activation(drillersPanel, drillersButton, "Drillers");
             return;
         }
 
         // If haulers
-        Activation(haulersPanel, haulersButton, "Haulers");
     }
 
-    public void Deactivation(GameObject panelToDeactivate, GameObject buttonToDeselect) {
+    public void ActivatePanel(string panelToActivate) {
+        // If drillers
+        if (panelToActivate == "Drillers") {
+            drillersPanel.SetActive(true);
+            drillersButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+            drillersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+            activePanel = "Drillers";
+            return;
+        }
 
-    }
-
-    public void Activation(GameObject panelToActivate, GameObject buttonToSelect, string panelName) {
-        panelToActivate.SetActive(true);
-        buttonToSelect.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-        buttonToSelect.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
-        activePanel = panelName;
+        // If haulers
+        haulersPanel.SetActive(true);
+        haulersButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+        haulersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+        activePanel = "Haulers";
     }
 
     public void OnDrillBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle) {
@@ -168,7 +172,10 @@ public class GarageDelegator : MonoBehaviour
 
     private string FormatPrice(int price)
     {
-        if (price >= 1_000_000)
+        if (price >= 1_000_000_000) {
+            return (price / 1_000_000_000f).ToString("0.#") + "b"; // For billions
+        }
+        else if (price >= 1_000_000)
         {
             return (price / 1_000_000f).ToString("0.#") + "m"; // For millions
         }
@@ -176,10 +183,8 @@ public class GarageDelegator : MonoBehaviour
         {
             return (price / 1_000f).ToString("0.#") + "k"; // For thousands
         }
-        else
-        {
-            return price.ToString(); // For smaller numbers
-        }
+
+        return price.ToString(); // For smaller numbers
     }
 
     public void OnDeployButtonClick (GameObject vehicle) {

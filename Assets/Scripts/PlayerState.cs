@@ -1,8 +1,11 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class PlayerState : MonoBehaviour
 {
+    public GameObject[] cashDisplays;
+
     [SerializeField]
     private int userCash;
     [SerializeField]
@@ -21,23 +24,29 @@ public class PlayerState : MonoBehaviour
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
     // REMEMBER TO UPDATE IN RefineryController TOO
-    private readonly int[] materialPrices = {50, 150, 250};
+    private readonly int[] materialPrices = { 50, 150, 250 };
+
+    void Start() {
+        UpdateCashDisplays();
+    }
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
     public void AddCash(int cashToAdd, int[] materialCount) {
 
-            // Count the prices of all materials
-            int amountToAdd = 0;
-            for (int i = 0; i != materialCount.Length; i++) {
-                amountToAdd += materialCount[i] * materialPrices[i];
-            }
+        // Count the prices of all materials
+        int amountToAdd = 0;
+        for (int i = 0; i != materialCount.Length; i++) {
+            amountToAdd += materialCount[i] * materialPrices[i];
+        }
 
-            // If the amounts are correct, add the money
-            if (amountToAdd == cashToAdd) {
-                userCash += cashToAdd;
-                moneyEarned += cashToAdd;
-            }
+        // If the amounts are correct, add the money
+        if (amountToAdd == cashToAdd) {
+            userCash += cashToAdd;
+            moneyEarned += cashToAdd;
+        }
+        
+        UpdateCashDisplays();
     }
 
     // Validate again and subtract cash
@@ -53,6 +62,8 @@ public class PlayerState : MonoBehaviour
                 vehiclesOwned.Add(objectBeingPurchased.name);
             }
         }
+
+        UpdateCashDisplays();
     }
 
     // Validate and add XP
@@ -103,5 +114,31 @@ public class PlayerState : MonoBehaviour
         }
 
         return false;
+    }
+
+    // Update all UI elements that show the user's money
+    public void UpdateCashDisplays() {
+        string cashText = "$" + FormatPrice(userCash);
+
+        for (int i = 0; i != cashDisplays.Length; i++) {
+            cashDisplays[i].GetComponent<TextMeshProUGUI>().text = cashText;
+        }
+    }
+
+    private string FormatPrice(int price)
+    {
+        if (price >= 1_000_000_000) {
+            return (price / 1_000_000_000f).ToString("0.#") + "b"; // For billions
+        }
+        else if (price >= 1_000_000)
+        {
+            return (price / 1_000_000f).ToString("0.#") + "m"; // For millions
+        }
+        else if (price >= 1_000)
+        {
+            return (price / 1_000f).ToString("0.#") + "k"; // For thousands
+        }
+
+        return price.ToString(); // For smaller numbers
     }
 }
