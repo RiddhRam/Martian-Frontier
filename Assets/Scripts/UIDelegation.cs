@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -17,43 +16,21 @@ public class UIDelegation : MonoBehaviour
 
     // The first elements a user sees, these are the ones they see while playing the game
     // Secondary elements are the menus they open like the shop or map camera
+    [SerializeField]
     private GameObject[] primaryElements;
     //private string[] materialNames;
     private GameObject[] materialButtons;
+    private bool showCargoButton;
  
     void Start()
     {
-        UpdatePrimaryElements();
+        ToggleCargoButton(false);
         //materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
         materialButtons = new GameObject[] { LimestoneMaterialButton, SulfurMaterialButton, IronMaterialButton };
     }
 
-    public void UpdatePrimaryElements() {
-        // First, count how many active children there are
-        int activeCount = 0;
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            if (transform.GetChild(i).gameObject.activeSelf)
-            {
-                activeCount++;
-            }
-        }
-
-        // Now, create an array of the correct size
-        primaryElements = new GameObject[activeCount];
-
-        // This is the index of the primaryElements array that we add to
-        // meanwhile i in the for loop below is the current iteration of all children
-        int currentIndex = 0;
-        // Fill the array with active children
-        for (int i = 0; i < transform.childCount; i++)
-        {
-            if (transform.GetChild(i).gameObject.activeSelf)
-            {
-                primaryElements[currentIndex] = transform.GetChild(i).gameObject;
-                currentIndex++;
-            }
-        }
+    public void ToggleCargoButton(bool newValue) {
+        showCargoButton = newValue;
     }
 
     // Hide all base elements, and only used before opening a secondary element like the camera
@@ -66,6 +43,19 @@ public class UIDelegation : MonoBehaviour
     // Used after closing a secondary element
     public void RevealAll() {
         for (int i = 0; i < primaryElements.Length; i++) {
+            // Reset all buttons back to scale 1. 
+            // Need to do this because the button that was pressed down will be at 0.95 still 
+            // since it didn't get the pointer up event if it was clicked
+            UIButton uiButton = primaryElements[i].GetComponent<UIButton>();
+            if (uiButton) {
+                StartCoroutine(uiButton.ResetScale());
+            }
+
+            // If its the cargo button, and its supposed to stay hidden, dont reveal it
+            if (primaryElements[i].name.Contains("Cargo") && !showCargoButton) {
+                continue;
+            }
+
             primaryElements[i].SetActive(true);
         }
     }
@@ -157,6 +147,7 @@ public class UIDelegation : MonoBehaviour
         destroyButton.GetComponent<Button>().interactable = false;
     }
 
+    // Could be in one line but whatever
     private void OnMaterialButtonClick(GameObject materialSelected)
     {
         destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected.transform.GetChild(0).gameObject);
