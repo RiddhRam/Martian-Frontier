@@ -103,7 +103,7 @@ public class MineRenderer : MonoBehaviour
         }
 
         tilemapsTileValues[chunkRow - 1] = chunkTileCoordinates;
-        tilemaps[chunkRow-1] = mineTilemap;
+        tilemaps[chunkRow - 1] = mineTilemap;
 
         // If the last row, send it very far down where it won't be seen at the edge of the map
         if (chunkRow == 36) {
@@ -112,8 +112,6 @@ public class MineRenderer : MonoBehaviour
         }
         // If not last row, just move it down
         largeFogOfWar.transform.position = new Vector3(0, largeFogOfWar.transform.position.y - 12, 0);
-        
-        //Debug.Log(chunkRow + ": [" + counters[0] + ", " + counters[1] + ", " + counters[2] + "]");
     }
 
     private void GenerateOreVeins(Dictionary<Vector2Int, int> chunkTileCoordinates, int chunkX, int chunkRow)

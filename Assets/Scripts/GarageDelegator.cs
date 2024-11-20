@@ -18,6 +18,8 @@ public class GarageDelegator : MonoBehaviour
     public GameObject playerState;
     public GameObject playerVehicleDelegation;
     public GameObject UIDelegation;
+    [SerializeField]
+    private Color[] tierColors;
     private string activePanel = "Drillers";
     private PlayerState playerStateScript;
 
@@ -53,7 +55,9 @@ public class GarageDelegator : MonoBehaviour
                 tierPanels[i] = newTierPanel;
                 Transform panelTransform = tierPanels[i].transform;
                 panelTransform.SetParent(drillersContent.transform);
+                // Have to make sure scale is right
                 panelTransform.localScale = new(1, 1, 1);
+                // Set the name
                 panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Tier " + (i+1).ToString();
             }
 
@@ -78,28 +82,33 @@ public class GarageDelegator : MonoBehaviour
 
                 panelTransform.localScale = new(1, 1, 1);
 
+                // Set the panel to the right colour
+                panelTransform.GetComponent<Image>().color = 
+                panelTransform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
+                panelTransform.GetChild(4).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
+
                 // Set the sprite, drill width, speed and name in that order
-                panelTransform.GetChild(0).GetComponent<Image>().sprite = drillersImages[i];
-                panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-                panelTransform.GetChild(3).GetComponent<Slider>().value = drillSpeed;
-                panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
-                panelTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);;
+                panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
+                panelTransform.GetChild(2).GetComponent<Image>().sprite = drillersImages[i];
+                panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+                panelTransform.GetChild(4).GetChild(1).GetComponent<Slider>().value = drillSpeed;
+                panelTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
 
                 // Multiply the width and height of the panel image relative to the proportion of 
                 // (base body width and height * new vehicle body width and height) * new vehicle game object scale
                 // both values for new vehicle can be obtained from it's game object in the public arrays above
                 // base body width and height: 2.89 (its also 289px)
                 // Example (Bore I): bore body dimensions: (3.80) 380px, Scale = 1.3
-                // The images are already scaled at 3, so multiply by 3
-                // multiplier = (3.80/2.89) * 1.3 * 3
+                // multiplier = (3.80/2.89) * 1.3
 
-                float bodyLength = drillersImages[i].bounds.size.x / 2.89f * drillers[i].transform.localScale.x * 3;
-                panelTransform.GetChild(0).transform.localScale = new(bodyLength, bodyLength, 3);
+                float scaleFactor = drillersImages[i].bounds.size.x / 2.89f * drillers[i].transform.localScale.x;
+
+                panelTransform.GetChild(2).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
                 
                 tierItems[tier-1]++;
 
                 // Get the Buy Button component
-                Button buyButton = newVehiclePanel.transform.GetChild(5).GetComponent<Button>();
+                Button buyButton = panelTransform.GetChild(5).GetComponent<Button>();
                 // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
                 int index = i;
                 
@@ -123,16 +132,16 @@ public class GarageDelegator : MonoBehaviour
                 int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
                 int rows = Mathf.CeilToInt((float) tierItems[i] / columns);
 
-                // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing * (rows - 1))
+                // Resize the scroll view content height to fit the rows (top padding of tier panels + cell height * rows + vertical spacing between cell rows * (rows - 1))
                 RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 100 + 1200 * rows + 40 * (rows - 1));
+                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 100 + 1800 * rows + 40 * (rows - 1));
                 tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
                 bigContentHeight += contentRect.sizeDelta.y;
             }
 
             RectTransform bigContentRect = drillersContent.GetComponent<RectTransform>();
-            // Resize the scroll view content height to fit the rows using the height of all panels and then factor in the spacing * tiers - 1 (150 * 2)
-            bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight + 150 * 2);
+            // Resize the scroll view content height to fit the rows using the height of all panels and then factor in the spacing * (tiers - 1) which is (150 * 2) currently
+            bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight + 150 * (tierPanels.Length - 1));
             return;
         }
 
@@ -165,29 +174,35 @@ public class GarageDelegator : MonoBehaviour
         }
         playerStateScript.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
 
+        // If purchase was successful
         if (playerStateScript.CheckVehicleOwnerShip(vehicle.name)) {
             PurchasedVehicle(panelPurchasingFrom, vehicle);
+            return;
         }
+
+        // If purchase failed, reset the button scale
+        StartCoroutine(panelPurchasingFrom.transform.GetChild(6).GetComponent<UIButton>().ResetScale());
     }
 
+    // The FormatPrice in PlayerState is slightly different
     private string FormatPrice(int price)
     {
         if (price >= 1_000_000_000) {
-            return (price / 1_000_000_000f).ToString("0.#") + "b"; // For billions
+            return (price / 1_000_000_000f).ToString("0.#") + "B"; // For billions
         }
         else if (price >= 1_000_000)
         {
-            return (price / 1_000_000f).ToString("0.#") + "m"; // For millions
+            return (price / 1_000_000f).ToString("0.#") + "M"; // For millions
         }
         else if (price >= 1_000)
         {
-            return (price / 1_000f).ToString("0.#") + "k"; // For thousands
+            return (price / 1_000f).ToString("0.#") + "K"; // For thousands
         }
 
         return price.ToString(); // For smaller numbers
     }
 
-    public void OnDeployButtonClick (GameObject vehicle) {
+    public void OnDeployButtonClick (GameObject vehicle, GameObject button) {
         UIDelegation.GetComponent<UIDelegation>().HideElement(gameObject);
         UIDelegation.GetComponent<UIDelegation>().RevealAll();
         playerVehicleDelegation.GetComponent<PlayerVehicleDelegation>().SwitchVehicle(vehicle);
@@ -195,12 +210,13 @@ public class GarageDelegator : MonoBehaviour
 
     public void PurchasedVehicle(GameObject panelPurchasedFrom, GameObject vehiclePrefab) {
         // Won't need the buy button at all
-        Destroy(panelPurchasedFrom.transform.GetChild(5).GetComponent<Button>());
+        Destroy(panelPurchasedFrom.transform.GetChild(5).gameObject);
 
         GameObject deployButtonGO = panelPurchasedFrom.transform.GetChild(6).gameObject;
         deployButtonGO.SetActive(true);
         // Add an OnClick listener to the button and pass in the prefab of the vehicle
-        deployButtonGO.GetComponent<Button>().onClick.AddListener(() => OnDeployButtonClick(vehiclePrefab));
+        // Pass in the button too so we can reset it's scale 
+        deployButtonGO.GetComponent<Button>().onClick.AddListener(() => OnDeployButtonClick(vehiclePrefab, deployButtonGO));
     }
 
 }

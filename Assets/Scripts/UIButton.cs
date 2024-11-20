@@ -38,6 +38,12 @@ public class UIButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     public IEnumerator ResetScale()
     {
+        // If cargo button has not been active at least once, it's rectTransform is null 
+        // since it's not initalized so dont need to do this
+        if (!rectTransform) {
+            yield break;
+        }
+        
         while (rectTransform.localScale.magnitude < originalScale.magnitude)
         {
             rectTransform.localScale = Vector3.Lerp(rectTransform.localScale, originalScale, Time.deltaTime * shrinkSpeed);

@@ -125,20 +125,28 @@ public class PlayerState : MonoBehaviour
         }
     }
 
+    // The FormatPrice in other places is slightly different. 
+    // Here we need to purposefully round down so the user doesn't 
+    // overestimate their money and buy something they can't afford
     private string FormatPrice(int price)
     {
-        if (price >= 1_000_000_000) {
-            return (price / 1_000_000_000f).ToString("0.#") + "b"; // For billions
+        if (price >= 1_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "B"
+            return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
         }
         else if (price >= 1_000_000)
         {
-            return (price / 1_000_000f).ToString("0.#") + "m"; // For millions
+            // Truncate to 3 decimal places and format with "M"
+            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
         }
         else if (price >= 1_000)
         {
-            return (price / 1_000f).ToString("0.#") + "k"; // For thousands
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
         }
 
-        return price.ToString(); // For smaller numbers
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 }
