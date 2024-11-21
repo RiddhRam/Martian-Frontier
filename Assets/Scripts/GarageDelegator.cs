@@ -12,6 +12,7 @@ public class GarageDelegator : MonoBehaviour
     public GameObject haulersButton;
     public GameObject haulersPanel;
     public GameObject haulersContent;
+    public GameObject haulerDisplayPanel;
     public GameObject[] drillers;
     public Sprite[] drillersImages;
     public GameObject[] haulers;
@@ -72,7 +73,7 @@ public class GarageDelegator : MonoBehaviour
                 int width = drillerController.width;
                 float drillSpeed = drillerController.GetPlayerSpeed();
                 int tier = drillerController.GetDrillTier();
-                int price = drillerController.GetPrice();
+                long price = drillerController.GetPrice();
 
                 GameObject newVehiclePanel = Instantiate(drillerDisplayPanel);
                 Transform panelTransform = newVehiclePanel.transform;
@@ -83,17 +84,18 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.localScale = new(1, 1, 1);
 
                 // Set the panel to the right colour
-                panelTransform.GetComponent<Image>().color = 
+                panelTransform.GetComponent<Image>().color = tierColors[tier - 1];
                 panelTransform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
                 panelTransform.GetChild(4).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
 
-                // Set the sprite, drill width, speed and name in that order
+                // Set the sprite, drill width, speed and name
                 panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
                 panelTransform.GetChild(2).GetComponent<Image>().sprite = drillersImages[i];
                 panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
                 panelTransform.GetChild(4).GetChild(1).GetComponent<Slider>().value = drillSpeed;
                 panelTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
 
+                // I made some changes, these comments might be wrong
                 // Multiply the width and height of the panel image relative to the proportion of 
                 // (base body width and height * new vehicle body width and height) * new vehicle game object scale
                 // both values for new vehicle can be obtained from it's game object in the public arrays above
@@ -114,13 +116,13 @@ public class GarageDelegator : MonoBehaviour
                 
                 // If vehicle is owned
                 if (playerStateScript.CheckVehicleOwnerShip(drillers[i].name)) {
-                    PurchasedVehicle(newVehiclePanel, drillers[i]);
+                    PurchasedVehicle(newVehiclePanel, drillers[i], 5);
                     continue;
                 }
 
                 // If not owned
                 // Add an OnClick listener to the button and pass in the prefab of the vehicle
-                buyButton.onClick.AddListener(() => OnDrillBuyButtonClick(newVehiclePanel, drillers[index]));
+                buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, drillers[index], 5));
             }
 
             float bigContentHeight = 0;
@@ -146,6 +148,71 @@ public class GarageDelegator : MonoBehaviour
         }
 
         // If haulers
+
+        for (int i = 0; i != haulers.Length; i++) {
+
+            // Get the prefab and make its panel
+            // Get its values from the prefab
+            HaulerController haulerController = haulers[i].GetComponent<HaulerController>();
+            int cargo = haulerController.GetMaxMaterials();
+            int width = haulerController.width;
+            float haulerSpeed = haulerController.GetPlayerSpeed();
+            long price = haulerController.GetPrice();
+
+            GameObject newVehiclePanel = Instantiate(haulerDisplayPanel);
+            Transform panelTransform = newVehiclePanel.transform;
+            panelTransform.SetParent(haulersContent.transform);
+
+            panelTransform.localScale = new(1, 1, 1);
+
+            // Set the sprite, hauler width, speed and name
+            panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
+            panelTransform.GetChild(2).GetComponent<Image>().sprite = haulers[i].GetComponent<SpriteRenderer>().sprite;
+            panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
+            panelTransform.GetChild(4).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+            panelTransform.GetChild(5).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
+            panelTransform.GetChild(6).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+
+            // I made some changes, these comments might be wrong
+            // Multiply the width and height of the panel image relative to the proportion of 
+            // (base body width and height * new vehicle body width and height) * new vehicle game object scale
+            // both values for new vehicle can be obtained from it's game object in the public arrays above
+            // base body width and height: 2.89 (its also 289px)
+            // Example (Bore I): bore body dimensions: (3.80) 380px, Scale = 1.3
+            // multiplier = (3.80/2.89) * 1.3
+
+            float scaleFactor = haulers[i].GetComponent<SpriteRenderer>().sprite.bounds.size.x / 2.89f * haulers[i].transform.localScale.x;
+
+            panelTransform.GetChild(2).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
+
+            // Get the Buy Button component
+            Button buyButton = panelTransform.GetChild(6).GetComponent<Button>();
+            // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
+            int index = i;
+            
+            // If vehicle is owned
+            if (playerStateScript.CheckVehicleOwnerShip(haulers[i].name)) {
+                PurchasedVehicle(newVehiclePanel, haulers[i], 6);
+                continue;
+            }
+
+            // If not owned
+            // Add an OnClick listener to the button and pass in the prefab of the vehicle
+            buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, haulers[index], 6));
+        }
+
+        Canvas.ForceUpdateCanvases();
+        // Resize the content panel
+        Transform haulersTransform = haulersContent.transform;
+        // Calculate the number of rows
+        GridLayoutGroup haulerGridLayoutGroup = haulersTransform.GetComponent<GridLayoutGroup>();
+        int haulerColumns = Mathf.Max(1, Mathf.FloorToInt(haulersTransform.GetComponent<RectTransform>().rect.width / haulerGridLayoutGroup.cellSize.x));
+        int haulerRows = Mathf.CeilToInt((float) haulers.Length / haulerColumns);
+
+        // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
+        RectTransform haulersContentRect = haulersTransform.GetComponent<RectTransform>();
+        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 1800 * haulerRows + 40 * (haulerRows - 1));
+        haulersTransform.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
     }
 
     public void ActivatePanel(string panelToActivate) {
@@ -165,27 +232,32 @@ public class GarageDelegator : MonoBehaviour
         activePanel = "Haulers";
     }
 
-    public void OnDrillBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle) {
+    public void OnBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle, int buyButtonIndex) {
         bool canBuy = playerStateScript.VerifyEnoughCash(vehicle);
 
         if (!canBuy) {
             // If not enough money display quick error, but later change this to prompt to pay money for for in game cash
             return;
         }
-        playerStateScript.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
+        if (vehicle.GetComponent<HaulerController>()) {
+            playerStateScript.SubtractCash(vehicle.GetComponent<HaulerController>().GetPrice(), vehicle);
+        } else {
+            playerStateScript.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
+        }
+        
 
         // If purchase was successful
         if (playerStateScript.CheckVehicleOwnerShip(vehicle.name)) {
-            PurchasedVehicle(panelPurchasingFrom, vehicle);
+            PurchasedVehicle(panelPurchasingFrom, vehicle, buyButtonIndex);
             return;
         }
 
         // If purchase failed, reset the button scale
-        StartCoroutine(panelPurchasingFrom.transform.GetChild(6).GetComponent<UIButton>().ResetScale());
+        StartCoroutine(panelPurchasingFrom.transform.GetChild(buyButtonIndex).GetComponent<UIButton>().ResetScale());
     }
 
     // The FormatPrice in PlayerState is slightly different
-    private string FormatPrice(int price)
+    private string FormatPrice(long price)
     {
         if (price >= 1_000_000_000) {
             return (price / 1_000_000_000f).ToString("0.#") + "B"; // For billions
@@ -208,11 +280,11 @@ public class GarageDelegator : MonoBehaviour
         playerVehicleDelegation.GetComponent<PlayerVehicleDelegation>().SwitchVehicle(vehicle);
     }
 
-    public void PurchasedVehicle(GameObject panelPurchasedFrom, GameObject vehiclePrefab) {
+    public void PurchasedVehicle(GameObject panelPurchasedFrom, GameObject vehiclePrefab, int buyButtonIndex) {
         // Won't need the buy button at all
-        Destroy(panelPurchasedFrom.transform.GetChild(5).gameObject);
+        Destroy(panelPurchasedFrom.transform.GetChild(buyButtonIndex).gameObject);
 
-        GameObject deployButtonGO = panelPurchasedFrom.transform.GetChild(6).gameObject;
+        GameObject deployButtonGO = panelPurchasedFrom.transform.GetChild(buyButtonIndex + 1).gameObject;
         deployButtonGO.SetActive(true);
         // Add an OnClick listener to the button and pass in the prefab of the vehicle
         // Pass in the button too so we can reset it's scale 

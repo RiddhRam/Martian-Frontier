@@ -18,6 +18,10 @@ public class HaulerController : MonoBehaviour
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
+    // Does nothing, just for the Garage
+    public int width;
+    [SerializeField]
+    private long price;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
@@ -154,5 +158,9 @@ public class HaulerController : MonoBehaviour
 
     public float GetPlayerSpeed() {
         return playerSpeed;
+    }
+
+    public long GetPrice() {
+        return price;
     }
 }

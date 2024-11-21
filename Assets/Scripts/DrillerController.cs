@@ -19,7 +19,7 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     [SerializeField]
-    private int price;
+    private long price;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -139,7 +139,7 @@ public class DrillerController : MonoBehaviour
         return drillTier;
     }
 
-    public int GetPrice() {
+    public long GetPrice() {
         return price;
     }
 }

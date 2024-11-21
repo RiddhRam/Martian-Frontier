@@ -10,10 +10,10 @@ GameObject:
   m_Component:
   - component: {fileID: 8852282835322314419}
   - component: {fileID: 7268506937412991170}
-  - component: {fileID: 1484613351332723420}
   - component: {fileID: 4130937217246992067}
+  - component: {fileID: 2997327948882067955}
   m_Layer: 0
-  m_Name: Tier 3 Hauler
+  m_Name: Turbo Tanker I
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -29,8 +29,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 3637045415268203915}
   m_Father: {fileID: 0}
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 21300000, guid: 1242eef6acdb44832a7fc53219afa18c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6c94f0afa0f854e7b8da4513c116bcf4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -87,7 +87,25 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &1484613351332723420
+--- !u!114 &4130937217246992067
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3216218707337459698}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af0e422c6c6c94c2899fa4267a71b53e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialCount: 000000000000000000000000
+  maxMaterials: 240
+  materialEnergyUsage: 1
+  playerSpeed: 6.66
+  width: 4
+  price: 4500000
+--- !u!60 &2997327948882067955
 PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -123,7 +141,7 @@ PolygonCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.41, y: 3.17}
+    oldSize: {x: 3.09, y: 4.24}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -131,49 +149,44 @@ PolygonCollider2D:
   m_AutoTiling: 0
   m_Points:
     m_Paths:
-    - - {x: 1.2049999, y: -0.024999999}
-      - {x: 1.135, y: 0.055}
-      - {x: 1.0849999, y: 0.385}
-      - {x: 1.2049999, y: 0.465}
-      - {x: 1.2049999, y: 1.175}
-      - {x: 1.165, y: 1.255}
-      - {x: 1.105, y: 1.3149999}
-      - {x: 1.045, y: 1.5849999}
-      - {x: -1.015, y: 1.5849999}
-      - {x: -1.0649999, y: 1.515}
-      - {x: -1.165, y: 1.245}
-      - {x: -1.2049999, y: 1.175}
-      - {x: -1.2049999, y: 0.48499998}
-      - {x: -1.135, y: 0.385}
-      - {x: -1.055, y: 0.405}
-      - {x: -1.145, y: 0.044999998}
-      - {x: -1.2049999, y: -0.024999999}
-      - {x: -1.2049999, y: -0.705}
-      - {x: -1.155, y: -0.79499996}
-      - {x: -0.905, y: -1.145}
-      - {x: -0.60499996, y: -1.525}
-      - {x: -0.53499997, y: -1.5849999}
-      - {x: 0.555, y: -1.5849999}
-      - {x: 0.91499996, y: -1.135}
-      - {x: 1.035, y: -0.945}
-      - {x: 1.2049999, y: -0.745}
+    - - {x: 1.535, y: -1.03}
+      - {x: 1.545, y: -0.98999995}
+      - {x: 1.545, y: -0.32999998}
+      - {x: 1.485, y: -0.24}
+      - {x: 1.415, y: -0.04}
+      - {x: 1.545, y: 0.04}
+      - {x: 1.545, y: 0.72999996}
+      - {x: 1.505, y: 0.79999995}
+      - {x: 1.405, y: 0.84999996}
+      - {x: 1.545, y: 1.0799999}
+      - {x: 1.545, y: 1.8299999}
+      - {x: 1.485, y: 1.89}
+      - {x: 1.415, y: 2.06}
+      - {x: 1.375, y: 2.12}
+      - {x: -1.375, y: 2.12}
+      - {x: -1.395, y: 2.11}
+      - {x: -1.545, y: 1.8199999}
+      - {x: -1.545, y: 1.1}
+      - {x: -1.425, y: 1.02}
+      - {x: -1.485, y: 0.83}
+      - {x: -1.545, y: 0.75}
+      - {x: -1.545, y: 0.049999997}
+      - {x: -1.4649999, y: -0.04}
+      - {x: -1.405, y: -0.21}
+      - {x: -1.505, y: -0.25}
+      - {x: -1.545, y: -0.31}
+      - {x: -1.545, y: -1.01}
+      - {x: -1.485, y: -1.1}
+      - {x: -1.355, y: -1.3299999}
+      - {x: -1.2149999, y: -1.3199999}
+      - {x: -1.2149999, y: -1.48}
+      - {x: -0.78499997, y: -2.07}
+      - {x: -0.715, y: -2.12}
+      - {x: 0.73499995, y: -2.12}
+      - {x: 1.2149999, y: -1.51}
+      - {x: 1.245, y: -1.3399999}
+      - {x: 1.425, y: -1.28}
   m_UseDelaunayMesh: 0
---- !u!114 &4130937217246992067
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3216218707337459698}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: af0e422c6c6c94c2899fa4267a71b53e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  materialCount: 000000000000000000000000
-  maxMaterials: 120
-  materialEnergyUsage: 1
-  playerSpeed: 5
 --- !u!1 &7498635629626420580
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +221,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.05, y: 2}
+  m_AnchoredPosition: {x: 0.05, y: 2.56}
   m_SizeDelta: {x: 20, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!23 &7309806509323089101
