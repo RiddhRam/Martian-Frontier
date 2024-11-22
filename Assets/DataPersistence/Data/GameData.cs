@@ -1,0 +1,31 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+[System.Serializable]
+public class GameData
+{
+    // Make everything have [Serialize Field] or public or else it won't be loaded or saved
+    // Not sure about [Serialize Field] in production, but it works in development
+    // Public works in production for sure
+    public long userCash;
+    public long userXP;
+    public long blocksMined;
+    public long materialsSold;
+    public long moneyEarned;
+    public Vector3 playerPos;
+    public float playerRotation;
+    public List<string> vehiclesOwned;
+    // Uncollected materials
+    public SerializableDictionary<string, MaterialManagerData> materials;
+
+    public GameData() {
+        this.userCash = 0;
+        this.playerPos = new(4.5f, 5.4f, 0);
+        this.playerRotation = 180;
+        this.blocksMined = 0;
+        this.materialsSold = 0;
+        this.moneyEarned = 0;
+        this.vehiclesOwned = new List<string> { "Level 1 Base Miner", "STUBBY" };
+        this.materials = new();
+    }
+}

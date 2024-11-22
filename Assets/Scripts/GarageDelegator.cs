@@ -59,7 +59,7 @@ public class GarageDelegator : MonoBehaviour
                 // Have to make sure scale is right
                 panelTransform.localScale = new(1, 1, 1);
                 // Set the name
-                panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "Tier " + (i+1).ToString();
+                panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "TIER " + (i+1).ToString();
             }
 
             // Track number of items in each tier, to dynamically resize content height based on rows
@@ -85,8 +85,6 @@ public class GarageDelegator : MonoBehaviour
 
                 // Set the panel to the right colour
                 panelTransform.GetComponent<Image>().color = tierColors[tier - 1];
-                panelTransform.GetChild(3).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
-                panelTransform.GetChild(4).GetChild(0).GetComponent<TextMeshProUGUI>().color = tierColors[tier - 1];
 
                 // Set the sprite, drill width, speed and name
                 panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
@@ -136,7 +134,7 @@ public class GarageDelegator : MonoBehaviour
 
                 // Resize the scroll view content height to fit the rows (top padding of tier panels + cell height * rows + vertical spacing between cell rows * (rows - 1))
                 RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 100 + 1800 * rows + 40 * (rows - 1));
+                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 100 + 1900 * rows + 40 * (rows - 1));
                 tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
                 bigContentHeight += contentRect.sizeDelta.y;
             }
@@ -211,7 +209,7 @@ public class GarageDelegator : MonoBehaviour
 
         // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
         RectTransform haulersContentRect = haulersTransform.GetComponent<RectTransform>();
-        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 1800 * haulerRows + 40 * (haulerRows - 1));
+        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 1900 * haulerRows + 40 * (haulerRows - 1));
         haulersTransform.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
     }
 

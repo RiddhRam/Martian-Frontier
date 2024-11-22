@@ -60,8 +60,8 @@ Transform:
   m_GameObject: {fileID: 8494479027812159986}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.0453, y: 0.1103, z: 0}
-  m_LocalScale: {x: 1.1, y: 1.1, z: 1.1}
+  m_LocalPosition: {x: 0, y: 0.1103, z: 0}
+  m_LocalScale: {x: 1.05, y: 1.05, z: 1.05}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1159897856790554294}
@@ -106,7 +106,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 3
+  m_SortingOrder: 4
   m_Sprite: {fileID: 21300000, guid: 5f3279b4b6e0042a1828ac0a64c40c78, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -237,7 +237,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 4
+  m_SortingOrder: 5
   m_Sprite: {fileID: 21300000, guid: 260cfaeff2c324605b77d41459a1a844, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -261,9 +261,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2d4983a1cfd3b4714a7cdb5048fcb4f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Iron: {fileID: 5836944365000543928, guid: 142ceec66bd614b03b91a376cac47757, type: 3}
-  Sulfur: {fileID: 7003855559659621168, guid: 509ba637d3c894eb699adc2fec86c843, type: 3}
-  Limestone: {fileID: 6711909364478728060, guid: 1a26670d6a8f54f7c81fc46772e0ac71, type: 3}
+  materials:
+  - {fileID: 5836944365000543928, guid: 142ceec66bd614b03b91a376cac47757, type: 3}
+  - {fileID: 7003855559659621168, guid: 509ba637d3c894eb699adc2fec86c843, type: 3}
+  - {fileID: 6711909364478728060, guid: 1a26670d6a8f54f7c81fc46772e0ac71, type: 3}
   playerSpeed: 5
   drillTier: 1
   width: 4
@@ -311,5 +312,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 2.8, y: 0.5}
+  m_Size: {x: 2.9, y: 0.5}
   m_EdgeRadius: 0

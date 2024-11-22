@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class PlayerState : MonoBehaviour
+public class PlayerState : MonoBehaviour, IDataPersistence
 {
     public GameObject[] cashDisplays;
 
@@ -53,23 +53,27 @@ public class PlayerState : MonoBehaviour
     // Only call if VerifyEnoughCash was called
     public void SubtractCash(long amountToSubtract, GameObject objectBeingPurchased) {
         // objectBeingPurchased is some upgrade or vehicle being bought
-        UpdateSubtractedAmount(objectBeingPurchased);
 
         if (amountToSubtract == savedAmountSubtract) {
             userCash -= amountToSubtract;
-            try {
-                // If it has a driller or hauler controller, add it to the list of vehicles owned
-                if (objectBeingPurchased.GetComponent<HaulerController>() || objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
-                    vehiclesOwned.Add(objectBeingPurchased.name);
-                }
-            } catch {
-                // If the above fails, it fails because it tried to get the second child of transofmr which doesnt exist in drillers.
-                // If code reaches here, they are noy buying a vehicle, probably a refinery upgrade
+            // This causes an error if anything except a driller or hauler is passed into the gameobject parameter
+            // If it has a driller or hauler controller, add it to the list of vehicles owned
+            if (objectBeingPurchased.GetComponent<HaulerController>() || objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
+                vehiclesOwned.Add(objectBeingPurchased.name);
             }
         }
 
         UpdateCashDisplays();
     }
+
+    // For Refinery Upgrade
+    public void SubtractCash(long amountToSubtract) { 
+
+        if (amountToSubtract == savedAmountSubtract) {
+            userCash -= amountToSubtract;
+        }
+        UpdateCashDisplays();
+    } 
 
     // Validate and add XP
     public void AddXP(int amountToAddXP, GameObject objectReason) {
@@ -92,8 +96,25 @@ public class PlayerState : MonoBehaviour
 
         return false;
     }
+    // For Refinery Upgrade
+    public bool VerifyEnoughCash(long price) {
+        savedAmountSubtract = price;
 
-    public void NewBlockMined() {
+        if (userCash - savedAmountSubtract >= 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public void NewBlockMined(bool oreMined) {
+        // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
+        // Total 5 xp for mining an ore
+        if (oreMined) {
+            userXP += 4;
+        }
+        userXP++;
+        
         blocksMined++;
     }
 
@@ -135,7 +156,22 @@ public class PlayerState : MonoBehaviour
     // overestimate their money and buy something they can't afford
     private string FormatPrice(long price)
     {
-        if (price >= 1_000_000_000)
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Qu"
+            return (Mathf.Floor(price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Q"
+            return (Mathf.Floor(price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "T"
+            return (Mathf.Floor(price / 1_000_000_000_000f * 1000) / 1000).ToString("0.###") + "T";
+        }
+        else if (price >= 1_000_000_000)
         {
             // Truncate to 3 decimal places and format with "B"
             return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
@@ -153,5 +189,21 @@ public class PlayerState : MonoBehaviour
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
+    }
+
+    public void LoadData(GameData data) {
+        this.userCash = data.userCash;
+        this.userXP = data.userXP;
+        this.blocksMined = data.blocksMined;
+        this.materialsSold = data.materialsSold;
+        this.moneyEarned = data.moneyEarned;
+    }
+
+    public void SaveData(ref GameData data) {
+        data.userCash = this.userCash;
+        data.userXP = this.userXP;
+        data.blocksMined = this.blocksMined;
+        data.materialsSold = this.materialsSold;
+        data.moneyEarned = this.moneyEarned;
     }
 }

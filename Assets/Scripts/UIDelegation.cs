@@ -75,17 +75,6 @@ public class UIDelegation : MonoBehaviour
     // Used when opening the map, or closing
     public void ToggleCamera() {
         mapCamera.SetActive(!mapCamera.activeSelf);
-
-        // If camera is active reduce framerate
-        // This might not be neccessary it made no noticeable difference in singleplayer
-        // May be needed for multiplayer
-        if (mapCamera.activeSelf) {
-            Application.targetFrameRate = 10;
-            return;
-        }
-
-        // If not, set back to 60
-        Application.targetFrameRate = 60;
     }
 
     // Used when clicking the cargo button to prepare the columns and rows of the Content in the scrollview

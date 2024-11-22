@@ -17,8 +17,9 @@ public class RefineryController : MonoBehaviour
 
     [SerializeField]
     private float refineryBattery;
-    
     private float initialBattery;
+    [SerializeField]
+    private float refineryInefficiency = 1;
 
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
@@ -47,7 +48,6 @@ public class RefineryController : MonoBehaviour
         }
         
         int[] materialCount = haulerController.GetMaterialCount();
-        float materialEnergyUsage = haulerController.GetMaterialEnergyUsage();
 
         // Track what's being added so we can verify the cash amount
         int[] savedMaterialCount = new int[materialCount.Length];
@@ -58,7 +58,7 @@ public class RefineryController : MonoBehaviour
             // j increases by 1, but materialCount[i] also decreases by 1
             for (int j = -materialCount[i]; j < materialCount[i]; j++) {
                 if (refineryBattery != 0) {
-                    refineryBattery -= materialEnergyUsage;
+                    refineryBattery -= refineryInefficiency;
                     materialCount[i]--;
                     playerState.GetComponent<PlayerState>().NewMaterialSold();
                     savedMaterialCount[i]++;
@@ -87,6 +87,8 @@ public class RefineryController : MonoBehaviour
             gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
             StartCoroutine(ResetMine());
         }
+
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     private IEnumerator ResetMine() {
@@ -151,6 +153,8 @@ public class RefineryController : MonoBehaviour
         gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         gameObject.GetComponent<BoxCollider2D>().enabled = true;
+
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
@@ -179,5 +183,14 @@ public class RefineryController : MonoBehaviour
         refineryProgressSliderUI.GetComponent<Slider>().maxValue = initialBattery;
         refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
         refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryBattery * 100 / initialBattery) + "%";
+    }
+
+    public void UpgradeBattery(long newValue) {
+        initialBattery = newValue;
+        UpdateRefineryProgressBars();
+    }
+
+    public void ImproveEfficiency(long newValue) {
+        refineryInefficiency = newValue / 100f;
     }
 }

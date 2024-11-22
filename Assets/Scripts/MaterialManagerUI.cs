@@ -8,6 +8,7 @@ public class MaterialManagerUI : MonoBehaviour
     // This is public for easy direct access
     public int count = 0;
     public String materialName;
+    // This might be a different type of index compared to the one in MaterialManager
     public int materialIndex;
 
     // Use this instead of start in case of lag, this way count will be gauranteed to be updated

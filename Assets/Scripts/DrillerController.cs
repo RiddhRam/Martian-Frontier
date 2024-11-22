@@ -3,10 +3,6 @@ using UnityEngine.Tilemaps;
 
 public class DrillerController : MonoBehaviour
 {
-    public GameObject Iron;
-    public GameObject Sulfur;
-    public GameObject Limestone;
-
     // Not actually a radius, it's a square
     private int radius;
     private TileBase[] ores;
@@ -20,11 +16,13 @@ public class DrillerController : MonoBehaviour
     public int width;
     [SerializeField]
     private long price;
+    private UncollectedMaterialsDelegator materialsDelegator;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        materials = mineRenderer.materials;
         ores = mineRenderer.GetOres();
-        materials = new GameObject[] { Iron, Sulfur, Limestone };
+        materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
     }
 
@@ -109,8 +107,11 @@ public class DrillerController : MonoBehaviour
                         // and keep track of that value deleted
                         // Don't set oldCount, use += in case there are more than 1;
                         // Also don't break for the same reason
+                        MaterialManager newMaterialManager = hitCollider.gameObject.GetComponent<MaterialManager>();
+                        oldCount += newMaterialManager.count;
+                        materialsDelegator.RemoveMaterial(newMaterialManager.id);
                         Destroy(hitCollider.gameObject);
-                        oldCount += hitCollider.gameObject.GetComponent<MaterialManager>().count;
+
                         break;
                     }
                 }
@@ -118,8 +119,9 @@ public class DrillerController : MonoBehaviour
 
             GameObject material = Instantiate(materialToUse);
             material.transform.position = centerTilePos;
+            material.GetComponent<MaterialManager>().materialIndex = i;
             material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
-            material.transform.SetParent(GameObject.Find("Mine").transform);
+            materialsDelegator.AddMaterial(material);
             break;
         }
         

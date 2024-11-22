@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-public class MineRenderer : MonoBehaviour
+public class MineRenderer : MonoBehaviour, IDataPersistence
 {
     // Have to change through hierarchy not through here
     [SerializeField]
@@ -25,15 +25,26 @@ public class MineRenderer : MonoBehaviour
     // Array of the tilemap Game objects
     private Tilemap[] tilemaps = new Tilemap[36];
     private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
+    // The gameobject of each ore material to be instantied onto the map when mining ores
+    [SerializeField]
+    public GameObject[] materials;
+    private UncollectedMaterialsDelegator materialsDelegator;
+    private bool newGame = true;
+
+    // Called before Start
+    void Awake()
+    {
+        materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-
         // These are used to reveal which tile is at a position
         tileValues = new TileBase[] { level1Rock, LimestoneRock, SulfurOre, IronOre };
-
-        InitializeMine();
+        if (newGame) {
+            InitializeMine();
+        }
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
@@ -183,6 +194,7 @@ public class MineRenderer : MonoBehaviour
         tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
 
         Tilemap tilemap = tilemaps[tilemapIndex];
+        TileBase tileMined = tilemap.GetTile(tileToDestroy);
 
         tilemap.SetTile(tileToDestroy, null);
         tilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
@@ -210,7 +222,12 @@ public class MineRenderer : MonoBehaviour
         }
    
         if (tileToDestroy.y != -4) {
-            playerState.GetComponent<PlayerState>().NewBlockMined();
+            bool oreMined = false;
+            if (IdentifyTile(tileMined) != 0) {
+                oreMined = true;
+            }
+            
+            playerState.GetComponent<PlayerState>().NewBlockMined(oreMined);
         }
     }
 
@@ -221,5 +238,48 @@ public class MineRenderer : MonoBehaviour
     public string[] GetMaterialNames() {
         return materialNames;
     }
-}
 
+    // Get the index of the tile
+    private int IdentifyTile(TileBase tileToIdentify) {
+
+        int index = 0;
+
+        for (int i = 0; i != tileValues.Length; i++) {
+            if (tileToIdentify == tileValues[i]) {
+                index = i;
+                break;
+            }
+        }
+
+        return index;
+    }
+
+    public void LoadData(GameData data) {
+        // this.materials = array of game objects for the materials
+        // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
+        Dictionary<string, MaterialManagerData> savedMaterials = data.materials;
+
+        foreach (string id in savedMaterials.Keys) {
+            GameObject newMaterial = Instantiate(materials[savedMaterials[id].materialIndex]);
+            
+            // Copy all the saved values into the loaded material
+            MaterialManagerData savedMaterialManager = savedMaterials[id];
+            MaterialManager newMaterialManager = newMaterial.GetComponent<MaterialManager>();
+            newMaterialManager.materialName = savedMaterialManager.materialName;
+            newMaterialManager.materialIndex = savedMaterialManager.materialIndex;
+            newMaterialManager.id = savedMaterialManager.id;
+            newMaterialManager.position = savedMaterialManager.position;
+            newMaterialManager.SetCount(savedMaterialManager.count);
+
+            // Need to manually put it in the right spot
+            newMaterial.transform.position = newMaterialManager.position;
+            materialsDelegator.AddMaterial(newMaterial);
+        }
+
+        //newGame = false;
+    }
+
+    public void SaveData(ref GameData data) {
+        data.materials = materialsDelegator.uncollectedMaterials;
+    }
+}
