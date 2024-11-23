@@ -91,6 +91,7 @@ public class PlayerMovement : MonoBehaviour, IDataPersistence
     }
     
     public void LoadData(GameData data) {
+        // This doesn't do anything, the actual position and rotation is set in PlayerVehicleDelegation
         transform.position = data.playerPos;
         transform.rotation = Quaternion.Euler(0, 0, data.playerRotation);
     }

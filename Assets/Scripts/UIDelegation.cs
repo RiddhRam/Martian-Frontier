@@ -42,6 +42,13 @@ public class UIDelegation : MonoBehaviour
 
     // Used after closing a secondary element
     public void RevealAll() {
+
+        if (playerVehicle.transform.GetChild(0).GetComponent<HaulerController>()) {
+            showCargoButton = true;
+        } else {
+            showCargoButton = false;
+        }
+
         for (int i = 0; i < primaryElements.Length; i++) {
             // Reset all buttons back to scale 1. 
             // Need to do this because the button that was pressed down will be at 0.95 still 

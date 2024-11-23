@@ -1,41 +1,111 @@
 using UnityEngine;
 
-public class PlayerVehicleDelegation : MonoBehaviour
+public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
     public GameObject cargoButton;
     public GameObject UI;
+    public string currentVehicle;
+    public GameObject garageDelegator;
+    public GameObject playerVehicle;
+    private int[] haulerCargo;
+    private bool loading = false;
+    private Vector3 loadPlayerPos;
+    private float loadRotate;
 
     public void SwitchVehicle(GameObject newVehicle) {
 
-        if (newVehicle.name == transform.GetChild(0).gameObject.name || newVehicle.name + "(Clone)" == transform.GetChild(0).gameObject.name) {
+        if (newVehicle.name == transform.GetChild(0).gameObject.name && !loading) {
             // User is already in this vehicle, do nothing
             return;
         }
+        this.haulerCargo = new int[3];
+        loading = false;
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
         Destroy(transform.GetChild(0).gameObject);
         transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
 
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)
-        GameObject newPlayerVehicle = Instantiate(newVehicle);
-        newPlayerVehicle.transform.SetParent(transform);
-        newPlayerVehicle.transform.localPosition = new(0, 0, 0);
+        playerVehicle = Instantiate(newVehicle);
+        playerVehicle.transform.SetParent(transform);
+        playerVehicle.transform.localPosition = new(0, 0, 0);
         // The z rotation initially starts at 180, but when we switch we use 0
-        newPlayerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
+        playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
+        // Remove (Clone) from the name
+        playerVehicle.name = playerVehicle.name.Substring(0, playerVehicle.name.Length - 7);
+        currentVehicle = playerVehicle.name;
 
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
-        if (newPlayerVehicle.GetComponent<HaulerController>()) {
+        if (playerVehicle.GetComponent<HaulerController>()) {
             // Display the hauler cargo button
             cargoButton.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoButton(true);
-            gameObject.GetComponent<PlayerMovement>().UpdateSpeed(newPlayerVehicle.GetComponent<HaulerController>().GetPlayerSpeed());
+            gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed());
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             return;
         }
 
         // If not a hauler, hide the hauler cargo button
         cargoButton.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoButton(false);
-        gameObject.GetComponent<PlayerMovement>().UpdateSpeed(newPlayerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed());
+        gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed());
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    public void LoadData(GameData data) {
+        // Load the vehicle name
+        // We need the last vehicle pos and rotation too, just for now though
+        this.currentVehicle = data.currentVehicle;
+        this.loadPlayerPos = data.playerPos;
+        this.loadRotate = data.playerRotation;
+        // Hauler cargo is loaded lower down
+        // It's saved to this temp variable because otherwise it magically gets wiped I don't know how
+        int[] tempHaulerCargo = data.haulerCargo;
+
+        // Bypasses first if statement in SwitchVehicle
+        loading = true;
+        
+        // Iterate through all vehicles and find which vehicle it is
+        GarageDelegator garageDelegatorScript = garageDelegator.GetComponent<GarageDelegator>();
+
+        // First check if user used a hauler
+        // Most likely did since a user would porbably leave after making some money
+        GameObject[] haulers = garageDelegatorScript.GetHaulers();
+        for (int i = 0; i != haulers.Length; i++) {
+            if (currentVehicle != haulers[i].name) {
+                continue;
+            }
+
+            // Switch to that vehicle
+            SwitchVehicle(haulers[i]);
+            this.haulerCargo = tempHaulerCargo;
+            playerVehicle.GetComponent<HaulerController>().SetMaterialCount(tempHaulerCargo);
+            playerVehicle.transform.parent.position = loadPlayerPos;
+            playerVehicle.transform.parent.rotation = Quaternion.Euler(0, 0, loadRotate);
+            return;
+        }
+
+        // If wasn't a hauler then it's a driller
+        GameObject[] drillers = garageDelegatorScript.GetDrillers();
+        for (int i = 0; i != drillers.Length; i++) {
+            if (currentVehicle != drillers[i].name) {
+                continue;
+            }
+
+            SwitchVehicle(drillers[i]);
+            break;
+        }
+    }
+
+    public void SaveData(ref GameData data) {
+        data.currentVehicle = this.currentVehicle;
+
+        if (playerVehicle.GetComponent<HaulerController>()) {
+            data.haulerCargo = playerVehicle.GetComponent<HaulerController>().GetMaterialCount();
+        } else {
+            data.haulerCargo = new int[3];
+        }
+        
     }
 
 }

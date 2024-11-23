@@ -23,58 +23,62 @@ public class HaulerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
+    private DataPersistenceManager dataPersistenceManager;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         // Make sure it's a material
-        if (other.CompareTag("Material Tag"))
+        if (!other.CompareTag("Material Tag")) {
+            return;
+        }
+
+        // Check for the material's index
+        MaterialManager materialManager = other.GetComponent<MaterialManager>();
+        string materialName = materialManager.materialName;
+
+        for (int i = 0; i < materialNames.Length; i++)
         {
-            // Check for the material's index
-            MaterialManager materialManager = other.GetComponent<MaterialManager>();
-            string materialName = materialManager.materialName;
-
-            for (int i = 0; i < materialNames.Length; i++)
+            // If not matching
+            if (materialNames[i] != materialName)
             {
-                // If not matching
-                if (materialNames[i] != materialName)
-                {
-                    continue;
-                }
-                // If it matches
-                int amountPickedUp = materialManager.count;
+                continue;
+            }
+            // If it matches
+            int amountPickedUp = materialManager.count;
 
-                // If max material limit of the hauler is exceeded then just reduce the count of the material
-                if (amountPickedUp + GetTotalMaterialCount() > maxMaterials) {
-                    // Only pick up what we can
-                    amountPickedUp = maxMaterials - GetTotalMaterialCount();
-                    // then increase the count at that index
-                    materialCount[i] += amountPickedUp;
+            // If max material limit of the hauler is exceeded then just reduce the count of the material
+            if (amountPickedUp + GetTotalMaterialCount() > maxMaterials) {
+                // Only pick up what we can
+                amountPickedUp = maxMaterials - GetTotalMaterialCount();
+                // then increase the count at that index
+                materialCount[i] += amountPickedUp;
 
-                    if (amountPickedUp == 0) {
-                        return;
-                    }
-
-                    ShowFloatingText(amountPickedUp);
-                    // Reduce the count of the material
-                    materialManager.SetCount(materialManager.count - amountPickedUp);
-                    materialsDelegator.UpdateMaterial(materialManager);
+                if (amountPickedUp == 0) {
                     return;
                 }
 
-                // If limit isn't exceeded then destroy the game object
-                materialCount[i] += amountPickedUp;
-                // Show floating text
                 ShowFloatingText(amountPickedUp);
-                materialsDelegator.RemoveMaterial(materialManager.id);
-                Destroy(other.gameObject); // Destroy the material object
+                // Reduce the count of the material
+                materialManager.SetCount(materialManager.count - amountPickedUp);
+                materialsDelegator.UpdateMaterial(materialManager);
+                return;
             }
+
+            // If limit isn't exceeded then destroy the game object
+            materialCount[i] += amountPickedUp;
+            // Show floating text
+            ShowFloatingText(amountPickedUp);
+            materialsDelegator.RemoveMaterial(materialManager.id);
+            Destroy(other.gameObject); // Destroy the material object
         }
+        dataPersistenceManager.SaveGame();
     }
 
     private void ShowFloatingText(int amount)

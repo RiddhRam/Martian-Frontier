@@ -11,6 +11,8 @@ public class DataPersistenceManager : MonoBehaviour
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
+    private float timer = 0f;
+    public float interval = 10f; // Save time interval
 
     public static DataPersistenceManager instance {get; private set; }
 
@@ -25,6 +27,16 @@ public class DataPersistenceManager : MonoBehaviour
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame();
+    }
+
+    void Update() {
+        timer += Time.deltaTime; // Increment the timer by the time passed since the last frame
+
+        if (timer >= interval) // Check if the timer has reached the interval
+        {
+            SaveGame();
+            timer = 0;
+        }
     }
 
     public void NewGame() {

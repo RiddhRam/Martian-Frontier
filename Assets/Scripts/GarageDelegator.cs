@@ -289,4 +289,12 @@ public class GarageDelegator : MonoBehaviour
         deployButtonGO.GetComponent<Button>().onClick.AddListener(() => OnDeployButtonClick(vehiclePrefab, deployButtonGO));
     }
 
+    public GameObject[] GetDrillers() {
+        return drillers;
+    }
+
+    public GameObject[] GetHaulers() {
+        return haulers;
+    }
+
 }

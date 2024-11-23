@@ -8,13 +8,17 @@ public class RefineryUpgrades : MonoBehaviour
     private long[] upgradeValues;
     [SerializeField]
     private long[] upgradePrices;
-    private long currentValue;
-    public GameObject Refinery;
+    // Current Value of this upgrade type
+    // It is an element of upgradeValues
+    private float currentValue;
     public GameObject PlayerState;
+    private RefineryController refineryController;
 
-    void Start() {
-        currentValue = upgradeValues[0];
-        UpdateDisplay(0);
+    public void InitializeRefinery(float newValue, GameObject refineryDropOffGO) {
+        refineryController = refineryDropOffGO.GetComponent<RefineryController>();
+
+        currentValue = newValue;
+        LoadCorrectUpgrade();
     }
 
     public void UpgradeRefinery() {
@@ -37,18 +41,34 @@ public class RefineryUpgrades : MonoBehaviour
         PlayerState.GetComponent<PlayerState>().SubtractCash(upgradePrices[currentIndex]);
 
         if (upgradeValues[currentIndex] != upgradeValues[^1]) {
-            currentValue = upgradeValues[currentIndex + 1];
             currentIndex++;
+            currentValue = upgradeValues[currentIndex];
         }
 
         UpdateDisplay(currentIndex);
 
         if (gameObject.name == "Capacity Panel") {
-            Refinery.GetComponent<RefineryController>().UpgradeBattery(currentValue);
+            refineryController.UpgradeBattery(currentValue);
             return;
         }
 
-        Refinery.GetComponent<RefineryController>().ImproveEfficiency(currentValue);
+        refineryController.ImproveEfficiency(currentValue);
+    }
+
+    // Only called upon when loading game
+    private void LoadCorrectUpgrade() {
+        int currentIndex = 0;
+
+        // Find the current index
+        for (int i = 0; i != upgradeValues.Length; i++) {
+            if (upgradeValues[i] != currentValue) {
+                continue;
+            }
+            currentIndex = i;
+            break;
+        }
+
+        UpdateDisplay(currentIndex);
     }
 
     private void UpdateDisplay(int currentIndex) {
@@ -88,5 +108,9 @@ public class RefineryUpgrades : MonoBehaviour
         }
 
         return price.ToString(); // For smaller numbers
+    }
+
+    public float GetUpgradeValue() {
+        return currentValue;
     }
 }

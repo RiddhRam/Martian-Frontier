@@ -19,6 +19,8 @@ public class GameData
     public int[] haulerCargo;
     // Uncollected materials
     public SerializableDictionary<string, MaterialManagerData> materials;
+    //public SerializableDictionary<Vector2Int, int>[] tilemapsTileValues;
+    //public SerializableDictionary<Vector2Int, int>[] placedTilemapsTileValues;
     public float refineryInefficiency;
     public float refineryCapacity;
     public float refineryBattery;
@@ -34,6 +36,8 @@ public class GameData
         this.currentVehicle = "Level 1 Base Drill";
         this.haulerCargo = new int[3];
         this.materials = new();
+        //this.tilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+        //this.placedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
         this.refineryInefficiency = 100;
         this.refineryCapacity = 120;
         this.refineryBattery = 120;

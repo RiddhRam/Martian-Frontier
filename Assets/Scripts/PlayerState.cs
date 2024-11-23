@@ -197,6 +197,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.blocksMined = data.blocksMined;
         this.materialsSold = data.materialsSold;
         this.moneyEarned = data.moneyEarned;
+        this.vehiclesOwned = data.vehiclesOwned;
     }
 
     public void SaveData(ref GameData data) {
@@ -205,5 +206,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.blocksMined = this.blocksMined;
         data.materialsSold = this.materialsSold;
         data.moneyEarned = this.moneyEarned;
+        data.vehiclesOwned = this.vehiclesOwned;
     }
 }

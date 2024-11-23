@@ -327,7 +327,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeValues: 64000000000000005a00000000000000500000000000000046000000000000003c0000000000000032000000000000003200000000000000
   upgradePrices: 400d03000000000080841e0000000000005a6202000000000046c323000000000050d6dc0100000000205fa0120000000000000000000000
-  Refinery: {fileID: 422203777}
   PlayerState: {fileID: 276248152}
 --- !u!114 &18897288
 MonoBehaviour:
@@ -1596,6 +1595,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: ryd
+  interval: 10
 --- !u!4 &244266722
 Transform:
   m_ObjectHideFlags: 0
@@ -2946,7 +2946,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   upgradeValues: 7800000000000000c800000000000000400100000000000090010000000000003002000000000000f8020000000000004803000000000000e803000000000000
   upgradePrices: 1027000000000000a86100000000000050c30000000000008038010000000000400d03000000000080841e0000000000808d5b00000000000000000000000000
-  Refinery: {fileID: 422203777}
   PlayerState: {fileID: 276248152}
 --- !u!114 &418957907
 MonoBehaviour:
@@ -3139,7 +3138,10 @@ MonoBehaviour:
   refineryProgressSliderUIPercentageText: {fileID: 429137496}
   playerState: {fileID: 276248152}
   refineryBattery: 120
+  initialBattery: 0
   refineryInefficiency: 1
+  capacityUpgrades: {fileID: 418957904}
+  efficiencyUpgrades: {fileID: 18897285}
 --- !u!1 &429137496
 GameObject:
   m_ObjectHideFlags: 0
@@ -23364,7 +23366,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   joystickMovement: {fileID: 1828223861}
   cameraFollowSpeed: 5
-  rotationThreshold: 0.2
+  rotationThreshold: 0.1
 --- !u!50 &1012335948
 Rigidbody2D:
   serializedVersion: 4
@@ -23406,6 +23408,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cargoButton: {fileID: 374642323}
   UI: {fileID: 319486921}
+  currentVehicle: 
+  garageDelegator: {fileID: 648771411}
+  playerVehicle: {fileID: 0}
 --- !u!1 &1049935504
 GameObject:
   m_ObjectHideFlags: 0

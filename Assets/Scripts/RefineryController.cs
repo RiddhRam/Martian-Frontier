@@ -3,7 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class RefineryController : MonoBehaviour
+public class RefineryController : MonoBehaviour, IDataPersistence
 {
     public GameObject mineEntrance;
     public Sprite mineEntranceOn;
@@ -17,6 +17,7 @@ public class RefineryController : MonoBehaviour
 
     [SerializeField]
     private float refineryBattery;
+    [SerializeField]
     private float initialBattery;
     [SerializeField]
     private float refineryInefficiency = 1;
@@ -25,18 +26,8 @@ public class RefineryController : MonoBehaviour
     // Aligns with materialCount's index from HaulerController
     // REMEMBER TO UPDATE IN PlayerState TOO
     private readonly int[] materialPrices = {50, 150, 250};
-    
-    void Start() {
-        // TODO: Make this be set to the user's refineryBattery level according to their upgrades
-        if (refineryBattery > 0) {
-            initialBattery = refineryBattery;
-        } else {
-            initialBattery = 1;
-            StartCoroutine(ResetMine());
-        }
-        
-        UpdateRefineryProgressBars();
-    }
+    public GameObject capacityUpgrades;
+    public GameObject efficiencyUpgrades;
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -185,12 +176,33 @@ public class RefineryController : MonoBehaviour
         refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryBattery * 100 / initialBattery) + "%";
     }
 
-    public void UpgradeBattery(long newValue) {
+    public void UpgradeBattery(float newValue) {
+        refineryBattery = newValue - (initialBattery - refineryBattery);
         initialBattery = newValue;
+        UpdateRefineryProgressBars();
+         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    public void ImproveEfficiency(float newValue) {
+        refineryInefficiency = newValue / 100f;
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    public void LoadData(GameData data) {
+        // This will call LoadCorrectUpgrade in RefineryUpgrades
+        capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity, gameObject);
+        efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency, gameObject);
+        
+        this.refineryInefficiency = data.refineryInefficiency / 100;
+        this.refineryBattery = data.refineryBattery;
+        this.initialBattery = data.refineryCapacity;
+
         UpdateRefineryProgressBars();
     }
 
-    public void ImproveEfficiency(long newValue) {
-        refineryInefficiency = newValue / 100f;
+    public void SaveData(ref GameData data) {
+        data.refineryBattery = this.refineryBattery;
+        data.refineryCapacity = this.initialBattery;
+        data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
     }
 }
