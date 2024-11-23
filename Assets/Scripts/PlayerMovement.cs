@@ -1,6 +1,6 @@
 using System;
 using UnityEngine;
-public class PlayerMovement : MonoBehaviour, IDataPersistence
+public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
     private float playerSpeed;
@@ -88,16 +88,5 @@ public class PlayerMovement : MonoBehaviour, IDataPersistence
 
     public void UpdateSpeed(float newPlayerSpeed) {
         playerSpeed = newPlayerSpeed;
-    }
-    
-    public void LoadData(GameData data) {
-        // This doesn't do anything, the actual position and rotation is set in PlayerVehicleDelegation
-        transform.position = data.playerPos;
-        transform.rotation = Quaternion.Euler(0, 0, data.playerRotation);
-    }
-
-    public void SaveData(ref GameData data) {
-        data.playerPos = transform.position;
-        data.playerRotation = transform.rotation.eulerAngles.z;
     }
 }

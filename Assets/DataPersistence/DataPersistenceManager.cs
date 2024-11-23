@@ -12,7 +12,7 @@ public class DataPersistenceManager : MonoBehaviour
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
     private float timer = 0f;
-    public float interval = 10f; // Save time interval
+    private float interval = 5f; // Save time interval
 
     public static DataPersistenceManager instance {get; private set; }
 

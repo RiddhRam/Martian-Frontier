@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -21,7 +20,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private readonly Vector2Int gridSize = new(25, 12); // 25x12 grid
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
-    private readonly Dictionary<Vector2Int, int>[] tilemapsTileValues = new Dictionary<Vector2Int, int>[36];
+    // Tiles will start in unplaced, then move to placed when revealed, then move to destroyed when destroyed
+    // destroyed and placed are used to save the game
+    private readonly SerializableDictionary<Vector2Int, int>[] unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+    private readonly SerializableDictionary<Vector2Int, int>[] placedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+    private readonly SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
     // Array of the tilemap Game objects
     private Tilemap[] tilemaps = new Tilemap[36];
     private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
@@ -85,7 +88,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             level = 2;
         }*/
 
-        Dictionary<Vector2Int, int> chunkTileCoordinates = new();
+        SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
+        SerializableDictionary<Vector2Int, int> placedTilemapsTileValue = new();
+        SerializableDictionary<Vector2Int, int> destroyedTilemapsTileValue = new();
 
         // Generate 4 chunks in each tilemap
         for (int i = -50; i != 50; i += 25) {
@@ -104,16 +109,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     
                     // Add this coordinate, use a base tile
                     // Level 1 base tile = 0, level 2 = 4, level 3 = 8
-                    chunkTileCoordinates.Add(new(tilePosition.x, tilePosition.y), 0);
+                    unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), 0);
                     mineTilemap.SetTile(tilePosition, unknownTile);
                 }
             }
 
             // Now place ore veins throughout the chunk
-            GenerateOreVeins(chunkTileCoordinates, i, chunkRow);
+            GenerateOreVeins(unplacedTilemapsTileValue, i, chunkRow);
         }
 
-        tilemapsTileValues[chunkRow - 1] = chunkTileCoordinates;
+        unplacedTilemapsTileValues[chunkRow - 1] = unplacedTilemapsTileValue;
+        placedTilemapsTileValues[chunkRow - 1] = placedTilemapsTileValue;
+        destroyedTilemapsTileValues[chunkRow - 1] = destroyedTilemapsTileValue;
         tilemaps[chunkRow - 1] = mineTilemap;
 
         // If the last row, send it very far down where it won't be seen at the edge of the map
@@ -125,7 +132,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         largeFogOfWar.transform.position = new Vector3(0, largeFogOfWar.transform.position.y - 12, 0);
     }
 
-    private void GenerateOreVeins(Dictionary<Vector2Int, int> chunkTileCoordinates, int chunkX, int chunkRow)
+    private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow)
     {
         int veinCount = Random.Range(2, 5);
 
@@ -159,9 +166,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                         continue;
                     }
 
-                    // Get the position and place it in the Dictionary
+                    // Get the position and place it in the SerializableDictionary
                     Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -12 - 5 - tileY);
-                    chunkTileCoordinates[tilePosition] = oreToPlace;
+                    unplacedTilemapsTileValue[tilePosition] = oreToPlace;
                 }
             }
         }
@@ -185,8 +192,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void RevealTile(Vector2Int tilePos) {
         int tilemapIndex = Mathf.FloorToInt((tilePos.y + 5) / -12f);
+        
+        // Move tile to placed
+        int tileValue = unplacedTilemapsTileValues[tilemapIndex][tilePos];
+        unplacedTilemapsTileValues[tilemapIndex].Remove(tilePos);
+        placedTilemapsTileValues[tilemapIndex].Add(tilePos, tileValue);
 
-        tilemaps[tilemapIndex].SetTile(new(tilePos.x, tilePos.y), tileValues[tilemapsTileValues[tilemapIndex][new(tilePos.x, tilePos.y)]]);
+        tilemaps[tilemapIndex].SetTile(new(tilePos.x, tilePos.y), tileValues[tileValue]);
     }
 
     public void DestroyTile(Vector3Int tileToDestroy) {
@@ -196,8 +208,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         Tilemap tilemap = tilemaps[tilemapIndex];
         TileBase tileMined = tilemap.GetTile(tileToDestroy);
 
+        // Move tile to destroyed
+        // This is in a try catch because it will throw an error when initializing the mine
+        try {
+            int tileValue = placedTilemapsTileValues[tilemapIndex][new(tileToDestroy.x, tileToDestroy.y)];
+            placedTilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
+            destroyedTilemapsTileValues[tilemapIndex].Add(new(tileToDestroy.x, tileToDestroy.y), tileValue);
+        } catch {
+        }
+
         tilemap.SetTile(tileToDestroy, null);
-        tilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
 
         // Search in a radius around tileToDestroy
         for (int x = -visionRadius; x <= visionRadius; x++) {
@@ -213,8 +233,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     tilemapIndex = Mathf.FloorToInt((tileToDestroy.y + y + 5) / -12f);
                     tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
                     
-                    // Check if the tile exists in tilemapsTileValues
-                    if (tilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
+                    // Check if the tile exists in unplacedTilemapsTileValues
+                    if (unplacedTilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
                         RevealTile(checkPos);
                     }
                 }
@@ -257,7 +277,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void LoadData(GameData data) {
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
-        Dictionary<string, MaterialManagerData> savedMaterials = data.materials;
+        SerializableDictionary<string, MaterialManagerData> savedMaterials = data.materials;
 
         foreach (string id in savedMaterials.Keys) {
             GameObject newMaterial = Instantiate(materials[savedMaterials[id].materialIndex]);
@@ -281,5 +301,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         data.materials = materialsDelegator.uncollectedMaterials;
+        data.placedTilemapsTileValues = this.placedTilemapsTileValues;
+        data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
     }
 }

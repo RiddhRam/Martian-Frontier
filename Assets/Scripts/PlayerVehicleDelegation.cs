@@ -77,8 +77,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             // Switch to that vehicle
             SwitchVehicle(haulers[i]);
             playerVehicle.GetComponent<HaulerController>().SetMaterialCount(tempHaulerCargo);
-            playerVehicle.transform.parent.position = loadPlayerPos;
-            playerVehicle.transform.parent.rotation = Quaternion.Euler(0, 0, loadRotate);
+            playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             return;
         }
 
@@ -90,12 +89,22 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             }
 
             SwitchVehicle(drillers[i]);
+            playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             break;
         }
     }
 
     public void SaveData(ref GameData data) {
         data.currentVehicle = this.currentVehicle;
+
+        if (!playerVehicle) {
+            data.haulerCargo = new int[3];
+
+            return;
+        }
+
+        data.playerPos = playerVehicle.transform.parent.position;
+        data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
 
         if (playerVehicle.GetComponent<HaulerController>()) {
             data.haulerCargo = playerVehicle.GetComponent<HaulerController>().GetMaterialCount();
