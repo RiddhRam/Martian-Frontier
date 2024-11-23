@@ -78,7 +78,7 @@ public class HaulerController : MonoBehaviour
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
         }
-        dataPersistenceManager.SaveGame();
+        //dataPersistenceManager.SaveGame();
     }
 
     private void ShowFloatingText(int amount)

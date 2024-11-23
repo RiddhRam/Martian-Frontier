@@ -264,15 +264,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             
             // Copy all the saved values into the loaded material
             MaterialManagerData savedMaterialManager = savedMaterials[id];
+            // Need to manually put it in the right spot, do this before SetCount, so it happens before UpdateData() in MaterialManager
+            newMaterial.transform.localPosition = savedMaterialManager.position;
+
             MaterialManager newMaterialManager = newMaterial.GetComponent<MaterialManager>();
             newMaterialManager.materialName = savedMaterialManager.materialName;
             newMaterialManager.materialIndex = savedMaterialManager.materialIndex;
             newMaterialManager.id = savedMaterialManager.id;
-            newMaterialManager.position = savedMaterialManager.position;
             newMaterialManager.SetCount(savedMaterialManager.count);
-
-            // Need to manually put it in the right spot
-            newMaterial.transform.position = newMaterialManager.position;
+            
             materialsDelegator.AddMaterial(newMaterial);
         }
 

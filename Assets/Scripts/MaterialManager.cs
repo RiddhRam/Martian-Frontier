@@ -8,12 +8,10 @@ public class MaterialManager : MonoBehaviour
     public string materialName;
     public int materialIndex;
     public string id;
-    public Vector3 position;
     private MaterialManagerData materialManagerData;
 
     void Awake() {
         GenerateGuid();
-        position = transform.position;
         materialManagerData = new();
     }
 
@@ -25,7 +23,7 @@ public class MaterialManager : MonoBehaviour
         materialManagerData.count = count;
         materialManagerData.id = id;
         materialManagerData.materialIndex = materialIndex;
-        materialManagerData.position = transform.position;
+        materialManagerData.position = transform.localPosition;
         materialManagerData.materialName = materialName;
     }
 

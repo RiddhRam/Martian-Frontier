@@ -7,7 +7,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public string currentVehicle;
     public GameObject garageDelegator;
     public GameObject playerVehicle;
-    private int[] haulerCargo;
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
@@ -18,7 +17,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             // User is already in this vehicle, do nothing
             return;
         }
-        this.haulerCargo = new int[3];
         loading = false;
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
@@ -32,7 +30,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // The z rotation initially starts at 180, but when we switch we use 0
         playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
         // Remove (Clone) from the name
-        playerVehicle.name = playerVehicle.name.Substring(0, playerVehicle.name.Length - 7);
+        playerVehicle.name = playerVehicle.name[..^7];
         currentVehicle = playerVehicle.name;
 
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
@@ -41,7 +39,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             cargoButton.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoButton(true);
             gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed());
-            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+            //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             return;
         }
 
@@ -49,7 +47,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         cargoButton.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoButton(false);
         gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed());
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     public void LoadData(GameData data) {
@@ -78,7 +76,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
             // Switch to that vehicle
             SwitchVehicle(haulers[i]);
-            this.haulerCargo = tempHaulerCargo;
             playerVehicle.GetComponent<HaulerController>().SetMaterialCount(tempHaulerCargo);
             playerVehicle.transform.parent.position = loadPlayerPos;
             playerVehicle.transform.parent.rotation = Quaternion.Euler(0, 0, loadRotate);

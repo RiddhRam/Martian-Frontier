@@ -1,13 +1,8 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public class UncollectedMaterialsDelegator : MonoBehaviour
 {
-    public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials;
-
-    void Awake() {
-        uncollectedMaterials = new();
-    }
+    public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials = new();
 
     public void RemoveMaterial(string materialID)
     {
@@ -24,7 +19,6 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
     }
 
     public void AddMaterial(GameObject materialToAdd) {
-
         materialToAdd.transform.SetParent(transform);
 
         // add the material to the dictionary

@@ -79,7 +79,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StartCoroutine(ResetMine());
         }
 
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     private IEnumerator ResetMine() {
@@ -145,7 +145,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         gameObject.GetComponent<BoxCollider2D>().enabled = true;
 
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
@@ -180,12 +180,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         refineryBattery = newValue - (initialBattery - refineryBattery);
         initialBattery = newValue;
         UpdateRefineryProgressBars();
-         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     public void ImproveEfficiency(float newValue) {
         refineryInefficiency = newValue / 100f;
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     public void LoadData(GameData data) {
