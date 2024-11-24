@@ -126,7 +126,7 @@ public class DrillerController : MonoBehaviour
         }
         
         // Destroy the tile and reveal new tiles in the vision radius
-        mineRenderer.DestroyTile(nearestTilePos);
+        mineRenderer.DestroyTile(nearestTilePos, false);
 
         // Disable and renable quickly so the trigger event can occur again
         tilemap.GetComponent<TilemapCollider2D>().enabled = false;

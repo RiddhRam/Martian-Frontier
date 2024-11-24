@@ -116,7 +116,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             foreach (var material in materials) {
                 Destroy(material.gameObject);
             }
-            
         }
 
         StartCoroutine(GraduallyIncreaseBattery(initialBattery));
