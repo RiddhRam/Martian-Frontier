@@ -23,8 +23,10 @@ public class GameData
     public float refineryCapacity;
     public float refineryBattery;
     public SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues;
+    public SerializableDictionary<Vector2Int, int>[] revealedTilemapsTileValues;
     public int seed;
     public int highestRow;
+    public int mineInitialization;
 
     public GameData() {
         this.userCash = 0;
@@ -41,13 +43,16 @@ public class GameData
         this.refineryCapacity = 120;
         this.refineryBattery = 120;
         this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
-
+        this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+        
         for (int i = 0; i < this.destroyedTilemapsTileValues.Length; i++)
         {
             this.destroyedTilemapsTileValues[i] = new SerializableDictionary<Vector2Int, int>();
+            this.revealedTilemapsTileValues[i] = new SerializableDictionary<Vector2Int, int>();
         }
 
         this.seed = 0;
         this.highestRow = 0;
+        this.mineInitialization = 0;
     }
 }

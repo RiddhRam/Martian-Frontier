@@ -21,9 +21,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private readonly Vector2Int gridSize = new(25, 12); // 25x12 grid
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
-    // Tiles will start in unplaced, then move to placed when revealed, then move to destroyed when destroyed
-    // destroyed and placed are used to save the game
+    // Tiles will start in unplaced, then are copied (but not removed) to revealed when revealed, then remove from unplaced and revealed and placed in destroyed when destroyed
+    // destroyed and revealed are used to save the game
     private SerializableDictionary<Vector2Int, int>[] unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+    private SerializableDictionary<Vector2Int, int>[] revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
     // This doesn't need to be a dictionary, just a list, because we already know the tile value
     // If a tile is destroyed, it will be set to null
     // It's going to stay as a list as a future anti cheat measure
@@ -36,11 +37,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     [SerializeField]
     public GameObject[] materials;
     private UncollectedMaterialsDelegator materialsDelegator;
-    private bool newGame = true;
     [SerializeField]
     private int seed;
     [SerializeField]
     private int highestRow = 0;
+
+    // 0 = Not created
+    // 1 = in the process of initializing
+    // 2 = initialized
+    public int mineInitialization = 0;
 
     // Called before Start
     void Awake()
@@ -53,24 +58,38 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Start is called before the first frame update
     void Start()
     {
-        if (newGame) {
+        // This doesn't necessarily mean the player is new, just that a new mine is needed
+        if (mineInitialization == 0) {
             InitializeMine();
         }
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
     public void InitializeMine() {
-        System.DateTime unixEpoch = new System.DateTime(2024, 7, 25, 0, 0, 0, System.DateTimeKind.Utc);
-        seed = (int)(System.DateTime.UtcNow - unixEpoch).TotalSeconds;
-        Random.InitState(seed);
-        // Make sure its clear
+
+        // If mineInitialization == 1 then the user already saw the first few blocks before they left the game
+        // Don't make a new seed, just use the last one
+        if (mineInitialization < 2) {
+            System.DateTime unixEpoch = new System.DateTime(2024, 7, 25, 0, 0, 0, System.DateTimeKind.Utc);
+            seed = (int)(System.DateTime.UtcNow - unixEpoch).TotalSeconds;
+            Random.InitState(seed);
+        }
+        
+        mineInitialization = 1;
+
+        // Make sure everything is clear
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+        revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[unplacedTilemapsTileValues.Length];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[unplacedTilemapsTileValues.Length];
 
+        // Populate destroyedTilemapsTileValues and revealedTilemapsTileValues with empty dictionaries
+        // unplacedTilemapsTileValues will be populated as each row is created
         for (int i = 0; i != unplacedTilemapsTileValues.Length; i++) {
-            SerializableDictionary<Vector2Int, int> destroyedTilemapsTileValue = new();
-            destroyedTilemapsTileValues[i] = destroyedTilemapsTileValue;
+            destroyedTilemapsTileValues[i] = new();
+            revealedTilemapsTileValues[i] = new();
         }
+        // Remove all keys
+        materialsDelegator.uncollectedMaterials.Clear();
 
         // Create first 4 rows
         for (int i = 1; i != 5; i++) {
@@ -89,6 +108,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         DestroyTile(new(1, -4), true);
         DestroyTile(new(2, -4), true);
         DestroyTile(new(3, -4), true);
+        mineInitialization = 2;
+        SaveGame();
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward
@@ -168,13 +189,19 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         for (int i = 0; i != savedHighestRow; i++) {
-            // Then we go through unplacedTilemapsTileValues, reveal the placed ones and set the destroyed ones to null
-            List<Vector2Int> tileKeys = new List<Vector2Int>(unplacedTilemapsTileValues[i].Keys);
+
+            List<Vector2Int> tileKeys = new List<Vector2Int>(revealedTilemapsTileValues[i].Keys);
             foreach (Vector2Int tileKey in tileKeys) {
                 // If this tile is supposed to be destroyed, destroy it
-                if (destroyedTilemapsTileValues[i].ContainsKey(tileKey)) {
-                    DestroyTile(new(tileKey.x, tileKey.y), true);
-                }
+                RevealTile(new(tileKey.x, tileKey.y));
+            }
+
+            // Then we go through unplacedTilemapsTileValues, reveal the placed ones and set the destroyed ones to null
+            tileKeys = new List<Vector2Int>(destroyedTilemapsTileValues[i].Keys);
+            foreach (Vector2Int tileKey in tileKeys) {
+
+                // If this tile is supposed to be destroyed, destroy it
+                DestroyTile(new(tileKey.x, tileKey.y), true);
             }
         }
 
@@ -240,27 +267,41 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void RevealTile(Vector2Int tilePos) {
 
-        int tilemapIndex = CalculateTileMapIndex(tilePos.y + 5);
+        int tilemapIndex = CalculateTileMapIndex(tilePos.y);
         int tileValue = unplacedTilemapsTileValues[tilemapIndex][tilePos];
 
+        // Copy value to revealedTilemapsTileValues
+        // Uses more memory but it's small so doesn't matter
+        revealedTilemapsTileValues[tilemapIndex][tilePos] = tileValue;
         tilemaps[tilemapIndex].SetTile(new(tilePos.x, tilePos.y), tileValues[tileValue]);
     }
 
     public void DestroyTile(Vector3Int tileToDestroy, bool loading) {
-        int tilemapIndex = CalculateTileMapIndex(tileToDestroy.y + 5);
-
-        int tileValue = 0;
-        try {
-            // Fails when initializing
-            tileValue = unplacedTilemapsTileValues[tilemapIndex][new(tileToDestroy.x, tileToDestroy.y)];
-        } catch {
-        }
+        int tilemapIndex = CalculateTileMapIndex(tileToDestroy.y);
 
         Tilemap tilemap = tilemaps[tilemapIndex];
         TileBase tileMined = tilemap.GetTile(tileToDestroy);
 
+        int tileValue = 0;
         // Move tile to destroyed
-        unplacedTilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
+        // fails when initializing because the first row that has DestroyTile being called on it isn't actually part of the map
+        // revealedTilemapsTileValues is a subset of unplacedTilemapsTileValues
+        // it's just a quick way to reveal the first few tiles
+        try {
+            tileValue = unplacedTilemapsTileValues[tilemapIndex][new(tileToDestroy.x, tileToDestroy.y)];
+            unplacedTilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
+            revealedTilemapsTileValues[tilemapIndex].Remove(new(tileToDestroy.x, tileToDestroy.y));
+        } catch {
+        }
+
+        // This one fails when normally destroying or initializing
+        // It only doesn't fail when loading
+        // a value will only be part of destroyedTilemapsTileValues if it was already destroyed, so it must be loaded if this doesn't fail
+        try {
+            tileValue = destroyedTilemapsTileValues[tilemapIndex][new(tileToDestroy.x, tileToDestroy.y)];
+        } catch {
+        }
+
         destroyedTilemapsTileValues[tilemapIndex][new(tileToDestroy.x, tileToDestroy.y)] = tileValue;
         tilemap.SetTile(tileToDestroy, null);
 
@@ -272,27 +313,33 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 // Calculate the Manhattan distance from the center tile
                 int distance = Mathf.Abs(x) + Mathf.Abs(y);
 
-                // If within the circular radius
-                if (distance <= visionRadius) {
-                    // Get the tilemap index, shouldbe anywhere between 0 and 35
-                    tilemapIndex = CalculateTileMapIndex(tileToDestroy.y + y + 5);
-                    
-                    // Check if the tile exists in unplacedTilemapsTileValues
-                    if (unplacedTilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
-                        RevealTile(checkPos);
-                    }
+                // Make sure within the circular radius
+                if (distance > visionRadius) {
+                    continue;
+                }
+
+                // Get the tilemap index, shouldbe anywhere between 0 and 35
+                tilemapIndex = CalculateTileMapIndex(tileToDestroy.y + y);
+                
+                // Check if the tile exists in unplacedTilemapsTileValues
+                if (unplacedTilemapsTileValues[tilemapIndex].ContainsKey(checkPos)) {
+                    RevealTile(checkPos);
                 }
             }
         }
    
-        if (tileToDestroy.y != -4 && !loading) {
-            bool oreMined = false;
-            if (IdentifyTile(tileMined) != 0) {
-                oreMined = true;
-            }
-            
-            playerState.GetComponent<PlayerState>().NewBlockMined(oreMined);
+        // If one of the top row tiles, or the mine is being loaded from a save, don't count towards stats
+        if (tileToDestroy.y == 4 || loading) {
+            return;
         }
+   
+        bool oreMined = false;
+        if (IdentifyTile(tileMined) != 0) {
+            oreMined = true;
+        }
+        
+        playerState.GetComponent<PlayerState>().NewBlockMined(oreMined);
+        
     }
 
     public TileBase[] GetOres() {
@@ -324,11 +371,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.seed = data.seed;
         Random.InitState(this.seed);
 
-        if (data.blocksMined > 0 && data.seed != 0) {
-            newGame = false;
-        }
+        // If mine is already initialized, then this is not a new game
+        // This doesn't necessarily mean the player is new, just that a new mine is needed
+        this.mineInitialization = data.mineInitialization;
 
         SerializableDictionary<string, MaterialManagerData> savedMaterials = data.materials;
+        this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
         
@@ -355,14 +403,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         data.materials = materialsDelegator.uncollectedMaterials;
+        data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
         data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
         data.seed = this.seed;
         data.highestRow = this.highestRow;
+        data.mineInitialization = this.mineInitialization;
     }
 
     public int CalculateTileMapIndex(int tilePosY) {
-        int tilemapIndex = Mathf.FloorToInt((tilePosY) / -12f);
+        // Mine is offset by 5, and factor in the grid height too
+        int tilemapIndex = Mathf.FloorToInt((tilePosY + 5) / -(gridSize.y));
         tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
         return tilemapIndex;
+    }
+
+    private void SaveGame() {
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 }

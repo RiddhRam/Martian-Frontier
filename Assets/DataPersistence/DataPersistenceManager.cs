@@ -35,7 +35,6 @@ public class DataPersistenceManager : MonoBehaviour
         if (timer >= interval) // Check if the timer has reached the interval
         {
             SaveGame();
-            timer = 0;
         }
     }
 
@@ -60,6 +59,7 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public void SaveGame() {
+        timer = 0;
         if (dataPersistenceObjects == null) {
             return;
         }

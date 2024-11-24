@@ -23,13 +23,11 @@ public class HaulerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
-    private DataPersistenceManager dataPersistenceManager;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)

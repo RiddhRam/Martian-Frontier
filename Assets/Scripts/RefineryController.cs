@@ -83,7 +83,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator ResetMine() {
-
+        mine.GetComponent<MineRenderer>().mineInitialization = 0;
         // Disable mine temporarily
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOff;
         // Move player off the dropoff area, and move all players inside the mine to the outside
@@ -118,10 +118,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             }
         }
 
-        StartCoroutine(GraduallyIncreaseBattery(initialBattery));
-
-        // Sleep for 3 seconds
-        yield return new WaitForSeconds(3);        
+        mine.GetComponent<MineRenderer>().InitializeMine();
 
         // Create the new mine
         GameObject genTrigGameObject = Instantiate(generationTriggers);
@@ -133,7 +130,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(mine);
         }
 
-        mine.GetComponent<MineRenderer>().InitializeMine();
+        mine.GetComponent<MineRenderer>().mineInitialization = 1;
+        SaveGame();
+
+        // Wait for this to be done
+        yield return StartCoroutine(GraduallyIncreaseBattery(initialBattery));
+
+        mine.GetComponent<MineRenderer>().mineInitialization = 2;
         
         // Renable the mine
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOn;
@@ -144,7 +147,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         gameObject.GetComponent<BoxCollider2D>().enabled = true;
 
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        SaveGame();
     }
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
@@ -193,8 +196,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency, gameObject);
         
         this.refineryInefficiency = data.refineryInefficiency / 100;
-        this.refineryBattery = data.refineryBattery;
         this.initialBattery = data.refineryCapacity;
+        this.refineryBattery = data.refineryBattery;
+        // If refinery controller bar was in reset animation, then skip it and go straight to 100%
+        if (data.mineInitialization == 1) {
+            this.refineryBattery = initialBattery;
+        }
 
         UpdateRefineryProgressBars();
     }
@@ -203,5 +210,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
         data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
+    }
+
+    private void SaveGame() {
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 }
