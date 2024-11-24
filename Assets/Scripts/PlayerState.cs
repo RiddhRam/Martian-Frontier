@@ -51,6 +51,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate again and subtract cash
     // Only call if VerifyEnoughCash was called
+    // For vehicles
     public void SubtractCash(long amountToSubtract, GameObject objectBeingPurchased) {
         // objectBeingPurchased is some upgrade or vehicle being bought
 

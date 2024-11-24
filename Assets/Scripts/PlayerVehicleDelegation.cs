@@ -33,21 +33,23 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerVehicle.name = playerVehicle.name[..^7];
         currentVehicle = playerVehicle.name;
 
+        float playerSpeed;
+        
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
         if (playerVehicle.GetComponent<HaulerController>()) {
             // Display the hauler cargo button
             cargoButton.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoButton(true);
-            gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed());
-            //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+            playerSpeed = playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed();
+            gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
             return;
         }
 
         // If not a hauler, hide the hauler cargo button
         cargoButton.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoButton(false);
-        gameObject.GetComponent<PlayerMovement>().UpdateSpeed(playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed());
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        playerSpeed = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
+        gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
     }
 
     public void LoadData(GameData data) {

@@ -3,7 +3,8 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
-    private float playerSpeed;
+    [SerializeField]
+    private float playerSpeed = 5f;
     [SerializeField]
     private float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
@@ -16,7 +17,6 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        UpdateSpeed();
     }
 
     // Update is called once per frame
@@ -72,21 +72,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void UpdateSpeed() {
-        GameObject vehicle = transform.GetChild(0).gameObject;
-        // DrillerController is in second child of child
-        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
-
-        if (drillerController) {
-            playerSpeed = drillerController.GetPlayerSpeed();
-        } else {
-            // HaulerController is in child
-            HaulerController haulerController = vehicle.GetComponent<HaulerController>();
-            playerSpeed = haulerController.GetPlayerSpeed();
-        }
-    }
-
-    public void UpdateSpeed(float newPlayerSpeed) {
-        playerSpeed = newPlayerSpeed;
+    public void SetSpeed(float newSpeed) {
+        playerSpeed = newSpeed;
     }
 }
