@@ -78,10 +78,16 @@ public class PlayerMovement : MonoBehaviour
             return;
         }
 
-        // Might fail after changing vehicles
+        // Might fail after changing
         try {
+            float maxBodyRotation = 30;
+            float maxChangeRotation = 20;
+
             // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
-            float wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -30, 30);
+            // Wheel rotation cannot exceed 30 degrees of the body
+            float wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
+            // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
+            wheelRotation = Mathf.Clamp(wheelRotation - frontWheels.GetChild(0).rotation.z, -maxChangeRotation, maxChangeRotation);
 
             for (int i = 0; i != frontWheels.childCount; i++) {
                 frontWheels.GetChild(i).rotation = Quaternion.Euler(0, 0, wheelRotation + newAngle);

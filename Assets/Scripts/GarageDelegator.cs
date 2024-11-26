@@ -16,6 +16,7 @@ public class GarageDelegator : MonoBehaviour
     public GameObject[] drillers;
     public Sprite[] drillersImages;
     public GameObject[] haulers;
+    public Sprite[] haulersImages;
     public GameObject playerState;
     public GameObject playerVehicleDelegation;
     public GameObject UIDelegation;
@@ -165,7 +166,7 @@ public class GarageDelegator : MonoBehaviour
 
             // Set the sprite, hauler width, speed and name
             panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
-            panelTransform.GetChild(2).GetComponent<Image>().sprite = haulers[i].GetComponent<SpriteRenderer>().sprite;
+            panelTransform.GetChild(2).GetComponent<Image>().sprite = haulersImages[i];
             panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
             panelTransform.GetChild(4).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
             panelTransform.GetChild(5).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
@@ -179,7 +180,7 @@ public class GarageDelegator : MonoBehaviour
             // Example (Bore I): bore body dimensions: (3.80) 380px, Scale = 1.3
             // multiplier = (3.80/2.89) * 1.3
 
-            float scaleFactor = haulers[i].GetComponent<SpriteRenderer>().sprite.bounds.size.x / 2.89f * haulers[i].transform.localScale.x;
+            float scaleFactor = haulersImages[i].bounds.size.x / 2.89f * haulers[i].transform.localScale.x;
 
             panelTransform.GetChild(2).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
 
