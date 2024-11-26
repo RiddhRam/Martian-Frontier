@@ -1,3 +1,5 @@
+using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,23 +12,19 @@ public class UIDelegation : MonoBehaviour
     public GameObject destroyButton;
 
     // Higher resolution UI version of the minerals, because they will be larger now in the cargo panel
-    public GameObject IronMaterialButton;
-    public GameObject SulfurMaterialButton;
-    public GameObject LimestoneMaterialButton;
-
     // The first elements a user sees, these are the ones they see while playing the game
     // Secondary elements are the menus they open like the shop or map camera
-    [SerializeField]
-    private GameObject[] primaryElements;
+    public GameObject[] primaryElements;
     //private string[] materialNames;
-    private GameObject[] materialButtons;
+    public GameObject materialButton;
+    public Sprite[] materialSprites;
+    public String[] materialNames;
     private bool showCargoButton;
  
     void Start()
     {
         ToggleCargoButton(false);
         //materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
-        materialButtons = new GameObject[] { LimestoneMaterialButton, SulfurMaterialButton, IronMaterialButton };
     }
 
     public void ToggleCargoButton(bool newValue) {
@@ -94,29 +92,37 @@ public class UIDelegation : MonoBehaviour
         int itemsToDisplay = 0;
 
         for (int i = 0; i != materialCount.Length; i++) {
-            if (materialCount[i] > 0) {
-                // Create the material button
-                GameObject newMaterialButton = Instantiate(materialButtons[i]);
-                // Add it to the content scroll view
-                newMaterialButton.transform.SetParent(scrollViewContent.transform);
 
-                Transform materialSprite = newMaterialButton.transform.GetChild(0);
-    
-                // Set it's count
-                materialSprite.GetComponent<MaterialManagerUI>().SetCount(materialCount[i]);
-                newMaterialButton.transform.localScale = new(1, 1, 1);
-
-                materialSprite.GetComponent<MaterialManagerUI>().materialIndex = i;
-
-                itemsToDisplay++;
-
-                // Get the Button component
-                Button button = newMaterialButton.GetComponent<Button>();
-                
-
-                // Add an OnClick listener to the button
-                button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
+            // Should never be less than but just in case
+            if (materialCount[i] <= 0) {
+                materialCount[i] = 0;
+                continue;
             }
+
+            // Create the material button
+            GameObject newMaterialButton = Instantiate(materialButton);
+            // Add it to the content scroll view
+            newMaterialButton.transform.SetParent(scrollViewContent.transform);
+            
+            // Set up material manager ui
+            MaterialManagerUI materialManagerUI = newMaterialButton.GetComponent<MaterialManagerUI>();
+            materialManagerUI.SetCount(materialCount[i]);
+            materialManagerUI.materialName = materialNames[i];
+            materialManagerUI.materialIndex = i;
+
+            newMaterialButton.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i].ToUpper();
+            newMaterialButton.transform.GetChild(3).GetComponent<Image>().sprite = materialSprites[i];
+            
+            newMaterialButton.transform.localScale = new(1, 1, 1);
+
+            itemsToDisplay++;
+
+            // Get the Button component
+            Button button = newMaterialButton.GetComponent<Button>();
+
+            // Add an OnClick listener to the button
+            button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
+            
         }
     
         // Calculate the number of rows
@@ -146,6 +152,6 @@ public class UIDelegation : MonoBehaviour
     // Could be in one line but whatever
     private void OnMaterialButtonClick(GameObject materialSelected)
     {
-        destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected.transform.GetChild(0).gameObject);
+        destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected);
     }
 }

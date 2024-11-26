@@ -19,13 +19,16 @@ public class DestroyMaterial : MonoBehaviour
         int[] tempMaterialCount = haulerController.GetMaterialCount();
         tempMaterialCount[indexToDestroy] -= amountToDestroy;
         haulerController.SetMaterialCount(tempMaterialCount);
-        previouslySelectedMaterial.GetComponent<MaterialManagerUI>().SetCount(tempMaterialCount[indexToDestroy]);
+        
+        MaterialManagerUI materialManagerUI = previouslySelectedMaterial.GetComponent<MaterialManagerUI>();
+        materialManagerUI.SetCount(tempMaterialCount[indexToDestroy]);
 
-        if (previouslySelectedMaterial.GetComponent<MaterialManagerUI>().count <= 0) {
-            Destroy(previouslySelectedMaterial.transform.parent.gameObject);
+        if (materialManagerUI.count <= 0) {
+            Destroy(previouslySelectedMaterial.gameObject);
         }
 
         sliderCounter.GetComponent<Slider>().value = 0;
+        sliderCounter.GetComponent<Slider>().maxValue = materialManagerUI.count;
         sliderValueText.GetComponent<TextMeshProUGUI>().text = "0";
         cargoCapacitySlider.GetComponent<CargoCapacitySlider>().UpdateCapacity();
     }
@@ -40,10 +43,10 @@ public class DestroyMaterial : MonoBehaviour
             return;
         }
         indexToDestroy = materialSelected.GetComponent<MaterialManagerUI>().materialIndex;
-        materialSelected.transform.parent.GetComponent<Image>().color = new Color(57f / 255f, 255f / 255f, 20f / 255f);
+        materialSelected.GetComponent<Image>().color = new Color(57f / 255f, 255f / 255f, 20f / 255f);
 
         if (previouslySelectedMaterial != null) {
-            previouslySelectedMaterial.transform.parent.GetComponent<Image>().color = new Color(181f / 255f, 181f / 255f, 181f / 255f);
+            previouslySelectedMaterial.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f);
         }
 
         previouslySelectedMaterial = materialSelected;
@@ -58,9 +61,7 @@ public class DestroyMaterial : MonoBehaviour
         int newAmount = (int) sliderCounter.GetComponent<Slider>().value;
 
         // In case a glitch happens where it exceeds the right value
-        if (newAmount > playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().GetMaterialCount()[indexToDestroy]) {
-            newAmount = playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().GetMaterialCount()[indexToDestroy];
-        }
+        newAmount = Mathf.Clamp(newAmount, 0, playerVehicle.transform.GetChild(0).GetComponent<HaulerController>().GetMaterialCount()[indexToDestroy]);
 
         amountToDestroy = newAmount;
         sliderValueText.GetComponent<TextMeshProUGUI>().text = amountToDestroy.ToString();
