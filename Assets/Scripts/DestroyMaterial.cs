@@ -25,6 +25,7 @@ public class DestroyMaterial : MonoBehaviour
 
         if (materialManagerUI.count <= 0) {
             Destroy(previouslySelectedMaterial.gameObject);
+            GetComponent<Button>().interactable = false;
         }
 
         sliderCounter.GetComponent<Slider>().value = 0;

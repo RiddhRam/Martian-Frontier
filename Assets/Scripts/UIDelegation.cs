@@ -145,7 +145,7 @@ public class UIDelegation : MonoBehaviour
 
         // These shouldn't be usable anymore
         sliderCount.GetComponent<Slider>().interactable = false;
-        
+        sliderCount.GetComponent<Slider>().value = 0;
         destroyButton.GetComponent<Button>().interactable = false;
     }
 
