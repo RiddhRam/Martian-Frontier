@@ -7,7 +7,7 @@ public class HaulerController : MonoBehaviour
     private string[] materialNames;
     [SerializeField]
     // Initializes array with all values at 0
-    private int[] materialCount = new int[3];
+    private int[] materialCount;
     [SerializeField]
     private int maxMaterials;
     [SerializeField]
@@ -27,6 +27,7 @@ public class HaulerController : MonoBehaviour
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
+        materialCount = new int[materialNames.Length];
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
     }
 
@@ -62,7 +63,7 @@ public class HaulerController : MonoBehaviour
                     return;
                 }
 
-                ShowFloatingText(amountPickedUp);
+                ShowFloatingText(amountPickedUp.ToString());
                 // Reduce the count of the material
                 materialManager.SetCount(materialManager.count - amountPickedUp);
                 materialsDelegator.UpdateMaterial(materialManager);
@@ -72,19 +73,18 @@ public class HaulerController : MonoBehaviour
             // If limit isn't exceeded then destroy the game object
             materialCount[i] += amountPickedUp;
             // Show floating text
-            ShowFloatingText(amountPickedUp);
+            ShowFloatingText(amountPickedUp.ToString());
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
         }
         //dataPersistenceManager.SaveGame();
     }
 
-    private void ShowFloatingText(int amount)
+    public void ShowFloatingText(string amount)
     {
         // Set the text to show the picked up amount
         TextMeshPro textComponent = floatingText.GetComponent<TextMeshPro>();
         textComponent.text = $"+{amount}";
-
         // Start fading out the text after a delay
         StartCoroutine(FadeOutText(floatingText));
     }

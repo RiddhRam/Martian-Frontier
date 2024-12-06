@@ -48,14 +48,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             // Have to start j in the negative because the values will meet in the middle at 0
             // j increases by 1, but materialCount[i] also decreases by 1
             for (int j = -materialCount[i]; j < materialCount[i]; j++) {
-                if (refineryBattery != 0) {
-                    refineryBattery -= refineryInefficiency;
-                    materialCount[i]--;
-                    playerState.GetComponent<PlayerState>().NewMaterialSold();
-                    savedMaterialCount[i]++;
-                    continue;
+                if (refineryBattery == 0) {
+                    break;
                 }
-                break;
+                
+                refineryBattery -= refineryInefficiency;
+                materialCount[i]--;
+                playerState.GetComponent<PlayerState>().NewMaterialSold();
+                savedMaterialCount[i]++;
+                continue;
             }
         }
 
@@ -65,10 +66,16 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             cashToAdd += savedMaterialCount[i] * materialPrices[i];
         }
 
+        // Should never be less than
+        if (cashToAdd <= 0) {
+            return;
+        }
+
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash(cashToAdd, savedMaterialCount);
 
         haulerController.SetMaterialCount(materialCount);
+        haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
 
         UpdateRefineryProgressBars();
 
@@ -212,5 +219,42 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     private void SaveGame() {
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    private string FormatPrice(long price)
+    {
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Qu"
+            return (Mathf.Floor(price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Q"
+            return (Mathf.Floor(price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "T"
+            return (Mathf.Floor(price / 1_000_000_000_000f * 1000) / 1000).ToString("0.###") + "T";
+        }
+        else if (price >= 1_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "B"
+            return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 3 decimal places and format with "M"
+            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 }

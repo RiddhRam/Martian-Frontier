@@ -24,6 +24,9 @@ public class JoystickMovement : MonoBehaviour
             joystick.transform.position = Input.mousePosition;
             joystickBG.transform.position = Input.mousePosition;
             joystickTouchPos = Input.mousePosition;
+            for (int i = 0; i != transform.childCount; i++) {
+                transform.GetChild(i).gameObject.SetActive(true);
+            }
         } else {
             // User is zooming so reset the joystick
             PointerUp();
@@ -51,6 +54,9 @@ public class JoystickMovement : MonoBehaviour
     }
 
     public void PointerUp() {
+        for (int i = 0; i != transform.childCount; i++) {
+                transform.GetChild(i).gameObject.SetActive(false);
+        }
         // User let go so reset the joystick
         joystickVec = Vector2.zero;
         joystick.transform.position = joystickOriginalPos;

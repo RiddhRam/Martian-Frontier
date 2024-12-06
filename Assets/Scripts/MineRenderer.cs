@@ -11,30 +11,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public GameObject largeFogOfWar;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public TileBase unknownTile;
-    public RuleTile level1Rock;  // Tile to place on the grid
-    public TileBase IronOre;
-    public TileBase SulfurOre;
-    public TileBase LimestoneRock;
-
-    // These are used to reveal which tile is at a position
-    private TileBase[] tileValues;
-    private readonly Vector2Int gridSize = new(25, 12); // 25x12 grid
+    // These are used to reveal which tile is at a position, includes base rock tile, and ores
+    public TileBase[] tileValues;
+    private readonly int totalRows = 36;
+    private readonly Vector2Int gridSize = new(25, 12);
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
     // Tiles will start in unplaced, then are copied (but not removed) to revealed when revealed, then remove from unplaced and revealed and placed in destroyed when destroyed
     // destroyed and revealed are used to save the game
-    private SerializableDictionary<Vector2Int, int>[] unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
-    private SerializableDictionary<Vector2Int, int>[] revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+    private SerializableDictionary<Vector2Int, int>[] unplacedTilemapsTileValues;
+    private SerializableDictionary<Vector2Int, int>[] revealedTilemapsTileValues;
     // This doesn't need to be a dictionary, just a list, because we already know the tile value
     // If a tile is destroyed, it will be set to null
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
-    private  SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+    private  SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues;
     // Array of the tilemap Game objects
-    private Tilemap[] tilemaps = new Tilemap[36];
+    private Tilemap[] tilemaps;
     private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
     // The gameobject of each ore material to be instantied onto the map when mining ores
-    [SerializeField]
     public GameObject[] materials;
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
@@ -46,13 +41,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // 1 = in the process of initializing
     // 2 = initialized
     public int mineInitialization = 0;
+    // Indicates the index of new tiers in tileValues
+    public int[] tierThresholds = new int[3];
 
     // Called before Start
     void Awake()
     {
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
-        // These are used to reveal which tile is at a position
-        tileValues = new TileBase[] { level1Rock, LimestoneRock, SulfurOre, IronOre };
+        unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
+        revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
+        destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
+        tilemaps = new Tilemap[totalRows];
+
+        // Set the thresholds to the right index based on the tile names
+        for (int i = 0; i != tileValues.Length; i++) {
+            string[] nameParts = tileValues[i].name.Split(' ');
+            if (nameParts[0] == "Level") {
+                tierThresholds[int.Parse(nameParts[1]) - 1] = i;
+            }
+        }
     }
 
     // Start is called before the first frame update
@@ -78,7 +85,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineInitialization = 1;
 
         // Make sure everything is clear
-        unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+        unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[unplacedTilemapsTileValues.Length];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[unplacedTilemapsTileValues.Length];
 
@@ -124,20 +131,23 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
 
         // Find the level of the rocks
-        /*
-        int level = 3;
-        if (chunkRow <= 12) {
+        
+        int level = 0;
+        int tileValueIndex = 0;
+        if (chunkRow < totalRows/2 && chunkRow >= totalRows/3) {
             level = 1;
-        } else if (chunkRow <= 24) {
+            tileValueIndex = 4;
+        } else if (chunkRow >= totalRows/2) {
             level = 2;
-        }*/
+            tileValueIndex = 5;
+        }
 
         SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
 
         // Generate 4 chunks in each tilemap
         for (int i = -50; i != 50; i += 25) {
             // i = the x coordinate of the chunk;
-            // (chunkRow - 1) * 12 - 5 = the y coordinate of the chunk
+            // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
 
             // y = y coordinate of tile
             // x = x coordinate of tile
@@ -147,17 +157,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             {
                 for (int x = 0; x < gridSize.x; x++)
                 {
-                    Vector3Int tilePosition = new(i + x, (chunkRow - 1) * -12 - 5 - y, 0);
+                    Vector3Int tilePosition = new(i + x, (chunkRow - 1) * -(gridSize.y) - 5 - y, 0);
                     
                     // Add this coordinate, use a base tile
                     // Level 1 base tile = 0, level 2 = 4, level 3 = 8
-                    unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), 0);
+                    unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), tileValueIndex);
                     mineTilemap.SetTile(tilePosition, unknownTile);
                 }
             }
 
             // Now place ore veins throughout the chunk
-            GenerateOreVeins(unplacedTilemapsTileValue, i, chunkRow);
+            GenerateOreVeins(unplacedTilemapsTileValue, i, chunkRow, level);
         }
 
         unplacedTilemapsTileValues[chunkRow - 1] = unplacedTilemapsTileValue;
@@ -168,8 +178,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
+
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - (chunkRow * 12), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - (chunkRow * (gridSize.y)), 0);
     }
 
     public void LoadTiles() {
@@ -207,7 +218,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     }
 
-    private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow)
+    private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
     {
         int veinCount = Random.Range(2, 5);
 
@@ -242,7 +253,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     }
 
                     // Get the position and place it in the SerializableDictionary
-                    Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -12 - 5 - tileY);
+                    Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -(gridSize.y) - 5 - tileY);
                     unplacedTilemapsTileValue[tilePosition] = oreToPlace;
                 }
             }
@@ -343,7 +354,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public TileBase[] GetOres() {
-        return new TileBase[] { IronOre, SulfurOre, LimestoneRock };
+        // Return only the tiles of ores
+        return new TileBase[] { tileValues[1], tileValues[2], tileValues[3] };
     }
 
     public string[] GetMaterialNames() {
@@ -419,5 +431,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private void SaveGame() {
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    public int GetTileTier(TileBase tileToIdentify) {
+        int tier = 1;
+
+        for (int i = 0; i != tileValues.Length; i++) {
+            if (tileToIdentify != tileValues[i]) {
+                continue;
+            }
+
+            for (int j = 0; j != tierThresholds.Length; j++) {
+                if (tierThresholds[j] <= i) {
+                    tier = j + 1;
+                }
+            }
+
+            break;
+        }
+
+        return tier;
     }
 }

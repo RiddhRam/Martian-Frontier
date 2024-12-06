@@ -1,4 +1,3 @@
-using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -18,13 +17,13 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public Sprite[] materialSprites;
-    public String[] materialNames;
+    private string[] materialNames;
     private bool showCargoButton;
  
     void Start()
     {
         ToggleCargoButton(false);
-        //materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
+        materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
     }
 
     public void ToggleCargoButton(bool newValue) {

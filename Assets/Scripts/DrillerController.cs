@@ -74,6 +74,17 @@ public class DrillerController : MonoBehaviour
 
         TileBase tileToDestroy = tilemap.GetTile(nearestTilePos);
 
+        // Make sure the drill is capable of destroying this tile
+        int tileTier = mineRenderer.GetTileTier(tileToDestroy);
+        if (drillTier < tileTier) {
+            FlickerMap(tilemap);
+            Debug.Log("Tier " + tileTier + " is needed!");
+            return;
+        }
+
+        // Destroy the tile and reveal new tiles in the vision radius
+        mineRenderer.DestroyTile(nearestTilePos, false);
+
         for (int i = 0; i != ores.Length; i++) {
             if (tileToDestroy != ores[i]) {
                 continue;
@@ -124,10 +135,11 @@ public class DrillerController : MonoBehaviour
             materialsDelegator.AddMaterial(material);
             break;
         }
-        
-        // Destroy the tile and reveal new tiles in the vision radius
-        mineRenderer.DestroyTile(nearestTilePos, false);
 
+        FlickerMap(tilemap);
+    }
+
+    private void FlickerMap(Tilemap tilemap) {
         // Disable and renable quickly so the trigger event can occur again
         tilemap.GetComponent<TilemapCollider2D>().enabled = false;
         tilemap.GetComponent<TilemapCollider2D>().enabled = true;
