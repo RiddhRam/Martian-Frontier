@@ -1646,7 +1646,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00030022772}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 600}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &275609974
@@ -1721,11 +1721,7 @@ MonoBehaviour:
   - {fileID: 903657660}
   - {fileID: 1077768524}
   - {fileID: 1328724127}
-  userCash: 249500000
   savedAmountSubtract: 0
-  blocksMined: 0
-  materialsSold: 0
-  moneyEarned: 0
   vehiclesOwned:
   - Level 1 Base Drill
   - Level 1 Wider Faster Drill
@@ -2030,9 +2026,15 @@ MonoBehaviour:
   - {fileID: 2146385136}
   materialButton: {fileID: 3846792466893615226, guid: 58698b35ff67147199311dca14ebe7f7, type: 3}
   materialSprites:
-  - {fileID: -1575949256, guid: c1aa225a159c64a4b965462bc10556e0, type: 3}
-  - {fileID: 32486234, guid: c1aa225a159c64a4b965462bc10556e0, type: 3}
-  - {fileID: 337375333, guid: c1aa225a159c64a4b965462bc10556e0, type: 3}
+  - {fileID: 21300000, guid: cb903f94303994de69c98ea0e99a378b, type: 3}
+  - {fileID: 21300000, guid: b2d4f969e0b534c4db29d83a450b288c, type: 3}
+  - {fileID: 21300000, guid: 01f5d67bc43a04867a3a7a44ac78fb5c, type: 3}
+  - {fileID: 21300000, guid: c4a1667450fae4ce0a2da1e1e59c1b46, type: 3}
+  - {fileID: 21300000, guid: cbbf0c14dae1749e0acfa7933a503431, type: 3}
+  - {fileID: 21300000, guid: aa80d63362c264141a8015ec84422c19, type: 3}
+  - {fileID: 21300000, guid: efaad735caff64bcf8c4d932cab1db5b, type: 3}
+  - {fileID: 21300000, guid: d6ac26591abeb4bb5b8ec0a3de71e16a, type: 3}
+  - {fileID: 21300000, guid: 1104589ef95494f9e9d2d66dd41a72c6, type: 3}
 --- !u!1 &327509439
 GameObject:
   m_ObjectHideFlags: 0
@@ -3556,8 +3558,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 526807793}
   m_HandleRect: {fileID: 526807792}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.9999951
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -3633,7 +3635,7 @@ RectTransform:
   m_Father: {fileID: 146432433}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 0.9999951}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17310,7 +17312,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 136909624}
   m_HandleRect: {fileID: 136909623}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -455966,15 +455968,38 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 8cb0ad98557234ad8967efe88fef3d0c, type: 2}
   - {fileID: 11400000, guid: 66d209b30dd674276a66d146ba80bfc7, type: 2}
   - {fileID: 11400000, guid: 89ab7b0205f634e3aa3bafe2ae17229c, type: 2}
+  - {fileID: 11400000, guid: ff6d52df4c0ad410faed54f7dc64dfff, type: 2}
+  - {fileID: 11400000, guid: c09c9b9189b2f4e0a9ff9ed44cb459b3, type: 2}
+  - {fileID: 11400000, guid: f02f649e18fd14006b948bc2d055f02f, type: 2}
   - {fileID: 11400000, guid: 637ea02c583404bdfaa3a386d65638b6, type: 2}
+  - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
+  - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
+  - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  materialNames:
+  - Limestone
+  - Sulfur
+  - Iron
+  - Quartz
+  - Titanium
+  - Cobalt
+  - Platinum
+  - Lithium
+  - Uranium
   materials:
   - {fileID: 6711909364478728060, guid: 1a26670d6a8f54f7c81fc46772e0ac71, type: 3}
   - {fileID: 7003855559659621168, guid: 509ba637d3c894eb699adc2fec86c843, type: 3}
   - {fileID: 5836944365000543928, guid: 142ceec66bd614b03b91a376cac47757, type: 3}
+  - {fileID: 5836944365000543928, guid: b3642841da8fb48b3b3b5bcc0038b462, type: 3}
+  - {fileID: 5836944365000543928, guid: e9b8d758f0318425c9b6a7b0e5707b3a, type: 3}
+  - {fileID: 5836944365000543928, guid: 4546eacb64e5849968c840e4bb6c6c0c, type: 3}
+  - {fileID: 5836944365000543928, guid: 6508e04474db84b8aa1ca33d7ed9bfb3, type: 3}
+  - {fileID: 5836944365000543928, guid: ccf69e92d60fb4c80b93e06339e632b9, type: 3}
+  - {fileID: 5836944365000543928, guid: b9f437ff417e8489b8f3880781bd3006, type: 3}
   seed: 0
   highestRow: 0
   mineInitialization: 0
   tierThresholds: 000000000000000000000000
+  oresPerTier: 000000000000000000000000
 --- !u!1 &1119180242
 GameObject:
   m_ObjectHideFlags: 0
@@ -456735,7 +456760,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.00009618841}
+  m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 1074.77}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1216486729
