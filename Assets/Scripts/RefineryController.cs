@@ -22,12 +22,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     [SerializeField]
     private float refineryInefficiency = 1;
 
-    // The price of each material, before boosts
-    // Aligns with materialCount's index from HaulerController
-    // REMEMBER TO UPDATE IN PlayerState TOO
-    private readonly int[] materialPrices = {50, 150, 250, 5000, 15000, 25000, 500000, 1500000, 2500000};
+    private int[] materialPrices;
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
+
+    void Start() {
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -48,7 +49,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             // Have to start j in the negative because the values will meet in the middle at 0
             // j increases by 1, but materialCount[i] also decreases by 1
             for (int j = -materialCount[i]; j < materialCount[i]; j++) {
-                if (refineryBattery == 0) {
+                if (refineryBattery <= 0) {
                     break;
                 }
                 
@@ -56,9 +57,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 materialCount[i]--;
                 playerState.GetComponent<PlayerState>().NewMaterialSold();
                 savedMaterialCount[i]++;
-                continue;
             }
         }
+
+        // Reset the mine if needed
+        if (refineryBattery <= 0) {
+            // Stop user from user dropoff or mine
+            gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
+            StartCoroutine(ResetMine());
+        }
+
+        UpdateRefineryProgressBars();
 
         // Calculate how much money to add
         int cashToAdd = 0;
@@ -76,15 +85,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
-
-        UpdateRefineryProgressBars();
-
-        // Reset the mine if needed
-        if (refineryBattery == 0) {
-            // Stop user from user dropoff or mine
-            gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
-            StartCoroutine(ResetMine());
-        }
     }
 
     private IEnumerator ResetMine() {
@@ -180,7 +180,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
         refineryProgressSliderUI.GetComponent<Slider>().maxValue = initialBattery;
         refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
-        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = (int) (refineryBattery * 100 / initialBattery) + "%";
+
+        // Round up to nearest int
+        string barText = Mathf.CeilToInt(refineryBattery * 100 / initialBattery) + "%";
+        // Unless it's at 99, then don't round up to 100
+        if (Mathf.FloorToInt(refineryBattery * 100 / initialBattery) == 99) {
+            barText = "99%";
+        }
+
+        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = barText;
     }
 
     public void UpgradeBattery(float newValue) {

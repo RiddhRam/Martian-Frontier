@@ -7,7 +7,7 @@ public class HaulerController : MonoBehaviour
     private string[] materialNames;
     [SerializeField]
     // Initializes array with all values at 0
-    private int[] materialCount = new int[9];
+    private int[] materialCount;
     [SerializeField]
     private int maxMaterials;
     [SerializeField]
@@ -26,8 +26,11 @@ public class HaulerController : MonoBehaviour
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
-        materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
+        materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+        if (materialCount == null || materialCount.Length != materialNames.Length) {
+            materialCount = new int[materialNames.Length];
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -39,7 +42,7 @@ public class HaulerController : MonoBehaviour
 
         // Check for the material's index
         MaterialManager materialManager = other.GetComponent<MaterialManager>();
-        string materialName = materialManager.materialName;
+        string materialName = materialManager.materialName.ToUpper();
 
         for (int i = 0; i < materialNames.Length; i++)
         {

@@ -21,12 +21,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger moneyEarned;
     [SerializeField]
     private List<string> vehiclesOwned = new();
-    // The price of each material, before boosts
-    // Aligns with materialCount's index from HaulerController
-    // REMEMBER TO UPDATE IN RefineryController TOO
-    private readonly int[] materialPrices = {50, 150, 250, 5000, 15000, 25000, 500000, 1500000, 2500000};
+    private int[] materialPrices;
 
     void Start() {
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         UpdateCashDisplays();
     }
 

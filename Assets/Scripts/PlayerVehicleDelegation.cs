@@ -26,6 +26,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)
         playerVehicle = Instantiate(newVehicle);
         playerVehicle.transform.SetParent(transform);
+        playerVehicle.transform.SetAsFirstSibling();
         playerVehicle.transform.localPosition = new(0, 0, 0);
         // The z rotation initially starts at 180, but when we switch we use 0
         playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);

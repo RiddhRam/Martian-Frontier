@@ -28,10 +28,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private  SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues;
     // Array of the tilemap Game objects
     private Tilemap[] tilemaps;
-    [SerializeField]
-    private string[] materialNames;
     // The gameobject of each ore material to be instantied onto the map when mining ores
-    public GameObject[] materials;
+    private GameObject[] materials;
+    private Sprite[] materialSprites;
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
@@ -45,7 +44,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
-
 
     // Called before Start
     void Awake()
@@ -71,6 +69,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
         }
+    
+        OreDelegation oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        materials = oreDelegation.materials;
+        materialSprites = oreDelegation.materialSprites;
     }
 
     // Start is called before the first frame update
@@ -392,10 +394,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return ores;
     }
 
-    public string[] GetMaterialNames() {
-        return materialNames;
-    }
-
     // Get the index of the tile
     private int IdentifyTile(TileBase tileToIdentify) {
 
@@ -428,7 +426,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         foreach (string id in savedMaterials.Keys) {
             GameObject newMaterial = Instantiate(materials[savedMaterials[id].materialIndex]);
-            
+            newMaterial.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = materialSprites[savedMaterials[id].materialIndex];
             // Copy all the saved values into the loaded material
             MaterialManagerData savedMaterialManager = savedMaterials[id];
             // Need to manually put it in the right spot, do this before SetCount, so it happens before UpdateData() in MaterialManager

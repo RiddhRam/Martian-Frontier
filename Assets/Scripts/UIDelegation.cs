@@ -16,14 +16,15 @@ public class UIDelegation : MonoBehaviour
     public GameObject[] primaryElements;
     //private string[] materialNames;
     public GameObject materialButton;
-    public Sprite[] materialSprites;
+    private Sprite[] materialHighResSprites;
     private string[] materialNames;
     private bool showCargoButton;
  
     void Start()
     {
         ToggleCargoButton(false);
-        materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
+        materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
+        materialHighResSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialHighResSprites;
     }
 
     public void ToggleCargoButton(bool newValue) {
@@ -110,7 +111,7 @@ public class UIDelegation : MonoBehaviour
             materialManagerUI.materialIndex = i;
 
             newMaterialButton.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i].ToUpper();
-            newMaterialButton.transform.GetChild(3).GetComponent<Image>().sprite = materialSprites[i];
+            newMaterialButton.transform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[i];
             
             newMaterialButton.transform.localScale = new(1, 1, 1);
 

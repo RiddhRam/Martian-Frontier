@@ -50,9 +50,9 @@ public class GarageDelegator : MonoBehaviour
         // If drillers
         if (panelToActivate == "Drillers") {
 
-            GameObject[] tierPanels = new GameObject[3];
+            GameObject[] tierPanels = new GameObject[tierColors.Length];
             // Create a tier panel for each tier
-            for (int i = 0; i != 3; i++) {
+            for (int i = 0; i != tierPanels.Length; i++) {
                 GameObject newTierPanel = Instantiate(drillerTierPanel);
                 tierPanels[i] = newTierPanel;
                 Transform panelTransform = tierPanels[i].transform;
@@ -64,7 +64,7 @@ public class GarageDelegator : MonoBehaviour
             }
 
             // Track number of items in each tier, to dynamically resize content height based on rows
-            int[] tierItems = new int[3];
+            int[] tierItems = new int[tierPanels.Length];
 
             for (int i = 0; i != drillers.Length; i++) {
 
@@ -126,7 +126,7 @@ public class GarageDelegator : MonoBehaviour
 
             float bigContentHeight = 0;
             // Resize each tier panel
-            for (int i = 0; i != 3; i++) {
+            for (int i = 0; i != tierPanels.Length; i++) {
                 Transform scrollViewContent = tierPanels[i].transform.GetChild(1);
                 // Calculate the number of rows
                 GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();

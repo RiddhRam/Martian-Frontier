@@ -7,6 +7,7 @@ public class DrillerController : MonoBehaviour
     private int radius;
     private TileBase[] ores;
     private GameObject[] materials;
+    private Sprite[] materialSprites;
     private MineRenderer mineRenderer;
     [SerializeField]
     private float playerSpeed;
@@ -20,9 +21,13 @@ public class DrillerController : MonoBehaviour
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        materials = mineRenderer.materials;
         ores = mineRenderer.GetOres();
+
+        materials = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materials;
+        materialSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialSprites;
+
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+        
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
     }
 
@@ -37,6 +42,7 @@ public class DrillerController : MonoBehaviour
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
+        // large radius in case using large drillers, not sure if reducing this will cause errors or not
         float closestDistance = 5;
         Vector3Int nearestTilePos = Vector3Int.zero;
         Vector3 centerTilePos = Vector3.zero;
@@ -129,6 +135,7 @@ public class DrillerController : MonoBehaviour
             }
 
             GameObject material = Instantiate(materialToUse);
+            material.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = materialSprites[i];
             material.transform.position = centerTilePos;
             material.GetComponent<MaterialManager>().materialIndex = i;
             material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
