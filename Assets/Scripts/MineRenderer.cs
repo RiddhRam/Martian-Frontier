@@ -28,7 +28,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private  SerializableDictionary<Vector2Int, int>[] destroyedTilemapsTileValues;
     // Array of the tilemap Game objects
     private Tilemap[] tilemaps;
-    private readonly string[] materialNames = { "Limestone", "Sulfur", "Iron" };
+    [SerializeField]
+    private string[] materialNames;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     public GameObject[] materials;
     private UncollectedMaterialsDelegator materialsDelegator;
@@ -43,6 +44,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int mineInitialization = 0;
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
+    public int[] oresPerTier = new int[3];
+
 
     // Called before Start
     void Awake()
@@ -59,6 +62,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             if (nameParts[0] == "Level") {
                 tierThresholds[int.Parse(nameParts[1]) - 1] = i;
             }
+        }
+
+        for (int i = 0; i != tierThresholds.Length; i++) {
+            if (i == tierThresholds.Length - 1) {
+                oresPerTier[i] = tileValues.Length - tierThresholds[i];
+                break;
+            }
+            oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
         }
     }
 
@@ -134,12 +145,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         int level = 0;
         int tileValueIndex = 0;
-        if (chunkRow < totalRows/2 && chunkRow >= totalRows/3) {
+        if (chunkRow < 2 * totalRows/3 && chunkRow >= totalRows/3) {
             level = 1;
             tileValueIndex = 4;
-        } else if (chunkRow >= totalRows/2) {
+        } else if (chunkRow >= 2 * totalRows/3) {
             level = 2;
-            tileValueIndex = 5;
+            tileValueIndex = 8;
         }
 
         SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
@@ -230,7 +241,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             int radius = Random.Range(2, 4); // Radius of 2-4 tiles for variation
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
-            int oreToPlace = SelectOreBasedOnDepth(chunkRow, 1);
+            int oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
 
             for (int x = -radius; x <= radius; x++)
             {
@@ -264,16 +275,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int SelectOreBasedOnDepth(int chunkRow, int level)
     {
         // Calculate the probability weights based on depth
-        float depthFactor = Mathf.Clamp01(chunkRow / 10f);  // Lower 20f to make the rarity change faster, increase to change it slower
+        float depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
 
         // Select an index 
         // Random.Value can add 1 to the index, or it adds 0, no in between since the index will be an integer
         // Must be between 1-3 (level 1), 5-7 (level 2), 9-11 (level 3)
 
-        int selectedOreIndex = (int) Mathf.Clamp(depthFactor * 3 + Random.value, 1, 3);
-        
+        float oreIndex = Mathf.Clamp(depthFactor * oresPerTier[level] + Random.value, 1, oresPerTier[level]);
+        oreIndex += tierThresholds[level];
+        oreIndex = Mathf.Clamp(oreIndex, 1, tileValues.Length - 1);
+
         // Higher depths increase chances for rarer ores at the end of the array
-        return selectedOreIndex;
+        return (int) oreIndex;
     }
 
     public void RevealTile(Vector2Int tilePos) {
@@ -354,8 +367,29 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public TileBase[] GetOres() {
+        TileBase[] ores = new TileBase[tileValues.Length - tierThresholds.Length];
+
+        int counter = 0;
+        for (int i = 0; i != tileValues.Length; i++) {
+            // Only add tiles that aren't rock tiles
+            bool tierIndex = false;
+            for (int j = 0; j != tierThresholds.Length; j++) {
+                if (i == tierThresholds[j]) {
+                    tierIndex = true;
+                    break;
+                }
+            }
+
+            if (tierIndex) {
+                continue;
+            }
+
+            ores[counter] = tileValues[i];
+            counter++;
+        }
+
         // Return only the tiles of ores
-        return new TileBase[] { tileValues[1], tileValues[2], tileValues[3] };
+        return ores;
     }
 
     public string[] GetMaterialNames() {

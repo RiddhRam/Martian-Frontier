@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 1343637625102057182}
   - component: {fileID: -2375421962124250688}
   m_Layer: 0
-  m_Name: Iron
+  m_Name: Quartz
   m_TagString: Material Tag
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -76,12 +76,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 3
-  m_Sprite: {fileID: 1930653886, guid: 37cdf4ebe15f343ef915b2d92b2cf405, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 5f7220fb4f3204e658e65c2ff428d24e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.66, y: 0.66}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -123,8 +123,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
-    newSize: {x: 1, y: 1}
+    oldSize: {x: 1.03125, y: 1.03125}
+    newSize: {x: 0.66, y: 0.66}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -145,10 +145,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   count: 0
-  materialName: Iron
+  materialName: Quartz
   materialIndex: 0
   id: 
-  position: {x: 0, y: 0, z: 0}
 --- !u!1 &7661966014298286541
 GameObject:
   m_ObjectHideFlags: 0

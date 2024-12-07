@@ -7,7 +7,7 @@ public class HaulerController : MonoBehaviour
     private string[] materialNames;
     [SerializeField]
     // Initializes array with all values at 0
-    private int[] materialCount;
+    private int[] materialCount = new int[9];
     [SerializeField]
     private int maxMaterials;
     [SerializeField]
@@ -27,7 +27,6 @@ public class HaulerController : MonoBehaviour
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
-        materialCount = new int[materialNames.Length];
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
     }
 
@@ -77,7 +76,6 @@ public class HaulerController : MonoBehaviour
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
         }
-        //dataPersistenceManager.SaveGame();
     }
 
     public void ShowFloatingText(string amount)

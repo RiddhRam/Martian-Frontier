@@ -123,15 +123,17 @@ public class UIDelegation : MonoBehaviour
             button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
             
         }
-    
-        // Calculate the number of rows
+
+        // Resize the content panel
         GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();
-        int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
+        int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / (gridLayoutGroup.cellSize.x + gridLayoutGroup.spacing.x)));
         int rows = Mathf.CeilToInt((float) itemsToDisplay / columns);
 
-        // Resize the scroll view content height to fit the rows (400 * # of rows)
         RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, rows * 600);
+
+        // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
+        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 35 + 1000 * rows + 40 * (rows - 1));
+        scrollViewContent.GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
     }
 
     // Empty the grid for next time

@@ -25,7 +25,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
     // REMEMBER TO UPDATE IN PlayerState TOO
-    private readonly int[] materialPrices = {50, 150, 250};
+    private readonly int[] materialPrices = {50, 150, 250, 5000, 15000, 25000, 500000, 1500000, 2500000};
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
 

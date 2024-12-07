@@ -7,11 +7,11 @@ public class GameData
     // Make everything have [Serialize Field] or public or else it won't be loaded or saved
     // Not sure about [Serialize Field] in production, but it works in development
     // Public works in production for sure
-    public long userCash;
-    public long userXP;
-    public long blocksMined;
-    public long materialsSold;
-    public long moneyEarned;
+    public string userCash;
+    public string userXP;
+    public string blocksMined;
+    public string materialsSold;
+    public string moneyEarned;
     public Vector3 playerPos;
     public float playerRotation;
     public List<string> vehiclesOwned;
@@ -29,15 +29,16 @@ public class GameData
     public int mineInitialization;
 
     public GameData() {
-        this.userCash = 0;
+        this.userCash = "0";
+        this.userXP = "0";
         this.playerPos = new(4.5f, 5.4f, 0);
         this.playerRotation = 180;
-        this.blocksMined = 0;
-        this.materialsSold = 0;
-        this.moneyEarned = 0;
+        this.blocksMined = "0";
+        this.materialsSold = "0";
+        this.moneyEarned = "0";
         this.vehiclesOwned = new List<string> { "Level 1 Base Drill", "STUBBY" };
         this.currentVehicle = "Level 1 Base Drill";
-        this.haulerCargo = new int[3];
+        this.haulerCargo = new int[9];
         this.materials = new();
         this.refineryInefficiency = 100;
         this.refineryCapacity = 120;

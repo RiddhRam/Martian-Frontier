@@ -100,7 +100,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         data.currentVehicle = this.currentVehicle;
 
         if (!playerVehicle) {
-            data.haulerCargo = new int[3];
+            data.haulerCargo = new int[9];
 
             return;
         }
@@ -111,7 +111,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         if (playerVehicle.GetComponent<HaulerController>()) {
             data.haulerCargo = playerVehicle.GetComponent<HaulerController>().GetMaterialCount();
         } else {
-            data.haulerCargo = new int[3];
+            data.haulerCargo = new int[9];
         }
         
     }
