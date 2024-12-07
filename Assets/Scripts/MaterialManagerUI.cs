@@ -1,13 +1,12 @@
 using UnityEngine;
 using TMPro;
-using System;
 
 // Same thing but uses TextMeshProGUI
 public class MaterialManagerUI : MonoBehaviour
 {
     // This is public for easy direct access
     public int count = 0;
-    public String materialName;
+    public string materialName;
     // This might be a different type of index compared to the one in MaterialManager
     public int materialIndex;
 

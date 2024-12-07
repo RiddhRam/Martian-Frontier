@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,23 +11,19 @@ public class UIDelegation : MonoBehaviour
     public GameObject destroyButton;
 
     // Higher resolution UI version of the minerals, because they will be larger now in the cargo panel
-    public GameObject IronMaterialButton;
-    public GameObject SulfurMaterialButton;
-    public GameObject LimestoneMaterialButton;
-
     // The first elements a user sees, these are the ones they see while playing the game
     // Secondary elements are the menus they open like the shop or map camera
-    [SerializeField]
-    private GameObject[] primaryElements;
+    public GameObject[] primaryElements;
     //private string[] materialNames;
-    private GameObject[] materialButtons;
+    public GameObject materialButton;
+    public Sprite[] materialSprites;
+    private string[] materialNames;
     private bool showCargoButton;
  
     void Start()
     {
         ToggleCargoButton(false);
-        //materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
-        materialButtons = new GameObject[] { LimestoneMaterialButton, SulfurMaterialButton, IronMaterialButton };
+        materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
     }
 
     public void ToggleCargoButton(bool newValue) {
@@ -94,39 +91,49 @@ public class UIDelegation : MonoBehaviour
         int itemsToDisplay = 0;
 
         for (int i = 0; i != materialCount.Length; i++) {
-            if (materialCount[i] > 0) {
-                // Create the material button
-                GameObject newMaterialButton = Instantiate(materialButtons[i]);
-                // Add it to the content scroll view
-                newMaterialButton.transform.SetParent(scrollViewContent.transform);
 
-                Transform materialSprite = newMaterialButton.transform.GetChild(0);
-    
-                // Set it's count
-                materialSprite.GetComponent<MaterialManagerUI>().SetCount(materialCount[i]);
-                newMaterialButton.transform.localScale = new(1, 1, 1);
-
-                materialSprite.GetComponent<MaterialManagerUI>().materialIndex = i;
-
-                itemsToDisplay++;
-
-                // Get the Button component
-                Button button = newMaterialButton.GetComponent<Button>();
-                
-
-                // Add an OnClick listener to the button
-                button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
+            // Should never be less than but just in case
+            if (materialCount[i] <= 0) {
+                materialCount[i] = 0;
+                continue;
             }
+
+            // Create the material button
+            GameObject newMaterialButton = Instantiate(materialButton);
+            // Add it to the content scroll view
+            newMaterialButton.transform.SetParent(scrollViewContent.transform);
+            
+            // Set up material manager ui
+            MaterialManagerUI materialManagerUI = newMaterialButton.GetComponent<MaterialManagerUI>();
+            materialManagerUI.SetCount(materialCount[i]);
+            materialManagerUI.materialName = materialNames[i];
+            materialManagerUI.materialIndex = i;
+
+            newMaterialButton.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i].ToUpper();
+            newMaterialButton.transform.GetChild(3).GetComponent<Image>().sprite = materialSprites[i];
+            
+            newMaterialButton.transform.localScale = new(1, 1, 1);
+
+            itemsToDisplay++;
+
+            // Get the Button component
+            Button button = newMaterialButton.GetComponent<Button>();
+
+            // Add an OnClick listener to the button
+            button.onClick.AddListener(() => OnMaterialButtonClick(newMaterialButton));
+            
         }
-    
-        // Calculate the number of rows
+
+        // Resize the content panel
         GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();
-        int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
+        int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / (gridLayoutGroup.cellSize.x + gridLayoutGroup.spacing.x)));
         int rows = Mathf.CeilToInt((float) itemsToDisplay / columns);
 
-        // Resize the scroll view content height to fit the rows (400 * # of rows)
         RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, rows * 600);
+
+        // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
+        contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 35 + 1000 * rows + 40 * (rows - 1));
+        scrollViewContent.GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
     }
 
     // Empty the grid for next time
@@ -139,13 +146,13 @@ public class UIDelegation : MonoBehaviour
 
         // These shouldn't be usable anymore
         sliderCount.GetComponent<Slider>().interactable = false;
-        
+        sliderCount.GetComponent<Slider>().value = 0;
         destroyButton.GetComponent<Button>().interactable = false;
     }
 
     // Could be in one line but whatever
     private void OnMaterialButtonClick(GameObject materialSelected)
     {
-        destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected.transform.GetChild(0).gameObject);
+        destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected);
     }
 }

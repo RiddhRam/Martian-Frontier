@@ -12,7 +12,7 @@ public class DataPersistenceManager : MonoBehaviour
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
     private float timer = 0f;
-    public float interval = 10f; // Save time interval
+    private float interval = 5f; // Save time interval
 
     public static DataPersistenceManager instance {get; private set; }
 
@@ -35,7 +35,6 @@ public class DataPersistenceManager : MonoBehaviour
         if (timer >= interval) // Check if the timer has reached the interval
         {
             SaveGame();
-            timer = 0;
         }
     }
 
@@ -60,6 +59,7 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public void SaveGame() {
+        timer = 0;
         if (dataPersistenceObjects == null) {
             return;
         }

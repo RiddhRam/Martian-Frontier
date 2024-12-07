@@ -7,7 +7,7 @@ public class HaulerController : MonoBehaviour
     private string[] materialNames;
     [SerializeField]
     // Initializes array with all values at 0
-    private int[] materialCount = new int[3];
+    private int[] materialCount = new int[9];
     [SerializeField]
     private int maxMaterials;
     [SerializeField]
@@ -23,13 +23,11 @@ public class HaulerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
-    private DataPersistenceManager dataPersistenceManager;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
         materialNames = GameObject.Find("Mine").GetComponent<MineRenderer>().GetMaterialNames();
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -64,7 +62,7 @@ public class HaulerController : MonoBehaviour
                     return;
                 }
 
-                ShowFloatingText(amountPickedUp);
+                ShowFloatingText(amountPickedUp.ToString());
                 // Reduce the count of the material
                 materialManager.SetCount(materialManager.count - amountPickedUp);
                 materialsDelegator.UpdateMaterial(materialManager);
@@ -74,19 +72,17 @@ public class HaulerController : MonoBehaviour
             // If limit isn't exceeded then destroy the game object
             materialCount[i] += amountPickedUp;
             // Show floating text
-            ShowFloatingText(amountPickedUp);
+            ShowFloatingText(amountPickedUp.ToString());
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
         }
-        //dataPersistenceManager.SaveGame();
     }
 
-    private void ShowFloatingText(int amount)
+    public void ShowFloatingText(string amount)
     {
         // Set the text to show the picked up amount
         TextMeshPro textComponent = floatingText.GetComponent<TextMeshPro>();
         textComponent.text = $"+{amount}";
-
         // Start fading out the text after a delay
         StartCoroutine(FadeOutText(floatingText));
     }

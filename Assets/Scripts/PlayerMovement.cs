@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-public class PlayerMovement : MonoBehaviour, IDataPersistence
+public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
-    private float playerSpeed;
+    private float playerSpeed = 5f;
     [SerializeField]
     private float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
@@ -11,12 +11,12 @@ public class PlayerMovement : MonoBehaviour, IDataPersistence
     // If the difference between last and current rotation is less than this, we assume it's stuck
     [SerializeField]
     private float rotationThreshold; 
+    Transform frontWheels;
 
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        UpdateSpeed();
     }
 
     // Update is called once per frame
@@ -60,6 +60,9 @@ public class PlayerMovement : MonoBehaviour, IDataPersistence
             return; // Vehicle is stuck, don't rotate
         }
 
+        // Save this value in case it's needed for front wheels
+        float tempLastRotation = lastRotation;
+
         // Update the last known rotation angle
         lastRotation = newAngle;
 
@@ -70,34 +73,51 @@ public class PlayerMovement : MonoBehaviour, IDataPersistence
         } else {
             transform.rotation = Quaternion.Euler(0, 0, targetAngle);
         }
-    }
 
-    public void UpdateSpeed() {
-        GameObject vehicle = transform.GetChild(0).gameObject;
-        // DrillerController is in second child of child
-        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
-
-        if (drillerController) {
-            playerSpeed = drillerController.GetPlayerSpeed();
-        } else {
-            // HaulerController is in child
-            HaulerController haulerController = vehicle.GetComponent<HaulerController>();
-            playerSpeed = haulerController.GetPlayerSpeed();
+        if (!frontWheels) {
+            return;
         }
+
+        // Might fail after changing
+        try {
+            float maxBodyRotation = 30;
+            float maxChangeRotation = 20;
+
+            if (tempLastRotation - 90 > newAngle) {
+                newAngle += 360;
+            }
+
+            if (tempLastRotation < 0) {
+                tempLastRotation += 360;
+            }
+
+            // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
+            // Wheel rotation cannot exceed 30 degrees of the body
+            float wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
+
+            // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
+            wheelRotation = Mathf.Clamp(wheelRotation - frontWheels.GetChild(0).rotation.z, -maxChangeRotation, maxChangeRotation);
+            for (int i = 0; i != frontWheels.childCount; i++) {
+                frontWheels.GetChild(i).rotation = Quaternion.Euler(0, 0, wheelRotation + newAngle);
+            }
+        } catch {
+        }
+
     }
 
-    public void UpdateSpeed(float newPlayerSpeed) {
-        playerSpeed = newPlayerSpeed;
-    }
-    
-    public void LoadData(GameData data) {
-        // This doesn't do anything, the actual position and rotation is set in PlayerVehicleDelegation
-        transform.position = data.playerPos;
-        transform.rotation = Quaternion.Euler(0, 0, data.playerRotation);
-    }
+    public void SetSpeed(float newSpeed) {
+        playerSpeed = newSpeed;
 
-    public void SaveData(ref GameData data) {
-        data.playerPos = transform.position;
-        data.playerRotation = transform.rotation.eulerAngles.z;
+        Transform vehicle = transform.GetChild(1);
+        // SetSpeed is called when a new vehicle is placed
+        // When a new vehicle is placed we should also check if it needs animated wheels or not
+        for (int i = 0; i != vehicle.childCount; i++) {
+            if (vehicle.GetChild(i).name == "Front Wheels") {
+                frontWheels = vehicle.GetChild(i);
+                return;
+            }
+        }
+
+        frontWheels = null;
     }
 }

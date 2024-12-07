@@ -25,7 +25,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
     // REMEMBER TO UPDATE IN PlayerState TOO
-    private readonly int[] materialPrices = {50, 150, 250};
+    private readonly int[] materialPrices = {50, 150, 250, 5000, 15000, 25000, 500000, 1500000, 2500000};
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
 
@@ -48,14 +48,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             // Have to start j in the negative because the values will meet in the middle at 0
             // j increases by 1, but materialCount[i] also decreases by 1
             for (int j = -materialCount[i]; j < materialCount[i]; j++) {
-                if (refineryBattery != 0) {
-                    refineryBattery -= refineryInefficiency;
-                    materialCount[i]--;
-                    playerState.GetComponent<PlayerState>().NewMaterialSold();
-                    savedMaterialCount[i]++;
-                    continue;
+                if (refineryBattery == 0) {
+                    break;
                 }
-                break;
+                
+                refineryBattery -= refineryInefficiency;
+                materialCount[i]--;
+                playerState.GetComponent<PlayerState>().NewMaterialSold();
+                savedMaterialCount[i]++;
+                continue;
             }
         }
 
@@ -65,10 +66,16 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             cashToAdd += savedMaterialCount[i] * materialPrices[i];
         }
 
+        // Should never be less than
+        if (cashToAdd <= 0) {
+            return;
+        }
+
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash(cashToAdd, savedMaterialCount);
 
         haulerController.SetMaterialCount(materialCount);
+        haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
 
         UpdateRefineryProgressBars();
 
@@ -78,12 +85,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
             StartCoroutine(ResetMine());
         }
-
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     private IEnumerator ResetMine() {
-
+        mine.GetComponent<MineRenderer>().mineInitialization = 0;
         // Disable mine temporarily
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOff;
         // Move player off the dropoff area, and move all players inside the mine to the outside
@@ -116,13 +121,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             foreach (var material in materials) {
                 Destroy(material.gameObject);
             }
-            
         }
 
-        StartCoroutine(GraduallyIncreaseBattery(initialBattery));
-
-        // Sleep for 3 seconds
-        yield return new WaitForSeconds(3);        
+        mine.GetComponent<MineRenderer>().InitializeMine();
 
         // Create the new mine
         GameObject genTrigGameObject = Instantiate(generationTriggers);
@@ -134,7 +135,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(mine);
         }
 
-        mine.GetComponent<MineRenderer>().InitializeMine();
+        mine.GetComponent<MineRenderer>().mineInitialization = 1;
+        SaveGame();
+
+        // Wait for this to be done
+        yield return StartCoroutine(GraduallyIncreaseBattery(initialBattery));
+
+        mine.GetComponent<MineRenderer>().mineInitialization = 2;
         
         // Renable the mine
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOn;
@@ -145,7 +152,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         gameObject.GetComponent<BoxCollider2D>().enabled = false;
         gameObject.GetComponent<BoxCollider2D>().enabled = true;
 
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        SaveGame();
     }
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
@@ -179,13 +186,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public void UpgradeBattery(float newValue) {
         refineryBattery = newValue - (initialBattery - refineryBattery);
         initialBattery = newValue;
+        SaveGame();
         UpdateRefineryProgressBars();
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     public void ImproveEfficiency(float newValue) {
         refineryInefficiency = newValue / 100f;
-        //GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        SaveGame();
     }
 
     public void LoadData(GameData data) {
@@ -194,8 +201,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency, gameObject);
         
         this.refineryInefficiency = data.refineryInefficiency / 100;
-        this.refineryBattery = data.refineryBattery;
         this.initialBattery = data.refineryCapacity;
+        this.refineryBattery = data.refineryBattery;
+        // If refinery controller bar was in reset animation, then skip it and go straight to 100%
+        if (data.mineInitialization == 1) {
+            this.refineryBattery = initialBattery;
+        }
 
         UpdateRefineryProgressBars();
     }
@@ -204,5 +215,46 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
         data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
+    }
+
+    private void SaveGame() {
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+    }
+
+    private string FormatPrice(long price)
+    {
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Qu"
+            return (Mathf.Floor(price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Q"
+            return (Mathf.Floor(price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "T"
+            return (Mathf.Floor(price / 1_000_000_000_000f * 1000) / 1000).ToString("0.###") + "T";
+        }
+        else if (price >= 1_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "B"
+            return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 3 decimal places and format with "M"
+            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 }
