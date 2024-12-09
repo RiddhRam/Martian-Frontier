@@ -10,17 +10,37 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
+    private MineRenderer mineRenderer;
+
+    public void Start() {
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+    }
 
     public void SwitchVehicle(GameObject newVehicle) {
 
-        if (newVehicle.name == transform.GetChild(0).gameObject.name && !loading) {
+        GameObject oldVehicle = transform.GetChild(0).gameObject;
+
+        if (newVehicle.name == oldVehicle.name && !loading) {
             // User is already in this vehicle, do nothing
             return;
         }
         loading = false;
 
+        if (oldVehicle.GetComponent<HaulerController>()) {
+            int[] materialCount = oldVehicle.GetComponent<HaulerController>().GetMaterialCount();
+
+            for (int i = 0; i != materialCount.Length; i++) {
+                // Should never be less than zero but just in case
+                if (materialCount[i] <= 0) {
+                    continue;
+                }
+
+                mineRenderer.CreateNewMaterial(i, materialCount[i], transform.position);
+            }
+        }
+
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
-        Destroy(transform.GetChild(0).gameObject);
+        Destroy(oldVehicle);
         transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
 
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)

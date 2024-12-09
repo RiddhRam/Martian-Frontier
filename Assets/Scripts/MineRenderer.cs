@@ -425,22 +425,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.highestRow = data.highestRow;
         
         foreach (string id in savedMaterials.Keys) {
-            GameObject newMaterial = Instantiate(materials[savedMaterials[id].materialIndex]);
-            newMaterial.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = materialSprites[savedMaterials[id].materialIndex];
             // Copy all the saved values into the loaded material
             MaterialManagerData savedMaterialManager = savedMaterials[id];
-            // Need to manually put it in the right spot, do this before SetCount, so it happens before UpdateData() in MaterialManager
-            newMaterial.transform.localPosition = savedMaterialManager.position;
-
-            MaterialManager newMaterialManager = newMaterial.GetComponent<MaterialManager>();
-            newMaterialManager.materialName = savedMaterialManager.materialName;
-            newMaterialManager.materialIndex = savedMaterialManager.materialIndex;
-            newMaterialManager.id = savedMaterialManager.id;
-            newMaterialManager.SetCount(savedMaterialManager.count);
-            
-            materialsDelegator.AddMaterial(newMaterial);
+            CreateNewMaterial(savedMaterialManager.materialIndex, savedMaterialManager.count, savedMaterialManager.position);
         }
-        
 
         LoadTiles();
     }
@@ -483,5 +471,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         return tier;
+    }
+
+    // This function is also used by PlayerVehicleDelegation
+    public void CreateNewMaterial(int materialIndex, int materialCount, Vector3 materialPosition) {
+        GameObject newMaterial = Instantiate(materials[materialIndex]);
+        materialsDelegator.AddMaterial(newMaterial, materialSprites[materialIndex], materialPosition, materialIndex, materialCount);
     }
 }

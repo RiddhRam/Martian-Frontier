@@ -152,11 +152,7 @@ public class DrillerController : MonoBehaviour
             }
 
             GameObject material = Instantiate(materialToUse);
-            material.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = materialSprites[i];
-            material.transform.position = centerTilePos;
-            material.GetComponent<MaterialManager>().materialIndex = i;
-            material.GetComponent<MaterialManager>().SetCount(oldCount + 1);
-            materialsDelegator.AddMaterial(material);
+            materialsDelegator.AddMaterial(material, materialSprites[i], centerTilePos, i, oldCount + 1);
             break;
         }
 
