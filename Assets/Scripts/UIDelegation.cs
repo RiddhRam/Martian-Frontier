@@ -16,6 +16,7 @@ public class UIDelegation : MonoBehaviour
     public GameObject[] primaryElements;
     //private string[] materialNames;
     public GameObject materialButton;
+    public GameObject errorMessage;
     private Sprite[] materialHighResSprites;
     private string[] materialNames;
     private bool showCargoButton;
@@ -155,5 +156,13 @@ public class UIDelegation : MonoBehaviour
     private void OnMaterialButtonClick(GameObject materialSelected)
     {
         destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected);
+    }
+
+    public void ShowError(string error) {
+        GameObject errorInstance = Instantiate(errorMessage);
+        errorInstance.GetComponent<TextMeshProUGUI>().text = error;
+        // Place it within the safe area
+        errorInstance.transform.SetParent(transform.GetChild(0));
+        errorInstance.transform.localPosition = new(0, 400 ,0);
     }
 }

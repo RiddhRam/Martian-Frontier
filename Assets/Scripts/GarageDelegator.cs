@@ -230,10 +230,10 @@ public class GarageDelegator : MonoBehaviour
     }
 
     public void OnBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle, int buyButtonIndex) {
-        bool canBuy = playerStateScript.VerifyEnoughCash(vehicle);
 
-        if (!canBuy) {
+        if (!(playerStateScript.VerifyEnoughCash(vehicle))) {
             // If not enough money display quick error, but later change this to prompt to pay money for for in game cash
+            transform.parent.parent.GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
             return;
         }
         if (vehicle.GetComponent<HaulerController>()) {

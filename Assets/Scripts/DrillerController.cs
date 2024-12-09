@@ -18,6 +18,9 @@ public class DrillerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
+    // Every second spent atttempting to mine a higher tier block, display an error
+    private int errorCounter = 60;
+    private int lastErrorCounter = 60;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -29,6 +32,15 @@ public class DrillerController : MonoBehaviour
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+    }
+
+    void FixedUpdate() {
+        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
+        if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
+            errorCounter = 60;
+            lastErrorCounter = 60;
+        }
+        lastErrorCounter = errorCounter;
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -83,8 +95,13 @@ public class DrillerController : MonoBehaviour
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
         if (drillTier < tileTier) {
+            errorCounter++;
             FlickerMap(tilemap);
-            Debug.Log("Tier " + tileTier + " is needed!");
+            // Dont spam the user with errors
+            if (errorCounter >= 60) {
+                GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("TIER " + tileTier + " DRILL IS NEEDED!");
+                errorCounter = 0;
+            }
             return;
         }
 

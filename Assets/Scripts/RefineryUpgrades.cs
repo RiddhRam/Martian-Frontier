@@ -35,6 +35,7 @@ public class RefineryUpgrades : MonoBehaviour
         }
 
         if (!PlayerState.GetComponent<PlayerState>().VerifyEnoughCash(upgradePrices[currentIndex])) {
+            transform.parent.parent.parent.parent.GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
             return;
         }
 
