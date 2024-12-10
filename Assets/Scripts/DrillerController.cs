@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -21,6 +22,12 @@ public class DrillerController : MonoBehaviour
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 60;
     private int lastErrorCounter = 60;
+    private AudioSource soundEffects;
+    private AudioClip[] drillBlockSoundEffects;
+    private float[] drillBlockVolumes;
+    // Same thing as the error counter, but with an actual timer
+    private DateTime audioTimer = DateTime.Now;
+    private int lastAudioUsed = -1;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -32,13 +39,15 @@ public class DrillerController : MonoBehaviour
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+        soundEffects = GameObject.Find("Sound Effects").GetComponent<AudioSource>();
+        drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
+        drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
     }
 
     void FixedUpdate() {
         // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
         if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
             errorCounter = 60;
-            lastErrorCounter = 60;
         }
         lastErrorCounter = errorCounter;
     }
@@ -108,6 +117,8 @@ public class DrillerController : MonoBehaviour
         // Destroy the tile and reveal new tiles in the vision radius
         mineRenderer.DestroyTile(nearestTilePos, false);
 
+        PlayAudio();
+
         for (int i = 0; i != ores.Length; i++) {
             if (tileToDestroy != ores[i]) {
                 continue;
@@ -175,5 +186,27 @@ public class DrillerController : MonoBehaviour
 
     public long GetPrice() {
         return price;
+    }
+
+    public void PlayAudio() {
+        if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {
+            return;
+        }
+
+        // Make sure we are not using the same audio twice in a row
+        // Theoretically, this loop can get stuck forever but very unlikely
+        int randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
+
+        while (randomIndex == lastAudioUsed) {
+            randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
+        }
+
+        lastAudioUsed = randomIndex;
+        
+        soundEffects.clip = drillBlockSoundEffects[randomIndex];
+        soundEffects.volume = drillBlockVolumes[randomIndex];
+        soundEffects.Play();
+
+        audioTimer = DateTime.Now;
     }
 }

@@ -23,6 +23,8 @@ public class HaulerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
+    private AudioSource soundEffects;
+    private AudioClip orePickUpSoundEffect;
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
@@ -31,6 +33,9 @@ public class HaulerController : MonoBehaviour
         if (materialCount == null || materialCount.Length != materialNames.Length) {
             materialCount = new int[materialNames.Length];
         }
+
+        soundEffects = GameObject.Find("Sound Effects").GetComponent<AudioSource>();
+        orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -69,6 +74,7 @@ public class HaulerController : MonoBehaviour
                 // Reduce the count of the material
                 materialManager.SetCount(materialManager.count - amountPickedUp);
                 materialsDelegator.UpdateMaterial(materialManager);
+                PlayAudio();
                 return;
             }
 
@@ -78,6 +84,7 @@ public class HaulerController : MonoBehaviour
             ShowFloatingText(amountPickedUp.ToString());
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
+            PlayAudio();
         }
     }
 
@@ -169,5 +176,11 @@ public class HaulerController : MonoBehaviour
 
     public long GetPrice() {
         return price;
+    }
+
+    private void PlayAudio() {
+        soundEffects.clip = orePickUpSoundEffect;
+        soundEffects.volume = 0.6f;
+        soundEffects.Play();
     }
 }
