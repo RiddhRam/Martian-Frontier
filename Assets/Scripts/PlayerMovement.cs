@@ -108,7 +108,7 @@ public class PlayerMovement : MonoBehaviour
     public void SetSpeed(float newSpeed) {
         playerSpeed = newSpeed;
 
-        Transform vehicle = transform.GetChild(1);
+        Transform vehicle = transform.GetChild(0);
         // SetSpeed is called when a new vehicle is placed
         // When a new vehicle is placed we should also check if it needs animated wheels or not
         for (int i = 0; i != vehicle.childCount; i++) {
@@ -117,7 +117,6 @@ public class PlayerMovement : MonoBehaviour
                 return;
             }
         }
-
         frontWheels = null;
     }
 }
