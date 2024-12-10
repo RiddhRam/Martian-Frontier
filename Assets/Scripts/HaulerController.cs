@@ -23,7 +23,7 @@ public class HaulerController : MonoBehaviour
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
-    private AudioSource soundEffects;
+    private AudioSource vehicleSoundEffects;
     private AudioClip orePickUpSoundEffect;
 
     void Start() {
@@ -34,7 +34,7 @@ public class HaulerController : MonoBehaviour
             materialCount = new int[materialNames.Length];
         }
 
-        soundEffects = GameObject.Find("Sound Effects").GetComponent<AudioSource>();
+        vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
     }
 
@@ -179,8 +179,8 @@ public class HaulerController : MonoBehaviour
     }
 
     private void PlayAudio() {
-        soundEffects.clip = orePickUpSoundEffect;
-        soundEffects.volume = 0.6f;
-        soundEffects.Play();
+        vehicleSoundEffects.clip = orePickUpSoundEffect;
+        vehicleSoundEffects.volume = 0.6f;
+        vehicleSoundEffects.Play();
     }
 }

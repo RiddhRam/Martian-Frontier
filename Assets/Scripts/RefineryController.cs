@@ -14,8 +14,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject refineryProgressSliderUI;
     public GameObject refineryProgressSliderUIPercentageText;
     public GameObject playerState;
-    public AudioSource soundEffects;
+    public AudioSource vehicleSoundEffects;
+    public AudioSource UISoundEffects;
     public AudioClip oreSaleSoundEffect;
+    public AudioClip batteryRechargeSoundEffect;
 
     [SerializeField]
     private float refineryBattery;
@@ -86,10 +88,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
-        soundEffects.clip = oreSaleSoundEffect;
+        vehicleSoundEffects.clip = oreSaleSoundEffect;
         // Try to keep max volume at around -23dB
-        soundEffects.volume = 0.4f;
-        soundEffects.Play();
+        vehicleSoundEffects.volume = 0.4f;
+        vehicleSoundEffects.Play();
     }
 
     private IEnumerator ResetMine() {
@@ -162,8 +164,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
     {
-        float duration = 3f; // Duration of the increase in seconds
+        float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
+
+        UISoundEffects.clip = batteryRechargeSoundEffect;
+        UISoundEffects.volume = 0.45f;
+        UISoundEffects.Play();
 
         while (elapsed < duration)
         {

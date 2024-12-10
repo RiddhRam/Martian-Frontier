@@ -5,7 +5,7 @@ using UnityEngine;
 public class ErrorMessageHandler : MonoBehaviour
 {
     public AudioClip errorAudio;
-    private AudioSource soundEffects;
+    private AudioSource UISoundEffects;
     private TMP_Text tmpText;
     private RectTransform rectTransform;
 
@@ -17,15 +17,15 @@ public class ErrorMessageHandler : MonoBehaviour
         // Set anchors to stretch across the screen horizontally
         rectTransform.anchorMin = new Vector2(0f, rectTransform.anchorMin.y); // Left edge
         rectTransform.anchorMax = new Vector2(1f, rectTransform.anchorMax.y); // Right edge
-        soundEffects = GameObject.Find("Sound Effects").GetComponent<AudioSource>();
+        UISoundEffects = GameObject.Find("UI Sound Effects").GetComponent<AudioSource>();
     }
 
     private void Start()
     {
         StartCoroutine(AnimateMessage());
-        soundEffects.clip = errorAudio;
-        soundEffects.volume = 0.4f;
-        soundEffects.Play();
+        UISoundEffects.clip = errorAudio;
+        UISoundEffects.volume = 0.4f;
+        UISoundEffects.Play();
     }
 
     private IEnumerator AnimateMessage()

@@ -10,7 +10,8 @@ public class BackgroundAmbientMusic : MonoBehaviour
 
     void Awake() {
         audioSource = GetComponent<AudioSource>();
-        audioSource.clip = backgroundSongs[0];
+        audioSource.clip = backgroundSongs[currentSongIndex];
+        audioSource.volume = backgroundSongVolumes[currentSongIndex];
         audioSource.Play();
 
         StartCoroutine(FadeOutAndPlayNext());

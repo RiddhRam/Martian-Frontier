@@ -22,7 +22,7 @@ public class DrillerController : MonoBehaviour
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 60;
     private int lastErrorCounter = 60;
-    private AudioSource soundEffects;
+    private AudioSource vehicleSoundEffects;
     private AudioClip[] drillBlockSoundEffects;
     private float[] drillBlockVolumes;
     // Same thing as the error counter, but with an actual timer
@@ -39,7 +39,7 @@ public class DrillerController : MonoBehaviour
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
-        soundEffects = GameObject.Find("Sound Effects").GetComponent<AudioSource>();
+        vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
     }
@@ -203,9 +203,9 @@ public class DrillerController : MonoBehaviour
 
         lastAudioUsed = randomIndex;
         
-        soundEffects.clip = drillBlockSoundEffects[randomIndex];
-        soundEffects.volume = drillBlockVolumes[randomIndex];
-        soundEffects.Play();
+        vehicleSoundEffects.clip = drillBlockSoundEffects[randomIndex];
+        vehicleSoundEffects.volume = drillBlockVolumes[randomIndex];
+        vehicleSoundEffects.Play();
 
         audioTimer = DateTime.Now;
     }

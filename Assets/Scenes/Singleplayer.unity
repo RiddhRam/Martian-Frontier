@@ -2515,6 +2515,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapCamera: {fileID: 1779852217}
+  mapCameraView: {fileID: 606929135}
   scrollViewContent: {fileID: 1216486727}
   playerVehicle: {fileID: 1012335945}
   sliderCount: {fileID: 386126055}
@@ -2783,8 +2784,8 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4278190080
+  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -3590,6 +3591,134 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 418957904}
   m_CullTransparentMesh: 1
+--- !u!1 &421432857
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 421432859}
+  - component: {fileID: 421432858}
+  m_Layer: 0
+  m_Name: UI Sound Effects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &421432858
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421432857}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 1
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &421432859
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 421432857}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &422203777
 GameObject:
   m_ObjectHideFlags: 0
@@ -3742,8 +3871,10 @@ MonoBehaviour:
   refineryProgressSliderUI: {fileID: 664511045}
   refineryProgressSliderUIPercentageText: {fileID: 429137496}
   playerState: {fileID: 276248152}
-  soundEffects: {fileID: 426944011}
+  vehicleSoundEffects: {fileID: 426944011}
+  UISoundEffects: {fileID: 421432858}
   oreSaleSoundEffect: {fileID: 8300000, guid: 0601ccdfa1d5d4344900cec0fae6948b, type: 3}
+  batteryRechargeSoundEffect: {fileID: 8300000, guid: 7d69859287f164be9a709616decd34f8, type: 3}
   refineryBattery: 120
   initialBattery: 0
   refineryInefficiency: 1
@@ -3760,7 +3891,7 @@ GameObject:
   - component: {fileID: 426944012}
   - component: {fileID: 426944011}
   m_Layer: 0
-  m_Name: Sound Effects
+  m_Name: Vehicle Sound Effects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -16399,7 +16530,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Texture: {fileID: 8400000, guid: e0cbeab6b2cdc46bfbc9f41762fea049, type: 2}
+  m_Texture: {fileID: 0}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -456899,9 +457030,13 @@ MonoBehaviour:
   backgroundSongs:
   - {fileID: 8300000, guid: 106e82a2bf6c04a2b947a221ea0c420a, type: 3}
   - {fileID: 8300000, guid: 9bed57e6a51af4a7fa3c9acb8c6cec2a, type: 3}
+  - {fileID: 8300000, guid: b22cb376638214c4f8125013bd948c9d, type: 3}
+  - {fileID: 8300000, guid: bd2fb23ff029c43d882d7e6e0d4c8959, type: 3}
   backgroundSongVolumes:
   - 0.2
-  - 0.1
+  - 0.2
+  - 0.2
+  - 0.2
 --- !u!82 &1029776634
 AudioSource:
   m_ObjectHideFlags: 0
@@ -456914,7 +457049,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
-  m_Volume: 0.2
+  m_Volume: 1
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -457952,6 +458087,18 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 319486926}
         m_TargetAssemblyTypeName: UIDelegation, Assembly-CSharp
+        m_MethodName: ToggleCamera
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 319486926}
+        m_TargetAssemblyTypeName: UIDelegation, Assembly-CSharp
         m_MethodName: HideAll
         m_Mode: 1
         m_Arguments:
@@ -457969,18 +458116,6 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 2042653428}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-      - m_Target: {fileID: 319486926}
-        m_TargetAssemblyTypeName: UIDelegation, Assembly-CSharp
-        m_MethodName: ToggleCamera
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -460872,7 +461007,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 97
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: e0cbeab6b2cdc46bfbc9f41762fea049, type: 2}
+  m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
   m_TargetEye: 3
   m_HDR: 1
@@ -461510,9 +461645,9 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 94243ba3cf9ce4bacab5dda403809970, type: 3}
   - {fileID: 8300000, guid: e4da82c91afaa4bfb8881331c0f169f0, type: 3}
   drillBlockVolumes:
-  - 0.13
-  - 0.3
-  - 0.5
+  - 0.05
+  - 0.1
+  - 0.2
 --- !u!4 &1851502607
 Transform:
   m_ObjectHideFlags: 0
@@ -463698,6 +463833,7 @@ SceneRoots:
   - {fileID: 276248153}
   - {fileID: 244266722}
   - {fileID: 426944012}
+  - {fileID: 421432859}
   - {fileID: 1029776635}
   - {fileID: 1851502607}
   - {fileID: 1308672357}
