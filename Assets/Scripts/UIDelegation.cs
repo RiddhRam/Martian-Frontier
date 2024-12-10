@@ -5,6 +5,7 @@ using UnityEngine.UI;
 public class UIDelegation : MonoBehaviour
 {
     public GameObject mapCamera;
+    public GameObject mapCameraView;
     public GameObject scrollViewContent;
     public GameObject playerVehicle;
     public GameObject sliderCount;
@@ -81,6 +82,28 @@ public class UIDelegation : MonoBehaviour
     // Used when opening the map, or closing
     public void ToggleCamera() {
         mapCamera.SetActive(!mapCamera.activeSelf);
+
+        // Make sure its active
+        if (!mapCamera.activeSelf) {
+            return;
+        }
+
+        float aspectRatio = Screen.height / Screen.width;
+        if (aspectRatio >= 1.8) {
+            aspectRatio /= 1.12f;
+        } else {
+            aspectRatio *= 1.15f;
+        }
+        
+        // Create a new RenderTexture with 1080x1920 resolution
+        RenderTexture renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
+        renderTexture.antiAliasing = 8;
+        renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
+        renderTexture.Create();
+
+        // Assign the RenderTexture to the mapCamera's target texture
+        mapCamera.GetComponent<Camera>().targetTexture = renderTexture;
+        mapCameraView.GetComponent<RawImage>().texture = renderTexture;
     }
 
     // Used when clicking the cargo button to prepare the columns and rows of the Content in the scrollview
