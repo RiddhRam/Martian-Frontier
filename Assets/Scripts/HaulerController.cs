@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro; // Use TextMeshPro if you're using TextMeshPro
 using System.Collections;
+using UnityEngine.UI;
 
 public class HaulerController : MonoBehaviour
 {
@@ -25,6 +26,13 @@ public class HaulerController : MonoBehaviour
     private UncollectedMaterialsDelegator materialsDelegator;
     private AudioSource vehicleSoundEffects;
     private AudioClip orePickUpSoundEffect;
+    private UIDelegation UIDelegation;
+    private GameObject[] cargoProgressBars = new GameObject[2];
+    private GameObject[] cargoCounters = new GameObject[2];
+
+    void Awake() {
+        UIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+    }
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
@@ -70,22 +78,25 @@ public class HaulerController : MonoBehaviour
                     return;
                 }
 
-                ShowFloatingText(amountPickedUp.ToString());
                 // Reduce the count of the material
                 materialManager.SetCount(materialManager.count - amountPickedUp);
                 materialsDelegator.UpdateMaterial(materialManager);
-                PlayAudio();
+                PickUpOre(amountPickedUp);
                 return;
             }
 
             // If limit isn't exceeded then destroy the game object
             materialCount[i] += amountPickedUp;
-            // Show floating text
-            ShowFloatingText(amountPickedUp.ToString());
             materialsDelegator.RemoveMaterial(materialManager.id);
             Destroy(other.gameObject); // Destroy the material object
-            PlayAudio();
+            PickUpOre(amountPickedUp);
         }
+    }
+
+    private void PickUpOre(int amountPickedUp) {
+        ShowFloatingText(amountPickedUp.ToString());
+        PlayAudio();
+        UpdateCargoUI();
     }
 
     public void ShowFloatingText(string amount)
@@ -164,6 +175,8 @@ public class HaulerController : MonoBehaviour
 
     public void SetMaterialCount(int[] newMaterialCount) {
         materialCount = newMaterialCount;
+
+        UpdateCargoUI();
     }
 
     public float GetMaterialEnergyUsage() {
@@ -182,5 +195,21 @@ public class HaulerController : MonoBehaviour
         vehicleSoundEffects.clip = orePickUpSoundEffect;
         vehicleSoundEffects.volume = 0.6f;
         vehicleSoundEffects.Play();
+    }
+
+    public void UpdateCargoUI() {
+        if (cargoProgressBars[0] == null) {
+            InitializeCargoUIArrays();
+        }
+        for (int i = 0; i != cargoProgressBars.Length; i++) {
+            cargoProgressBars[i].GetComponent<Slider>().maxValue = maxMaterials;
+            cargoProgressBars[i].GetComponent<Slider>().value = GetTotalMaterialCount();
+            cargoCounters[i].GetComponent<TextMeshProUGUI>().text = GetTotalMaterialCount().ToString();
+        }
+    }
+
+    private void InitializeCargoUIArrays() {
+        cargoProgressBars = UIDelegation.GetCargoProgressBars();
+        cargoCounters = UIDelegation.GetCargoCounters();
     }
 }

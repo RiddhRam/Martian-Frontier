@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
-    public GameObject cargoButton;
+    public GameObject cargoInfo;
     public GameObject UI;
     public string currentVehicle;
     public GameObject garageDelegator;
@@ -59,16 +59,16 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
         if (playerVehicle.GetComponent<HaulerController>()) {
             // Display the hauler cargo button
-            cargoButton.SetActive(true);
-            UI.GetComponent<UIDelegation>().ToggleCargoButton(true);
+            cargoInfo.SetActive(true);
+            UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
             playerSpeed = playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed();
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
             return;
         }
 
         // If not a hauler, hide the hauler cargo button
-        cargoButton.SetActive(false);
-        UI.GetComponent<UIDelegation>().ToggleCargoButton(false);
+        cargoInfo.SetActive(false);
+        UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);
         playerSpeed = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
     }

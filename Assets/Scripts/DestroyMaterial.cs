@@ -7,7 +7,6 @@ public class DestroyMaterial : MonoBehaviour
     public GameObject sliderValueText;
     public GameObject playerVehicle;
     public GameObject sliderCounter;
-    public GameObject cargoCapacitySlider;
     public int amountToDestroy;
     private int indexToDestroy;
     private GameObject previouslySelectedMaterial;
@@ -31,7 +30,7 @@ public class DestroyMaterial : MonoBehaviour
         sliderCounter.GetComponent<Slider>().value = 0;
         sliderCounter.GetComponent<Slider>().maxValue = materialManagerUI.count;
         sliderValueText.GetComponent<TextMeshProUGUI>().text = "0";
-        cargoCapacitySlider.GetComponent<CargoCapacitySlider>().UpdateCapacity();
+        haulerController.UpdateCargoUI();
     }
 
     // Highlight new material and change slider values and stuff

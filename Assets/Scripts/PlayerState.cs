@@ -204,4 +204,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.moneyEarned = this.moneyEarned.ToString();
         data.vehiclesOwned = this.vehiclesOwned;
     }
+
+    public void FreeMoney() {
+        userCash += 100_000_000;
+        UpdateCashDisplays();
+    }
 }

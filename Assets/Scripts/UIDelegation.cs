@@ -18,19 +18,21 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public GameObject errorMessage;
+    public GameObject[] cargoProgressBars;
+    public GameObject[] cargoCounters;
     private Sprite[] materialHighResSprites;
     private string[] materialNames;
-    private bool showCargoButton;
+    private bool showCargoInfo;
  
     void Start()
     {
-        ToggleCargoButton(false);
+        ToggleCargoInfo(false);
         materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
         materialHighResSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialHighResSprites;
     }
 
-    public void ToggleCargoButton(bool newValue) {
-        showCargoButton = newValue;
+    public void ToggleCargoInfo(bool newValue) {
+        showCargoInfo = newValue;
     }
 
     // Hide all base elements, and only used before opening a secondary element like the camera
@@ -44,9 +46,9 @@ public class UIDelegation : MonoBehaviour
     public void RevealAll() {
 
         if (playerVehicle.transform.GetChild(0).GetComponent<HaulerController>()) {
-            showCargoButton = true;
+            showCargoInfo = true;
         } else {
-            showCargoButton = false;
+            showCargoInfo = false;
         }
 
         for (int i = 0; i < primaryElements.Length; i++) {
@@ -59,7 +61,7 @@ public class UIDelegation : MonoBehaviour
             }
 
             // If its the cargo button, and its supposed to stay hidden, dont reveal it
-            if (primaryElements[i].name.Contains("Cargo") && !showCargoButton) {
+            if (primaryElements[i].name.Contains("Cargo") && !showCargoInfo) {
                 continue;
             }
 
@@ -187,5 +189,13 @@ public class UIDelegation : MonoBehaviour
         // Place it within the safe area
         errorInstance.transform.SetParent(transform.GetChild(0));
         errorInstance.transform.localPosition = new(0, 400 ,0);
+    }
+
+    public GameObject[] GetCargoProgressBars() {
+        return cargoProgressBars;
+    }
+
+    public GameObject[] GetCargoCounters() {
+        return cargoCounters;
     }
 }
