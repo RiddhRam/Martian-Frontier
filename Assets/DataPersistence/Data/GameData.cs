@@ -37,8 +37,8 @@ public class GameData
         this.blocksMined = "0";
         this.materialsSold = "0";
         this.moneyEarned = "0";
-        this.vehiclesOwned = new List<string> { "Level 1 Base Drill", "STUBBY" };
-        this.currentVehicle = "Level 1 Base Drill";
+        this.vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
+        this.currentVehicle = "GRINDER I";
         this.haulerCargo = new int[9];
         this.materials = new();
         this.refineryInefficiency = 100;

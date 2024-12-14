@@ -32,6 +32,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Start is called before the first frame update
     void Start()
     {
+        // Need this so rewarded ads actually reward in the real app
+        MobileAds.RaiseAdEventsOnUnityMainThread = true;
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
