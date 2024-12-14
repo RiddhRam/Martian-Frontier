@@ -50,10 +50,12 @@ public class RefineryUpgrades : MonoBehaviour
 
         if (gameObject.name == "Capacity Panel") {
             refineryController.UpgradeBattery(currentValue);
+            AnalyticsDelegator.Instance.RefineryUpgrade("Capacity", currentIndex + 1);
             return;
         }
 
         refineryController.ImproveEfficiency(currentValue);
+        AnalyticsDelegator.Instance.RefineryUpgrade("Efficiency", currentIndex + 1);
     }
 
     // Only called upon when loading game

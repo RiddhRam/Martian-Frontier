@@ -74,7 +74,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         UpdateRefineryProgressBars();
 
         // Calculate how much money to add
-        int cashToAdd = 0;
+        float cashToAdd = 0;
         for (int i = 0; i != savedMaterialCount.Length; i++) {
             cashToAdd += savedMaterialCount[i] * materialPrices[i];
         }
@@ -84,11 +84,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             return;
         }
 
-        cashToAdd = (int) (cashToAdd * profitMultiplier);
+        cashToAdd = (long) (cashToAdd * profitMultiplier);
 
         // Verify that this is the right amount
-        playerState.GetComponent<PlayerState>().AddCash(cashToAdd, savedMaterialCount);
-
+        playerState.GetComponent<PlayerState>().AddCash((long) cashToAdd, savedMaterialCount);
+        AnalyticsDelegator.Instance.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         vehicleSoundEffects.clip = oreSaleSoundEffect;

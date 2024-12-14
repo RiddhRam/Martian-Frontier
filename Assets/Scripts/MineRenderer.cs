@@ -130,6 +130,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         DestroyTile(new(3, -4), true);
         mineInitialization = 2;
         SaveGame();
+        AnalyticsDelegator.Instance.InitializeMine(highestRow);
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward

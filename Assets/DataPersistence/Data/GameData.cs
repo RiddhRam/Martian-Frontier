@@ -27,6 +27,7 @@ public class GameData
     public int seed;
     public int highestRow;
     public int mineInitialization;
+    public int[] timerIndexes;
 
     public GameData() {
         this.userCash = "0";
@@ -55,5 +56,6 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
+        this.timerIndexes = new int[3];
     }
 }

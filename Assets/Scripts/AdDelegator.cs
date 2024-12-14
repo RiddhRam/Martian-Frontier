@@ -5,7 +5,7 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 
-public class AdDelegator : MonoBehaviour
+public class AdDelegator : MonoBehaviour, IDataPersistence
 {
     // These ad units are configured to always serve test ads.
     #if UNITY_ANDROID
@@ -23,12 +23,11 @@ public class AdDelegator : MonoBehaviour
     private RewardedAd rewardedAd;
     private int timer = 60;
     private bool internetReachable = false;
-    private RefineryController refineryController;
-    private PlayerMovement playerMovement;
     // This needs to be seperate because user can swap vehicle while boost active
     public float originalSpeed;
     public bool speedBoostActive;
-    private MineRenderer mineRenderer;
+    private bool currentlyUsingDriller = true;
+    private int[] timerIndexes = new int[3];
 
     // Start is called before the first frame update
     void Start()
@@ -38,9 +37,6 @@ public class AdDelegator : MonoBehaviour
         {
             // This callback is called once the MobileAds SDK is initialized.
         });
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-        playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
     }
 
     void Update() {
@@ -198,33 +194,39 @@ public class AdDelegator : MonoBehaviour
         noInternetIcon.SetActive(true);
     }
 
-    private void RewardWithProfit() {
+    private void RewardWithProfit(int? totalTime = 180) {
+        RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultipler(2);
-        StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultipler(1)));
+        StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultipler(1), (int) totalTime));
+        AnalyticsDelegator.Instance.AdWatchAttempt("Profit");
     }
 
-    private void RewardWithSpeed() {
+    private void RewardWithSpeed(int? totalTime = 180) {
+        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
         // Reset to original value after 3 mins
         playerMovement.SetSpeed(originalSpeed * 1.5f);
-        StartCoroutine(StartSpeedCountdown());
+        StartCoroutine(StartSpeedCountdown((int) totalTime));
+        AnalyticsDelegator.Instance.AdWatchAttempt("Speed");
     }
 
-    private void RewardWithVision() {
+    private void RewardWithVision(int? totalTime = 180) {
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
-        StartCoroutine(StartRewardCountdown(2, () => mineRenderer.SetVisionRadius(3)));
+        StartCoroutine(StartRewardCountdown(2, () => mineRenderer.SetVisionRadius(3), (int) totalTime));
+        AnalyticsDelegator.Instance.AdWatchAttempt("Vision");
     }
 
-    private IEnumerator StartRewardCountdown(int rewardIndex, Action callbackFunc) {
+    private IEnumerator StartRewardCountdown(int rewardIndex, Action callbackFunc, int totalTime) {
+        adButtons[rewardIndex].GetComponent<Button>().interactable = false;
         // Hide the button
         adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(false);
         // Show timer
         timerTexts[rewardIndex].SetActive(true);
 
-        // Initialize the timer to 3:00 (3 minutes in seconds)
-        int totalTime = 180; 
+        // Initialize the timer to 3:00 (3 minutes in seconds) 
         while (totalTime > 0) {
             // Calculate minutes and seconds
             int minutes = totalTime / 60;
@@ -234,7 +236,7 @@ public class AdDelegator : MonoBehaviour
 
             // Update the timer text (assuming it's a TMP Text component)
             timerTexts[rewardIndex].GetComponent<TMPro.TextMeshProUGUI>().text = timerText;
-
+            timerIndexes[rewardIndex] = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -246,28 +248,34 @@ public class AdDelegator : MonoBehaviour
         callbackFunc?.Invoke();
         adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(true);
         timerTexts[rewardIndex].SetActive(false);
+        timerIndexes[rewardIndex] = 0;
+        // Don't renable the button if its the vision button and user is using something other than a driller
+        if (adButtons[rewardIndex].name.Contains("Vision") && !currentlyUsingDriller) {
+            yield break;
+        }
+        adButtons[rewardIndex].GetComponent<Button>().interactable = true;
     }
 
     // This needs to be seperate because user can swap vehicle while boost active
-     private IEnumerator StartSpeedCountdown() {
+    private IEnumerator StartSpeedCountdown(int totalTime) {
         speedBoostActive = true;
+        adButtons[1].GetComponent<Button>().interactable = false;
         // Hide the button
         adButtons[1].transform.GetChild(0).gameObject.SetActive(false);
         // Show timer
         timerTexts[1].SetActive(true);
 
         // Initialize the timer to 3:00 (3 minutes in seconds)
-        int totalTime = 180; 
         while (totalTime > 0) {
             // Calculate minutes and seconds
-            int minutes = totalTime / 60;
-            int seconds = totalTime % 60;
+            int minutes = (int) totalTime / 60;
+            int seconds = (int) totalTime % 60;
 
             string timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
             timerTexts[1].GetComponent<TMPro.TextMeshProUGUI>().text = timerText;
-
+            timerIndexes[1] = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -277,11 +285,13 @@ public class AdDelegator : MonoBehaviour
 
         adButtons[1].transform.GetChild(0).gameObject.SetActive(true);
         timerTexts[1].SetActive(false);
+        adButtons[1].GetComponent<Button>().interactable = true;
+        timerIndexes[1] = 0;
         speedBoostActive = false;
     }
 
-
     public void SetUsingDriller(bool usingDriller) {
+        currentlyUsingDriller = usingDriller;
         // Vision boost is useless if not using a driller, so make the button uninteractable
 #pragma warning disable CS0162 // Unreachable code detected
         for (int i = 0; i != adButtons.Length; i++) {
@@ -291,9 +301,43 @@ public class AdDelegator : MonoBehaviour
                 continue;
             }
 
+            // If it's currently active don't do anything
+            if (timerIndexes[i] > 0) {
+                return;
+            }
+
             adButtons[i].GetComponent<Button>().interactable = usingDriller;
             return;
         }
 #pragma warning restore CS0162 // Unreachable code detected
     }
+
+    public void LoadData(GameData data) {
+        this.timerIndexes = data.timerIndexes;
+        for (int i = 0; i != timerIndexes.Length; i++) {
+            // Make sure timerIndex was greater than 0
+            if (timerIndexes[i] <= 0) {
+                continue;
+            }
+
+            // Speed has it's own function
+            if (adButtons[i].name.Contains("Speed")) {
+                RewardWithSpeed(timerIndexes[i]);
+                continue;
+            }
+
+            // Call the appropriate function
+            if (i == 0) {
+                RewardWithProfit(timerIndexes[i]);
+                continue;
+            }
+
+            RewardWithVision(timerIndexes[i]);
+        }
+    }
+
+    public void SaveData(ref GameData data) {
+        data.timerIndexes = this.timerIndexes;
+    }
+
 }

@@ -64,9 +64,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             // Display the hauler cargo button
             cargoInfo.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
-            playerSpeed = playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed();
+            HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
+            playerSpeed = haulerController.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+            AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
 
@@ -75,9 +77,12 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // If not a hauler, hide the hauler cargo button
         cargoInfo.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);
-        playerSpeed = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
+        DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
+        playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+        int tier = drillerController.GetDrillTier();
+        AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", tier);
     }
 
     public void LoadData(GameData data) {

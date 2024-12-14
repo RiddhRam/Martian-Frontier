@@ -73,6 +73,7 @@ public class UIDelegation : MonoBehaviour
     public void RevealElement(GameObject element) {
         element.SetActive(true);
         Camera.main.GetComponent<GameCameraController>().ToggleZooming(false);
+        AnalyticsDelegator.Instance.OpenUIPanel(element.name);
     }
 
     // Used when closing a secondary element
@@ -189,6 +190,7 @@ public class UIDelegation : MonoBehaviour
         // Place it within the safe area
         errorInstance.transform.SetParent(transform.GetChild(0));
         errorInstance.transform.localPosition = new(0, 400 ,0);
+        AnalyticsDelegator.Instance.ShowError(error);
     }
 
     public GameObject[] GetCargoProgressBars() {

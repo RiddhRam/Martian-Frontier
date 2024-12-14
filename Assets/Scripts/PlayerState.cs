@@ -61,9 +61,23 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             userCash -= amountToSubtract;
             // This causes an error if anything except a driller or hauler is passed into the gameobject parameter
             // If it has a driller or hauler controller, add it to the list of vehicles owned
-            if (objectBeingPurchased.GetComponent<HaulerController>() || objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
-                vehiclesOwned.Add(objectBeingPurchased.name);
+            string vehicleType = null;
+            int tier = 0;
+
+            if (objectBeingPurchased.GetComponent<HaulerController>()) {
+                vehicleType = "Hauler";
+            } else if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
+                vehicleType = "Driller";
+                tier = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
             }
+
+            // If it's a hauler or driller, it won't be null
+            if (vehicleType == null) {
+                return;
+            }
+            
+            vehiclesOwned.Add(objectBeingPurchased.name);
+            AnalyticsDelegator.Instance.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
 
         UpdateCashDisplays();
@@ -212,5 +226,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void FreeMoney() {
         userCash += 100_000_000;
         UpdateCashDisplays();
+        AnalyticsDelegator.Instance.TestEvent("Just testing");
     }
 }
