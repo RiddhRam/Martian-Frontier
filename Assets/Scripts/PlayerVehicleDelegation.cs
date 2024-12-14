@@ -11,6 +11,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private Vector3 loadPlayerPos;
     private float loadRotate;
     private MineRenderer mineRenderer;
+    private AdDelegator adDelegator;
 
     public void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -58,22 +59,29 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
         if (playerVehicle.GetComponent<HaulerController>()) {
+            // Disable rewarded ad vision boost button
+            adDelegator.SetUsingDriller(false);
             // Display the hauler cargo button
             cargoInfo.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
             playerSpeed = playerVehicle.GetComponent<HaulerController>().GetPlayerSpeed();
+            playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
             return;
         }
 
+        // Enable rewarded ad vision boost button
+        adDelegator.SetUsingDriller(true);
         // If not a hauler, hide the hauler cargo button
         cargoInfo.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);
         playerSpeed = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
+        playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
     }
 
     public void LoadData(GameData data) {
+        adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
@@ -135,6 +143,15 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             data.haulerCargo = new int[9];
         }
         
+    }
+
+    private float UpdateOriginalSpeed(float playerSpeed) {
+        if (adDelegator.speedBoostActive) {
+            adDelegator.originalSpeed = playerSpeed;
+            playerSpeed *= 1.5f;
+        }
+
+        return playerSpeed;
     }
 
 }

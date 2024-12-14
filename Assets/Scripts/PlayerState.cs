@@ -22,9 +22,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField]
     private List<string> vehiclesOwned = new();
     private int[] materialPrices;
+    private RefineryController refineryController;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         UpdateCashDisplays();
     }
 
@@ -37,6 +39,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         for (int i = 0; i != materialCount.Length; i++) {
             amountToAdd += materialCount[i] * materialPrices[i];
         }
+
+        amountToAdd = (int) (amountToAdd * refineryController.GetProfitMultipler());
 
         // If the amounts are correct, add the money
         if (amountToAdd == cashToAdd) {

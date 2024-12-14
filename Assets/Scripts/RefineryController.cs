@@ -28,6 +28,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private int[] materialPrices;
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
+    private float profitMultiplier = 1;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -82,6 +83,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (cashToAdd <= 0) {
             return;
         }
+
+        cashToAdd = (int) (cashToAdd * profitMultiplier);
 
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash(cashToAdd, savedMaterialCount);
@@ -275,5 +278,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
+    }
+
+    public void SetProfitMultipler(float newMultiplier) {
+        profitMultiplier = newMultiplier;
+    }
+
+    public float GetProfitMultipler() {
+        return profitMultiplier;
     }
 }

@@ -478,4 +478,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         GameObject newMaterial = Instantiate(materials[materialIndex]);
         materialsDelegator.AddMaterial(newMaterial, materialSprites[materialIndex], materialPosition, materialIndex, materialCount);
     }
+
+    public void SetVisionRadius(int newRadius) {
+        visionRadius = newRadius;
+    }
 }

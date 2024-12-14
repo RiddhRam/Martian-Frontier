@@ -119,4 +119,8 @@ public class PlayerMovement : MonoBehaviour
         }
         frontWheels = null;
     }
+
+    public float GetSpeed() {
+        return playerSpeed;
+    }
 }
