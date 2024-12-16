@@ -432,6 +432,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         LoadTiles();
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
     public void SaveData(ref GameData data) {

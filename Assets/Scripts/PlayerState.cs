@@ -212,6 +212,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.materialsSold = BigInteger.Parse(data.materialsSold);
         this.moneyEarned = BigInteger.Parse(data.moneyEarned);
         this.vehiclesOwned = data.vehiclesOwned;
+        
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
     public void SaveData(ref GameData data) {

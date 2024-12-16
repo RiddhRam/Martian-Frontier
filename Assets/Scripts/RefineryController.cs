@@ -231,6 +231,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         UpdateRefineryProgressBars();
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
     public void SaveData(ref GameData data) {

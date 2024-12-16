@@ -38,6 +38,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
             // This callback is called once the MobileAds SDK is initialized.
+            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+            LoadRewardedAd();
         });
     }
 
@@ -51,7 +53,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         
         // Make sure there is internet access
         if (Application.internetReachability == NetworkReachability.NotReachable) {
-            rewardedAd = null;
+            if (rewardedAd != null) {
+                rewardedAd.Destroy();
+                rewardedAd = null;
+            }
             internetReachable = false;
             ToggleDisplay();
             return;
@@ -74,8 +79,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             rewardedAd = null;
         }
 
-        //Debug.Log("Loading the rewarded ad.");
-
         // create our request used to load the ad.
         var adRequest = new AdRequest();
 
@@ -88,12 +91,14 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 {
                     Debug.LogError("Rewarded ad failed to load an ad " +
                                     "with error : " + error);
+
+                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
                     return;
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
-
                 rewardedAd = ad;
+                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
             });
     }
 
@@ -336,6 +341,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             RewardWithVision(timerIndexes[i]);
         }
+
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
     public void SaveData(ref GameData data) {
