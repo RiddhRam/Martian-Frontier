@@ -66,7 +66,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Reset the mine if needed
         if (refineryBattery <= 0) {
-            // Stop user from user dropoff or mine
+            // Stop user from entering user dropoff or mine
             gameObject.GetComponent<BoxCollider2D>().isTrigger = false;
             StartCoroutine(ResetMine());
         }

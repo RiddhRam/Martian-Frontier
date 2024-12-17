@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -64,7 +65,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         for (int i = 0; i != tierThresholds.Length; i++) {
             if (i == tierThresholds.Length - 1) {
-                oresPerTier[i] = tileValues.Length - tierThresholds[i];
+                oresPerTier[i] = tileValues.Length - tierThresholds[i] - 1;
                 break;
             }
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
@@ -277,19 +278,45 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Method to select an ore based on depth
     private int SelectOreBasedOnDepth(int chunkRow, int level)
     {
+        // Define the ore range for this tier
+        int minOreIndex = tierThresholds[level] + 1;
+        int maxOreIndex = tierThresholds[level] + oresPerTier[level];
+        int oreCount = maxOreIndex - minOreIndex + 1;
+
         // Calculate the probability weights based on depth
         float depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
+        float[] weights = new float[oreCount];
+        float totalWeight = 0f;
 
-        // Select an index 
-        // Random.Value can add 1 to the index, or it adds 0, no in between since the index will be an integer
-        // Must be between 1-3 (level 1), 5-7 (level 2), 9-11 (level 3)
+        // Calculate dynamic weights for each ore
+        for (int i = 0; i < oreCount; i++)
+        {
+            // Formula: (1 - depthFactor) favors low indexes, depthFactor favors high indexes
+            weights[i] = (float) System.Math.Pow((1 - depthFactor) * (oreCount - i) + depthFactor * (i + 1), 2);
+            totalWeight += weights[i];
 
-        float oreIndex = Mathf.Clamp(depthFactor * oresPerTier[level] + Random.value, 1, oresPerTier[level]);
-        oreIndex += tierThresholds[level];
-        oreIndex = Mathf.Clamp(oreIndex, 1, tileValues.Length - 1);
+        }
 
-        // Higher depths increase chances for rarer ores at the end of the array
-        return (int) oreIndex;
+        // Normalize weights to create probabilities
+        for (int i = 0; i < oreCount; i++)
+        {
+            weights[i] /= totalWeight;
+        }
+
+        // Random selection based on probabilities
+        float randomValue = Random.value;
+        float cumulative = 0f;
+
+        for (int i = 0; i < oreCount; i++)
+        {
+            cumulative += weights[i];
+            if (randomValue <= cumulative)
+            {
+                return tierThresholds[level] + i + 1; // Return the selected ore index
+            }
+        }
+
+        return oreCount - 1; // Fallback in case of floating-point error
     }
 
     public void RevealTile(Vector2Int tilePos) {

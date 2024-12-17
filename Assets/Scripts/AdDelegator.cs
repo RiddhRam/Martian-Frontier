@@ -28,6 +28,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public bool speedBoostActive;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
+    private bool gameLoaded = false;
 
     // Start is called before the first frame update
     void Start()
@@ -37,9 +38,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
+            LoadRewardedAd();
+            gameLoaded = true;
             // This callback is called once the MobileAds SDK is initialized.
             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
-            LoadRewardedAd();
         });
     }
 
@@ -92,12 +94,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     Debug.LogError("Rewarded ad failed to load an ad " +
                                     "with error : " + error);
 
+                    if (gameLoaded) {
+                        return;
+                    }
                     StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
                     return;
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 rewardedAd = ad;
+                if (gameLoaded) {
+                    return;
+                }
                 StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
             });
     }
@@ -300,7 +308,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public void SetUsingDriller(bool usingDriller) {
         currentlyUsingDriller = usingDriller;
         // Vision boost is useless if not using a driller, so make the button uninteractable
-#pragma warning disable CS0162 // Unreachable code detected
         for (int i = 0; i != adButtons.Length; i++) {
 
             // Make sure it's the vision button
@@ -314,9 +321,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
 
             adButtons[i].GetComponent<Button>().interactable = usingDriller;
-            return;
+            break;
         }
-#pragma warning restore CS0162 // Unreachable code detected
     }
 
     public void LoadData(GameData data) {
