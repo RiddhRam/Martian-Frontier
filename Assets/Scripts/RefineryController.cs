@@ -24,14 +24,23 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     [SerializeField]
     private float initialBattery;
     [SerializeField]
-    private float refineryInefficiency = 1;
+    private float refineryInefficiency;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
     private float profitMultiplier = 1;
+    [SerializeField]
+    private float levelProfitMultiplier = 0;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        if (initialBattery < refineryBattery || initialBattery < 120) {
+            initialBattery = 120;
+        }
+
+        if (refineryBattery > initialBattery) {
+            refineryBattery = initialBattery;
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -84,7 +93,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             return;
         }
 
-        cashToAdd = (long) (cashToAdd * profitMultiplier);
+        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
 
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash((long) cashToAdd, savedMaterialCount);
@@ -281,11 +290,27 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return price.ToString();
     }
 
-    public void SetProfitMultipler(float newMultiplier) {
+    public void SetProfitMultiplier(float newMultiplier) {
         profitMultiplier = newMultiplier;
     }
 
-    public float GetProfitMultipler() {
+    public float GetProfitMultiplier() {
         return profitMultiplier;
+    }
+
+    public void SetLevelProfitMultiplier(float newLevelMultiplier) {
+        // Have to round due to floating point errors
+        levelProfitMultiplier = Mathf.Round(newLevelMultiplier * 100f) / 100f;
+    }
+
+    public float GetLevelProfitMultiplier() {
+        return levelProfitMultiplier;
+    }
+
+    public float GetTotalProfitMultiplier() {
+        // Have to round due to floating point errors
+        float multiplier = profitMultiplier + levelProfitMultiplier;
+
+        return Mathf.Round(multiplier * 100f) / 100f;
     }
 }

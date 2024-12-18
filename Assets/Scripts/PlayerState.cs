@@ -2,31 +2,28 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
 {
     public GameObject[] cashDisplays;
-
-    [SerializeField]
+    public GameObject[] xpDisplays;
+    // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
     private long savedAmountSubtract;
     private BigInteger userXP;
-    [SerializeField]
     private BigInteger blocksMined;
-    [SerializeField]
     private BigInteger materialsSold;
-    [SerializeField]
     private BigInteger moneyEarned;
-    [SerializeField]
     private List<string> vehiclesOwned = new();
     private int[] materialPrices;
     private RefineryController refineryController;
+    private bool loading = true;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         UpdateCashDisplays();
     }
 
@@ -40,7 +37,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             amountToAdd += materialCount[i] * materialPrices[i];
         }
 
-        amountToAdd = (int) (amountToAdd * refineryController.GetProfitMultipler());
+        amountToAdd = (int) (amountToAdd * refineryController.GetTotalProfitMultiplier());
 
         // If the amounts are correct, add the money
         if (amountToAdd == cashToAdd) {
@@ -128,6 +125,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             userXP += 4;
         }
         userXP++;
+
+        UpdateXPDisplays();
         
         blocksMined++;
     }
@@ -206,6 +205,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        loading = true;
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
         this.blocksMined = BigInteger.Parse(data.blocksMined);
@@ -213,6 +213,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.moneyEarned = BigInteger.Parse(data.moneyEarned);
         this.vehiclesOwned = data.vehiclesOwned;
         
+        UpdateXPDisplays();
+        loading = false;
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
@@ -225,9 +227,41 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.vehiclesOwned = this.vehiclesOwned;
     }
 
+    private void UpdateXPDisplays() {
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        
+        int baseXP = 500; // XP needed for level 0 to 1
+        int increment = 500; // Additional XP per level
+        int level = 0; // Start at level 0
+        BigInteger remainingXP = userXP; // Start with total user XP
+
+        while (remainingXP >= baseXP + level * increment) {
+            remainingXP -= baseXP + level * increment;
+            level++;
+        }
+
+        float profitMultiplier = refineryController.GetLevelProfitMultiplier();
+        float calculatedValue = level * 0.01f;
+        float tolerance = 0.005f;
+
+        if ((profitMultiplier < calculatedValue - tolerance) && !loading) {
+            AnalyticsDelegator.Instance.LevelUp(level);
+        }
+
+        // For each level, add 1% to the profit multiplier
+        refineryController.SetLevelProfitMultiplier(calculatedValue);
+
+        for (int i = 0; i != xpDisplays.Length; i++) {
+            xpDisplays[i].GetComponent<Slider>().value = (float) ((double) remainingXP/(baseXP + level * increment));
+            xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = level.ToString();
+        }
+    }
+
+    // For development only
     public void FreeMoney() {
         userCash += 100_000_000;
         UpdateCashDisplays();
         AnalyticsDelegator.Instance.TestEvent("Just testing");
     }
+
 }

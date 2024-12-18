@@ -294,7 +294,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // Formula: (1 - depthFactor) favors low indexes, depthFactor favors high indexes
             weights[i] = (float) System.Math.Pow((1 - depthFactor) * (oreCount - i) + depthFactor * (i + 1), 2);
             totalWeight += weights[i];
-
         }
 
         // Normalize weights to create probabilities
@@ -393,7 +392,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
         
         playerState.GetComponent<PlayerState>().NewBlockMined(oreMined);
-        
     }
 
     public TileBase[] GetOres() {

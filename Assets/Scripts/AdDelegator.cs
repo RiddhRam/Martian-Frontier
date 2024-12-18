@@ -212,8 +212,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private void RewardWithProfit(int? totalTime = 180) {
         RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         // Reset to 1 after 3 mins
-        refineryController.SetProfitMultipler(2);
-        StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultipler(1), (int) totalTime));
+        refineryController.SetProfitMultiplier(2);
+        StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultiplier(1), (int) totalTime));
         AnalyticsDelegator.Instance.AdWatchAttempt("Profit");
     }
 
@@ -261,9 +261,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // Reset
         callbackFunc?.Invoke();
-        adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(true);
+        
+        timerTexts[rewardIndex].GetComponent<TMPro.TextMeshProUGUI>().text = "0:00";
         timerTexts[rewardIndex].SetActive(false);
         timerIndexes[rewardIndex] = 0;
+
+        adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(true);
         // Don't renable the button if its the vision button and user is using something other than a driller
         if (adButtons[rewardIndex].name.Contains("Vision") && !currentlyUsingDriller) {
             yield break;
@@ -298,10 +301,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        adButtons[1].transform.GetChild(0).gameObject.SetActive(true);
+        timerTexts[1].GetComponent<TMPro.TextMeshProUGUI>().text = "0:00";
         timerTexts[1].SetActive(false);
-        adButtons[1].GetComponent<Button>().interactable = true;
         timerIndexes[1] = 0;
+
+        adButtons[1].transform.GetChild(0).gameObject.SetActive(true);
+        adButtons[1].GetComponent<Button>().interactable = true;
+
         speedBoostActive = false;
     }
 

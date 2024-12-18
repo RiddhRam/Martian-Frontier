@@ -54,8 +54,8 @@ public class OreDelegation : MonoBehaviour
 
             long price = materialPrices[i];
 
-            GameObject newVehiclePanel = Instantiate(oreMaterialPanel);
-            Transform panelTransform = newVehiclePanel.transform;
+            GameObject newMaterialPanel = Instantiate(oreMaterialPanel);
+            Transform panelTransform = newMaterialPanel.transform;
             // Add panel to the content scroll view of the right tier panel
             // This should just be a regular panel with a photo
             panelTransform.SetParent(tierPanels[tier].transform.GetChild(1));

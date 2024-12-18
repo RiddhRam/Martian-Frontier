@@ -59,16 +59,15 @@ public class RefineryUpgrades : MonoBehaviour
     }
 
     // Only called upon when loading game
-    private void LoadCorrectUpgrade() {
+    public void LoadCorrectUpgrade() {
         int currentIndex = 0;
 
         // Find the current index
         for (int i = 0; i != upgradeValues.Length; i++) {
-            if (upgradeValues[i] != currentValue) {
-                continue;
+            if (upgradeValues[i] == currentValue) {
+                currentIndex = i;
+                break;
             }
-            currentIndex = i;
-            break;
         }
 
         UpdateDisplay(currentIndex);
