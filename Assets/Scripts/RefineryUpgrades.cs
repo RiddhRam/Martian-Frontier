@@ -49,12 +49,12 @@ public class RefineryUpgrades : MonoBehaviour
         UpdateDisplay(currentIndex);
 
         if (gameObject.name == "Capacity Panel") {
-            refineryController.UpgradeBattery(currentValue);
+            refineryController.SetBattery(currentValue);
             AnalyticsDelegator.Instance.RefineryUpgrade("Capacity", currentIndex + 1);
             return;
         }
 
-        refineryController.ImproveEfficiency(currentValue);
+        refineryController.SetEfficiency(currentValue);
         AnalyticsDelegator.Instance.RefineryUpgrade("Efficiency", currentIndex + 1);
     }
 
@@ -114,5 +114,17 @@ public class RefineryUpgrades : MonoBehaviour
 
     public float GetUpgradeValue() {
         return currentValue;
+    }
+
+    public void ResetUpgrade() {
+        currentValue = upgradeValues[0];
+
+        if (gameObject.name == "Efficiency Panel") {
+            refineryController.SetEfficiency(currentValue);
+        } else {
+            refineryController.SetBattery(currentValue);
+        }
+        
+        LoadCorrectUpgrade();
     }
 }

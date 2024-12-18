@@ -14,11 +14,15 @@ public class ProfitPanelDelegator : MonoBehaviour
     public GameObject adBoostText;
     public GameObject adBoostTimer;
     public GameObject levelBoostText;
+    public GameObject rebirthBoostText;
     private string activePanel = "Ores";
+    private long rebirthPrice = 15_000_000_000;
 
     void Start() {
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
+        int childCount = boostPanel.transform.childCount;
+        boostPanel.transform.GetChild(childCount - 1).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(rebirthPrice);
     }
 
     void Update() {
@@ -33,6 +37,7 @@ public class ProfitPanelDelegator : MonoBehaviour
         }
 
         levelBoostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
+        rebirthBoostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
     }
 
     public void DeactivatePanel() {
@@ -85,4 +90,7 @@ public class ProfitPanelDelegator : MonoBehaviour
         return price.ToString(); // For smaller numbers
     }
 
+    public long GetRebirthPrice() {
+        return rebirthPrice;
+    }
 }

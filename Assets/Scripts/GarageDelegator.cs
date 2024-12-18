@@ -296,4 +296,20 @@ public class GarageDelegator : MonoBehaviour
         return haulers;
     }
 
+    public void PlayerRebirth() {
+        int drillChildCount = drillersContent.transform.childCount;
+        int haulerChildCount = haulersContent.transform.childCount;
+        // Reset all the panels by destroying them, then regenerating them
+        for (int i = 0; i != drillChildCount; i++) {
+            Destroy(drillersContent.transform.GetChild(i).gameObject);
+        }
+
+        for (int i = 0; i != haulerChildCount; i++) {
+            Destroy(haulersContent.transform.GetChild(i).gameObject);
+        }
+
+        GeneratePanel("Drillers");
+        GeneratePanel("Haulers");
+    }
+
 }

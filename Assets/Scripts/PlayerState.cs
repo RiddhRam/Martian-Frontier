@@ -8,6 +8,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 {
     public GameObject[] cashDisplays;
     public GameObject[] xpDisplays;
+    public GameObject garagePanel;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -21,10 +22,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private int[] materialPrices;
     private RefineryController refineryController;
     private bool loading = true;
+    [SerializeField]
+    private float rebirthProfitMultiplier;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         UpdateCashDisplays();
+        UpdateXPDisplays();
     }
 
     // Validate and add cash
@@ -205,15 +209,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        
         loading = true;
+        
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
         this.blocksMined = BigInteger.Parse(data.blocksMined);
         this.materialsSold = BigInteger.Parse(data.materialsSold);
         this.moneyEarned = BigInteger.Parse(data.moneyEarned);
         this.vehiclesOwned = data.vehiclesOwned;
+        this.rebirthProfitMultiplier = data.rebirthProfitMultiplier;
+        refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
         
-        UpdateXPDisplays();
         loading = false;
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
@@ -225,11 +233,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.materialsSold = this.materialsSold.ToString();
         data.moneyEarned = this.moneyEarned.ToString();
         data.vehiclesOwned = this.vehiclesOwned;
+        data.rebirthProfitMultiplier = this.rebirthProfitMultiplier;
     }
 
     private void UpdateXPDisplays() {
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-        
         int baseXP = 500; // XP needed for level 0 to 1
         int increment = 500; // Additional XP per level
         int level = 0; // Start at level 0
@@ -257,9 +264,33 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
     }
 
+    public void Rebirth() {
+        long rebirthPrice = GameObject.Find("Material Profit Panel").GetComponent<ProfitPanelDelegator>().GetRebirthPrice();
+        if (!VerifyEnoughCash(rebirthPrice)) {
+            GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
+            return;
+        }
+
+        rebirthProfitMultiplier += 0.01f;
+        
+        userXP = 0;
+        userCash = 0;
+        vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
+        GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
+        garagePanel.GetComponent<GarageDelegator>().PlayerRebirth();
+        GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>().SwitchVehicle(newVehicle);
+        // Switch vehicle, then reset mine, to get rid of all materials for sure,
+        // because the haulers will drop everything
+        refineryController.PlayerRebirth();
+        refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+
+        UpdateCashDisplays();
+        UpdateXPDisplays();
+    }
+
     // For development only
     public void FreeMoney() {
-        userCash += 100_000_000;
+        userCash += 1_000_000_000;
         UpdateCashDisplays();
         AnalyticsDelegator.Instance.TestEvent("Just testing");
     }

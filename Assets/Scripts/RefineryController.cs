@@ -29,8 +29,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
     private float profitMultiplier = 1;
-    [SerializeField]
     private float levelProfitMultiplier = 0;
+    [SerializeField]
+    private float rebirthProfitMultiplier = 0;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -214,14 +215,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = barText;
     }
 
-    public void UpgradeBattery(float newValue) {
+    public void SetBattery(float newValue) {
         refineryBattery = newValue - (initialBattery - refineryBattery);
         initialBattery = newValue;
         SaveGame();
         UpdateRefineryProgressBars();
     }
 
-    public void ImproveEfficiency(float newValue) {
+    public void SetEfficiency(float newValue) {
         refineryInefficiency = newValue / 100f;
         SaveGame();
     }
@@ -307,10 +308,26 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return levelProfitMultiplier;
     }
 
+    public void SetRebirthProfitMultiplier(float newRebirthMultiplier) {
+        // Have to round due to floating point errors
+        rebirthProfitMultiplier = Mathf.Round(newRebirthMultiplier * 100f) / 100f;
+    }
+
+    public float GetRebirthProfitMultiplier() {
+        return rebirthProfitMultiplier;
+    }
+
     public float GetTotalProfitMultiplier() {
         // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier;
+        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier;
 
         return Mathf.Round(multiplier * 100f) / 100f;
+    }
+
+    public void PlayerRebirth() {
+        capacityUpgrades.GetComponent<RefineryUpgrades>().ResetUpgrade();
+        efficiencyUpgrades.GetComponent<RefineryUpgrades>().ResetUpgrade();
+
+        StartCoroutine(ResetMine());
     }
 }
