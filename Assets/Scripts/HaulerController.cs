@@ -44,6 +44,7 @@ public class HaulerController : MonoBehaviour
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
+        UpdateCargoUI();
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -199,17 +200,14 @@ public class HaulerController : MonoBehaviour
 
     public void UpdateCargoUI() {
         if (cargoProgressBars[0] == null) {
-            InitializeCargoUIArrays();
+            cargoProgressBars = UIDelegation.GetCargoProgressBars();
+            cargoCounters = UIDelegation.GetCargoCounters();
         }
+
         for (int i = 0; i != cargoProgressBars.Length; i++) {
             cargoProgressBars[i].GetComponent<Slider>().maxValue = maxMaterials;
             cargoProgressBars[i].GetComponent<Slider>().value = GetTotalMaterialCount();
             cargoCounters[i].GetComponent<TextMeshProUGUI>().text = GetTotalMaterialCount().ToString();
         }
-    }
-
-    private void InitializeCargoUIArrays() {
-        cargoProgressBars = UIDelegation.GetCargoProgressBars();
-        cargoCounters = UIDelegation.GetCargoCounters();
     }
 }

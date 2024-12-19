@@ -6,14 +6,7 @@ using UnityEngine.UI;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
-    // These ad units are configured to always serve test ads.
-    #if UNITY_ANDROID
-    private string _adUnitId = "ca-app-pub-5607588731152504~5074236463";
-    #elif UNITY_IPHONE
-    private string _adUnitId = "ca-app-pub-5607588731152504~7307043368";
-    #else
-    private string _adUnitId = "unused";
-    #endif
+    private string _adUnitId;
 
     public GameObject[] adButtons;
     public GameObject noInternetIcon;
@@ -31,6 +24,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Start is called before the first frame update
     void Start()
     {
+        SetAdUnitId();
+
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true;
         // Initialize the Google Mobile Ads SDK.
@@ -69,6 +64,34 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         ToggleDisplay();
     }
 
+    // Choose the right ad unit before doing anything with ads
+    private void SetAdUnitId()
+    {
+        bool isDebugBuild = Debug.isDebugBuild;
+
+        #if UNITY_ANDROID
+            if (isDebugBuild)
+            {
+                _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // Android Test Ad Unit
+            }
+            else
+            {
+                _adUnitId = "ca-app-pub-5607588731152504/9913767660"; // Android Real Ad Unit
+            }
+        #elif UNITY_IPHONE
+            if (isDebugBuild)
+            {
+                _adUnitId = "ca-app-pub-3940256099942544/1712485313"; // iOS Test Ad Unit
+            }
+            else
+            {
+                _adUnitId = "ca-app-pub-5607588731152504/4737462608"; // iOS Real Ad Unit
+            }
+        #else
+            _adUnitId = "unused"; // Default for other platforms
+        #endif
+    }
+
     // Loads the rewarded ad.
     public void LoadRewardedAd()
     {
@@ -92,17 +115,25 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     Debug.LogError("Rewarded ad failed to load an ad " +
                                     "with error : " + error);
 
-                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                    try {
+                        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                    } catch {
+                    }
+                    
                     return;
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 rewardedAd = ad;
 
-                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                try {
+                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                } catch {
+                }
             });
     }
 
+    // Show ad to user
     public void ShowRewardedAd(string type)
     {
         //const string rewardMsg = "Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
