@@ -1,5 +1,4 @@
 using UnityEngine;
-using GoogleMobileAds;
 using GoogleMobileAds.Api;
 using System;
 using System.Collections;
@@ -9,9 +8,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 {
     // These ad units are configured to always serve test ads.
     #if UNITY_ANDROID
-    private string _adUnitId = "ca-app-pub-3940256099942544/5224354917";
+    private string _adUnitId = "ca-app-pub-5607588731152504~5074236463";
     #elif UNITY_IPHONE
-    private string _adUnitId = "ca-app-pub-3940256099942544/1712485313";
+    private string _adUnitId = "ca-app-pub-5607588731152504~7307043368";
     #else
     private string _adUnitId = "unused";
     #endif
@@ -28,7 +27,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public bool speedBoostActive;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
-    private bool gameLoaded = false;
 
     // Start is called before the first frame update
     void Start()
@@ -39,7 +37,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
             LoadRewardedAd();
-            gameLoaded = true;
+
             // This callback is called once the MobileAds SDK is initialized.
             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
         });
@@ -94,18 +92,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     Debug.LogError("Rewarded ad failed to load an ad " +
                                     "with error : " + error);
 
-                    if (gameLoaded) {
-                        return;
-                    }
                     StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
                     return;
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 rewardedAd = ad;
-                if (gameLoaded) {
-                    return;
-                }
+
                 StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
             });
     }

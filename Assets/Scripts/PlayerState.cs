@@ -284,6 +284,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         refineryController.PlayerRebirth();
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
 
+        AnalyticsDelegator.Instance.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
+
         UpdateCashDisplays();
         UpdateXPDisplays();
     }
