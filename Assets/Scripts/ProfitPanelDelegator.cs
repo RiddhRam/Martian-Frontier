@@ -21,8 +21,11 @@ public class ProfitPanelDelegator : MonoBehaviour
     void Start() {
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
-        int childCount = boostPanel.transform.childCount;
-        boostPanel.transform.GetChild(childCount - 1).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(rebirthPrice);
+
+        int boostChildCount = boostPanel.transform.childCount;
+        Transform rebirthPanel = boostPanel.transform.GetChild(boostChildCount - 1);
+        int rebirthChildCount = rebirthPanel.childCount;
+        rebirthPanel.GetChild(rebirthChildCount - 1).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(rebirthPrice);
     }
 
     void Update() {
