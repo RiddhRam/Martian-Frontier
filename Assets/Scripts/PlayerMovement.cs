@@ -24,6 +24,7 @@ public class PlayerMovement : MonoBehaviour
     {
         Vector2 joystickVec = joystickMovement.joystickVec;
 
+        // Translation logic
         // Translate the vehicle position
         rb.velocity = new Vector2(
             joystickVec.x * playerSpeed,
@@ -35,11 +36,11 @@ public class PlayerMovement : MonoBehaviour
         Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
 
         // Make sure vehicle is trying to rotate
-        if (joystickVec.x == 0 && joystickVec.y == 0) { 
+        if (joystickVec.x == 0 && joystickVec.y == 0) {
             return;
         }
 
-        // Rotate the vehicle
+        // Rotation logic
         // Calculate target angle in degrees
         float targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
 
@@ -49,22 +50,6 @@ public class PlayerMovement : MonoBehaviour
         // Smoothly rotate towards the target angle over time (0.3 second)
         float currentAngle = transform.eulerAngles.z;
         float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
-        
-        // Check if the vehicle is stuck by comparing its last rotation and the current rotation
-        float rotationDifference = Mathf.Abs(newAngle - lastRotation);
-        
-        // If the rotation difference is too small, assume the vehicle is stuck
-        if (rotationDifference < rotationThreshold)
-        {
-            // Prevent further rotation or adjust the vehicle's rotation handling
-            return; // Vehicle is stuck, don't rotate
-        }
-
-        // Save this value in case it's needed for front wheels
-        float tempLastRotation = lastRotation;
-
-        // Update the last known rotation angle
-        lastRotation = newAngle;
 
         // This checks if the user is trying to go straight forward or reverse, if neither then rotate
         if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
@@ -74,6 +59,12 @@ public class PlayerMovement : MonoBehaviour
             transform.rotation = Quaternion.Euler(0, 0, targetAngle);
         }
 
+        // Save this value in case it's needed for front wheels
+        float tempLastRotation = lastRotation;
+        // Update the last known rotation angle
+        lastRotation = newAngle;
+
+        // Front wheels logic
         if (!frontWheels) {
             return;
         }
