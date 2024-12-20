@@ -29,6 +29,7 @@ public class GameData
     public int mineInitialization;
     public int[] timerIndexes;
     public float rebirthProfitMultiplier;
+    public bool finishedTutorial;
 
     public GameData() {
         this.userCash = "0";
@@ -59,5 +60,6 @@ public class GameData
         this.mineInitialization = 0;
         this.timerIndexes = new int[3];
         this.rebirthProfitMultiplier = 0;
+        this.finishedTutorial = false;
     }
 }

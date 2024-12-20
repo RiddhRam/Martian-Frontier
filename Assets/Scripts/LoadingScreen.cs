@@ -12,12 +12,15 @@ public class LoadingScreen : MonoBehaviour
     private int totalItems = 7;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
+       SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
+
         AdDelegator: Initialize Mobile ads SDK, LoadRewardedAd(), LoadData()
         MineRenderer: LoadData()
         PlayerState: LoadData()
         PlayerVehicleDelegation: LoadData()
         RefineryController: LoadData()
-        Total as of Dec 16 2024: 6
+        Total as of Dec 20 2024: 7
+        Last check: Dec 20 2024
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second

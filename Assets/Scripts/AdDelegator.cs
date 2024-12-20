@@ -34,7 +34,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             LoadRewardedAd();
 
             // This callback is called once the MobileAds SDK is initialized.
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+            IncrementLoadedItems();
         });
     }
 
@@ -116,7 +116,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                                     "with error : " + error);
 
                     try {
-                        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                        IncrementLoadedItems();
                     } catch {
                     }
                     
@@ -127,7 +127,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 rewardedAd = ad;
 
                 try {
-                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+                    IncrementLoadedItems();
                 } catch {
                 }
             });
@@ -378,11 +378,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             RewardWithVision(timerIndexes[i]);
         }
 
-        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        IncrementLoadedItems();
     }
 
     public void SaveData(ref GameData data) {
         data.timerIndexes = this.timerIndexes;
     }
+
+    private void IncrementLoadedItems() {
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+    }    
 
 }
