@@ -23,9 +23,7 @@ public class ErrorMessageHandler : MonoBehaviour
     private void Start()
     {
         StartCoroutine(AnimateMessage());
-        UISoundEffects.clip = errorAudio;
-        UISoundEffects.volume = 0.4f;
-        UISoundEffects.Play();
+        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(UISoundEffects, errorAudio, 0.4f);
     }
 
     private IEnumerator AnimateMessage()

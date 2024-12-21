@@ -101,10 +101,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
-        vehicleSoundEffects.clip = oreSaleSoundEffect;
-        // Try to keep max volume at around -23dB
-        vehicleSoundEffects.volume = 0.4f;
-        vehicleSoundEffects.Play();
+        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     private IEnumerator ResetMine() {
@@ -180,9 +177,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
 
-        UISoundEffects.clip = batteryRechargeSoundEffect;
-        UISoundEffects.volume = 0.45f;
-        UISoundEffects.Play();
+        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
 
         while (elapsed < duration)
         {

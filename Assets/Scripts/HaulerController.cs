@@ -193,9 +193,7 @@ public class HaulerController : MonoBehaviour
     }
 
     private void PlayAudio() {
-        vehicleSoundEffects.clip = orePickUpSoundEffect;
-        vehicleSoundEffects.volume = 0.6f;
-        vehicleSoundEffects.Play();
+        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.6f);
     }
 
     public void UpdateCargoUI() {

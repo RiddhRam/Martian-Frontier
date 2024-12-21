@@ -1,20 +1,32 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
     public GameObject rewardedAdButtons;
+    public GameObject settingsButton;
     private bool finishedTutorial;
     private int currentScreenIndex = 0; // Tracks the current tutorial screen
     private GameObject loadingScreen;
+    private GameObject[] primaryElements;
+    private bool goToNext;
+
+    void Awake() {
+        primaryElements = new GameObject[] { settingsButton };
+    }
 
     void Start()
     {
+        // Skip tutorial if already completed
+        // When restarting tutorial, this doesn't immediately destroy the game object,
+        // because LoadGame() is only called once when the game is first launched and finishedTutorial is initialized to false
         if (finishedTutorial)
         {
-            Destroy(gameObject); // Skip tutorial if already completed
+            Destroy(gameObject);
             return;
         }
 
@@ -36,6 +48,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             newScreen.transform.SetParent(transform.GetChild(0), false);
             newScreen.transform.localScale = Vector3.one;
 
+            primaryElements = new GameObject[] { settingsButton, newScreen };
+
             // Highlight the important stuff
             if (currentScreenIndex == 1 || currentScreenIndex == 2) {
                 bottomControls.transform.GetChild(0).gameObject.SetActive(false);
@@ -47,11 +61,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 rewardedAdButtons.SetActive(true);
             }
 
-            // Wait for the user to tap/click the screen
-            yield return new WaitUntil(() => Input.GetMouseButtonDown(0));
-
-            // Wait until the user releases the click before continuing to avoid double skipping
-            yield return new WaitUntil(() => Input.GetMouseButtonUp(0));
+            // Wait for the user to tap/click the screen, but not if it's on a UI element
+            yield return new WaitUntil(() => goToNext);
+            goToNext = false;
 
             // Unhighlight the stuff
             if (currentScreenIndex == 1 || currentScreenIndex == 2) {
@@ -68,6 +80,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             currentScreenIndex++;
         }
 
+        // Sync values
+        GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
         finishedTutorial = true;
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
         Destroy(gameObject);
@@ -80,4 +94,50 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public void SaveData(ref GameData data) {
         data.finishedTutorial = this.finishedTutorial;
     }
+
+    public void HideAll() {
+        for (int i = 0; i < primaryElements.Length; i++) {
+            primaryElements[i].SetActive(false);
+        }
+    }
+
+    // Used after closing a secondary element
+    public void RevealAll() {
+        for (int i = 0; i < primaryElements.Length; i++) {
+            // Reset all buttons back to scale 1. 
+            // Need to do this because the button that was pressed down will be at 0.95 still 
+            // since it didn't get the pointer up event if it was clicked
+            UIButton uiButton = primaryElements[i].GetComponent<UIButton>();
+            if (uiButton) {
+                StartCoroutine(uiButton.ResetScale());
+            }
+
+            primaryElements[i].SetActive(true);
+        }
+    }
+
+    // Reveal a single element, typically a secondary element, and only used after HideAll()
+    public void RevealElement(GameObject element) {
+        element.SetActive(true);
+        AnalyticsDelegator.Instance.OpenTutorialUIPanel(element.name);
+    }
+
+    // Used when closing a secondary element
+    public void HideElement(GameObject element) {
+        element.SetActive(false);
+    }
+
+    public void TapToContinue() {
+
+        // If a single primary element is inactive, then a menu is open, so don't do go to next
+        for (int i = 0; i != primaryElements.Length; i++) {
+            if (!primaryElements[i].activeSelf) {
+                goToNext = false;
+                return;
+            }
+        }
+
+        goToNext = true;
+    }
+
 }

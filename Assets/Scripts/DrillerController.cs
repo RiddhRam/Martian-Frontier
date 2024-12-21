@@ -202,10 +202,8 @@ public class DrillerController : MonoBehaviour
         }
 
         lastAudioUsed = randomIndex;
-        
-        vehicleSoundEffects.clip = drillBlockSoundEffects[randomIndex];
-        vehicleSoundEffects.volume = drillBlockVolumes[randomIndex];
-        vehicleSoundEffects.Play();
+
+        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
     }

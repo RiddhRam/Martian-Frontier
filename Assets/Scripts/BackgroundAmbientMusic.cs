@@ -7,6 +7,7 @@ public class BackgroundAmbientMusic : MonoBehaviour
     private AudioSource audioSource;
     private int currentSongIndex = 0; // Index of the current song
     private float fadeDuration = 7.0f;
+    private bool musicEnabled = true;
 
     void Awake() {
         audioSource = GetComponent<AudioSource>();
@@ -23,7 +24,10 @@ public class BackgroundAmbientMusic : MonoBehaviour
         // Fade out the current clip
 
         for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
-            audioSource.volume = Mathf.Lerp(backgroundSongVolumes[currentSongIndex], 0, t / fadeDuration);
+            float volume = Mathf.Lerp(backgroundSongVolumes[currentSongIndex], 0, t / fadeDuration);
+            // If music is not enabled then volume is 0;
+            volume = musicEnabled ? volume : 0;
+            audioSource.volume = volume;
             yield return null;
         }
 
@@ -38,12 +42,21 @@ public class BackgroundAmbientMusic : MonoBehaviour
         audioSource.Play();
 
         for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
-            audioSource.volume = Mathf.Lerp(0, backgroundSongVolumes[currentSongIndex], t / fadeDuration);
+            float volume = Mathf.Lerp(backgroundSongVolumes[currentSongIndex], 0, t / fadeDuration);
+            // If music is not enabled then volume is 0;
+            volume = musicEnabled ? volume : 0;
+            audioSource.volume = volume;
             yield return null;
         }
 
-        audioSource.volume = backgroundSongVolumes[currentSongIndex];
+        audioSource.volume = musicEnabled ? backgroundSongVolumes[currentSongIndex] : 0;
 
         StartCoroutine(FadeOutAndPlayNext());
+    }
+
+    public void UpdateMusicVolume(bool newValue) {
+        musicEnabled = newValue;
+        // Immediately set to 0 if needed
+        audioSource.volume = musicEnabled ? backgroundSongVolumes[currentSongIndex] : 0;
     }
 }

@@ -149,4 +149,17 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
+   
+    public void OpenTutorialUIPanel(string name) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Open_Tutorial_UI_Panel") {
+            {"Panel", name}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+
 }

@@ -6,7 +6,7 @@ public class TutorialTextBox : MonoBehaviour
     public string message;
     private TextMeshProUGUI messageGO;
     // Start is called before the first frame update
-    void Start()
+    void OnEnable()
     {
         messageGO = transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         StartCoroutine(TypeMessage());
