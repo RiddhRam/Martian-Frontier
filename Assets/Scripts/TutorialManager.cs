@@ -6,7 +6,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
     public GameObject rewardedAdButtons;
-    private bool finishedTutorial = false;
+    private bool finishedTutorial;
     private int currentScreenIndex = 0; // Tracks the current tutorial screen
     private GameObject loadingScreen;
 
