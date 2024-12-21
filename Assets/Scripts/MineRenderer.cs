@@ -14,7 +14,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
-    private readonly int totalRows = 36;
+    private readonly int totalRows = 42;
     private readonly Vector2Int gridSize = new(25, 12);
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
@@ -91,8 +91,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // If mineInitialization == 1 then the user already saw the first few blocks before they left the game
         // Don't make a new seed, just use the last one
         if (mineInitialization < 2) {
-            System.DateTime unixEpoch = new System.DateTime(2024, 7, 25, 0, 0, 0, System.DateTimeKind.Utc);
-            seed = (int)(System.DateTime.UtcNow - unixEpoch).TotalSeconds;
+            System.DateTime epoch = new System.DateTime(2024, 8, 8, 0, 0, 0, System.DateTimeKind.Utc);
+            seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             Random.InitState(seed);
         }
         
@@ -134,7 +134,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.InitializeMine(highestRow);
     }
 
-    // Places tiles in a 25x12 rectangle, starting from (-50, -5) and going to the right and downward
+    // Places tiles in a 25x12 rectangle, starting from (-75, -5) and going to the right and downward
     public void CreateTiles(int chunkRow)
     {
         highestRow = chunkRow;
@@ -146,7 +146,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
 
         // Find the level of the rocks
-        
         int level = 0;
         int tileValueIndex = 0;
         if (chunkRow < 2 * totalRows/3 && chunkRow >= totalRows/3) {
@@ -159,8 +158,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
 
-        // Generate 4 chunks in each tilemap
-        for (int i = -50; i != 50; i += 25) {
+        // Generate 6 grids in each tilemap
+        for (int i = -75; i != 75; i += 25) {
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
 
@@ -195,7 +194,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - (chunkRow * (gridSize.y)), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - (chunkRow * gridSize.y), 0);
     }
 
     public void LoadTiles() {
@@ -235,7 +234,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
     {
-        int veinCount = Random.Range(2, 5);
+        int veinCount = Random.Range(1, 2);
 
         for (int v = 0; v < veinCount; v++)
         {
@@ -472,7 +471,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int CalculateTileMapIndex(int tilePosY) {
         // Mine is offset by 5, and factor in the grid height too
         int tilemapIndex = Mathf.FloorToInt((tilePosY + 5) / -(gridSize.y));
-        tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 35);
+        tilemapIndex = Mathf.Clamp(tilemapIndex, 0, 41);
         return tilemapIndex;
     }
 

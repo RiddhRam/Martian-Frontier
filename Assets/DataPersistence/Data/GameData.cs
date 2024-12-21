@@ -46,8 +46,8 @@ public class GameData
         this.refineryInefficiency = 100;
         this.refineryCapacity = 120;
         this.refineryBattery = 120;
-        this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
-        this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[36];
+        this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[42];
+        this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[42];
         
         for (int i = 0; i < this.destroyedTilemapsTileValues.Length; i++)
         {

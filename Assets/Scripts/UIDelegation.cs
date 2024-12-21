@@ -98,7 +98,7 @@ public class UIDelegation : MonoBehaviour
             aspectRatio *= 1.15f;
         }
         
-        // Create a new RenderTexture with 1080x1920 resolution
+        // Create a new RenderTexture
         RenderTexture renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
         renderTexture.antiAliasing = 8;
         renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
