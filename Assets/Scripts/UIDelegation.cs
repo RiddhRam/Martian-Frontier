@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class UIDelegation : MonoBehaviour
@@ -184,13 +185,28 @@ public class UIDelegation : MonoBehaviour
         destroyButton.GetComponent<DestroyMaterial>().SelectMaterial(materialSelected);
     }
 
-    public void ShowError(string error) {
+    public void ShowError(string error, params object[] args) {
         GameObject errorInstance = Instantiate(errorMessage);
-        errorInstance.GetComponent<TextMeshProUGUI>().text = error;
+
+        string message = GetLocalizedValue(error, args);
+        errorInstance.GetComponent<TextMeshProUGUI>().text = message;
+
         // Place it within the safe area
         errorInstance.transform.SetParent(transform.GetChild(0));
         errorInstance.transform.localPosition = new(0, 400 ,0);
+
         AnalyticsDelegator.Instance.ShowError(error);
+    }
+
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
     }
 
     public GameObject[] GetCargoProgressBars() {

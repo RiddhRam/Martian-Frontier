@@ -108,7 +108,7 @@ public class DrillerController : MonoBehaviour
             FlickerMap(tilemap);
             // Dont spam the user with errors
             if (errorCounter >= 60) {
-                GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("TIER " + tileTier + " DRILL IS NEEDED!");
+                GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                 errorCounter = 0;
             }
             return;

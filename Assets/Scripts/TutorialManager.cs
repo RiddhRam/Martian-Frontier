@@ -14,6 +14,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private GameObject loadingScreen;
     private GameObject[] primaryElements;
     private bool goToNext;
+    private bool gameLoaded;
 
     void Awake() {
         primaryElements = new GameObject[] { settingsButton };
@@ -21,18 +22,24 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     void Start()
     {
-        // Skip tutorial if already completed
-        // When restarting tutorial, this doesn't immediately destroy the game object,
-        // because LoadGame() is only called once when the game is first launched and finishedTutorial is initialized to false
-        if (finishedTutorial)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        StartCoroutine(WaitForGameLoad());
 
         loadingScreen = GameObject.Find("Loading Screen");
         
         StartCoroutine(DisplayTutorial());
+    }
+
+    private IEnumerator WaitForGameLoad() {
+        // Skip tutorial if already completed
+        // When restarting tutorial, this doesn't immediately destroy the game object,
+        // because LoadGame() is only called once when the game is first launched and finishedTutorial is initialized to false
+        yield return new WaitUntil(() => gameLoaded);
+        
+        if (finishedTutorial)
+        {
+            Destroy(gameObject);
+            yield break;
+        }
     }
 
     private IEnumerator DisplayTutorial()
@@ -89,6 +96,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
         this.finishedTutorial = data.finishedTutorial;
+        GameLoaded();
+    }
+
+    public void GameLoaded() {
+        gameLoaded = true;
     }
 
     public void SaveData(ref GameData data) {

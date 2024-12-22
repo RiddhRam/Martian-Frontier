@@ -1,6 +1,7 @@
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Localization.Settings;
 
 public class GarageDelegator : MonoBehaviour
 {
@@ -25,18 +26,18 @@ public class GarageDelegator : MonoBehaviour
     private string activePanel = "Drillers";
     private PlayerState playerStateScript;
 
-    void Start() {
-        playerStateScript = playerState.GetComponent<PlayerState>();
-        GeneratePanel("Drillers");
-        GeneratePanel("Haulers");
-    }
-
     public void DeactivatePanel() {
         // If drillers
         if (activePanel == "Drillers") {
             drillersPanel.SetActive(false);
             drillersButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
             drillersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+
+            // Destroy and regenerate panels if needed later, in case user changes language, or rebirths
+            int drillChildCount = drillersContent.transform.childCount;
+            for (int i = 0; i != drillChildCount; i++) {
+                Destroy(drillersContent.transform.GetChild(i).gameObject);
+            }
             return;
         }
 
@@ -44,9 +45,19 @@ public class GarageDelegator : MonoBehaviour
         haulersPanel.SetActive(false);
         haulersButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
         haulersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+
+        int haulerChildCount = haulersContent.transform.childCount;
+        for (int i = 0; i != haulerChildCount; i++) {
+            Destroy(haulersContent.transform.GetChild(i).gameObject);
+        }
     }
 
     public void GeneratePanel(string panelToActivate) {
+
+        if (playerStateScript == null) {
+            playerStateScript = playerState.GetComponent<PlayerState>();
+        }
+        
         // If drillers
         if (panelToActivate == "Drillers") {
 
@@ -59,8 +70,10 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.SetParent(drillersContent.transform);
                 // Have to make sure scale is right
                 panelTransform.localScale = new(1, 1, 1);
+                // Get the right translation
+                string tierString = GetLocalizedValue("TIER {0}", i+1);
                 // Set the name
-                panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "TIER " + (i+1).ToString();
+                panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tierString;
             }
 
             // Track number of items in each tier, to dynamically resize content height based on rows
@@ -112,7 +125,7 @@ public class GarageDelegator : MonoBehaviour
                 Button buyButton = panelTransform.GetChild(5).GetComponent<Button>();
                 // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
                 int index = i;
-                
+                Debug.Log(playerStateScript);
                 // If vehicle is owned
                 if (playerStateScript.CheckVehicleOwnerShip(drillers[i].name)) {
                     PurchasedVehicle(newVehiclePanel, drillers[i], 5);
@@ -212,7 +225,11 @@ public class GarageDelegator : MonoBehaviour
         haulersContent.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
     }
 
-    public void ActivatePanel(string panelToActivate) {
+    public void ActivatePanel(string panel) {
+        // If a panel was specified use that, otherwise use the activePanel
+        string panelToActivate = panel.Length != 0 ? panel : activePanel;
+
+        GeneratePanel(panelToActivate);
         // If drillers
         if (panelToActivate == "Drillers") {
             drillersPanel.SetActive(true);
@@ -297,19 +314,23 @@ public class GarageDelegator : MonoBehaviour
     }
 
     public void PlayerRebirth() {
-        int drillChildCount = drillersContent.transform.childCount;
-        int haulerChildCount = haulersContent.transform.childCount;
-        // Reset all the panels by destroying them, then regenerating them
-        for (int i = 0; i != drillChildCount; i++) {
-            Destroy(drillersContent.transform.GetChild(i).gameObject);
-        }
-
-        for (int i = 0; i != haulerChildCount; i++) {
-            Destroy(haulersContent.transform.GetChild(i).gameObject);
-        }
+        activePanel = "Haulers";
+        DeactivatePanel();
+        activePanel = "Drillers";
+        DeactivatePanel();
 
         GeneratePanel("Drillers");
         GeneratePanel("Haulers");
     }
 
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
 }

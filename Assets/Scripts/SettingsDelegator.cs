@@ -98,5 +98,6 @@ public class SettingsDelegator : MonoBehaviour
     public void RestartTutorial() {
         GameObject tutorialGO = Instantiate(tutorialPreFab);
         tutorialGO.transform.SetParent(UIDelegation.transform, false);
+        tutorialGO.GetComponent<TutorialManager>().GameLoaded();
     }
 }
