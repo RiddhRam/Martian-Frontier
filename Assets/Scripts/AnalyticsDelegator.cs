@@ -161,5 +161,15 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
+    public void SelectLanguage(string language) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Select_Language") {
+            {"Language", language}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 
 }

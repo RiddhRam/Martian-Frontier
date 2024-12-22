@@ -136,7 +136,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
-        //const string rewardMsg = "Rewarded ad rewarded the user. Type: {0}, amount: {1}.";
 
         if (rewardedAd != null && rewardedAd.CanShowAd())
         {
@@ -155,6 +154,16 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
+            return;
+        }
+
+        // If unable to show ad, reward user anyways
+        if (type == "Profit") {
+            RewardWithProfit();
+        } else if (type == "Speed") {
+            RewardWithSpeed();
+        } if (type == "Vision") {
+            RewardWithVision();
         }
     }
 

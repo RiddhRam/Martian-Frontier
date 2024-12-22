@@ -4,7 +4,6 @@ using UnityEngine;
 public class LanguageDelegator : MonoBehaviour
 {
     public GameObject settingsDelegator;
-    public GameObject languageText;
 
     public void OnEnable() {
         UpdateText();

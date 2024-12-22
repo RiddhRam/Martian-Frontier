@@ -131,7 +131,7 @@ public class SettingsDelegator : MonoBehaviour
 
         // Set the language
         LocalizationSettings.SelectedLocale = selectedLocale;
-
+        AnalyticsDelegator.Instance.SelectLanguage(language);
         PlayerPrefs.SetString("Language", language); // Save the selected language
     }
 

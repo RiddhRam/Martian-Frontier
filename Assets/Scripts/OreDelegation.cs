@@ -1,6 +1,7 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Localization.Settings;
 
 public class OreDelegation : MonoBehaviour
 {
@@ -19,7 +20,6 @@ public class OreDelegation : MonoBehaviour
 
     void Start() {
         oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
-        PrepareGrid();
     }
 
     public void PrepareGrid() {
@@ -33,8 +33,10 @@ public class OreDelegation : MonoBehaviour
             panelTransform.SetParent(contentGO.transform);
             // Have to make sure scale is right
             panelTransform.localScale = new(1, 1, 1);
+            // Get the right translation
+            string tierString = GetLocalizedValue("TIER {0}", i+1);
             // Set the name
-            panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "TIER " + (i+1).ToString();
+            panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tierString;
         }
 
         // Track number of items in each tier, to dynamically resize content height based on rows
@@ -92,6 +94,15 @@ public class OreDelegation : MonoBehaviour
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, 150 + bigContentHeight + 150 * (tierPanels.Length - 1));
     }
 
+    // Clear grid when closing, then reprepare it in case user changes language
+    public void ClearGrid() {
+        int childCount = contentGO.transform.childCount;
+
+        for (int i = 0; i != childCount; i++) {
+            Destroy(contentGO.transform.GetChild(i).gameObject);
+        }
+    }
+
     public int[] GetMaterialPrices() {
         return materialPrices;
     }
@@ -130,5 +141,16 @@ public class OreDelegation : MonoBehaviour
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
+    }
+
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
     }
 }
