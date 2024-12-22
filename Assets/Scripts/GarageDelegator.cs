@@ -125,7 +125,7 @@ public class GarageDelegator : MonoBehaviour
                 Button buyButton = panelTransform.GetChild(5).GetComponent<Button>();
                 // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
                 int index = i;
-                Debug.Log(playerStateScript);
+
                 // If vehicle is owned
                 if (playerStateScript.CheckVehicleOwnerShip(drillers[i].name)) {
                     PurchasedVehicle(newVehiclePanel, drillers[i], 5);

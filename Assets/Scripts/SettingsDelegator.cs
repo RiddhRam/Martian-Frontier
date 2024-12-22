@@ -1,4 +1,9 @@
+using System.Collections.Generic;
+using System.Linq;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class SettingsDelegator : MonoBehaviour
@@ -13,13 +18,12 @@ public class SettingsDelegator : MonoBehaviour
     private GameObject audioDelegator;
     private bool musicEnabled;
     private bool soundFXEnabled;
-    private SystemLanguage languageObject;
-    private string language;
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
     {
         audioDelegator = GameObject.Find("Audio Delegator");
+        languageDropdown.GetComponent<LanguageDelegator>().settingsDelegator = gameObject;
         UpdateBools();
 
         // Get the Toggle components
@@ -40,8 +44,9 @@ public class SettingsDelegator : MonoBehaviour
             SetPlayerPrefBool("SoundFX", soundFXToggleComponent);
         });
 
-        //languageObject = LoadLanguage();
-        //language = languageObject.ToString();
+        string loadedLanguage = LoadLanguage();
+        SetLanguage(loadedLanguage);
+        UpdateOptions();
     }
 
     public void UpdateBools() {
@@ -81,17 +86,145 @@ public class SettingsDelegator : MonoBehaviour
         UpdateBools();
     }
 
-    private SystemLanguage LoadLanguage()
+    public string LoadLanguage()
     {
-        string savedLanguage = PlayerPrefs.GetString("Language", Application.systemLanguage.ToString()); // Default to English
+        string savedLanguage = PlayerPrefs.GetString("Language", GetLanguageShortCode(Application.systemLanguage.ToString())); // Default to English
         
-        if (System.Enum.TryParse(savedLanguage, out SystemLanguage language))
+        return savedLanguage;
+    }
+
+    public void SetLanguage(string language)
+    {
+
+        // Get available locales
+        var availableLocales = LocalizationSettings.AvailableLocales.Locales;
+
+        // Find the Locale that matches the language code
+        Locale selectedLocale = null;
+
+        // Find the first match
+        foreach (var availableLocale in availableLocales)
         {
-            return language;
+            string languageShortCode = availableLocale.Identifier.Code;
+            if (language != languageShortCode ) {
+                continue;
+            }
+            
+            selectedLocale = availableLocale;
+            break;
         }
-        else
+
+        // If no match found, set it to the application's system language
+        if (selectedLocale == null)
         {
-            return Application.systemLanguage; // Fallback in case of invalid data
+            string systemLanguageCode = Application.systemLanguage.ToString(); // Get system language
+            
+            foreach (var availableLocale in availableLocales)
+            {
+                if (availableLocale.Identifier.Code == systemLanguageCode)
+                {
+                    selectedLocale = availableLocale;
+                    break; // Exit loop once a match is found
+                }
+            }
+        }
+
+        // Set the language
+        LocalizationSettings.SelectedLocale = selectedLocale;
+
+        PlayerPrefs.SetString("Language", language); // Save the selected language
+    }
+
+    private void UpdateOptions() {
+        TMP_Dropdown dropdown = languageDropdown.GetComponent<TMP_Dropdown>();
+        
+        // Get available locales
+        var locales = LocalizationSettings.AvailableLocales.Locales;
+
+        // Create a list of string options
+        var options = new List<string>();
+        foreach (var locale in locales)
+        {
+            string languageShortCode = locale.Identifier.Code;
+            string languageName = GetLanguageFullName(languageShortCode);
+            
+            options.Add(languageName);
+        }
+
+        // Clear any existing options and add new ones
+        dropdown.ClearOptions();
+        dropdown.AddOptions(options);
+    }
+
+    public string GetLanguageFullName(string languageShortCode)
+    {
+        switch (languageShortCode)
+        {
+            case "zh":
+                return "中文 (简体)"; // Chinese Simplified
+            case "en":
+                return "ENGLISH"; // English
+            case "fr":
+                return "FRANÇAIS"; // French
+            case "hi":
+                return "हिन्दी"; // Hindi
+            case "ja":
+                return "日本語"; // Japanese
+            case "ko":
+                return "한국어"; // Korean
+            case "pt":
+                return "PORTUGUÊS"; // Portuguese
+            case "ru":
+                return "РУССКИЙ"; // Russian
+            case "es":
+                return "ESPAÑOL"; // Spanish
+            default:
+                return "ENGLISH"; // Default case for unsupported codes
+        }
+    }
+
+    public string GetLanguageShortCode(string languageFullName)
+    {
+        switch (languageFullName)
+        {
+            case "Chinese (Simplified)":
+                return "zh"; // Chinese Simplified
+            case "中文 (简体)":
+                return "zh"; // Chinese Simplified
+            case "English":
+                return "en"; // English
+            case "ENGLISH":
+                return "en"; // English
+            case "French":
+                return "fr"; // French
+            case "FRANÇAIS":
+                return "fr"; // French
+            case "Hindi":
+                return "hi"; // Hindi
+            case "हिन्दी":
+                return "hi"; // Hindi
+            case "Japanese":
+                return "ja"; // Japanese
+            case "日本語":
+                return "ja"; // Japanese
+            case "Korean":
+                return "ko"; // Korean
+            case "한국어":
+                return "ko"; // Korean
+            case "Portuguese":
+                return "pt"; // Portuguese
+            case "PORTUGUÊS":
+                return "pt"; // Portuguese
+            case "Russian":
+                return "ru"; // Russian
+            case "РУССКИЙ":
+                return "ru"; // Russian
+            case "Spanish":
+                return "es"; // Spanish
+            case "ESPAÑOL":
+                return "es"; // Spanish
+            default:
+                return "en"; // Default case for unsupported full names
         }
     }
 
