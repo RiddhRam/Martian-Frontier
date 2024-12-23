@@ -40,6 +40,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             Destroy(gameObject);
             yield break;
         }
+
+        AnalyticsDelegator.Instance.StartTutorial();
     }
 
     private IEnumerator DisplayTutorial()
@@ -91,6 +93,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
         finishedTutorial = true;
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        AnalyticsDelegator.Instance.StartTutorial();
         Destroy(gameObject);
     }
 

@@ -10,7 +10,7 @@ public class PlayerMovement : MonoBehaviour
     private float lastRotation; // To track the last rotation angle
     // If the difference between last and current rotation is less than this, we assume it's stuck
     [SerializeField]
-    private float rotationThreshold; 
+    private float rotationThreshold;  // should be 0.1
     Transform frontWheels;
 
     // Start is called before the first frame update

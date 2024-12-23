@@ -149,7 +149,6 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
-   
     public void OpenTutorialUIPanel(string name) {
         if (!isInitialized) {
             return;
@@ -172,4 +171,21 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
+    public void StartTutorial() {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Start_Tutorial");
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+    public void FinishTutorial() {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Finish_Tutorial");
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 }
