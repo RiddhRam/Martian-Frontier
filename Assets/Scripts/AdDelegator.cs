@@ -11,8 +11,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject[] adButtons;
     public GameObject noInternetIcon;
     public GameObject[] timerTexts;
+    [SerializeField]
+    private string[] rewardTypes;
 
-    private RewardedAd rewardedAd;
+    private RewardedAd[] rewardedAds = new RewardedAd[3];
     private int timer = 60;
     private bool internetReachable = false;
     // This needs to be seperate because user can swap vehicle while boost active
@@ -31,8 +33,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Initialize the Google Mobile Ads SDK.
         MobileAds.Initialize((InitializationStatus initStatus) =>
         {
-            LoadRewardedAd();
-
+            for (int i = 0; i != rewardedAds.Length; i++) {
+                LoadRewardedAd(i);
+            }
+            
             // This callback is called once the MobileAds SDK is initialized.
             IncrementLoadedItems();
         });
@@ -48,18 +52,20 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         
         // Make sure there is internet access
         if (Application.internetReachability == NetworkReachability.NotReachable) {
-            if (rewardedAd != null) {
-                rewardedAd.Destroy();
-                rewardedAd = null;
+            for (int i = 0; i != rewardedAds.Length; i++) {
+                if (rewardedAds[i] != null) {
+                    rewardedAds[i].Destroy();
+                    rewardedAds[i] = null;
+                }
             }
+            
             internetReachable = false;
             ToggleDisplay();
             return;
         }
 
-        if (rewardedAd == null) {
-            LoadRewardedAd();
-        }
+        FillEmptyAdSlots();
+
         internetReachable = true;
         ToggleDisplay();
     }
@@ -93,13 +99,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     // Loads the rewarded ad.
-    public void LoadRewardedAd()
+    public void LoadRewardedAd(int rewardIndex)
     {
         // Clean up the old ad before loading a new one.
-        if (rewardedAd != null)
+        if (rewardedAds[rewardIndex] != null)
         {
-            rewardedAd.Destroy();
-            rewardedAd = null;
+            rewardedAds[rewardIndex].Destroy();
+            rewardedAds[rewardIndex] = null;
         }
 
         // create our request used to load the ad.
@@ -124,7 +130,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
-                rewardedAd = ad;
+                rewardedAds[rewardIndex] = ad;
 
                 try {
                     IncrementLoadedItems();
@@ -136,10 +142,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
+        int rewardIndex = 0;
 
-        if (rewardedAd != null && rewardedAd.CanShowAd())
+        for (int i = 0; i != rewardTypes.Length; i++) {
+            if (type == rewardTypes[i]) {
+                rewardIndex = i;
+                break;
+            }
+        }
+
+        if (rewardedAds[rewardIndex] != null && rewardedAds[rewardIndex].CanShowAd())
         {
-            rewardedAd.Show((Reward reward) =>
+            rewardedAds[rewardIndex].Show((Reward reward) =>
             {
                 if (type == "Profit") {
                     RewardWithProfit();
@@ -149,11 +163,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     RewardWithVision();
                 }
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-                LoadRewardedAd();
+                LoadRewardedAd(rewardIndex);
             });
 
             // Listen to user events during ad
-            RegisterEventHandlers(rewardedAd);
+            RegisterEventHandlers(rewardedAds[rewardIndex]);
             return;
         }
 
@@ -214,7 +228,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             //Debug.Log("Rewarded Ad full screen content closed.");
 
             // Reload the ad so that we can show another as soon as possible.
-            LoadRewardedAd();
+            FillEmptyAdSlots();
         };
         // Raised when the ad failed to open full screen content.
         ad.OnAdFullScreenContentFailed += (AdError error) =>
@@ -222,7 +236,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             Debug.LogError("Rewarded ad failed to open full screen content " + "with error : " + error);
 
             // Reload the ad so that we can show another as soon as possible.
-            LoadRewardedAd();
+            FillEmptyAdSlots();
         };
     }
 
@@ -397,5 +411,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private void IncrementLoadedItems() {
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }    
+
+    private void FillEmptyAdSlots() {
+        for (int i = 0; i != rewardedAds.Length; i++) {
+            if (rewardedAds[i] == null) {
+                LoadRewardedAd(i);
+            }
+        }
+    }
 
 }
