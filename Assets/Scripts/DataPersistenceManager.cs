@@ -6,7 +6,9 @@ public class DataPersistenceManager : MonoBehaviour
 {
 
     [Header("File Storage Config")]
-    [SerializeField] private string fileName;
+    [SerializeField] 
+    private string fileName;
+    private bool useEncryption = true;
 
     private GameData gameData;
     private List<IDataPersistence> dataPersistenceObjects;
@@ -21,10 +23,15 @@ public class DataPersistenceManager : MonoBehaviour
             Debug.LogError("Found more than one data persistence manager");
         }
         instance = this;
+
+        // Don't encrypt when using the editor, go debugging purposes
+        if (Application.isEditor) {
+            useEncryption = false;
+        }
     }
 
     private void Start() {
-        this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName);
+        this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
         LoadGame();
     }
