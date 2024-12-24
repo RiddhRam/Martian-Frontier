@@ -1,13 +1,16 @@
 using UnityEngine;
 using System;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 public class FileDataHandler
 {
     private string dataDirPath = "";
     private string dataFileName = "";
     private bool useEncryption = false;
-    private readonly string encryptonCodeWord = "RydStud10s!";
+    private readonly string encryptionKey = "RydStud10s!TvNcD";
+    private readonly string iv = "0123456789abcdef";
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption) {
         this.dataDirPath = dataDirPath;
@@ -34,7 +37,7 @@ public class FileDataHandler
 
             // Decrypt data if needed
             if (useEncryption) {
-                dataToLoad = EncryptDecrypt(dataToLoad);
+                dataToLoad = DecryptData(dataToLoad);
             }
 
             // Deserialize the data from the json back into the C# object
@@ -59,7 +62,7 @@ public class FileDataHandler
 
             // Encrypt data if needed
             if (useEncryption) {
-                dataToStore = EncryptDecrypt(dataToStore);
+                dataToStore = EncryptData(dataToStore);
             }
 
             // Write the serialized data to the file
@@ -75,14 +78,45 @@ public class FileDataHandler
         }
     }
 
-    // XOR encryption
-    private string EncryptDecrypt(string data) {
-        string modifiedData = "";
+    // AES encryption
+    private string EncryptData(string data)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
+            aesAlg.IV = Encoding.UTF8.GetBytes(iv);
+            
+            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
 
-        for (int i = 0; i < data.Length; i++) {
-            modifiedData += (char) (data[i] ^ encryptonCodeWord[i % encryptonCodeWord.Length]);
+            // Use MemoryStream to hold the encrypted data
+            using (MemoryStream msEncrypt = new MemoryStream())
+            using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
+            {
+                // Write the data into the stream to be encrypted
+                swEncrypt.Write(data);
+                swEncrypt.Close();  // Close to finish encryption process
+
+                // Return the encrypted data as a Base64 string
+                return Convert.ToBase64String(msEncrypt.ToArray());
+            }
         }
+    }
 
-        return modifiedData;
+    private string DecryptData(string data)
+    {
+        using (Aes aesAlg = Aes.Create())
+        {
+            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
+            aesAlg.IV = Encoding.UTF8.GetBytes(iv);
+            
+            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+            using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(data)))
+            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
+            {
+                return srDecrypt.ReadToEnd();
+            }
+        }
     }
 }
