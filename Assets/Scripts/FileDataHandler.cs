@@ -5,7 +5,6 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Reflection;
 using System.Collections;
-using Codice.CM.Common.Encryption;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
