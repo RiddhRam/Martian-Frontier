@@ -26,7 +26,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Don't encrypt when using the editor, go debugging purposes
         if (Application.isEditor) {
-            useEncryption = false;
+            //useEncryption = false;
         }
     }
 

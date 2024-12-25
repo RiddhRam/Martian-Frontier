@@ -104,6 +104,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
+    public void CallResetMineFromButton() {
+        StartCoroutine(ResetMine());
+    }
+
     private IEnumerator ResetMine() {
         mine.GetComponent<MineRenderer>().mineInitialization = 0;
         // Disable mine temporarily

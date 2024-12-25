@@ -150,6 +150,8 @@ public class FileDataHandler
                                 correspondingField.SetValue(testData, newFloat);
                             } 
                             else if (fieldType == typeof(List<string>)) {
+                                // URL decode all quotation marks
+                                strValue = strValue.Replace("%22", "\"");
                                 List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
                                 correspondingField.SetValue(testData, deserializedValue);
                             } else if (fieldType == typeof(int)) {
@@ -256,6 +258,9 @@ public class FileDataHandler
                 List<string> value = (List<string>) fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
+
+                // URL encode all quotation marks to make it safer for when we load the game
+                result = result.Replace("\"", "%22");
 
                 if (useEncryption) {
                     result = EncryptData(result);
