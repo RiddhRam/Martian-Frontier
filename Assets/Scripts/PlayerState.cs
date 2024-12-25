@@ -212,7 +212,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         
         loading = true;
-        
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
         this.blocksMined = BigInteger.Parse(data.blocksMined);

@@ -214,7 +214,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         for (int i = 0; i != savedHighestRow; i++) {
-
             List<Vector2Int> tileKeys = new List<Vector2Int>(revealedTilemapsTileValues[i].Keys);
             foreach (Vector2Int tileKey in tileKeys) {
                 // If this tile is supposed to be destroyed, destroy it
