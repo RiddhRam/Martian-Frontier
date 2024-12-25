@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -200,7 +199,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void LoadTiles() {
         int savedHighestRow = highestRow;
         // highestRow is going to get reassigned in CreateTiles, so save it's value
-        
         // We create all tiles first, that way there's no error when revealing tiles when we run DestroyTile
         for (int i = 0; i != savedHighestRow; i++) {
             // Destroy Generation Trigger
@@ -447,6 +445,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
+
+        //Debug.Log("Saved Highest Row: " + this.highestRow + " vs " + data.highestRow);
         
         foreach (string id in savedMaterials.Keys) {
             // Copy all the saved values into the loaded material

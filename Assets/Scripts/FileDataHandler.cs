@@ -172,7 +172,6 @@ public class FileDataHandler
                             }
                         }
                         catch {
-                            Debug.LogError("Failed to convert and set value for field ");
                         }
                     }
                 }
@@ -181,8 +180,7 @@ public class FileDataHandler
             // Deserialize the data from the json back into the C# object
             loadedData = testData;
         } 
-        catch (Exception ex){
-            Debug.LogError("Error when trying to load data from file: "  + fullpath + "\n" + ex.Message);
+        catch {
         }
         
         return loadedData;
