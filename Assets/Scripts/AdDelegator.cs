@@ -168,6 +168,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAds[rewardIndex]);
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             return;
         }
 
@@ -179,6 +180,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } if (type == "Vision") {
             RewardWithVision();
         }
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
     }
 
     // Listen to user events during ad

@@ -78,6 +78,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             AnalyticsDelegator.Instance.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
 
@@ -282,7 +283,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // because the haulers will drop everything
         refineryController.PlayerRebirth();
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
-
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
         AnalyticsDelegator.Instance.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
 
         UpdateCashDisplays();

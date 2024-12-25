@@ -68,6 +68,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = haulerController.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
@@ -82,6 +83,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
         int tier = drillerController.GetDrillTier();
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
         AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", tier);
     }
 
