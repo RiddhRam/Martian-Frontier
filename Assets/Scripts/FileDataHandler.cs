@@ -1,10 +1,8 @@
 using UnityEngine;
 using System;
 using System.IO;
-using System.Security.Cryptography;
 using System.Text;
 using System.Reflection;
-using System.Collections;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -124,7 +122,7 @@ public class FileDataHandler
                             string strValue = value;
                             
                             if (useEncryption) {
-                                strValue = DecryptData(strValue);
+                                strValue = EncryptDecrypt(strValue, false);
                             }
                             
                             if (fieldType == typeof(Vector3)) {
@@ -179,7 +177,7 @@ public class FileDataHandler
 
             // Deserialize the data from the json back into the C# object
             loadedData = testData;
-        } 
+        }  
         catch {
         }
         
@@ -260,7 +258,7 @@ public class FileDataHandler
                 result = result.Replace("\"", "%22");
 
                 if (useEncryption) {
-                    result = EncryptData(result);
+                    result = EncryptDecrypt(result, true);
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
@@ -270,7 +268,7 @@ public class FileDataHandler
                 string result = JsonConvert.SerializeObject(value);
 
                 if (useEncryption) {
-                    result = EncryptData(result);
+                    result = EncryptDecrypt(result, true);
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
@@ -281,7 +279,7 @@ public class FileDataHandler
                 
                 // Use encryption only if outside of editor
                 if (useEncryption) {
-                    valueToUse = EncryptData(valueToUse);
+                    valueToUse = EncryptDecrypt(valueToUse, true);
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{valueToUse}\",\n");
@@ -297,45 +295,36 @@ public class FileDataHandler
         return jsonBuilder.ToString();
     }
 
-    // AES encryption
-    private string EncryptData(string data)
-    {
-        using (Aes aesAlg = Aes.Create())
+    // XOR algorithm
+    private string EncryptDecrypt(string data, bool encrypting) {
+        byte[] returnBytes;
+        byte[] result;
+
+        // If decrypting, convert from Base64 string to byte array
+        if (!encrypting)
         {
-            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
-            aesAlg.IV = Encoding.UTF8.GetBytes(iv);
-            
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
-
-            // Use MemoryStream to hold the encrypted data
-            using (MemoryStream msEncrypt = new MemoryStream())
-            using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
-            using (StreamWriter swEncrypt = new StreamWriter(csEncrypt))
-            {
-                // Write the data into the stream to be encrypted
-                swEncrypt.Write(data);
-                swEncrypt.Close();  // Close to finish encryption process
-
-                // Return the encrypted data as a Base64 string
-                return Convert.ToBase64String(msEncrypt.ToArray());
-            }
+            returnBytes = Convert.FromBase64String(data);
         }
-    }
-
-    private string DecryptData(string data)
-    {
-        using (Aes aesAlg = Aes.Create())
+        else
         {
-            aesAlg.Key = Encoding.UTF8.GetBytes(encryptionKey);
-            aesAlg.IV = Encoding.UTF8.GetBytes(iv);
-            
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-            using (MemoryStream msDecrypt = new MemoryStream(Convert.FromBase64String(data)))
-            using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
-            using (StreamReader srDecrypt = new StreamReader(csDecrypt))
-            {
-                return srDecrypt.ReadToEnd();
-            }
+            returnBytes = Encoding.UTF8.GetBytes(data);
+        }
+
+        result = new byte[returnBytes.Length];
+
+        for (int i = 0; i < returnBytes.Length; i++)
+        {
+            result[i] = (byte)(returnBytes[i] ^ encryptionKey[i % encryptionKey.Length]);
+        }
+
+        // If encrypting, return the Base64 string, otherwise return the decrypted string
+        if (encrypting)
+        {
+            return Convert.ToBase64String(result);
+        }
+        else
+        {
+            return Encoding.UTF8.GetString(result);
         }
     }
 }
