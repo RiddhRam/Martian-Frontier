@@ -13,7 +13,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
+    // Height of the map, measured in tilemaps
     private readonly int totalRows = 42;
+    // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
+    private int totalColumns;
+    // Half the width of the map, measured in tiles
+    private readonly int mapHalfLength = 75;
     private readonly Vector2Int gridSize = new(25, 12);
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
@@ -48,6 +53,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Called before Start
     void Awake()
     {
+        totalColumns = mapHalfLength * 2 / gridSize.x;
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalRows];
