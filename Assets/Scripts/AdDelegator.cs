@@ -75,6 +75,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     {
         bool isDebugBuild = Debug.isDebugBuild;
 
+        // Android Test
+        // ca-app-pub-3940256099942544/5224354917
+        // Android Real
+        // ca-app-pub-5607588731152504/9913767660
+        // iOS Test
+        // ca-app-pub-3940256099942544/1712485313
+        // iOS Real
+        // ca-app-pub-5607588731152504/4737462608
+
         #if UNITY_ANDROID
             if (isDebugBuild)
             {
@@ -258,7 +267,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         noInternetIcon.SetActive(true);
     }
 
-    private void RewardWithProfit(int? totalTime = 15) {
+    private void RewardWithProfit(int? totalTime = 300) {
         RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultiplier(2);
@@ -266,7 +275,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.AdWatchAttempt("Profit");
     }
 
-    private void RewardWithSpeed(int? totalTime = 15) {
+    private void RewardWithSpeed(int? totalTime = 300) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
         // Reset to original value after 3 mins
@@ -275,7 +284,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.AdWatchAttempt("Speed");
     }
 
-    private void RewardWithVision(int? totalTime = 15) {
+    private void RewardWithVision(int? totalTime = 300) {
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
