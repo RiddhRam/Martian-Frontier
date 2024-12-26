@@ -1,16 +1,18 @@
 using System;
+using TMPro;
 using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public JoystickMovement joystickMovement;
-    private float playerSpeed = 5f;
+    public GameObject speedText;
     [SerializeField]
-    private float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
+    private float playerSpeed = 5f;
+    private readonly float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
     // If the difference between last and current rotation is less than this, we assume it's stuck
-    [SerializeField]
-    private float rotationThreshold;  // should be 0.1
+    /*[SerializeField]
+    private float rotationThreshold;  // should be 0.1*/
     Transform frontWheels;
 
     // Start is called before the first frame update
@@ -98,6 +100,8 @@ public class PlayerMovement : MonoBehaviour
 
     public void SetSpeed(float newSpeed) {
         playerSpeed = newSpeed;
+
+        speedText.GetComponent<TextMeshProUGUI>().text = playerSpeed.ToString();
 
         Transform vehicle = transform.GetChild(0);
         // SetSpeed is called when a new vehicle is placed

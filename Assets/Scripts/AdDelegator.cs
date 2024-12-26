@@ -258,7 +258,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         noInternetIcon.SetActive(true);
     }
 
-    private void RewardWithProfit(int? totalTime = 180) {
+    private void RewardWithProfit(int? totalTime = 15) {
         RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultiplier(2);
@@ -266,7 +266,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.AdWatchAttempt("Profit");
     }
 
-    private void RewardWithSpeed(int? totalTime = 180) {
+    private void RewardWithSpeed(int? totalTime = 15) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
         // Reset to original value after 3 mins
@@ -275,7 +275,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         AnalyticsDelegator.Instance.AdWatchAttempt("Speed");
     }
 
-    private void RewardWithVision(int? totalTime = 180) {
+    private void RewardWithVision(int? totalTime = 15) {
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
@@ -358,6 +358,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         adButtons[1].GetComponent<Button>().interactable = true;
 
         speedBoostActive = false;
+        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
+        playerMovement.SetSpeed(originalSpeed);
     }
 
     public void SetUsingDriller(bool usingDriller) {

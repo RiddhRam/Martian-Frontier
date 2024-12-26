@@ -13,7 +13,6 @@ public class FileDataHandler
     private string dataFileName = "";
     private bool useEncryption = false;
     private readonly string encryptionKey = "RydStud10s!TvNcD";
-    private readonly string iv = "0123456789abcdef";
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption) {
         this.dataDirPath = dataDirPath;
