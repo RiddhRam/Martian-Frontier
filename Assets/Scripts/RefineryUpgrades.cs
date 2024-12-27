@@ -13,6 +13,11 @@ public class RefineryUpgrades : MonoBehaviour
     private float currentValue;
     public GameObject PlayerState;
     private RefineryController refineryController;
+    private AnalyticsDelegator analyticsDelegator;
+
+    void Start() {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     public void InitializeRefinery(float newValue, GameObject refineryDropOffGO) {
         refineryController = refineryDropOffGO.GetComponent<RefineryController>();
@@ -50,12 +55,12 @@ public class RefineryUpgrades : MonoBehaviour
 
         if (gameObject.name == "Capacity Panel") {
             refineryController.SetBattery(currentValue);
-            AnalyticsDelegator.Instance.RefineryUpgrade("Capacity", currentIndex + 1);
+            analyticsDelegator.RefineryUpgrade("Capacity", currentIndex + 1);
             return;
         }
 
         refineryController.SetEfficiency(currentValue);
-        AnalyticsDelegator.Instance.RefineryUpgrade("Efficiency", currentIndex + 1);
+        analyticsDelegator.RefineryUpgrade("Efficiency", currentIndex + 1);
     }
 
     // Only called upon when loading game

@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
+    public GameObject mainCamera;
     public JoystickMovement joystickMovement;
     public GameObject speedText;
     [SerializeField]
@@ -24,7 +25,19 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
+        // Otherwise it gets stuck at the spawn
+        // Smooth camera follow
+        Vector3 targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+
         Vector2 joystickVec = joystickMovement.joystickVec;
+
+        // Make sure vehicle is trying to move
+        if (joystickVec.x == 0 && joystickVec.y == 0) {
+            rb.velocity = Vector2.zero;
+            return;
+        }
 
         // Translation logic
         // Translate the vehicle position
@@ -32,15 +45,6 @@ public class PlayerMovement : MonoBehaviour
             joystickVec.x * playerSpeed,
             joystickVec.y * playerSpeed
         );
-
-        // Smooth camera follow
-        Vector3 targetPosition = new(transform.position.x, transform.position.y, Camera.main.transform.position.z);
-        Camera.main.transform.position = Vector3.Lerp(Camera.main.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
-
-        // Make sure vehicle is trying to rotate
-        if (joystickVec.x == 0 && joystickVec.y == 0) {
-            return;
-        }
 
         // Rotation logic
         // Calculate target angle in degrees

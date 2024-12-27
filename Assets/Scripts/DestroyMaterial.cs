@@ -24,6 +24,7 @@ public class DestroyMaterial : MonoBehaviour
 
         if (materialManagerUI.count <= 0) {
             Destroy(previouslySelectedMaterial.gameObject);
+            previouslySelectedMaterial = null;
             GetComponent<Button>().interactable = false;
         }
 

@@ -19,6 +19,7 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
     }
 
     public void AddMaterial(GameObject materialToAdd, Sprite materialSprite, Vector3 materialPosition, int materialIndex, int materialCount) {
+        // TODO: Make a prefab for each material, that way there's no need to get component to set the sprite
         materialToAdd.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = materialSprite;
         // Need to manually put it in the right spot, do this before SetCount, so it happens before UpdateData() in MaterialManager
         materialToAdd.transform.localPosition = materialPosition;

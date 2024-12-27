@@ -7,6 +7,7 @@ public class UIDelegation : MonoBehaviour
 {
     public GameObject mapCamera;
     public GameObject mapCameraView;
+    private RenderTexture renderTexture;
     public GameObject scrollViewContent;
     public GameObject playerVehicle;
     public GameObject sliderCount;
@@ -24,12 +25,16 @@ public class UIDelegation : MonoBehaviour
     private Sprite[] materialHighResSprites;
     private string[] materialNames;
     private bool showCargoInfo;
+    private GameCameraController mainCameraController;
+    private AnalyticsDelegator analyticsDelegator;
  
     void Start()
     {
         ToggleCargoInfo(false);
         materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
         materialHighResSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialHighResSprites;
+        mainCameraController = Camera.main.GetComponent<GameCameraController>();
+        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     public void ToggleCargoInfo(bool newValue) {
@@ -73,14 +78,14 @@ public class UIDelegation : MonoBehaviour
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element) {
         element.SetActive(true);
-        Camera.main.GetComponent<GameCameraController>().ToggleZooming(false);
-        AnalyticsDelegator.Instance.OpenUIPanel(element.name);
+        mainCameraController.ToggleZooming(false);
+        analyticsDelegator.OpenUIPanel(element.name);
     }
 
     // Used when closing a secondary element
     public void HideElement(GameObject element) {
         element.SetActive(false);
-        Camera.main.GetComponent<GameCameraController>().ToggleZooming(true);
+        mainCameraController.ToggleZooming(true);
     }
 
     // Used when opening the map, or closing
@@ -89,6 +94,8 @@ public class UIDelegation : MonoBehaviour
 
         // Make sure its active
         if (!mapCamera.activeSelf) {
+            Destroy(renderTexture);
+            renderTexture = null;
             return;
         }
 
@@ -100,7 +107,7 @@ public class UIDelegation : MonoBehaviour
         }
         
         // Create a new RenderTexture
-        RenderTexture renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
+        renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
         renderTexture.antiAliasing = 8;
         renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
         renderTexture.Create();
@@ -195,7 +202,7 @@ public class UIDelegation : MonoBehaviour
         errorInstance.transform.SetParent(transform.GetChild(0));
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
-        AnalyticsDelegator.Instance.ShowError(error);
+        analyticsDelegator.ShowError(error);
     }
 
     private string GetLocalizedValue(string key, params object[] args)

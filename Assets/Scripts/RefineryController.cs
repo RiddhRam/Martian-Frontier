@@ -32,9 +32,19 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private float levelProfitMultiplier = 0;
     [SerializeField]
     private float rebirthProfitMultiplier = 0;
+    private Transform largeFogOfWar;
+    private AudioDelegator audioDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private GameObject playerVehicle;
+    private AnalyticsDelegator analyticsDelegator;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
+        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        playerVehicle = GameObject.Find("Player Vehicle");
+        analyticsDelegator = AnalyticsDelegator.Instance;
         if (initialBattery < refineryBattery || initialBattery < 120) {
             initialBattery = 120;
         }
@@ -98,10 +108,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash((long) cashToAdd, savedMaterialCount);
-        AnalyticsDelegator.Instance.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+        analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
-        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
+        audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     public void CallResetMineFromButton() {
@@ -113,12 +123,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // Disable mine temporarily
         mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOff;
         // Move player off the dropoff area, and move all players inside the mine to the outside
-        GameObject playerVehicle = GameObject.Find("Player Vehicle");
         playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
         mineEntrance.GetComponent<BoxCollider2D>().enabled = true;
 
         // Cover the map
-        GameObject.Find("Large Fog Of War").transform.position = new(0, -220, 0);
+        largeFogOfWar.position = new(0, -220, 0);
 
         // Reset the mine
         for (int i = 0; i != mine.transform.childCount; i++) {
@@ -142,6 +151,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             foreach (var material in materials) {
                 Destroy(material.gameObject);
             }
+            materials = null;
         }
 
         mine.GetComponent<MineRenderer>().InitializeMine();
@@ -181,7 +191,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
 
-        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
+        audioDelegator.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
 
         while (elapsed < duration)
         {
@@ -250,7 +260,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void SaveGame() {
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        dataPersistenceManager.SaveGame();
     }
 
     private string FormatPrice(long price)

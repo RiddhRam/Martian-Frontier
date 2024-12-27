@@ -30,8 +30,6 @@ public class FileDataHandler
         }
 
         try {
-            // Just here so we can check data types of variables
-            GameData testData = new GameData();
             // Load the serialized data from the file
             string dataToLoad = "";
             using (FileStream stream = new FileStream(fullpath, FileMode.Open)) {
@@ -40,147 +38,154 @@ public class FileDataHandler
                 }
             }
 
-            // Deserialize JSON
-            GameDataString dataJson = JsonUtility.FromJson<GameDataString>(dataToLoad);
-
-            // Use reflection to get all fields of the GameDataString class
-            FieldInfo[] fields = typeof(GameDataString).GetFields(BindingFlags.Public | BindingFlags.Instance);
-
-            foreach (var field in fields)
-            {
-                // Get the field in the GameData class by name
-                FieldInfo correspondingField = typeof(GameData).GetField(field.Name, BindingFlags.Public | BindingFlags.Instance);
-
-                // Get the target type of the corresponding field
-                Type fieldType = correspondingField.FieldType;
-
-                // If the field type is nullable, get the underlying type
-                if (Nullable.GetUnderlyingType(fieldType) != null) {
-                    fieldType = Nullable.GetUnderlyingType(fieldType);
-                }
-                
-                if (correspondingField != null)
-                {
-                    var value = field.GetValue(dataJson).ToString();
-
-                    // These types are't encrypted, material dictionary, or tilemap data
-                    if (fieldType == typeof(SerializableDictionary<Vector2Int, int>[])) {
-                        // Regular expression to find the contents within {}
-                        string pattern = @"\{.*?\}";
-
-                        // Match the pattern
-                        MatchCollection matches = Regex.Matches(value, pattern);
-                        SerializableDictionary<Vector2Int, int>[] newArray = new SerializableDictionary<Vector2Int, int>[42];
-
-                        // Print each match
-                        int index = 0;
-                        foreach (Match match in matches)
-                        {
-                            string matchedValue = match.Value.Replace("(", "\"(").Replace(")", ")\"").Trim('{', '}');
-                            // Use a regex pattern to match key-value pairs
-                            var regex = new Regex(@"\""(.*?)\"":(\d+)");
-                            
-                            var matchesKVP = regex.Matches(matchedValue);
-
-                            SerializableDictionary<Vector2Int, int> dict = new();
-                            // Loop through the matches and add them to the dictionary
-                            foreach (Match matchKVP in matchesKVP)
-                            {
-                                string coord = matchKVP.Groups[1].Value;
-                                
-                                // Format string
-                                coord = coord.Replace("(", "").Replace("\"", "");
-                                coord = coord.Replace(")", "");
-                                
-                                string[] components = coord.Split(',');
-                                // Construct a vector
-                                int x = int.Parse(components[0]);
-                                int y = int.Parse(components[1]);
-
-                                Vector2Int newKey = new Vector2Int(x, y); // Extract the key
-                                int newInt = int.Parse(matchKVP.Groups[2].Value); // Extract and parse the value
-                                dict.Add(newKey, newInt);
-                            }
-                            newArray[index] = dict;
-                            index++;
-                        }
-                        
-                        correspondingField.SetValue(testData, newArray);
-                    } else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
-                        // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                        value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
-                        value = "{" + value + "}";
-
-                        SerializableDictionary<string, MaterialManagerData> materialManagerData = JsonUtility.FromJson<SerializableDictionary<string, MaterialManagerData>>(value);
-                        correspondingField.SetValue(testData, materialManagerData);
-                    }
-                    
-                    // value is a string, and we need to convert it to the right type
-                    else {
-                        try {
-                            string strValue = value;
-                            
-                            if (useEncryption) {
-                                strValue = EncryptDecrypt(strValue, false);
-                            }
-                            
-                            if (fieldType == typeof(Vector3)) {
-                                // Format string
-                                strValue = strValue.Replace("(", "");
-                                strValue = strValue.Replace(")", "");
-                                string[] components = strValue.Split(',');
-
-                                // Construct a vector
-                                float x = float.Parse(components[0]);
-                                float y = float.Parse(components[1]);
-                                float z = float.Parse(components[2]);
-
-                                Vector3 newVector = new Vector3(x, y, z);
-
-                                // Set the converted value to the field in testData
-                                correspondingField.SetValue(testData, newVector);
-                            } 
-                            else if (fieldType == typeof(float)) {
-                                float newFloat = float.Parse(strValue);
-                                // Set the converted value to the field in testData
-                                correspondingField.SetValue(testData, newFloat);
-                            } 
-                            else if (fieldType == typeof(List<string>)) {
-                                // URL decode all quotation marks
-                                strValue = strValue.Replace("%22", "\"");
-                                List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
-                                correspondingField.SetValue(testData, deserializedValue);
-                            } else if (fieldType == typeof(int)) {
-                                int newInt = int.Parse(strValue);
-                                correspondingField.SetValue(testData, newInt);
-                            } else if (fieldType == typeof(bool)) {
-                                bool newBool = bool.Parse(strValue);
-                                correspondingField.SetValue(testData, newBool);
-                            } else if (fieldType == typeof(int[])) {
-                                int[] deserializedValue = JsonConvert.DeserializeObject<int[]>(strValue);
-                                correspondingField.SetValue(testData, deserializedValue);
-                            }
-                            else {
-                                // Convert value to the corresponding field type
-                                var convertedValue = Convert.ChangeType(strValue, fieldType);
-
-                                // Set the converted value to the field in testData
-                                correspondingField.SetValue(testData, convertedValue);
-                            }
-                        }
-                        catch {
-                        }
-                    }
-                }
-            }
-
             // Deserialize the data from the json back into the C# object
-            loadedData = testData;
+            loadedData = ParseJson(dataToLoad);
         }  
         catch {
         }
         
         return loadedData;
+    }
+
+    private GameData ParseJson(string dataToLoad) {
+        // Temporarily save data here, then we will return it later
+        GameData tempData = new GameData();
+
+        // Deserialize JSON
+        GameDataString dataJson = JsonUtility.FromJson<GameDataString>(dataToLoad);
+
+        // Use reflection to get all fields of the GameDataString class
+        FieldInfo[] fields = typeof(GameDataString).GetFields(BindingFlags.Public | BindingFlags.Instance);
+
+        foreach (var field in fields)
+        {
+            // Get the field in the GameData class by name
+            FieldInfo correspondingField = typeof(GameData).GetField(field.Name, BindingFlags.Public | BindingFlags.Instance);
+
+            // Get the target type of the corresponding field
+            Type fieldType = correspondingField.FieldType;
+
+            // If the field type is nullable, get the underlying type
+            if (Nullable.GetUnderlyingType(fieldType) != null) {
+                fieldType = Nullable.GetUnderlyingType(fieldType);
+            }
+            
+            if (correspondingField != null)
+            {
+                var value = field.GetValue(dataJson).ToString();
+
+                // These types are't encrypted, material dictionary, or tilemap data
+                if (fieldType == typeof(SerializableDictionary<Vector2Int, int>[,])) {
+                    // Regular expression to find the contents within {}
+                    string pattern = @"\{.*?\}";
+
+                    // Match the pattern
+                    MatchCollection matches = Regex.Matches(value, pattern);
+                    SerializableDictionary<Vector2Int, int>[] newArray = new SerializableDictionary<Vector2Int, int>[42];
+
+                    // Print each match
+                    int index = 0;
+                    foreach (Match match in matches)
+                    {
+                        string matchedValue = match.Value.Replace("(", "\"(").Replace(")", ")\"").Trim('{', '}');
+                        // Use a regex pattern to match key-value pairs
+                        var regex = new Regex(@"\""(.*?)\"":(\d+)");
+                        
+                        var matchesKVP = regex.Matches(matchedValue);
+
+                        SerializableDictionary<Vector2Int, int> dict = new();
+                        // Loop through the matches and add them to the dictionary
+                        foreach (Match matchKVP in matchesKVP)
+                        {
+                            string coord = matchKVP.Groups[1].Value;
+                            
+                            // Format string
+                            coord = coord.Replace("(", "").Replace("\"", "");
+                            coord = coord.Replace(")", "");
+                            
+                            string[] components = coord.Split(',');
+                            // Construct a vector
+                            int x = int.Parse(components[0]);
+                            int y = int.Parse(components[1]);
+
+                            Vector2Int newKey = new Vector2Int(x, y); // Extract the key
+                            int newInt = int.Parse(matchKVP.Groups[2].Value); // Extract and parse the value
+                            dict.Add(newKey, newInt);
+                        }
+                        newArray[index] = dict;
+                        index++;
+                    }
+                    
+                    correspondingField.SetValue(tempData, newArray);
+                } else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
+                    // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                    value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
+                    value = "{" + value + "}";
+
+                    SerializableDictionary<string, MaterialManagerData> materialManagerData = JsonUtility.FromJson<SerializableDictionary<string, MaterialManagerData>>(value);
+                    correspondingField.SetValue(tempData, materialManagerData);
+                }
+                
+                // value is a string, and we need to convert it to the right type
+                else {
+                    try {
+                        string strValue = value;
+                        
+                        if (useEncryption) {
+                            strValue = EncryptDecrypt(strValue, false);
+                        }
+                        
+                        if (fieldType == typeof(Vector3)) {
+                            // Format string
+                            strValue = strValue.Replace("(", "");
+                            strValue = strValue.Replace(")", "");
+                            string[] components = strValue.Split(',');
+
+                            // Construct a vector
+                            float x = float.Parse(components[0]);
+                            float y = float.Parse(components[1]);
+                            float z = float.Parse(components[2]);
+
+                            Vector3 newVector = new Vector3(x, y, z);
+
+                            // Set the converted value to the field in tempData
+                            correspondingField.SetValue(tempData, newVector);
+                        } 
+                        else if (fieldType == typeof(float)) {
+                            float newFloat = float.Parse(strValue);
+                            // Set the converted value to the field in tempData
+                            correspondingField.SetValue(tempData, newFloat);
+                        } 
+                        else if (fieldType == typeof(List<string>)) {
+                            // URL decode all quotation marks
+                            strValue = strValue.Replace("%22", "\"");
+                            List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
+                            correspondingField.SetValue(tempData, deserializedValue);
+                        } else if (fieldType == typeof(int)) {
+                            int newInt = int.Parse(strValue);
+                            correspondingField.SetValue(tempData, newInt);
+                        } else if (fieldType == typeof(bool)) {
+                            bool newBool = bool.Parse(strValue);
+                            correspondingField.SetValue(tempData, newBool);
+                        } else if (fieldType == typeof(int[])) {
+                            int[] deserializedValue = JsonConvert.DeserializeObject<int[]>(strValue);
+                            correspondingField.SetValue(tempData, deserializedValue);
+                        }
+                        else {
+                            // Convert value to the corresponding field type
+                            var convertedValue = Convert.ChangeType(strValue, fieldType);
+
+                            // Set the converted value to the field in tempData
+                            correspondingField.SetValue(tempData, convertedValue);
+                        }
+                    }
+                    catch {
+                    }
+                }
+            }
+        }
+
+        return tempData;
     }
 
     public void Save(GameData data) {
@@ -219,7 +224,7 @@ public class FileDataHandler
 
             // These can become very large, they store the data of all destroyed and revealed blocks 
             // encryption is not needed and takes too long
-            if (fieldValue is SerializableDictionary<Vector2Int, int>[] dictionaryArray)
+            if (fieldValue is SerializableDictionary<Vector2Int, int>[,] dictionaryArray)
             {
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"[");

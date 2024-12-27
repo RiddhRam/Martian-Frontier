@@ -3029,6 +3029,7 @@ MonoBehaviour:
   - {fileID: 1087366065}
   - {fileID: 2095068546}
   garagePanel: {fileID: 648771411}
+  materialProfitPanel: {fileID: 1333755067}
   savedAmountSubtract: 0
   rebirthProfitMultiplier: 0
 --- !u!1 &276296405
@@ -6465,7 +6466,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: -370.71838}
+  m_AnchoredPosition: {x: 0, y: -370.71838}
   m_SizeDelta: {x: -460.758, y: 203.956}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &481447750
@@ -23871,7 +23872,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -0.00012207031, y: -177.72531}
+  m_AnchoredPosition: {x: 0, y: -177.72531}
   m_SizeDelta: {x: 0, y: 203.959}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &866130911
@@ -31789,6 +31790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97b955f30704f452d80a15d44b5a67a9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainCamera: {fileID: 1910334187}
   joystickMovement: {fileID: 1828223861}
   speedText: {fileID: 299356767}
   playerSpeed: 5
@@ -464786,7 +464788,7 @@ MonoBehaviour:
   visionRadius: 3
   playerState: {fileID: 276248152}
   largeFogOfWar: {fileID: 1438017626}
-  mineTilemapPrefab: {fileID: 395500911926318891, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
+  mineTilemapPrefab: {fileID: 3638634728784657662, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
   unknownTile: {fileID: 11400000, guid: ce4126fcb414141c3932232d868e8cf4, type: 2}
   tileValues:
   - {fileID: 11400000, guid: b08b25b5facac4e60913f5a32d60775e, type: 2}
@@ -469026,7 +469028,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: -632}
+  m_AnchoredPosition: {x: 0, y: -632}
   m_SizeDelta: {x: -943.5, y: 123.728}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1642625726
@@ -470847,7 +470849,6 @@ MonoBehaviour:
   joystick: {fileID: 1174627864}
   joystickBG: {fileID: 1156173123}
   joystickVec: {x: 0, y: 0}
-  joystickTouchPos: {x: 0, y: 0}
 --- !u!114 &1828223862
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -474110,7 +474111,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: -339.99988}
+  m_AnchoredPosition: {x: 0, y: -339.99988}
   m_SizeDelta: {x: -120, y: 561.2959}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2131280769
