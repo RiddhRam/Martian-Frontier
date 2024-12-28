@@ -29,6 +29,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private ProfitPanelDelegator profitPanelDelegator;
     private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
+    private int freeMoneyToAdd = 0;
+    [SerializeField]
+    private GameObject cashSliderGO;
+    [SerializeField]
+    private GameObject cashTextGO;
+    private Slider cashSlider;
+    private TextMeshProUGUI cashText;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -39,6 +46,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         materialProfitPanel = null;
         UpdateCashDisplays();
         UpdateXPDisplays();
+
+        if (cashSliderGO) {
+            cashSlider = cashSliderGO.GetComponent<Slider>();
+        }
+
+        if (cashTextGO) {
+            cashText = cashTextGO.GetComponent<TextMeshProUGUI>();
+        }
     }
 
     // Validate and add cash
@@ -302,9 +317,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // For development only
     public void FreeMoney() {
-        userCash += 1_000_000_000;
+        userCash += freeMoneyToAdd;
         UpdateCashDisplays();
         analyticsDelegator.TestEvent("Just testing");
+    }
+
+    public void FreeMoneyUpdate() {
+        freeMoneyToAdd = (int) cashSlider.value;
+
+        cashText.text = "$" + FormatPrice(freeMoneyToAdd);
     }
 
 }

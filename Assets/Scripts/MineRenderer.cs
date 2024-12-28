@@ -149,8 +149,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
-        // This is better since it doesn't just reveal the first few surface blocks
-
+        // This is better than calling RevealTile it doesn't just reveal the first few surface blocks
         DestroyTile(new(-4, -4), true);
         DestroyTile(new(-3, -4), true);
         DestroyTile(new(-2, -4), true);

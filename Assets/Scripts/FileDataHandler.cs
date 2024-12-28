@@ -81,10 +81,13 @@ public class FileDataHandler
 
                     // Match the pattern
                     MatchCollection matches = Regex.Matches(value, pattern);
-                    SerializableDictionary<Vector2Int, int>[] newArray = new SerializableDictionary<Vector2Int, int>[42];
+                    int totalColumns = tempData.destroyedTilemapsTileValues.GetLength(0);
+                    int totalRows = tempData.destroyedTilemapsTileValues.GetLength(1);
+                    SerializableDictionary<Vector2Int, int>[,] newArray = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
 
                     // Print each match
-                    int index = 0;
+                    int rowIndex = 0;
+                    int columnIndex = 0;
                     foreach (Match match in matches)
                     {
                         string matchedValue = match.Value.Replace("(", "\"(").Replace(")", ")\"").Trim('{', '}');
@@ -112,8 +115,13 @@ public class FileDataHandler
                             int newInt = int.Parse(matchKVP.Groups[2].Value); // Extract and parse the value
                             dict.Add(newKey, newInt);
                         }
-                        newArray[index] = dict;
-                        index++;
+                        newArray[columnIndex, rowIndex] = dict;
+
+                        rowIndex++;
+                        if (rowIndex == totalRows) {
+                            rowIndex = 0;
+                            columnIndex++;
+                        }
                     }
                     
                     correspondingField.SetValue(tempData, newArray);
@@ -226,7 +234,10 @@ public class FileDataHandler
             // encryption is not needed and takes too long
             if (fieldValue is SerializableDictionary<Vector2Int, int>[,] dictionaryArray)
             {
-
+                
+                // Save the dictionary array column by column.
+                // Save the first column by starting at the first row and going down
+                // Then go to the next column to the right and repeat
                 jsonBuilder.Append($"  \"{field.Name}\": \"[");
 
                 foreach (var dictionary in dictionaryArray)
