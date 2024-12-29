@@ -12,9 +12,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private float loadRotate;
     private MineRenderer mineRenderer;
     private AdDelegator adDelegator;
+    private AnalyticsDelegator analyticsDelegator;
 
     public void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     public void SwitchVehicle(GameObject newVehicle) {
@@ -42,6 +44,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
         Destroy(oldVehicle);
+        oldVehicle = null;
         transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
 
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)
@@ -68,7 +71,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = haulerController.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-            AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Hauler", 0);
+            analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
 
@@ -82,7 +85,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
         int tier = drillerController.GetDrillTier();
-        AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", tier);
+        
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
+        analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", tier);
     }
 
     public void LoadData(GameData data) {

@@ -15,6 +15,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private GameObject[] primaryElements;
     private bool goToNext;
     private bool gameLoaded;
+    private AnalyticsDelegator analyticsDelegator;
 
     void Awake() {
         primaryElements = new GameObject[] { settingsButton };
@@ -25,6 +26,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         StartCoroutine(WaitForGameLoad());
 
         loadingScreen = GameObject.Find("Loading Screen");
+        analyticsDelegator = AnalyticsDelegator.Instance;
         
         StartCoroutine(DisplayTutorial());
     }
@@ -41,7 +43,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             yield break;
         }
 
-        AnalyticsDelegator.Instance.StartTutorial();
+        analyticsDelegator.StartTutorial();
     }
 
     private IEnumerator DisplayTutorial()
@@ -86,6 +88,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             }
 
             Destroy(newScreen);
+            newScreen = null;
             currentScreenIndex++;
         }
 
@@ -93,7 +96,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
         finishedTutorial = true;
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
-        AnalyticsDelegator.Instance.StartTutorial();
+        analyticsDelegator.StartTutorial();
         Destroy(gameObject);
     }
 
@@ -134,7 +137,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element) {
         element.SetActive(true);
-        AnalyticsDelegator.Instance.OpenTutorialUIPanel(element.name);
+        analyticsDelegator.OpenTutorialUIPanel(element.name);
     }
 
     // Used when closing a secondary element

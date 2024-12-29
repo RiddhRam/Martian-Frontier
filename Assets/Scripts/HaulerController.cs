@@ -26,6 +26,7 @@ public class HaulerController : MonoBehaviour
     private UncollectedMaterialsDelegator materialsDelegator;
     private AudioSource vehicleSoundEffects;
     private AudioClip orePickUpSoundEffect;
+    private AudioDelegator audioDelegator;
     private UIDelegation UIDelegation;
     private GameObject[] cargoProgressBars = new GameObject[2];
     private GameObject[] cargoCounters = new GameObject[2];
@@ -44,6 +45,7 @@ public class HaulerController : MonoBehaviour
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
+        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         UpdateCargoUI();
     }
 
@@ -193,7 +195,7 @@ public class HaulerController : MonoBehaviour
     }
 
     private void PlayAudio() {
-        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.6f);
+        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.6f);
     }
 
     public void UpdateCargoUI() {

@@ -20,14 +20,16 @@ public class DrillerController : MonoBehaviour
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
     // Every second spent atttempting to mine a higher tier block, display an error
-    private int errorCounter = 60;
-    private int lastErrorCounter = 60;
+    private int errorCounter = 50;
+    private int lastErrorCounter = 50;
     private AudioSource vehicleSoundEffects;
     private AudioClip[] drillBlockSoundEffects;
     private float[] drillBlockVolumes;
     // Same thing as the error counter, but with an actual timer
     private DateTime audioTimer = DateTime.Now;
     private int lastAudioUsed = -1;
+    private AudioDelegator audioDelegator;
+    private UIDelegation uiDelegation;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -39,9 +41,12 @@ public class DrillerController : MonoBehaviour
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
+        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
     }
 
     void FixedUpdate() {
@@ -63,8 +68,7 @@ public class DrillerController : MonoBehaviour
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-        // large radius in case using large drillers, not sure if reducing this will cause errors or not
-        float closestDistance = 5;
+        float closestDistance = radius + 1;
         Vector3Int nearestTilePos = Vector3Int.zero;
         Vector3 centerTilePos = Vector3.zero;
 
@@ -95,20 +99,21 @@ public class DrillerController : MonoBehaviour
             }
         }
 
-        if (closestDistance >= float.MaxValue) {
+        if (closestDistance >= radius) {
             return;
         }
 
         TileBase tileToDestroy = tilemap.GetTile(nearestTilePos);
+        TilemapCollider2D tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
 
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
         if (drillTier < tileTier) {
             errorCounter++;
-            FlickerMap(tilemap);
+            FlickerMap(tilemapCollider);
             // Dont spam the user with errors
             if (errorCounter >= 60) {
-                GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
+                uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                 errorCounter = 0;
             }
             return;
@@ -144,7 +149,7 @@ public class DrillerController : MonoBehaviour
                         }
                         
                         // Make sure they are the same materials
-                        if (hitCollider.gameObject.name != materialToUse.name + "(Clone)") {
+                        if (hitCollider.name != materialToUse.name + "(Clone)") {
                             continue;
                         }
                 
@@ -152,7 +157,7 @@ public class DrillerController : MonoBehaviour
                         // and keep track of that value deleted
                         // Don't set oldCount, use += in case there are more than 1;
                         // Also don't break for the same reason
-                        MaterialManager newMaterialManager = hitCollider.gameObject.GetComponent<MaterialManager>();
+                        MaterialManager newMaterialManager = hitCollider.GetComponent<MaterialManager>();
                         oldCount += newMaterialManager.count;
                         materialsDelegator.RemoveMaterial(newMaterialManager.id);
                         Destroy(hitCollider.gameObject);
@@ -167,10 +172,10 @@ public class DrillerController : MonoBehaviour
             break;
         }
 
-        FlickerMap(tilemap);
+        FlickerMap(tilemapCollider);
     }
 
-    private void FlickerMap(Tilemap tilemap) {
+    private void FlickerMap(TilemapCollider2D tilemap) {
         // Disable and renable quickly so the trigger event can occur again
         tilemap.GetComponent<TilemapCollider2D>().enabled = false;
         tilemap.GetComponent<TilemapCollider2D>().enabled = true;
@@ -203,7 +208,7 @@ public class DrillerController : MonoBehaviour
 
         lastAudioUsed = randomIndex;
 
-        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
+        audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
     }

@@ -22,6 +22,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public bool speedBoostActive;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
 
     // Start is called before the first frame update
     void Start()
@@ -40,6 +42,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             // This callback is called once the MobileAds SDK is initialized.
             IncrementLoadedItems();
         });
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     void Update() {
@@ -84,6 +88,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // iOS Real
         // ca-app-pub-5607588731152504/4737462608
 
+        // TODO: Change the real ad units to their actual code
         #if UNITY_ANDROID
             if (isDebugBuild)
             {
@@ -91,7 +96,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
             else
             {
-                _adUnitId = "ca-app-pub-5607588731152504/9913767660"; // Android Real Ad Unit
+                _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // Android Real Ad Unit
             }
         #elif UNITY_IPHONE
             if (isDebugBuild)
@@ -100,7 +105,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
             else
             {
-                _adUnitId = "ca-app-pub-5607588731152504/4737462608"; // iOS Real Ad Unit
+                _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // iOS Real Ad Unit
             }
         #else
             _adUnitId = "unused"; // Default for other platforms
@@ -177,7 +182,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAds[rewardIndex]);
-            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+            dataPersistenceManager.SaveGame();
             return;
         }
 
@@ -189,7 +194,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } if (type == "Vision") {
             RewardWithVision();
         }
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+        dataPersistenceManager.SaveGame();
     }
 
     // Listen to user events during ad
@@ -272,7 +277,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultiplier(2);
         StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultiplier(1), (int) totalTime));
-        AnalyticsDelegator.Instance.AdWatchAttempt("Profit");
+        analyticsDelegator.AdWatchAttempt("Profit");
     }
 
     private void RewardWithSpeed(int? totalTime = 300) {
@@ -281,7 +286,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to original value after 3 mins
         playerMovement.SetSpeed(originalSpeed * 1.5f);
         StartCoroutine(StartSpeedCountdown((int) totalTime));
-        AnalyticsDelegator.Instance.AdWatchAttempt("Speed");
+        analyticsDelegator.AdWatchAttempt("Speed");
     }
 
     private void RewardWithVision(int? totalTime = 300) {
@@ -289,7 +294,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
         StartCoroutine(StartRewardCountdown(2, () => mineRenderer.SetVisionRadius(3), (int) totalTime));
-        AnalyticsDelegator.Instance.AdWatchAttempt("Vision");
+        analyticsDelegator.AdWatchAttempt("Vision");
     }
 
     private IEnumerator StartRewardCountdown(int rewardIndex, Action callbackFunc, int totalTime) {

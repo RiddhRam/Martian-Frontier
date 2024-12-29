@@ -1,9 +1,9 @@
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class SettingsDelegator : MonoBehaviour
@@ -12,18 +12,21 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject musicToggle;
     public GameObject soundFXToggle;
     public GameObject languageDropdown;
+    public GameObject graphicsQualityDropdown;
     public GameObject restartTutorialButton;
     public GameObject tutorialPreFab;
 
     private GameObject audioDelegator;
     private bool musicEnabled;
     private bool soundFXEnabled;
+    private AnalyticsDelegator analyticsDelegator;
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
     {
         audioDelegator = GameObject.Find("Audio Delegator");
         languageDropdown.GetComponent<LanguageDelegator>().settingsDelegator = gameObject;
+        analyticsDelegator = AnalyticsDelegator.Instance;
         UpdateBools();
 
         // Get the Toggle components
@@ -47,6 +50,8 @@ public class SettingsDelegator : MonoBehaviour
         string loadedLanguage = LoadLanguage();
         SetLanguage(loadedLanguage);
         UpdateOptions();
+
+        graphicsQualityDropdown.GetComponent<GraphicsSettingsDelegator>().OnEnable();
     }
 
     public void UpdateBools() {
@@ -131,7 +136,7 @@ public class SettingsDelegator : MonoBehaviour
 
         // Set the language
         LocalizationSettings.SelectedLocale = selectedLocale;
-        AnalyticsDelegator.Instance.SelectLanguage(language);
+        analyticsDelegator.SelectLanguage(language);
         PlayerPrefs.SetString("Language", language); // Save the selected language
     }
 

@@ -17,10 +17,23 @@ public class ProfitPanelDelegator : MonoBehaviour
     public GameObject rebirthBoostText;
     private string activePanel = "Ores";
     private long rebirthPrice = 15_000_000_000;
+    private int timer = 50;
+    private TextMeshProUGUI boostTMP;
+    private TextMeshProUGUI adBoostTMP;
+    private TextMeshProUGUI adBoostTimerTMP;
+    private TextMeshProUGUI profitTimerTMP;
+    private TextMeshProUGUI levelBoostTextTMP;
+    private TextMeshProUGUI rebirthBoostTextTMP;
 
     void Start() {
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
+        boostTMP = boostText.GetComponent<TextMeshProUGUI>();
+        adBoostTMP = adBoostText.GetComponent<TextMeshProUGUI>();
+        adBoostTimerTMP = adBoostTimer.GetComponent<TextMeshProUGUI>();
+        profitTimerTMP = adDelegator.timerTexts[0].GetComponent<TextMeshProUGUI>();
+        levelBoostTextTMP = levelBoostText.GetComponent<TextMeshProUGUI>();
+        rebirthBoostTextTMP = rebirthBoostText.GetComponent<TextMeshProUGUI>();
 
         int boostChildCount = boostPanel.transform.childCount;
         Transform rebirthPanel = boostPanel.transform.GetChild(boostChildCount - 1);
@@ -28,19 +41,27 @@ public class ProfitPanelDelegator : MonoBehaviour
         rebirthPanel.GetChild(rebirthChildCount - 1).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(rebirthPrice);
     }
 
-    void Update() {
-        boostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
+    void FixedUpdate() {
+        // Only update UI once per second
+        // Fixed update runs at 50fps, dependent on fixed timestep
+        if (timer < 50) {
+            timer++;
+            return;
+        }
+        timer = 0;
 
-        adBoostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetProfitMultiplier().ToString() + "x";
-        string totalTime =  adDelegator.timerTexts[0].GetComponent<TextMeshProUGUI>().text;
+        boostTMP.text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
+        adBoostTMP.text = refineryController.GetProfitMultiplier().ToString() + "x";
+
+        string totalTime =  profitTimerTMP.text;
         if (totalTime == "0:00") {
-            adBoostTimer.GetComponent<TextMeshProUGUI>().text = "";
+            adBoostTimerTMP.text = "";
         } else {
-            adBoostTimer.GetComponent<TextMeshProUGUI>().text = totalTime;
+            adBoostTimerTMP.text = totalTime;
         }
 
-        levelBoostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
-        rebirthBoostText.GetComponent<TextMeshProUGUI>().text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
+        levelBoostTextTMP.text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
+        rebirthBoostTextTMP.text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
     }
 
     public void DeactivatePanel() {

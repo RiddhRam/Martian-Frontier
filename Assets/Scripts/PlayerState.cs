@@ -9,6 +9,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] cashDisplays;
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
+    public GameObject materialProfitPanel;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -24,11 +25,35 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private bool loading = true;
     [SerializeField]
     private float rebirthProfitMultiplier;
+    private DataPersistenceManager dataPersistenceManager;
+    private ProfitPanelDelegator profitPanelDelegator;
+    private UIDelegation uIDelegation;
+    private AnalyticsDelegator analyticsDelegator;
+    private int freeMoneyToAdd = 0;
+    [SerializeField]
+    private GameObject cashSliderGO;
+    [SerializeField]
+    private GameObject cashTextGO;
+    private Slider cashSlider;
+    private TextMeshProUGUI cashText;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
+        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        analyticsDelegator = AnalyticsDelegator.Instance;
+        materialProfitPanel = null;
         UpdateCashDisplays();
         UpdateXPDisplays();
+
+        if (cashSliderGO) {
+            cashSlider = cashSliderGO.GetComponent<Slider>();
+        }
+
+        if (cashTextGO) {
+            cashText = cashTextGO.GetComponent<TextMeshProUGUI>();
+        }
     }
 
     // Validate and add cash
@@ -78,8 +103,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
-            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
-            AnalyticsDelegator.Instance.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
+            dataPersistenceManager.SaveGame();
+            analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
 
         UpdateCashDisplays();
@@ -252,7 +277,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         float tolerance = 0.005f;
 
         if ((profitMultiplier < calculatedValue - tolerance) && !loading) {
-            AnalyticsDelegator.Instance.LevelUp(level);
+            analyticsDelegator.LevelUp(level);
         }
 
         // For each level, add 1% to the profit multiplier
@@ -265,9 +290,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void Rebirth() {
-        long rebirthPrice = GameObject.Find("Material Profit Panel").GetComponent<ProfitPanelDelegator>().GetRebirthPrice();
+        long rebirthPrice = profitPanelDelegator.GetRebirthPrice();
         if (!VerifyEnoughCash(rebirthPrice)) {
-            GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
             return;
         }
 
@@ -283,8 +308,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // because the haulers will drop everything
         refineryController.PlayerRebirth();
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
-        AnalyticsDelegator.Instance.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
+        dataPersistenceManager.SaveGame();
+        analyticsDelegator.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
 
         UpdateCashDisplays();
         UpdateXPDisplays();
@@ -292,9 +317,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // For development only
     public void FreeMoney() {
-        userCash += 1_000_000_000;
+        userCash += freeMoneyToAdd;
         UpdateCashDisplays();
-        AnalyticsDelegator.Instance.TestEvent("Just testing");
+        analyticsDelegator.TestEvent("Just testing");
+    }
+
+    public void FreeMoneyUpdate() {
+        freeMoneyToAdd = (int) cashSlider.value;
+
+        cashText.text = "$" + FormatPrice(freeMoneyToAdd);
     }
 
 }
