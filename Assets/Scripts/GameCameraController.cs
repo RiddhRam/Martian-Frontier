@@ -16,12 +16,6 @@ public class GameCameraController : MonoBehaviour
     //private float xLimit = 0.1f;
     //private float yLimit = 0.1f;
 
-    void Start() {
-        // Adjust zoom based on resolution and aspect ratio
-
-        Application.targetFrameRate = 60;
-    }
-
     // Update is called once per frame
     void Update () {
         // If zooming was disabled, do nothing. Usually disabled if a secondary UI element with a scroll view is open
@@ -76,4 +70,5 @@ public class GameCameraController : MonoBehaviour
     public void ToggleZooming(bool newValue) {
         zoomingEnabled = newValue;
     }
+
 }

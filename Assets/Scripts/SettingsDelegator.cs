@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class SettingsDelegator : MonoBehaviour
@@ -11,6 +12,7 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject musicToggle;
     public GameObject soundFXToggle;
     public GameObject languageDropdown;
+    public GameObject graphicsQualityDropdown;
     public GameObject restartTutorialButton;
     public GameObject tutorialPreFab;
 
@@ -48,6 +50,8 @@ public class SettingsDelegator : MonoBehaviour
         string loadedLanguage = LoadLanguage();
         SetLanguage(loadedLanguage);
         UpdateOptions();
+
+        graphicsQualityDropdown.GetComponent<GraphicsSettingsDelegator>().OnEnable();
     }
 
     public void UpdateBools() {
