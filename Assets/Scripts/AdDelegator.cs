@@ -43,7 +43,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             IncrementLoadedItems();
         });
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     void Update() {
@@ -277,7 +276,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultiplier(2);
         StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultiplier(1), (int) totalTime));
-        analyticsDelegator.AdWatchAttempt("Profit");
+        LogAnalytics("Profit");
     }
 
     private void RewardWithSpeed(int? totalTime = 300) {
@@ -286,7 +285,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to original value after 3 mins
         playerMovement.SetSpeed(originalSpeed * 1.5f);
         StartCoroutine(StartSpeedCountdown((int) totalTime));
-        analyticsDelegator.AdWatchAttempt("Speed");
+        LogAnalytics("Speed");
     }
 
     private void RewardWithVision(int? totalTime = 300) {
@@ -294,7 +293,14 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
         StartCoroutine(StartRewardCountdown(2, () => mineRenderer.SetVisionRadius(3), (int) totalTime));
-        analyticsDelegator.AdWatchAttempt("Vision");
+        LogAnalytics("Vision");
+    }
+
+    private void LogAnalytics(string analyticToLog) {
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
+        analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 
     private IEnumerator StartRewardCountdown(int rewardIndex, Action callbackFunc, int totalTime) {

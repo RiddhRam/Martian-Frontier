@@ -26,6 +26,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         StartCoroutine(WaitForGameLoad());
 
         loadingScreen = GameObject.Find("Loading Screen");
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
         analyticsDelegator = AnalyticsDelegator.Instance;
         
         StartCoroutine(DisplayTutorial());
@@ -43,6 +46,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             yield break;
         }
 
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
         analyticsDelegator.StartTutorial();
     }
 

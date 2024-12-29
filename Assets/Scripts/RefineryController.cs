@@ -108,10 +108,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Verify that this is the right amount
         playerState.GetComponent<PlayerState>().AddCash((long) cashToAdd, savedMaterialCount);
-        analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
+        analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
     }
 
     public void CallResetMineFromButton() {

@@ -202,6 +202,9 @@ public class UIDelegation : MonoBehaviour
         errorInstance.transform.SetParent(transform.GetChild(0));
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
         analyticsDelegator.ShowError(error);
     }
 

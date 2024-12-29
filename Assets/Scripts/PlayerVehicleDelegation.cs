@@ -71,6 +71,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = haulerController.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+            if (!analyticsDelegator) {
+                analyticsDelegator = AnalyticsDelegator.Instance;
+            }
             analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
