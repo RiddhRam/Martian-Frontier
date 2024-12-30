@@ -11,12 +11,15 @@ public class OreDelegation : MonoBehaviour
     // Aligns with materialCount's index from HaulerController
     [SerializeField]
     private int[] materialPrices;
-    public Sprite[] materialSprites;
     public Sprite[] materialHighResSprites;
     public GameObject oreMaterialTierPanel;
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
     private int[] oresPerTier;
+
+    void Awake() {
+
+    }
 
     void Start() {
         oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;

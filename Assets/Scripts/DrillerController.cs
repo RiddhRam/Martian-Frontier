@@ -8,7 +8,6 @@ public class DrillerController : MonoBehaviour
     private int radius;
     private TileBase[] ores;
     private GameObject[] materials;
-    private Sprite[] materialSprites;
     private MineRenderer mineRenderer;
     [SerializeField]
     private float playerSpeed;
@@ -30,13 +29,14 @@ public class DrillerController : MonoBehaviour
     private int lastAudioUsed = -1;
     private AudioDelegator audioDelegator;
     private UIDelegation uiDelegation;
+    private OreDelegation oreDelegation;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         ores = mineRenderer.GetOres();
 
-        materials = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materials;
-        materialSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialSprites;
+        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        materials = oreDelegation.materials;
 
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         
@@ -133,42 +133,31 @@ public class DrillerController : MonoBehaviour
 
             // If no neighbouring materials then this stays 0 and the new object will have a count of 1
             int oldCount = 0;
+            Collider2D[] hitColliders = Physics2D.OverlapCircleAll(centerTilePos, radius);
 
-            for (int x = -3; x <= 3; x++)
-            {
-                for (int y = -3; y <= 3; y++)
-                { 
-
-                    Collider2D[] hitColliders = Physics2D.OverlapCircleAll(new Vector2(x + centerTilePos.x, y + centerTilePos.y), 0.1f);
-                    
-                    foreach (var hitCollider in hitColliders)
-                    {       
-                        // Make sure a gameobject was hit
-                        if (hitCollider == null) {
-                            continue;
-                        }
-                        
-                        // Make sure they are the same materials
-                        if (hitCollider.name != materialToUse.name + "(Clone)") {
-                            continue;
-                        }
-                
-                        // If a neighbouring material was found, delete it,
-                        // and keep track of that value deleted
-                        // Don't set oldCount, use += in case there are more than 1;
-                        // Also don't break for the same reason
-                        MaterialManager newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                        oldCount += newMaterialManager.count;
-                        materialsDelegator.RemoveMaterial(newMaterialManager.id);
-                        Destroy(hitCollider.gameObject);
-
-                        break;
-                    }
+            foreach (var hitCollider in hitColliders)
+            {       
+                // Make sure a gameobject was hit
+                if (hitCollider == null) {
+                    continue;
                 }
+                
+                // Make sure they are the same materials
+                if (hitCollider.name != materialToUse.name + "(Clone)") {
+                    continue;
+                }
+        
+                // If a neighbouring material was found, return to object pool,
+                // and keep track of the count of the object
+                // Don't set oldCount, use += in case there are more than 1;
+                // Also don't break for the same reason
+                MaterialManager newMaterialManager = hitCollider.GetComponent<MaterialManager>();
+                oldCount += newMaterialManager.count;
+
+                mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
             }
 
-            GameObject material = Instantiate(materialToUse);
-            materialsDelegator.AddMaterial(material, materialSprites[i], centerTilePos, i, oldCount + 1);
+            mineRenderer.GetMaterialObject(i, centerTilePos, oldCount + 1);
             break;
         }
 

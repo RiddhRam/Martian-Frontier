@@ -38,7 +38,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                mineRenderer.CreateNewMaterial(i, materialCount[i], transform.position);
+                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i]);
             }
         }
 

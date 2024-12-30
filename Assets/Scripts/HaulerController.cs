@@ -28,11 +28,13 @@ public class HaulerController : MonoBehaviour
     private AudioClip orePickUpSoundEffect;
     private AudioDelegator audioDelegator;
     private UIDelegation UIDelegation;
+    private MineRenderer mineRenderer;
     private GameObject[] cargoProgressBars = new GameObject[2];
     private GameObject[] cargoCounters = new GameObject[2];
 
     void Awake() {
         UIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        mineRenderer = GameObject.Find("Mine Renderer").GetComponent<MineRenderer>();
     }
 
     void Start() {
@@ -90,8 +92,7 @@ public class HaulerController : MonoBehaviour
 
             // If limit isn't exceeded then destroy the game object
             materialCount[i] += amountPickedUp;
-            materialsDelegator.RemoveMaterial(materialManager.id);
-            Destroy(other.gameObject); // Destroy the material object
+            mineRenderer.ReturnObject(other.gameObject, i, materialManager.id);
             PickUpOre(amountPickedUp);
         }
     }

@@ -35,7 +35,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
-    private Sprite[] materialSprites;
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
@@ -51,6 +50,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int[] oresPerTier = new int[3];
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
+    private OreDelegation oreDelegation;
+    //private int[] oresCount = new int[9];
+    private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
+    private Queue<GameObject>[] materialPools;
 
     // Called before Start
     void Awake()
@@ -89,9 +92,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
         }
     
-        OreDelegation oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
         materials = oreDelegation.materials;
-        materialSprites = oreDelegation.materialSprites;
 
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
@@ -112,7 +114,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // If mineInitialization == 1 then the user already saw the first few blocks before they left the game
         // Don't make a new seed, just use the last one
         if (mineInitialization < 2) {
-            System.DateTime epoch = new System.DateTime(2024, 8, 8, 0, 0, 0, System.DateTimeKind.Utc);
+            // My birthday: Dec 8
+            System.DateTime epoch = new System.DateTime(2024, 12, 8, 0, 0, 0, System.DateTimeKind.Utc);
             seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             Random.InitState(seed);
         }
@@ -146,6 +149,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
+
+        /* Uncomment this too to log the quantity of each ore
+        for (int i = 0; i != oresCount.Length; i++) {
+            Debug.Log(i + ": " + oresCount[i]);
+        }*/
 
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
@@ -284,6 +292,32 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
             int oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
+
+            // In order to see quantity of each ore in the mine
+            // Uncomment this, in initialize mine generate entire map by changing for loop where it only generates first few rows
+            // and also uncomment oresCount integer array above
+            /*int oreIndex = 0;
+            for (int i = 0; i != tileValues.Length; i++) {
+                bool isBaseTile = false;
+
+                for (int j = 0; j != tierThresholds.Length; j++) {
+                    if (tierThresholds[j] == i) {
+                        isBaseTile = true;
+                        break;
+                    }
+                }
+
+                if (isBaseTile) {
+                    continue;
+                }
+
+                if (oreToPlace == i) {
+                    break;
+                }
+
+                oreIndex++;
+            }
+            oresCount[oreIndex]++;*/
 
             for (int x = -radius; x <= radius; x++)
             {
@@ -488,12 +522,24 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
 
-        //Debug.Log("Saved Highest Row: " + this.highestRow + " vs " + data.highestRow);
-        
+        // Create pools of materials before loading materials
+        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
+
+        for (int i = 0; i != materialPools.Length; i++) {
+            materialPools[i] = new Queue<GameObject>();
+            // Create the right amount of each material according to each pool size
+            for (int j = 0; j != materialPoolSizes[i]; j++) {
+                GameObject newMaterial = Instantiate(materials[i]);
+                newMaterial.SetActive(false);
+                materialPools[i].Enqueue(newMaterial);
+                newMaterial.transform.SetParent(materialsDelegator.transform);
+            }
+        }
+
         foreach (string id in savedMaterials.Keys) {
             // Copy all the saved values into the loaded material
             MaterialManagerData savedMaterialManager = savedMaterials[id];
-            CreateNewMaterial(savedMaterialManager.materialIndex, savedMaterialManager.count, savedMaterialManager.position);
+            GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count);
         }
 
         LoadTiles();
@@ -549,10 +595,32 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tier;
     }
 
-    // This function is also used by PlayerVehicleDelegation
-    public void CreateNewMaterial(int materialIndex, int materialCount, Vector3 materialPosition) {
-        GameObject newMaterial = Instantiate(materials[materialIndex]);
-        materialsDelegator.AddMaterial(newMaterial, materialSprites[materialIndex], materialPosition, materialIndex, materialCount);
+    public GameObject GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
+    {
+        GameObject obj;
+
+        if (materialPools[materialIndex].Count > 0)
+        {
+            obj = materialPools[materialIndex].Dequeue();
+        }
+        else
+        {
+            // Expand the pool if empty
+            obj = Instantiate(materials[materialIndex]);
+        }
+
+        obj.transform.position = materialPosition;
+        obj.SetActive(true);
+        materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount);
+        return obj;
+    }
+
+    // Method to return an object to the pool
+    public void ReturnObject(GameObject obj, int materialIndex, string materialID)
+    {
+        materialsDelegator.RemoveMaterial(materialID);
+        obj.SetActive(false);
+        materialPools[materialIndex].Enqueue(obj);
     }
 
     public void SetVisionRadius(int newRadius) {
