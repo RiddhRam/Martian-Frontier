@@ -34,7 +34,7 @@ public class HaulerController : MonoBehaviour
 
     void Awake() {
         UIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-        mineRenderer = GameObject.Find("Mine Renderer").GetComponent<MineRenderer>();
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
     }
 
     void Start() {
