@@ -63,7 +63,7 @@ public class DrillerController : MonoBehaviour
             return;
         }
 
-        Tilemap tilemap = collision.GetComponent<Tilemap>();
+        Tilemap tilemap = mineRenderer.tilemapsDictionary[collision.name];
 
         Vector3 spriteWorldPos = transform.position;
         Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
@@ -104,7 +104,7 @@ public class DrillerController : MonoBehaviour
         }
 
         TileBase tileToDestroy = tilemap.GetTile(nearestTilePos);
-        TilemapCollider2D tilemapCollider = tilemap.GetComponent<TilemapCollider2D>();
+        TilemapCollider2D tilemapCollider = mineRenderer.tilemapCollidersDictionary[tilemap.name];
 
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
@@ -164,10 +164,10 @@ public class DrillerController : MonoBehaviour
         FlickerMap(tilemapCollider);
     }
 
-    private void FlickerMap(TilemapCollider2D tilemap) {
+    private void FlickerMap(TilemapCollider2D tilemapCollider) {
         // Disable and renable quickly so the trigger event can occur again
-        tilemap.GetComponent<TilemapCollider2D>().enabled = false;
-        tilemap.GetComponent<TilemapCollider2D>().enabled = true;
+        tilemapCollider.enabled = false;
+        tilemapCollider.enabled = true;
     }
 
     public float GetPlayerSpeed() {

@@ -3,6 +3,7 @@ using GoogleMobileAds.Api;
 using System;
 using System.Collections;
 using UnityEngine.UI;
+using TMPro;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -309,6 +310,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(false);
         // Show timer
         timerTexts[rewardIndex].SetActive(true);
+        TextMeshProUGUI textComponent = timerTexts[rewardIndex].GetComponent<TextMeshProUGUI>();
 
         // Initialize the timer to 3:00 (3 minutes in seconds) 
         while (totalTime > 0) {
@@ -319,7 +321,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             string timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            timerTexts[rewardIndex].GetComponent<TMPro.TextMeshProUGUI>().text = timerText;
+            textComponent.text = timerText;
             timerIndexes[rewardIndex] = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -331,7 +333,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Reset
         callbackFunc?.Invoke();
         
-        timerTexts[rewardIndex].GetComponent<TMPro.TextMeshProUGUI>().text = "0:00";
+        textComponent.text = "0:00";
         timerTexts[rewardIndex].SetActive(false);
         timerIndexes[rewardIndex] = 0;
 
@@ -351,6 +353,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         adButtons[1].transform.GetChild(0).gameObject.SetActive(false);
         // Show timer
         timerTexts[1].SetActive(true);
+        TextMeshProUGUI textComponent = timerTexts[1].GetComponent<TextMeshProUGUI>();
 
         // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
@@ -361,7 +364,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             string timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            timerTexts[1].GetComponent<TMPro.TextMeshProUGUI>().text = timerText;
+            textComponent.text = timerText;
             timerIndexes[1] = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
@@ -370,7 +373,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        timerTexts[1].GetComponent<TMPro.TextMeshProUGUI>().text = "0:00";
+        textComponent.text = "0:00";
         timerTexts[1].SetActive(false);
         timerIndexes[1] = 0;
 

@@ -31,6 +31,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
     private  SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
+    // Use this to get a tilemap or tilemapCollider rather than calling GetComponent each time a tilemap is being mined
+    // string = tilemap gameobject name
+    // public so DrillerController can easily use it
+    public Dictionary<string, Tilemap> tilemapsDictionary = new();
+    public Dictionary<string, TilemapCollider2D> tilemapCollidersDictionary = new();
     // Array of the tilemap Game objects
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
@@ -127,7 +132,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
 
-        // Clear all dictionary is reveal and destroyed array
+        // Clear all dictionaries in reveal and destroyed array
         // unplacedTilemapsTileValues will be populated as each row is created
         for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++) {
             for (int j = 0; j != unplacedTilemapsTileValues.GetLength(1); j++) {
@@ -142,6 +147,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             }
         }
+        
+        // Clear all saved components
+        tilemapsDictionary.Clear();
+        tilemapCollidersDictionary.Clear();
         // Remove all keys
         materialsDelegator.uncollectedMaterials.Clear();
 
@@ -199,7 +208,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             mineTilemapGameObject.transform.SetParent(transform);
             mineTilemapGameObject.name = "Row " + chunkRow + ", Column " + chunkColumn;
 
+            // Get the component once, then no need to do it again later
             Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
+            tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
+            
+            TilemapCollider2D tilemapCollider2D = mineTilemap.GetComponent<TilemapCollider2D>();
+            tilemapCollidersDictionary.Add(mineTilemapGameObject.name, tilemapCollider2D);
 
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
@@ -595,7 +609,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tier;
     }
 
-    public GameObject GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
+    public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
     {
         GameObject obj;
 
@@ -612,7 +626,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         obj.transform.position = materialPosition;
         obj.SetActive(true);
         materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount);
-        return obj;
+        //return obj;
     }
 
     // Method to return an object to the pool
