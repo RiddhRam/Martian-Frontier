@@ -176,13 +176,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 } if (type == "Vision") {
                     RewardWithVision();
                 }
+                dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
                 LoadRewardedAd(rewardIndex);
             });
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAds[rewardIndex]);
-            dataPersistenceManager.SaveGame();
             return;
         }
 

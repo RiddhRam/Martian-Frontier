@@ -37,6 +37,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private GameObject playerVehicle;
     private AnalyticsDelegator analyticsDelegator;
+    private MineRenderer mineRenderer;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -44,6 +45,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         playerVehicle = GameObject.Find("Player Vehicle");
+        mineRenderer = mine.GetComponent<MineRenderer>();
         analyticsDelegator = AnalyticsDelegator.Instance;
         if (initialBattery < refineryBattery || initialBattery < 120) {
             initialBattery = 120;
@@ -119,12 +121,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator ResetMine() {
-        mine.GetComponent<MineRenderer>().mineInitialization = 0;
+        mineRenderer.mineInitialization = 0;
+
+        SpriteRenderer mineEntranceSpriteRenderer = mineEntrance.GetComponent<SpriteRenderer>();
+        BoxCollider2D mineEntranceBoxCollider = mineEntrance.GetComponent<BoxCollider2D>();
         // Disable mine temporarily
-        mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOff;
+        mineEntranceSpriteRenderer.sprite = mineEntranceOff;
         // Move player off the dropoff area, and move all players inside the mine to the outside
         playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
-        mineEntrance.GetComponent<BoxCollider2D>().enabled = true;
+        mineEntranceBoxCollider.enabled = true;
 
         // Cover the map
         largeFogOfWar.position = new(0, -220, 0);
@@ -154,7 +159,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             materials = null;
         }
 
-        mine.GetComponent<MineRenderer>().InitializeMine();
+        mineRenderer.InitializeMine();
 
         // Create the new mine
         GameObject genTrigGameObject = Instantiate(generationTriggers);
@@ -166,22 +171,23 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(mine);
         }
 
-        mine.GetComponent<MineRenderer>().mineInitialization = 1;
+        mineRenderer.mineInitialization = 1;
         SaveGame();
 
         // Wait for this to be done
         yield return StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
-        mine.GetComponent<MineRenderer>().mineInitialization = 2;
+        mineRenderer.mineInitialization = 2;
         
         // Renable the mine
-        mineEntrance.GetComponent<SpriteRenderer>().sprite = mineEntranceOn;
-        mineEntrance.GetComponent<BoxCollider2D>().enabled = false;
+        mineEntranceSpriteRenderer.sprite = mineEntranceOn;
+        mineEntranceBoxCollider.enabled = false;
 
+        BoxCollider2D gameObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
         // Let user use dropoff, also flash it in case user was anxiously trying to use it by pressing against it
-        gameObject.GetComponent<BoxCollider2D>().isTrigger = true;
-        gameObject.GetComponent<BoxCollider2D>().enabled = false;
-        gameObject.GetComponent<BoxCollider2D>().enabled = true;
+        gameObjectBoxCollider2D.isTrigger = true;
+        gameObjectBoxCollider2D.enabled = false;
+        gameObjectBoxCollider2D.enabled = true;
 
         SaveGame();
     }
