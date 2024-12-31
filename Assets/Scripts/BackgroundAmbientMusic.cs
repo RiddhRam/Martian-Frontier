@@ -42,7 +42,7 @@ public class BackgroundAmbientMusic : MonoBehaviour
         audioSource.Play();
 
         for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
-            float volume = Mathf.Lerp(backgroundSongVolumes[currentSongIndex], 0, t / fadeDuration);
+            float volume = Mathf.Lerp(0, backgroundSongVolumes[currentSongIndex], t / fadeDuration);
             // If music is not enabled then volume is 0;
             volume = musicEnabled ? volume : 0;
             audioSource.volume = volume;
