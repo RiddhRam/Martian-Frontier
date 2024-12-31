@@ -117,12 +117,17 @@ public class FileDataHandler
                         }
                         newArray[columnIndex, rowIndex] = dict;
 
+                        // FINAL GRID ISN'T BEING SAVED
+                        // ONLY 251 GRIDS ARE SAVED, NOT 252 (42 x 6)
+                        // DEBUG.LOG BELOW ONLY PRINTS (5, 41), INSTEAD OF (6, 0)
                         rowIndex++;
                         if (rowIndex == totalRows) {
                             rowIndex = 0;
                             columnIndex++;
                         }
                     }
+
+                    Debug.Log("Loaded: " + columnIndex + ", " + rowIndex);
                     
                     correspondingField.SetValue(tempData, newArray);
                 } else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
@@ -249,10 +254,6 @@ public class FileDataHandler
                     jsonBuilder.Append(result);
                 }
 
-                // Remove trailing comma
-                if (jsonBuilder.Length > 1)
-                    jsonBuilder.Length -= 2;
-        
                 jsonBuilder.Append("]\",\n");
             }
             else if (fieldValue is SerializableDictionary<string, MaterialManagerData> stringdictionaryArray) {

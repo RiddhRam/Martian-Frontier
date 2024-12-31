@@ -16,6 +16,17 @@ public class PlayerMovement : MonoBehaviour
     private float rotationThreshold;  // should be 0.1*/
     Transform frontWheels;
 
+    // Used in FixedUpdate, but declared here to reduce GC usage
+    private Vector3 targetPosition;
+    private Vector2 joystickVec;
+    private float targetAngle;
+    private float currentAngle;
+    private float newAngle;
+    private float tempLastRotation;
+    private readonly float maxBodyRotation = 30;
+    private readonly float maxChangeRotation = 20;
+    private float wheelRotation;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -28,10 +39,10 @@ public class PlayerMovement : MonoBehaviour
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
         // Otherwise it gets stuck at the spawn
         // Smooth camera follow
-        Vector3 targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
+        targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
         mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
 
-        Vector2 joystickVec = joystickMovement.joystickVec;
+        joystickVec = joystickMovement.joystickVec;
 
         // Make sure vehicle is trying to move
         if (joystickVec.x == 0 && joystickVec.y == 0) {
@@ -48,14 +59,13 @@ public class PlayerMovement : MonoBehaviour
 
         // Rotation logic
         // Calculate target angle in degrees
-        float targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
-
+        targetAngle = Mathf.Atan2(joystickVec.y, joystickVec.x) * Mathf.Rad2Deg - 90;
         // Normalize the angle to keep it within [0, 360] degrees
         targetAngle = (targetAngle + 360) % 360;
 
         // Smoothly rotate towards the target angle over time (0.3 second)
-        float currentAngle = transform.eulerAngles.z;
-        float newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
+        currentAngle = transform.eulerAngles.z;
+        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
 
         // This checks if the user is trying to go straight forward or reverse, if neither then rotate
         if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
@@ -66,7 +76,7 @@ public class PlayerMovement : MonoBehaviour
         }
 
         // Save this value in case it's needed for front wheels
-        float tempLastRotation = lastRotation;
+        tempLastRotation = lastRotation;
         // Update the last known rotation angle
         lastRotation = newAngle;
 
@@ -77,9 +87,7 @@ public class PlayerMovement : MonoBehaviour
 
         // Might fail after changing
         try {
-            float maxBodyRotation = 30;
-            float maxChangeRotation = 20;
-
+            
             if (tempLastRotation - 90 > newAngle) {
                 newAngle += 360;
             }
@@ -90,7 +98,7 @@ public class PlayerMovement : MonoBehaviour
 
             // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
             // Wheel rotation cannot exceed 30 degrees of the body
-            float wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
+            wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
 
             // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
             wheelRotation = Mathf.Clamp(wheelRotation - frontWheels.GetChild(0).rotation.z, -maxChangeRotation, maxChangeRotation);

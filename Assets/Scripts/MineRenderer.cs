@@ -127,11 +127,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         mineInitialization = 1;
 
-        // Make sure everything is clear
-        unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
-        revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
-        destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
-
         // Clear all dictionaries in reveal and destroyed array
         // unplacedTilemapsTileValues will be populated as each row is created
         for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++) {
@@ -147,7 +142,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             }
         }
-        
+
         // Clear all saved components
         tilemapsDictionary.Clear();
         tilemapCollidersDictionary.Clear();
@@ -290,7 +285,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
         }
         
-
     }
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
@@ -408,8 +402,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // Find out what the tile is
         int tileValue = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tilePos];
+
+        //
         // Save value to revealedTilemapsTileValues
         revealedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tilePos] = tileValue;
+
         // Finally reveal tile
         tilemaps[tilemapPos.x, tilemapPos.y].SetTile(new(tilePos.x, tilePos.y), tileValues[tileValue]);
     }
@@ -533,6 +530,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         SerializableDictionary<string, MaterialManagerData> savedMaterials = data.materials;
         this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
+
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
 

@@ -54,7 +54,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
         timer = 0;
         
-        // Make sure there is internet access
+        // If no internet
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             for (int i = 0; i != rewardedAds.Length; i++) {
                 if (rewardedAds[i] != null) {
@@ -68,6 +68,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
+        // If there is internet
         FillEmptyAdSlots();
 
         internetReachable = true;
@@ -312,13 +313,17 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         timerTexts[rewardIndex].SetActive(true);
         TextMeshProUGUI textComponent = timerTexts[rewardIndex].GetComponent<TextMeshProUGUI>();
 
-        // Initialize the timer to 3:00 (3 minutes in seconds) 
+        // Declare these outside to reduce GC usage
+        int minutes;
+        int seconds;
+        string timerText;
+
+        // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
             // Calculate minutes and seconds
-            int minutes = totalTime / 60;
-            int seconds = totalTime % 60;
-
-            string timerText = $"{minutes}:{seconds:D2}";
+            minutes = totalTime / 60;
+            seconds = totalTime % 60;
+            timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
             textComponent.text = timerText;
@@ -355,13 +360,17 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         timerTexts[1].SetActive(true);
         TextMeshProUGUI textComponent = timerTexts[1].GetComponent<TextMeshProUGUI>();
 
+        // Declare these outside to reduce GC usage
+        int minutes;
+        int seconds;
+        string timerText;
+
         // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
             // Calculate minutes and seconds
-            int minutes = (int) totalTime / 60;
-            int seconds = (int) totalTime % 60;
-
-            string timerText = $"{minutes}:{seconds:D2}";
+            minutes = totalTime / 60;
+            seconds = totalTime % 60;
+            timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
             textComponent.text = timerText;
