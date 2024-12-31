@@ -31,9 +31,11 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
     }
 
     // Update is called once per frame
+    
     void FixedUpdate()
     {
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.

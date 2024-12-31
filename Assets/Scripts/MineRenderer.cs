@@ -10,6 +10,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public GameObject playerState;
     public GameObject largeFogOfWar;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
+    public GameObject mineBackgroundTilemapPrefab;
+    public TileBase mineBackgroundRuleTile;
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
@@ -31,11 +33,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
     private  SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
-    // Use this to get a tilemap or tilemapCollider rather than calling GetComponent each time a tilemap is being mined
+    // Use this to get a tilemap rather than calling GetComponent each time a tilemap is being mined
     // string = tilemap gameobject name
     // public so DrillerController can easily use it
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
-    public Dictionary<string, TilemapCollider2D> tilemapCollidersDictionary = new();
     // Array of the tilemap Game objects
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
@@ -59,6 +60,19 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     //private int[] oresCount = new int[9];
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
+    private PlayerState playerStateScript;
+
+    private int tileTier;
+    GameObject obj;
+    private Vector2Int tilemapPos;
+    private Tilemap tilemap;
+    private TileBase tileMined;
+    private int tileValue;
+    private Vector2Int checkPos;
+    private bool oreMined;
+    private int distance;
+    private int tilemapRow;
+    private int tilemapColumn;
 
     // Called before Start
     void Awake()
@@ -101,6 +115,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         materials = oreDelegation.materials;
 
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        playerStateScript = playerState.GetComponent<PlayerState>();
     }
 
     // Start is called before the first frame update
@@ -145,7 +160,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Clear all saved components
         tilemapsDictionary.Clear();
-        tilemapCollidersDictionary.Clear();
         // Remove all keys
         materialsDelegator.uncollectedMaterials.Clear();
 
@@ -200,22 +214,24 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
 
             GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
+            GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
+
             mineTilemapGameObject.transform.SetParent(transform);
             mineTilemapGameObject.name = "Row " + chunkRow + ", Column " + chunkColumn;
+
+            mineBackgroundTilemapGameObject.transform.SetParent(transform);
 
             // Get the component once, then no need to do it again later
             Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
             tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
-            
-            TilemapCollider2D tilemapCollider2D = mineTilemap.GetComponent<TilemapCollider2D>();
-            tilemapCollidersDictionary.Add(mineTilemapGameObject.name, tilemapCollider2D);
 
+            Tilemap mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
+            
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
 
             // y = y coordinate of tile
             // x = x coordinate of tile
-
             SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
 
             // Set the base tiles of the chunk to unknown tile
@@ -229,6 +245,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     // Level 1 base tile = 0, level 2 = 4, level 3 = 8
                     unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), tileValueIndex);
                     mineTilemap.SetTile(tilePosition, unknownTile);
+                    mineBackgroundTilemap.SetTile(tilePosition, mineBackgroundRuleTile);
                 }
             }
 
@@ -401,7 +418,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void RevealTile(Vector2Int tilePos, Vector2Int tilemapPos) {
         
         // Find out what the tile is
-        int tileValue = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tilePos];
+        tileValue = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tilePos];
 
         //
         // Save value to revealedTilemapsTileValues
@@ -412,12 +429,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void DestroyTile(Vector3Int tileToDestroy, bool loading) {
-        Vector2Int tilemapPos = CalculateTileMapPos(new(tileToDestroy.x, tileToDestroy.y));
+        tilemapPos = CalculateTileMapPos(new(tileToDestroy.x, tileToDestroy.y));
 
-        Tilemap tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
-        TileBase tileMined = tilemap.GetTile(tileToDestroy);
+        tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
+        tileMined = tilemap.GetTile(tileToDestroy);
 
-        int tileValue = 0;
+        tileValue = 0;
         // Move tile to destroyed
         // fails when initializing because the first row that has DestroyTile being called on it isn't actually part of the map
         // revealedTilemapsTileValues is a subset of unplacedTilemapsTileValues
@@ -446,7 +463,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             for (int y = -visionRadius; y <= visionRadius; y++) {
 
                 // Calculate the Manhattan distance from the center tile
-                int distance = Mathf.Abs(x) + Mathf.Abs(y);
+                distance = Mathf.Abs(x) + Mathf.Abs(y);
 
                 // Make sure within the circular radius
                 if (distance > visionRadius) {
@@ -455,7 +472,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 // Get the tilemap index
                 tilemapPos = CalculateTileMapPos(new(tileToDestroy.x + x, tileToDestroy.y + y));
-                Vector2Int checkPos = new(tileToDestroy.x + x, tileToDestroy.y + y);
+                checkPos = new(tileToDestroy.x + x, tileToDestroy.y + y);
                 
                 // Check if the tile exists in unplacedTilemapsTileValues
                 if (unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(checkPos)) {
@@ -469,12 +486,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             return;
         }
    
-        bool oreMined = false;
+        oreMined = false;
         if (IdentifyTile(tileMined) != 0) {
             oreMined = true;
         }
         
-        playerState.GetComponent<PlayerState>().NewBlockMined(oreMined);
+        playerStateScript.NewBlockMined(oreMined);
     }
 
     public TileBase[] GetOres() {
@@ -569,11 +586,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {
         // Mine is offset by 5, and factor in the grid height too
-        int tilemapRow = Mathf.FloorToInt((tilePos.y + 5) / -gridSize.y);
+        tilemapRow = Mathf.FloorToInt((tilePos.y + 5) / -gridSize.y);
         tilemapRow = Mathf.Clamp(tilemapRow, 0, totalRows - 1);
 
         // Offset by half the width, since some x coords are negative, and some are positive
-        int tilemapColumn = Mathf.FloorToInt((tilePos.x + mapHalfLength) / gridSize.x);
+        tilemapColumn = Mathf.FloorToInt((tilePos.x + mapHalfLength) / gridSize.x);
         tilemapColumn = Mathf.Clamp(tilemapColumn, 0, totalColumns - 1);
 
         return new(tilemapColumn, tilemapRow);
@@ -588,7 +605,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public int GetTileTier(TileBase tileToIdentify) {
-        int tier = 1;
+        tileTier = 1;
 
         for (int i = 0; i != tileValues.Length; i++) {
             if (tileToIdentify != tileValues[i]) {
@@ -597,19 +614,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             for (int j = 0; j != tierThresholds.Length; j++) {
                 if (tierThresholds[j] <= i) {
-                    tier = j + 1;
+                    tileTier = j + 1;
                 }
             }
 
             break;
         }
 
-        return tier;
+        return tileTier;
     }
 
     public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
     {
-        GameObject obj;
 
         if (materialPools[materialIndex].Count > 0)
         {

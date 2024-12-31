@@ -4,201 +4,223 @@ using UnityEngine.Tilemaps;
 
 public class DrillerController : MonoBehaviour
 {
-    // Not actually a radius, it's a square
-    private int radius;
-    private TileBase[] ores;
-    private GameObject[] materials;
-    private MineRenderer mineRenderer;
-    [SerializeField]
-    private float playerSpeed;
-    [SerializeField]
-    private int drillTier;
-    // Does nothing, just for showing the user in the Garage
-    public int width;
-    [SerializeField]
-    private long price;
-    private UncollectedMaterialsDelegator materialsDelegator;
-    // Every second spent atttempting to mine a higher tier block, display an error
-    private int errorCounter = 50;
-    private int lastErrorCounter = 50;
-    private AudioSource vehicleSoundEffects;
-    private AudioClip[] drillBlockSoundEffects;
-    private float[] drillBlockVolumes;
-    // Same thing as the error counter, but with an actual timer
-    private DateTime audioTimer = DateTime.Now;
-    private int lastAudioUsed = -1;
-    private AudioDelegator audioDelegator;
-    private UIDelegation uiDelegation;
-    private OreDelegation oreDelegation;
+   // Not actually a radius, it's a square
+   private int radius;
+   private TileBase[] ores;
+   private GameObject[] materials;
+   private MineRenderer mineRenderer;
+   [SerializeField]
+   private float playerSpeed;
+   [SerializeField]
+   private int drillTier;
+   // Does nothing, just for showing the user in the Garage
+   public int width;
+   [SerializeField]
+   private long price;
+   private UncollectedMaterialsDelegator materialsDelegator;
+   // Every second spent atttempting to mine a higher tier block, display an error
+   private int errorCounter = 50;
+   private int lastErrorCounter = 50;
+   private AudioSource vehicleSoundEffects;
+   private AudioClip[] drillBlockSoundEffects;
+   private float[] drillBlockVolumes;
+   // Same thing as the error counter, but with an actual timer
+   private DateTime audioTimer = DateTime.Now;
+   private int lastAudioUsed = -1;
+   private AudioDelegator audioDelegator;
+   private UIDelegation uiDelegation;
+   private OreDelegation oreDelegation;
+   private BoxCollider2D boxCollider2D;
+   private Vector2 size;
 
-    void Start() {
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        ores = mineRenderer.GetOres();
+   private Collider2D[] colliders;
+   private Tilemap tilemap;
+   private Vector3 spriteWorldPos;
+   private Vector3Int spriteTilePos;
+   private float closestDistance;
+   private Vector3Int nearestTilePos;
+   private Vector3 centerTilePos;
+   private Vector3Int currentTilePos;
+   private Vector3 tileWorldPos;
+   private float distance;
+   private TileBase tileToDestroy;
+   private int tileTier;
+   private GameObject materialToUse;
+   private int oldCount;
+   private Collider2D[] hitColliders;
+   private MaterialManager newMaterialManager;
+   private int randomIndex;
 
-        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
-        materials = oreDelegation.materials;
+   void Start() {
+       mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+       ores = mineRenderer.GetOres();
 
-        materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
-        
-        radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+       oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+       materials = oreDelegation.materials;
 
-        vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
-        drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
-        drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
-        uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-    }
+       materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+      
+       radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
-    void FixedUpdate() {
-        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
-        if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
-            errorCounter = 60;
-        }
-        lastErrorCounter = errorCounter;
-    }
+       vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
+       drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
+       drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
+       audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+       uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (!collision.gameObject.CompareTag("Mine Tag")) {
-            return;
-        }
+       boxCollider2D = GetComponent<BoxCollider2D>();
+       // Get the bounds of the BoxCollider2D
+       size = boxCollider2D.bounds.size;
+   }
 
-        Tilemap tilemap = mineRenderer.tilemapsDictionary[collision.name];
 
-        Vector3 spriteWorldPos = transform.position;
-        Vector3Int spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
+   void FixedUpdate() {
+       // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
+       if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
+           errorCounter = 60;
+       }
+       lastErrorCounter = errorCounter;
 
-        float closestDistance = radius + 1;
-        Vector3Int nearestTilePos = Vector3Int.zero;
-        Vector3 centerTilePos = Vector3.zero;
+       // Check if the game object's collider is touching a tilemap with "Mine Tag"
+       colliders = Physics2D.OverlapBoxAll(transform.position, size, transform.rotation.eulerAngles.z);
 
-        // Iterate over nearby tiles within the radius
-        // Not actually a radius, it's a square
-        for (int x = -radius; x <= radius; x++)
-        {
-            for (int y = -radius; y <= radius; y++)
-            {
-                Vector3Int currentTilePos = spriteTilePos + new Vector3Int(x, y, 0);
+       foreach (Collider2D collision in colliders) {
+           if (!collision.gameObject.CompareTag("Mine Tag")) {
+               continue;
+           }
 
-                // Check if the tile exists
-                if (!tilemap.HasTile(currentTilePos)) {
-                    continue;
-                }
+           tilemap = mineRenderer.tilemapsDictionary[collision.name];
 
-                Vector3 tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
-                float distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
+           spriteWorldPos = transform.position;
+           spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-                if (distance >= closestDistance) {
-                    continue;
-                }
+           closestDistance = radius + 1;
+           nearestTilePos = Vector3Int.zero;
+           centerTilePos = Vector3.zero;
 
-                // Keep track of the closest tile
-                closestDistance = distance;
-                nearestTilePos = currentTilePos;
-                centerTilePos = tileWorldPos; 
-            }
-        }
+           // Iterate over nearby tiles within the radius
+           // Not actually a radius, it's a square
+           for (int x = -radius; x <= radius; x++)
+           {
+               for (int y = -radius; y <= radius; y++)
+               {
+                   currentTilePos = spriteTilePos + new Vector3Int(x, y, 0);
 
-        if (closestDistance >= radius) {
-            return;
-        }
+                   // Check if the tile exists
+                   if (!tilemap.HasTile(currentTilePos)) {
+                       continue;
+                   }
 
-        TileBase tileToDestroy = tilemap.GetTile(nearestTilePos);
-        TilemapCollider2D tilemapCollider = mineRenderer.tilemapCollidersDictionary[tilemap.name];
+                   tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
+                   distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
 
-        // Make sure the drill is capable of destroying this tile
-        int tileTier = mineRenderer.GetTileTier(tileToDestroy);
-        if (drillTier < tileTier) {
-            errorCounter++;
-            FlickerMap(tilemapCollider);
-            // Dont spam the user with errors
-            if (errorCounter >= 60) {
-                uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
-                errorCounter = 0;
-            }
-            return;
-        }
+                   if (distance >= closestDistance) {
+                       continue;
+                   }
 
-        // Destroy the tile and reveal new tiles in the vision radius
-        mineRenderer.DestroyTile(nearestTilePos, false);
+                   // Keep track of the closest tile
+                   closestDistance = distance;
+                   nearestTilePos = currentTilePos;
+                   centerTilePos = tileWorldPos;
+               }
+           }
 
-        PlayAudio();
 
-        for (int i = 0; i != ores.Length; i++) {
-            if (tileToDestroy != ores[i]) {
-                continue;
-            }
+           if (closestDistance >= radius) {
+               continue;
+           }
 
-            GameObject materialToUse = materials[i];
+           tileToDestroy = tilemap.GetTile(nearestTilePos);
 
-            // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-            int oldCount = 0;
-            Collider2D[] hitColliders = Physics2D.OverlapCircleAll(centerTilePos, radius);
+           // Make sure the drill is capable of destroying this tile
+           tileTier = mineRenderer.GetTileTier(tileToDestroy);
+           if (drillTier < tileTier) {
+               errorCounter++;
+               // Dont spam the user with errors
+               if (errorCounter >= 60) {
+                   uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
+                   errorCounter = 0;
+               }
+               continue;
+           }
 
-            foreach (var hitCollider in hitColliders)
-            {       
-                // Make sure a gameobject was hit
-                if (hitCollider == null) {
-                    continue;
-                }
-                
-                // Make sure they are the same materials
-                if (hitCollider.name != materialToUse.name + "(Clone)") {
-                    continue;
-                }
-        
-                // If a neighbouring material was found, return to object pool,
-                // and keep track of the count of the object
-                // Don't set oldCount, use += in case there are more than 1;
-                // Also don't break for the same reason
-                MaterialManager newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                oldCount += newMaterialManager.count;
 
-                mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
-            }
+           // Destroy the tile and reveal new tiles in the vision radius
+           mineRenderer.DestroyTile(nearestTilePos, false);
 
-            mineRenderer.GetMaterialObject(i, centerTilePos, oldCount + 1);
-            break;
-        }
+           PlayAudio();
 
-        FlickerMap(tilemapCollider);
-    }
+           for (int i = 0; i != ores.Length; i++) {
+               if (tileToDestroy != ores[i]) {
+                   continue;
+               }
 
-    private void FlickerMap(TilemapCollider2D tilemapCollider) {
-        // Disable and renable quickly so the trigger event can occur again
-        tilemapCollider.enabled = false;
-        tilemapCollider.enabled = true;
-    }
+               materialToUse = materials[i];
 
-    public float GetPlayerSpeed() {
-        return playerSpeed;
-    }
+               // If no neighbouring materials then this stays 0 and the new object will have a count of 1
+               oldCount = 0;
+               hitColliders = Physics2D.OverlapCircleAll(centerTilePos, radius);
 
-    public int GetDrillTier() {
-        return drillTier;
-    }
+               foreach (var hitCollider in hitColliders)
+               {      
+                   // Make sure a gameobject was hit
+                   if (hitCollider == null) {
+                       continue;
+                   }
+                  
+                   // Make sure they are the same materials
+                   if (hitCollider.name != materialToUse.name + "(Clone)") {
+                       continue;
+                   }
+          
+                   // If a neighbouring material was found, return to object pool,
+                   // and keep track of the count of the object
+                   // Don't set oldCount, use += in case there are more than 1;
+                   // Also don't break for the same reason
+                   newMaterialManager = hitCollider.GetComponent<MaterialManager>();
+                   oldCount += newMaterialManager.count;
 
-    public long GetPrice() {
-        return price;
-    }
+                   mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
+               }
 
-    public void PlayAudio() {
-        if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {
-            return;
-        }
+               mineRenderer.GetMaterialObject(i, centerTilePos, oldCount + 1);
+               break;
+           }
 
-        // Make sure we are not using the same audio twice in a row
-        // Theoretically, this loop can get stuck forever but very unlikely
-        int randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
 
-        while (randomIndex == lastAudioUsed) {
-            randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
-        }
+       }
+   }
 
-        lastAudioUsed = randomIndex;
 
-        audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
+   public float GetPlayerSpeed() {
+       return playerSpeed;
+   }
 
-        audioTimer = DateTime.Now;
-    }
+   public int GetDrillTier() {
+       return drillTier;
+   }
+
+   public long GetPrice() {
+       return price;
+   }
+
+   public void PlayAudio() {
+       if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {
+           return;
+       }
+
+       // Make sure we are not using the same audio twice in a row
+       // Theoretically, this loop can get stuck forever but very unlikely
+       randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
+
+       while (randomIndex == lastAudioUsed) {
+           randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
+       }
+
+       lastAudioUsed = randomIndex;
+
+       audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
+
+       audioTimer = DateTime.Now;
+   }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 public class UncollectedMaterialsDelegator : MonoBehaviour
 {
     public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials = new();
+    private MaterialManager materialManager;
 
     public void RemoveMaterial(string materialID)
     {
@@ -22,7 +23,7 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
         // Set its values
         // Need to manually put it in the right spot, do this before SetCount, so it happens before UpdateData() in MaterialManager
         materialToAdd.transform.localPosition = materialPosition;
-        MaterialManager materialManager = materialToAdd.GetComponent<MaterialManager>();
+        materialManager = materialToAdd.GetComponent<MaterialManager>();
         materialManager.materialIndex = materialIndex;
         materialManager.SetCount(materialCount);
         // add the material to the dictionary

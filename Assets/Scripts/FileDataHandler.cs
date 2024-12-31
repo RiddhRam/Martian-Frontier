@@ -117,9 +117,6 @@ public class FileDataHandler
                         }
                         newArray[columnIndex, rowIndex] = dict;
 
-                        // FINAL GRID ISN'T BEING SAVED
-                        // ONLY 251 GRIDS ARE SAVED, NOT 252 (42 x 6)
-                        // DEBUG.LOG BELOW ONLY PRINTS (5, 41), INSTEAD OF (6, 0)
                         rowIndex++;
                         if (rowIndex == totalRows) {
                             rowIndex = 0;
@@ -127,8 +124,6 @@ public class FileDataHandler
                         }
                     }
 
-                    Debug.Log("Loaded: " + columnIndex + ", " + rowIndex);
-                    
                     correspondingField.SetValue(tempData, newArray);
                 } else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
                     // Trim the outer [ ] and also turn the url encoding back to quotation marks

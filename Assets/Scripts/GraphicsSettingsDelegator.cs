@@ -4,7 +4,7 @@ using UnityEngine;
 public class GraphicsSettingsDelegator : MonoBehaviour
 {
     private int motionQuality = 0;
-    private int[] frameRates = {60, 45, 30};
+    private int[] frameRates = {60, 30};
 
     public void OnEnable() {
         motionQuality = PlayerPrefs.GetInt("Motion Quality");

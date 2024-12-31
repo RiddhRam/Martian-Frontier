@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Numerics;
+using System.Threading.Tasks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,8 +37,28 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private GameObject cashTextGO;
     private Slider cashSlider;
     private TextMeshProUGUI cashText;
+    private Slider[] xpDisplaysSliders;
+    private TextMeshProUGUI[] xpDisplaysText;
+
+    int baseXP; 
+    int increment; 
+    int level; 
+    BigInteger remainingXP;
+    float profitMultiplier;
+    float calculatedValue;
+    float tolerance;
+    float xpSliderValue;
+    string levelString;
 
     void Start() {
+        xpDisplaysSliders = new Slider[xpDisplays.Length];
+        xpDisplaysText = new TextMeshProUGUI[xpDisplays.Length];
+
+        for (int i = 0; i != xpDisplays.Length; i++) {
+            xpDisplaysSliders[i] = xpDisplays[i].GetComponent<Slider>();
+            xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        }
+
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
@@ -156,6 +177,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
         userXP++;
 
+        // Simulate asynchronous operation (e.g., if you're doing something async in UpdateXPDisplays())
         UpdateXPDisplays();
         
         blocksMined++;
@@ -262,19 +284,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateXPDisplays() {
-        int baseXP = 500; // XP needed for level 0 to 1
-        int increment = 500; // Additional XP per level
-        int level = 0; // Start at level 0
-        BigInteger remainingXP = userXP; // Start with total user XP
+        baseXP = 500; // XP needed for level 0 to 1
+        increment = 500; // Additional XP per level
+        level = 0; // Start at level 0
+        remainingXP = userXP; // Start with total user XP
 
         while (remainingXP >= baseXP + level * increment) {
             remainingXP -= baseXP + level * increment;
             level++;
         }
 
-        float profitMultiplier = refineryController.GetLevelProfitMultiplier();
-        float calculatedValue = level * 0.01f;
-        float tolerance = 0.005f;
+        profitMultiplier = refineryController.GetLevelProfitMultiplier();
+        calculatedValue = level * 0.01f;
+        tolerance = 0.005f;
 
         if ((profitMultiplier < calculatedValue - tolerance) && !loading) {
             analyticsDelegator.LevelUp(level);
@@ -283,9 +305,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // For each level, add 1% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);
 
+        xpSliderValue = (float) ((double) remainingXP/(baseXP + level * increment));
+        levelString = level.ToString();
         for (int i = 0; i != xpDisplays.Length; i++) {
-            xpDisplays[i].GetComponent<Slider>().value = (float) ((double) remainingXP/(baseXP + level * increment));
-            xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = level.ToString();
+            xpDisplaysSliders[i].value = xpSliderValue;
+            xpDisplaysText[i].text = levelString;
         }
     }
 
