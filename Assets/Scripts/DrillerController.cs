@@ -18,7 +18,6 @@ public class DrillerController : MonoBehaviour
    public int width;
    [SerializeField]
    private long price;
-   private UncollectedMaterialsDelegator materialsDelegator;
    // Every second spent atttempting to mine a higher tier block, display an error
    private int errorCounter = 50;
    private int lastErrorCounter = 50;
@@ -38,9 +37,7 @@ public class DrillerController : MonoBehaviour
    private Tilemap tilemap;
    private Vector3 spriteWorldPos;
    private Vector3Int spriteTilePos;
-   private float closestDistance;
    private Vector3Int nearestTilePos;
-   private Vector3 centerTilePos;
    private Vector3Int currentTilePos;
    private Vector3 tileWorldPos;
    private float distance;
@@ -51,6 +48,9 @@ public class DrillerController : MonoBehaviour
    private Collider2D[] hitColliders;
    private MaterialManager newMaterialManager;
    private int randomIndex;
+    List<Vector3Int> currentTilePositions = new();
+    List<Vector3> tileWorldPositions = new();
+    List<TileBase> tileBasesToDestroy = new();
 
    void Start() {
        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -58,8 +58,6 @@ public class DrillerController : MonoBehaviour
 
        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
        materials = oreDelegation.materials;
-
-       materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
       
        radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
@@ -73,7 +71,6 @@ public class DrillerController : MonoBehaviour
        // Get the bounds of the BoxCollider2D
        size = boxCollider2D.bounds.size;
    }
-
 
    void FixedUpdate() {
        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
@@ -95,13 +92,11 @@ public class DrillerController : MonoBehaviour
            spriteWorldPos = transform.position;
            spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-           closestDistance = radius + 1;
            nearestTilePos = Vector3Int.zero;
-           centerTilePos = Vector3.zero;
 
-            List<Vector3Int> currentTilePositions = new();
-            List<Vector3> tileWorldPositions = new();
-            List<TileBase> tileBasesToDestroy = new();
+            currentTilePositions.Clear();
+            tileWorldPositions.Clear();
+            tileBasesToDestroy.Clear();
            // Iterate over nearby tiles within the radius
            // Not actually a radius, it's a square
            for (int x = -radius; x <= radius; x++)
@@ -137,9 +132,7 @@ public class DrillerController : MonoBehaviour
                     }
 
                    // Keep track of the closest tile
-                   closestDistance = distance;
                    nearestTilePos = currentTilePos;
-                   centerTilePos = tileWorldPos;
 
                    currentTilePositions.Add(nearestTilePos);
                    tileWorldPositions.Add(tileWorldPos);
