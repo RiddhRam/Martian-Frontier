@@ -124,11 +124,11 @@ public class DrillerController : MonoBehaviour
                     tileTier = mineRenderer.GetTileTier(tileToDestroy);
                     if (drillTier < tileTier) {
                         errorCounter++;
+                        
                         // Dont spam the user with errors
                         if (errorCounter >= 500) {
                             uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                             errorCounter = 0;
-                            
                         }
                         dontPlayAudio = true;
                         continue;

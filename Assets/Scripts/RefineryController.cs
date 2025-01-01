@@ -39,6 +39,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private AnalyticsDelegator analyticsDelegator;
     private MineRenderer mineRenderer;
     string childName;
+    bool doneResetting;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -128,41 +129,59 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         BoxCollider2D mineEntranceBoxCollider = mineEntrance.GetComponent<BoxCollider2D>();
         // Disable mine temporarily
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
-        // Move player off the dropoff area, and move all players inside the mine to the outside
-        playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
         mineEntranceBoxCollider.enabled = true;
 
-        // Cover the map
-        largeFogOfWar.position = new(0, -220, 0);
+        // Move player off the dropoff area, and move all players inside the mine to the outside
+        playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
 
-        // Reset the mine
-        for (int i = 0; i != mine.transform.childCount; i++) {
+        // Cover the map
+        largeFogOfWar.position = new(0, -256, 0);
+        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 3;
+
+        StartCoroutine(GraduallyIncreaseBattery(initialBattery));
+
+        // Destroy all leftover materials, we do it this way, in case someone mined something 
+        // just as the mine was shutting down, and the ore didn't have enough time to have 
+        // the mine set as its parent
+        // This HAS to go first otherwise the mine will not reset tilemaps properly
+        MaterialManager[] materials = FindObjectsOfType<MaterialManager>();
+
+        foreach (var material in materials) {
+            mineRenderer.ReturnObject(material.gameObject, material.materialIndex, material.id);
+        }
+        materials = null;
+
+        // Reset the mine        
+        int counter = 0;
+        // Split the mine reset work into intervals
+        for (int i = 0; i < mine.transform.childCount; i++)
+        {
             GameObject child = mine.transform.GetChild(i).gameObject;
 
-            // Will certainly run into many nulls since a lot of objects get destroyed
-            if (!child) {
-                yield break;
-            }
-            
+            // Skip null objects
+            if (!child)
+                continue;
+
             childName = child.name;
 
-            // If a row, row generation trigger, or GenerationTriggers parent
-            if (childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) {
+            // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
+            if (childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background"))
+            {
                 Destroy(child);
+                i--;
             }
-            
-            // Destroy all leftover materials, we do it this way, in case someone mined something 
-            // just as the mine was shutting down, and the ore didn't have enough time to have 
-            // the mine set as its parent
-            MaterialManager[] materials = FindObjectsOfType<MaterialManager>();
 
-            foreach (var material in materials) {
-                Destroy(material.gameObject);
+            // Only delete 12 per frame
+            if (counter >= 12) {
+                yield return null;
+                counter = 0;
             }
-            materials = null;
+            counter++;
         }
 
+        // Initialize and uncover map
         mineRenderer.InitializeMine();
+        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 0;
 
         // Create the new mine
         GameObject genTrigGameObject = Instantiate(generationTriggers);
@@ -178,7 +197,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         SaveGame();
 
         // Wait for this to be done
-        yield return StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
         mineRenderer.mineInitialization = 2;
         
