@@ -562,7 +562,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Finally delete the tiles
         for (int i = 0; i != tilemapsToEdit.Count; i++) {
-            int size = tilesForTilemaps[i].Count;
+            size = tilesForTilemaps[i].Count;
 
             Vector3Int[] tilesToSet = new Vector3Int[size];
             TileBase[] nullTiles = new TileBase[size];
