@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -98,6 +99,9 @@ public class DrillerController : MonoBehaviour
            nearestTilePos = Vector3Int.zero;
            centerTilePos = Vector3.zero;
 
+            List<Vector3Int> currentTilePositions = new();
+            List<Vector3> tileWorldPositions = new();
+            List<TileBase> tileBasesToDestroy = new();
            // Iterate over nearby tiles within the radius
            // Not actually a radius, it's a square
            for (int x = -radius; x <= radius; x++)
@@ -114,80 +118,79 @@ public class DrillerController : MonoBehaviour
                    tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
                    distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
 
-                   if (distance >= closestDistance) {
+                   if (distance >= radius) {
                        continue;
                    }
+                   tileToDestroy = tilemap.GetTile(currentTilePos);
+
+                    // Make sure the drill is capable of destroying this tile
+                    tileTier = mineRenderer.GetTileTier(tileToDestroy);
+                    if (drillTier < tileTier) {
+                        errorCounter++;
+                        // Dont spam the user with errors
+                        if (errorCounter >= 60) {
+                            uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
+                            errorCounter = 0;
+                        }
+
+                        continue;
+                    }
 
                    // Keep track of the closest tile
                    closestDistance = distance;
                    nearestTilePos = currentTilePos;
                    centerTilePos = tileWorldPos;
+
+                   currentTilePositions.Add(nearestTilePos);
+                   tileWorldPositions.Add(tileWorldPos);
+                   tileBasesToDestroy.Add(tileToDestroy);
                }
            }
 
-
-           if (closestDistance >= radius) {
-               continue;
-           }
-
-           tileToDestroy = tilemap.GetTile(nearestTilePos);
-
-           // Make sure the drill is capable of destroying this tile
-           tileTier = mineRenderer.GetTileTier(tileToDestroy);
-           if (drillTier < tileTier) {
-               errorCounter++;
-               // Dont spam the user with errors
-               if (errorCounter >= 60) {
-                   uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
-                   errorCounter = 0;
-               }
-               continue;
-           }
-
-
-           // Destroy the tile and reveal new tiles in the vision radius
-           mineRenderer.DestroyTile(nearestTilePos, false);
+            mineRenderer.DestroyTiles(currentTilePositions, false);
 
            PlayAudio();
 
-           for (int i = 0; i != ores.Length; i++) {
-               if (tileToDestroy != ores[i]) {
-                   continue;
-               }
+            for (int j = 0; j != tileWorldPositions.Count; j++) {
+                for (int i = 0; i != ores.Length; i++) {
+                    if (tileBasesToDestroy[j] != ores[i]) {
+                        continue;
+                    }
 
-               materialToUse = materials[i];
+                    materialToUse = materials[i];
 
-               // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-               oldCount = 0;
-               hitColliders = Physics2D.OverlapCircleAll(centerTilePos, radius);
+                    // If no neighbouring materials then this stays 0 and the new object will have a count of 1
+                    oldCount = 0;
+                    hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], radius);
 
-               foreach (var hitCollider in hitColliders)
-               {      
-                   // Make sure a gameobject was hit
-                   if (hitCollider == null) {
-                       continue;
-                   }
-                  
-                   // Make sure they are the same materials
-                   if (hitCollider.name != materialToUse.name + "(Clone)") {
-                       continue;
-                   }
-          
-                   // If a neighbouring material was found, return to object pool,
-                   // and keep track of the count of the object
-                   // Don't set oldCount, use += in case there are more than 1;
-                   // Also don't break for the same reason
-                   newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                   oldCount += newMaterialManager.count;
+                    foreach (var hitCollider in hitColliders)
+                    {      
+                        // Make sure a gameobject was hit
+                        if (hitCollider == null) {
+                            continue;
+                        }
+                        
+                        // Make sure they are the same materials
+                        if (hitCollider.name != materialToUse.name + "(Clone)") {
+                            continue;
+                        }
+                
+                        // If a neighbouring material was found, return to object pool,
+                        // and keep track of the count of the object
+                        // Don't set oldCount, use += in case there are more than 1;
+                        // Also don't break for the same reason
+                        newMaterialManager = hitCollider.GetComponent<MaterialManager>();
+                        oldCount += newMaterialManager.count;
 
-                   mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
-               }
+                        mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
+                    }
 
-               mineRenderer.GetMaterialObject(i, centerTilePos, oldCount + 1);
-               break;
-           }
+                    mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1);
+                    break;
+                }
 
-
+            }
+        
        }
    }
 

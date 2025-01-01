@@ -50,7 +50,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     float xpSliderValue;
     string levelString;
 
-    void Start() {
+    void Awake() {
         xpDisplaysSliders = new Slider[xpDisplays.Length];
         xpDisplaysText = new TextMeshProUGUI[xpDisplays.Length];
 
@@ -58,7 +58,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysSliders[i] = xpDisplays[i].GetComponent<Slider>();
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
+    }
 
+    void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
@@ -169,18 +171,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return false;
     }
 
-    public void NewBlockMined(bool oreMined) {
+    public void NewBlockMined(int oresMined, int amount) {
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
         // Total 5 xp for mining an ore
-        if (oreMined) {
-            userXP += 4;
-        }
-        userXP++;
+        userXP += 4 * oresMined + amount;
 
         // Simulate asynchronous operation (e.g., if you're doing something async in UpdateXPDisplays())
         UpdateXPDisplays();
         
-        blocksMined++;
+        blocksMined += amount;
     }
 
     public void NewMaterialSold() {
