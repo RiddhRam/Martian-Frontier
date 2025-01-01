@@ -38,6 +38,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private GameObject playerVehicle;
     private AnalyticsDelegator analyticsDelegator;
     private MineRenderer mineRenderer;
+    string childName;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -142,9 +143,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             if (!child) {
                 yield break;
             }
+            
+            childName = child.name;
 
             // If a row, row generation trigger, or GenerationTriggers parent
-            if (child.name.Contains("Row") || child.name.Contains("Generation")) {
+            if (childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) {
                 Destroy(child);
             }
             

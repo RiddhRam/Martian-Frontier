@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -60,7 +61,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     //private int[] oresCount = new int[9];
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
-    private List<Vector3Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
+    private List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     private PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
@@ -76,17 +77,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap tilemap;
     private TileBase tileMined;
     private int tileValue;
-    private Vector2Int checkPos;
     private bool oreMined;
-    private int distance;
     private int tilemapRow;
     private int tilemapColumn;
-    readonly List<Tilemap> tilemapsToEdit = new();
-    readonly List<List<Vector3Int>> tilesForTilemaps = new();
-    readonly List<Vector2Int> tilesToReveal = new();
+    readonly List<Tilemap> destroyTilemapsToEdit = new();
+    readonly List<List<Vector3Int>> destroyTilesForTilemaps = new();
+    readonly HashSet<Vector2Int> tilesToReveal = new();
+    readonly List<Tilemap> revealTilemapsToEdit = new();
+    readonly List<List<Vector3Int>> revealTilesForTilemaps = new();
     int tilemapIndex;
     int identifiedTile;
     SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValueDictionary;
+    int oresMined;
     int size;
     Vector3Int[] tilesToSet;
     TileBase[] tilesBeingRevealed;
@@ -301,8 +303,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             CreateTiles(i + 1);
         }
 
-        List<Vector3Int> tilesToDestroy = new();
-        List<Vector2Int> tilesToReveal = new();
+        List<Vector2Int> tilesToDestroy = new();
+        HashSet<Vector2Int> tilesToReveal = new();
 
         for (int j = 0; j != totalColumns; j++) {
             for (int i = 0; i != savedHighestRow; i++) {
@@ -438,10 +440,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return oreCount - 1; // Fallback in case of floating-point error
     }
 
-    public void RevealTiles(List<Vector2Int> tilesToReveal) {
+    public void RevealTiles(HashSet<Vector2Int> tilesToReveal) {
 
-        tilemapsToEdit.Clear();
-        tilesForTilemaps.Clear();
+        revealTilemapsToEdit.Clear();
+        revealTilesForTilemaps.Clear();
 
         foreach (Vector2Int tileToReveal in tilesToReveal) {
             tilemapPos = CalculateTileMapPos(tileToReveal);
@@ -454,59 +456,59 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
 
-            if (!tilemapsToEdit.Contains(tilemap)) {
-                tilemapsToEdit.Add(tilemap);
-                tilesForTilemaps.Add(new());
+            if (!revealTilemapsToEdit.Contains(tilemap)) {
+                revealTilemapsToEdit.Add(tilemap);
+                revealTilesForTilemaps.Add(new());
             }
 
-            tilemapIndex = tilemapsToEdit.IndexOf(tilemap);
+            tilemapIndex = revealTilemapsToEdit.IndexOf(tilemap);
             // Find out what the tile is
             tileValue = unplacedTilemapsTileValueDictionary[tileToReveal];
-            tilesForTilemaps[tilemapIndex].Add(new(tileToReveal.x, tileToReveal.y, tileValue));
+            revealTilesForTilemaps[tilemapIndex].Add(new(tileToReveal.x, tileToReveal.y, tileValue));
 
             // Save value to revealedTilemapsTileValues
             revealedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tileToReveal] = tileValue;
         }
 
         // Finally delete the tiles
-        for (int i = 0; i != tilemapsToEdit.Count; i++) {
-            size = tilesForTilemaps[i].Count;
+        for (int i = 0; i != revealTilemapsToEdit.Count; i++) {
+            size = revealTilesForTilemaps[i].Count;
 
             tilesToSet = new Vector3Int[size];
             tilesBeingRevealed = new TileBase[size];
 
             for (int j = 0; j != size; j++) {
-                vectorValue = tilesForTilemaps[i][j];
+                vectorValue = revealTilesForTilemaps[i][j];
                 tilesToSet[j] = new(vectorValue.x, vectorValue.y);
                 tilesBeingRevealed[j] = tileValues[vectorValue.z];
             }
 
-            tilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingRevealed);
+            revealTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingRevealed);
         }
         
     }
 
-    public void DestroyTiles(List<Vector3Int> tilesToDestroy, bool loading) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading) {
 
-        int oresMined = 0;
+        oresMined = 0;
 
-        tilemapsToEdit.Clear();
-        tilesForTilemaps.Clear();
+        destroyTilemapsToEdit.Clear();
+        destroyTilesForTilemaps.Clear();
         tilesToReveal.Clear();
 
-        foreach (Vector3Int tileToDestroy in tilesToDestroy)
+        foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
             tilemapPos = CalculateTileMapPos(new(tileToDestroy.x, tileToDestroy.y));
             
             tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
 
-            if (!tilemapsToEdit.Contains(tilemap)) {
-                tilemapsToEdit.Add(tilemap);
-                tilesForTilemaps.Add(new());
+            if (!destroyTilemapsToEdit.Contains(tilemap)) {
+                destroyTilemapsToEdit.Add(tilemap);
+                destroyTilesForTilemaps.Add(new());
             }
 
-            tilemapIndex = tilemapsToEdit.IndexOf(tilemap);
-            tilesForTilemaps[tilemapIndex].Add(tileToDestroy);
+            tilemapIndex = destroyTilemapsToEdit.IndexOf(tilemap);
+            destroyTilesForTilemaps[tilemapIndex].Add(tileToDestroy);
 
             tileValue = 0;
             // Move tile to destroyed
@@ -529,7 +531,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Reveal new tiles
             // Search in a radius around tileToDestroy
-            
             for (int x = -visionRadius; x <= visionRadius; x++) {
                 // Determine the y bounds for the current x to stay within the radius
                 int yLimit = visionRadius - Mathf.Abs(x);
@@ -537,12 +538,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 for (int y = -yLimit; y <= yLimit; y++) {
                     // Get the tilemap index
                     tilemapPos = CalculateTileMapPos(new(tileToDestroy.x + x, tileToDestroy.y + y));
-                    checkPos = new(tileToDestroy.x + x, tileToDestroy.y + y);
-
                     // Check if the tile exists in unplacedTilemapsTileValues
-                    if (unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(checkPos)) {
-                        tilesToReveal.Add(checkPos);
-                    }
+                    tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y + y));
                 }
             }
             
@@ -569,17 +566,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // Finally delete the tiles
-        for (int i = 0; i != tilemapsToEdit.Count; i++) {
-            size = tilesForTilemaps[i].Count;
+        for (int i = 0; i != destroyTilemapsToEdit.Count; i++) {
+            size = destroyTilesForTilemaps[i].Count;
 
             Vector3Int[] tilesToSet = new Vector3Int[size];
             TileBase[] nullTiles = new TileBase[size];
 
             for (int j = 0; j != size; j++) {
-                tilesToSet[j] = tilesForTilemaps[i][j];
+                tilesToSet[j] = destroyTilesForTilemaps[i][j];
             }
 
-            tilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
+            destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
         }
 
         playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);

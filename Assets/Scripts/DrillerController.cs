@@ -48,9 +48,10 @@ public class DrillerController : MonoBehaviour
    private Collider2D[] hitColliders;
    private MaterialManager newMaterialManager;
    private int randomIndex;
-    List<Vector3Int> currentTilePositions = new();
-    List<Vector3> tileWorldPositions = new();
-    List<TileBase> tileBasesToDestroy = new();
+    readonly List<Vector2Int> currentTilePositions = new();
+    readonly List<Vector3> tileWorldPositions = new();
+    readonly List<TileBase> tileBasesToDestroy = new();
+    bool dontPlayAudio;
 
    void Start() {
        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -74,14 +75,15 @@ public class DrillerController : MonoBehaviour
 
    void FixedUpdate() {
        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
-       if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
-           errorCounter = 60;
+       if (lastErrorCounter == errorCounter && lastErrorCounter != 500) {
+           errorCounter = 500;
        }
        lastErrorCounter = errorCounter;
 
        // Check if the game object's collider is touching a tilemap with "Mine Tag"
        colliders = Physics2D.OverlapBoxAll(transform.position, size, transform.rotation.eulerAngles.z);
 
+        dontPlayAudio = false;
        foreach (Collider2D collision in colliders) {
            if (!collision.gameObject.CompareTag("Mine Tag")) {
                continue;
@@ -123,18 +125,19 @@ public class DrillerController : MonoBehaviour
                     if (drillTier < tileTier) {
                         errorCounter++;
                         // Dont spam the user with errors
-                        if (errorCounter >= 60) {
+                        if (errorCounter >= 500) {
                             uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                             errorCounter = 0;
+                            
                         }
-
+                        dontPlayAudio = true;
                         continue;
                     }
 
                    // Keep track of the closest tile
                    nearestTilePos = currentTilePos;
 
-                   currentTilePositions.Add(nearestTilePos);
+                   currentTilePositions.Add(new(nearestTilePos.x, nearestTilePos.y));
                    tileWorldPositions.Add(tileWorldPos);
                    tileBasesToDestroy.Add(tileToDestroy);
                }
@@ -142,7 +145,9 @@ public class DrillerController : MonoBehaviour
 
             mineRenderer.DestroyTiles(currentTilePositions, false);
 
-           PlayAudio();
+            if (!dontPlayAudio) {
+                PlayAudio();
+            }
 
             for (int j = 0; j != tileWorldPositions.Count; j++) {
                 for (int i = 0; i != ores.Length; i++) {
