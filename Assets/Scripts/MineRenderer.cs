@@ -61,8 +61,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
     private List<Vector3Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
-
     private PlayerState playerStateScript;
+    // Precompute reusable values
+    float invGridHeight; // Precompute inverse for division
+    float invGridWidth;  // Precompute inverse for division
+    float xOffset; // Offset adjustment for x
+    float yOffset; 
+    int totalRowsForFunc;
+    int totalColumnsForFunc;
 
     private int tileTier;
     GameObject obj;
@@ -75,9 +81,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int distance;
     private int tilemapRow;
     private int tilemapColumn;
-    List<Tilemap> tilemapsToEdit = new();
-    List<List<Vector3Int>> tilesForTilemaps = new();
-    List<Vector2Int> tilesToReveal = new();
+    readonly List<Tilemap> tilemapsToEdit = new();
+    readonly List<List<Vector3Int>> tilesForTilemaps = new();
+    readonly List<Vector2Int> tilesToReveal = new();
     int tilemapIndex;
     int identifiedTile;
     SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValueDictionary;
@@ -90,6 +96,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     void Awake()
     {
         totalColumns = mapHalfLength * 2 / gridSize.x;
+        totalRowsForFunc = totalRows - 1;
+        totalColumnsForFunc = totalColumns - 1;
+        invGridHeight = 1f / -gridSize.y; // Precompute inverse for division
+        invGridWidth = 1f / gridSize.x;  // Precompute inverse for division
+        xOffset = mapHalfLength * invGridWidth; // Offset adjustment for x
+        yOffset = 5f * invGridHeight;
+
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
@@ -672,12 +685,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {
         // Mine is offset by 5, and factor in the grid height too
-        tilemapRow = Mathf.FloorToInt((tilePos.y + 5) / -gridSize.y);
-        tilemapRow = Mathf.Clamp(tilemapRow, 0, totalRows - 1);
+        // Calculate row and clamp
+
+        tilemapRow = Mathf.Clamp(
+            Mathf.FloorToInt((tilePos.y + 5) * invGridHeight),
+            0, totalRowsForFunc
+        );
 
         // Offset by half the width, since some x coords are negative, and some are positive
-        tilemapColumn = Mathf.FloorToInt((tilePos.x + mapHalfLength) / gridSize.x);
-        tilemapColumn = Mathf.Clamp(tilemapColumn, 0, totalColumns - 1);
+        // Calculate column and clamp
+        tilemapColumn = Mathf.Clamp(
+        Mathf.FloorToInt((tilePos.x + mapHalfLength) * invGridWidth),
+        0, totalColumnsForFunc);
 
         return new(tilemapColumn, tilemapRow);
     }
