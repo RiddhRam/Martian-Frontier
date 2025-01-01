@@ -529,21 +529,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Reveal new tiles
             // Search in a radius around tileToDestroy
+            
             for (int x = -visionRadius; x <= visionRadius; x++) {
-                for (int y = -visionRadius; y <= visionRadius; y++) {
+                // Determine the y bounds for the current x to stay within the radius
+                int yLimit = visionRadius - Mathf.Abs(x);
 
-                    // Calculate the Manhattan distance from the center tile
-                    distance = Mathf.Abs(x) + Mathf.Abs(y);
-
-                    // Make sure within the circular radius
-                    if (distance > visionRadius) {
-                        continue;
-                    }
-
+                for (int y = -yLimit; y <= yLimit; y++) {
                     // Get the tilemap index
                     tilemapPos = CalculateTileMapPos(new(tileToDestroy.x + x, tileToDestroy.y + y));
                     checkPos = new(tileToDestroy.x + x, tileToDestroy.y + y);
-                    
+
                     // Check if the tile exists in unplacedTilemapsTileValues
                     if (unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(checkPos)) {
                         tilesToReveal.Add(checkPos);
