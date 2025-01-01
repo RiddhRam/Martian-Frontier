@@ -29,6 +29,7 @@ public class LoadingScreen : MonoBehaviour
     {
         progressBar.GetComponent<Slider>().maxValue = totalItems;
         progressBar.GetComponent<Slider>().value = loadedItems;
+        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().LoadGame();
     }
 
     // Update is called once per frame

@@ -60,7 +60,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     //private int[] oresCount = new int[9];
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
-    private List<Vector3Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
+    private List<Vector3Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
 
     private PlayerState playerStateScript;
 

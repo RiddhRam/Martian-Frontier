@@ -58,13 +58,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysSliders[i] = xpDisplays[i].GetComponent<Slider>();
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
+
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
     }
 
     void Start() {
-        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
-        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
         analyticsDelegator = AnalyticsDelegator.Instance;
         materialProfitPanel = null;
         UpdateCashDisplays();
@@ -256,7 +258,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         
         loading = true;
         this.userCash = BigInteger.Parse(data.userCash);
