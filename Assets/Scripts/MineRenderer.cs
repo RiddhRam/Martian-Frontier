@@ -61,8 +61,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     //private int[] oresCount = new int[9];
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
-    private Queue<GameObject> mineTilemaps;
-    private Queue<GameObject> mineBackgroundTilemaps;
+    private List<GameObject> mineTilemaps;
+    private List<GameObject> mineBackgroundTilemaps;
     private List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     private PlayerState playerStateScript;
     // Precompute reusable values
@@ -97,6 +97,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Called before Start
     void Awake()
     {
+        
         totalColumns = mapHalfLength * 2 / gridSize.x;
         totalRowsForFunc = totalRows - 1;
         totalColumnsForFunc = totalColumns - 1;
@@ -108,8 +109,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
 
-        mineTilemaps = new Queue<GameObject>();
-        mineBackgroundTilemaps = new Queue<GameObject>();
+        mineTilemaps = new List<GameObject>();
+        mineBackgroundTilemaps = new List<GameObject>();
 
         // unplacedTilemapsTileValues will be populated as each row is created
         // These ones are done right now
@@ -120,15 +121,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 revealedTilemapsTileValues[i, j] = new();
 
                 GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
-                mineTilemapGameObject.SetActive(false);
-                mineTilemaps.Enqueue(mineTilemapGameObject);
                 mineTilemapGameObject.transform.SetParent(transform);
-                mineTilemapGameObject.name = "Row " + j + ", Column " + i;
+                mineTilemapGameObject.name = "Row " + (i+1) + ", Column " + (j+1);
+                ReturnTilemapObject(mineTilemapGameObject, i * 25, j * -gridSize.y - 5);
+
+                // Get the component once, then no need to do it again later
+                Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
+                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
 
                 GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
-                mineBackgroundTilemapGameObject.SetActive(false);
-                mineBackgroundTilemaps.Enqueue(mineBackgroundTilemapGameObject);
                 mineBackgroundTilemapGameObject.transform.SetParent(transform);
+                ReturnBackgroundTilemapObject(mineBackgroundTilemapGameObject);                
             }
         }
 
@@ -197,8 +200,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
-        // Clear all saved components
-        tilemapsDictionary.Clear();
         // Remove all keys
         materialsDelegator.uncollectedMaterials.Clear();
 
@@ -245,13 +246,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
 
-            GameObject mineTilemapGameObject = GetTilemapObject();
             GameObject mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
 
-            // Get the component once, then no need to do it again later
-            Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
-            tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
-
+            Tilemap mineTilemap = tilemapsDictionary[GetTilemapObject().name];
             Tilemap mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
             
             // i = the x coordinate of the chunk;
@@ -757,30 +754,66 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public GameObject GetTilemapObject()
     {
-        obj = mineTilemaps.Dequeue();
-        obj.SetActive(true);
+        obj = mineTilemaps[0];
+        mineTilemaps.RemoveAt(0);
 
         return obj;
     }
 
-    public void ReturnTilemapObject(GameObject obj)
+    public void ReturnTilemapObject(GameObject obj, int yChunk, int xChunk)
     {
-        obj.SetActive(false);
-        mineTilemaps.Enqueue(obj);
+        // Get the Tilemap component from the GameObject
+        Tilemap tilemap = obj.GetComponent<Tilemap>();
+
+        int positionsCount = tilemap.cellBounds.size.x * tilemap.cellBounds.size.y;;
+
+        int tileIndex = 0;
+        Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
+        TileBase[] tilesBeingUsed = new TileBase[positionsCount];
+
+        // Loop through all positions in the tilemap's bounds
+        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        {
+            tilesForReturning[tileIndex] = position;
+            tilesBeingUsed[tileIndex] = null;
+
+            tileIndex++;
+        }
+
+        tilemap.SetTiles(tilesToSet, tilesBeingUsed);
+        mineTilemaps.Insert(0, obj);
     }
 
     public GameObject GetBackgroundTilemapObject()
     {
-        obj = mineBackgroundTilemaps.Dequeue();
-        obj.SetActive(true);
-
+        obj = mineBackgroundTilemaps[0];
+        mineBackgroundTilemaps.RemoveAt(0);
+        
         return obj;
     }
 
     public void ReturnBackgroundTilemapObject(GameObject obj)
     {
-        obj.SetActive(false);
-        mineBackgroundTilemaps.Enqueue(obj);
+        // Get the Tilemap component from the GameObject
+        Tilemap tilemap = obj.GetComponent<Tilemap>();
+
+        int positionsCount = tilemap.cellBounds.size.x * tilemap.cellBounds.size.y;;
+
+        int tileIndex = 0;
+        Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
+        TileBase[] tilesBeingUsed = new TileBase[positionsCount];
+
+        // Loop through all positions in the tilemap's bounds
+        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        {
+            tilesForReturning[tileIndex] = position;
+            tilesBeingUsed[tileIndex] = null;
+
+            tileIndex++;
+        }
+
+        tilemap.SetTiles(tilesToSet, tilesBeingUsed);
+        mineBackgroundTilemaps.Insert(0, obj);
     }
 
     public void SetVisionRadius(int newRadius) {

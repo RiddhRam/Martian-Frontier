@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,7 +40,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private AnalyticsDelegator analyticsDelegator;
     private MineRenderer mineRenderer;
     string childName;
-    bool doneResetting;
+    bool doneAnimation;
+
+    int y;
+    int x;
 
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -138,6 +142,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         largeFogOfWar.position = new(0, -256, 0);
         largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 3;
 
+        doneAnimation = false;
         StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
         // Destroy all leftover materials, we do it this way, in case someone mined something 
@@ -153,6 +158,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Reset the mine        
         int counter = 0;
+
         // Split the mine reset work into intervals
         for (int i = 0; i < mine.transform.childCount; i++)
         {
@@ -169,28 +175,34 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             {
                 // Repool or destroy
                 if (childName.Contains("Row")) {
+                    // Define a regex to capture Y and X values
+                    var match = Regex.Match(childName, @"Row (\d+), Column (\d+)");
 
-                    mineRenderer.ReturnTilemapObject(child);
+                    y = int.Parse(match.Groups[1].Value);
+                    x = int.Parse(match.Groups[2].Value);
+
+                    mineRenderer.ReturnTilemapObject(child, x * 25, y * -12 - 5);
 
                 } else if (childName.Contains("Background")) {
 
                     mineRenderer.ReturnBackgroundTilemapObject(child);
-
                 } else {
 
                     Destroy(child);
+                    i--;
                 }
-                
-                i--;
+            
 
-                // Only delete 3 per frame
-                if (counter >= 3) {
-                    yield return null;
+                // Only delete 42 per frame
+                if (counter >= 84) {
+                    yield return new WaitForSecondsRealtime(0.1f);
                     counter = 0;
                 }
                 counter++;
             }
         }
+
+        yield return new WaitUntil(() => doneAnimation);
 
         // Initialize and uncover map
         mineRenderer.InitializeMine();
@@ -246,6 +258,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
         refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
         refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = "100%";
+
+        doneAnimation = true;
     }
 
     private void UpdateRefineryProgressBars() {
