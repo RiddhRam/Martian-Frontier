@@ -180,7 +180,7 @@ public class DrillerController : MonoBehaviour
                         newMaterialManager = hitCollider.GetComponent<MaterialManager>();
                         oldCount += newMaterialManager.count;
 
-                        mineRenderer.ReturnObject(hitCollider.gameObject, i, newMaterialManager.id);
+                        mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
                     }
 
                     mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1);

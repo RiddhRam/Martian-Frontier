@@ -69,8 +69,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     void Start() {
         analyticsDelegator = AnalyticsDelegator.Instance;
         materialProfitPanel = null;
-        UpdateCashDisplays();
-        UpdateXPDisplays();
 
         if (cashSliderGO) {
             cashSlider = cashSliderGO.GetComponent<Slider>();
@@ -270,6 +268,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
         
         loading = false;
+       
+        UpdateCashDisplays();
+        UpdateXPDisplays();
+
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 

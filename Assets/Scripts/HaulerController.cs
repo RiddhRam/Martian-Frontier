@@ -92,7 +92,7 @@ public class HaulerController : MonoBehaviour
 
             // If limit isn't exceeded then destroy the game object
             materialCount[i] += amountPickedUp;
-            mineRenderer.ReturnObject(other.gameObject, i, materialManager.id);
+            mineRenderer.ReturnMaterialObject(other.gameObject, i, materialManager.id);
             PickUpOre(amountPickedUp);
         }
     }

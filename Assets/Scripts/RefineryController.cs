@@ -147,7 +147,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         MaterialManager[] materials = FindObjectsOfType<MaterialManager>();
 
         foreach (var material in materials) {
-            mineRenderer.ReturnObject(material.gameObject, material.materialIndex, material.id);
+            mineRenderer.ReturnMaterialObject(material.gameObject, material.materialIndex, material.id);
         }
         materials = null;
 
@@ -165,18 +165,31 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             childName = child.name;
 
             // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
-            if (childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background"))
+            if ((childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) && child.activeSelf)
             {
-                Destroy(child);
-                i--;
-            }
+                // Repool or destroy
+                if (childName.Contains("Row")) {
 
-            // Only delete 12 per frame
-            if (counter >= 12) {
-                yield return null;
-                counter = 0;
+                    mineRenderer.ReturnTilemapObject(child);
+
+                } else if (childName.Contains("Background")) {
+
+                    mineRenderer.ReturnBackgroundTilemapObject(child);
+
+                } else {
+
+                    Destroy(child);
+                }
+                
+                i--;
+
+                // Only delete 3 per frame
+                if (counter >= 3) {
+                    yield return null;
+                    counter = 0;
+                }
+                counter++;
             }
-            counter++;
         }
 
         // Initialize and uncover map

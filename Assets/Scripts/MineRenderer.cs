@@ -61,13 +61,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     //private int[] oresCount = new int[9];
     private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
+    private Queue<GameObject> mineTilemaps;
+    private Queue<GameObject> mineBackgroundTilemaps;
     private List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     private PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
     float invGridWidth;  // Precompute inverse for division
-    float xOffset; // Offset adjustment for x
-    float yOffset; 
     int totalRowsForFunc;
     int totalColumnsForFunc;
 
@@ -102,13 +102,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         totalColumnsForFunc = totalColumns - 1;
         invGridHeight = 1f / -gridSize.y; // Precompute inverse for division
         invGridWidth = 1f / gridSize.x;  // Precompute inverse for division
-        xOffset = mapHalfLength * invGridWidth; // Offset adjustment for x
-        yOffset = 5f * invGridHeight;
 
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
+
+        mineTilemaps = new Queue<GameObject>();
+        mineBackgroundTilemaps = new Queue<GameObject>();
 
         // unplacedTilemapsTileValues will be populated as each row is created
         // These ones are done right now
@@ -117,6 +118,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 // Avoid using new() to keep memory usage down
                 destroyedTilemapsTileValues[i, j] = new();
                 revealedTilemapsTileValues[i, j] = new();
+
+                GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
+                mineTilemapGameObject.SetActive(false);
+                mineTilemaps.Enqueue(mineTilemapGameObject);
+                mineTilemapGameObject.transform.SetParent(transform);
+                mineTilemapGameObject.name = "Row " + j + ", Column " + i;
+
+                GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
+                mineBackgroundTilemapGameObject.SetActive(false);
+                mineBackgroundTilemaps.Enqueue(mineBackgroundTilemapGameObject);
+                mineBackgroundTilemapGameObject.transform.SetParent(transform);
             }
         }
 
@@ -233,13 +245,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
 
-            GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
-            GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
-
-            mineTilemapGameObject.transform.SetParent(transform);
-            mineTilemapGameObject.name = "Row " + chunkRow + ", Column " + chunkColumn;
-
-            mineBackgroundTilemapGameObject.transform.SetParent(transform);
+            GameObject mineTilemapGameObject = GetTilemapObject();
+            GameObject mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
 
             // Get the component once, then no need to do it again later
             Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
@@ -741,11 +748,39 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     // Method to return an object to the pool
-    public void ReturnObject(GameObject obj, int materialIndex, string materialID)
+    public void ReturnMaterialObject(GameObject obj, int materialIndex, string materialID)
     {
         materialsDelegator.RemoveMaterial(materialID);
         obj.SetActive(false);
         materialPools[materialIndex].Enqueue(obj);
+    }
+
+    public GameObject GetTilemapObject()
+    {
+        obj = mineTilemaps.Dequeue();
+        obj.SetActive(true);
+
+        return obj;
+    }
+
+    public void ReturnTilemapObject(GameObject obj)
+    {
+        obj.SetActive(false);
+        mineTilemaps.Enqueue(obj);
+    }
+
+    public GameObject GetBackgroundTilemapObject()
+    {
+        obj = mineBackgroundTilemaps.Dequeue();
+        obj.SetActive(true);
+
+        return obj;
+    }
+
+    public void ReturnBackgroundTilemapObject(GameObject obj)
+    {
+        obj.SetActive(false);
+        mineBackgroundTilemaps.Enqueue(obj);
     }
 
     public void SetVisionRadius(int newRadius) {
