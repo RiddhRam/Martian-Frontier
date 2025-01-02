@@ -97,7 +97,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
             else
             {
-                _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // Android Real Ad Unit
+                _adUnitId = "ca-app-pub-5607588731152504/9913767660"; // Android Real Ad Unit
             }
         #elif UNITY_IPHONE
             if (isDebugBuild)
@@ -106,7 +106,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
             else
             {
-                _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // iOS Real Ad Unit
+                _adUnitId = "ca-app-pub-3940256099942544/1712485313"; // iOS Real Ad Unit
             }
         #else
             _adUnitId = "unused"; // Default for other platforms
