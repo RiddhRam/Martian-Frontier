@@ -140,7 +140,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Cover the map
         largeFogOfWar.position = new(0, -256, 0);
-        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 3;
+        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 6;
 
         doneAnimation = false;
         StartCoroutine(GraduallyIncreaseBattery(initialBattery));
