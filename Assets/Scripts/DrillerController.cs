@@ -84,6 +84,8 @@ public class DrillerController : MonoBehaviour
         }
         lastErrorCounter = errorCounter;
 
+        size = boxCollider2D.bounds.size;
+
         drillRotation = transform.rotation.eulerAngles.z;
         // Convert the rotation angle to radians
         rotationZInRadians = drillRotation * Mathf.Deg2Rad;
