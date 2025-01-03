@@ -131,6 +131,17 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Loads the rewarded ad.
     public void LoadRewardedAd(int rewardIndex)
     {
+        // ADMOB DISABLE
+        // Delete this to enable
+        try {
+            IncrementLoadedItems();
+        } catch {
+
+        }
+
+        // ADMOB DISABLE
+        /*
+        
         // Clean up the old ad before loading a new one.
         if (rewardedAds[rewardIndex] != null)
         {
@@ -169,6 +180,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 } catch {
                 }
             });
+            */
     }
 
     // Show ad to user
