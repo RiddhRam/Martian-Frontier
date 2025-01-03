@@ -173,6 +173,7 @@ public class FileDataHandler
                             int newInt = int.Parse(strValue);
                             correspondingField.SetValue(tempData, newInt);
                         } else if (fieldType == typeof(bool)) {
+                            Debug.Log(strValue);
                             bool newBool = bool.Parse(strValue);
                             correspondingField.SetValue(tempData, newBool);
                         } else if (fieldType == typeof(int[])) {
@@ -188,6 +189,11 @@ public class FileDataHandler
                         }
                     }
                     catch {
+                        // If field is corrupted, then the user most likely finished the tutorial already, since game is most likely
+                        // to be corrupted when the map is intense, and its usually only intense after you pass the tutorial
+                        if (fieldType == typeof(bool)) {
+                            correspondingField.SetValue(tempData, true);
+                        }
                     }
                 }
             }
