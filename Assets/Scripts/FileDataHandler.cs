@@ -173,7 +173,6 @@ public class FileDataHandler
                             int newInt = int.Parse(strValue);
                             correspondingField.SetValue(tempData, newInt);
                         } else if (fieldType == typeof(bool)) {
-                            Debug.Log(strValue);
                             bool newBool = bool.Parse(strValue);
                             correspondingField.SetValue(tempData, newBool);
                         } else if (fieldType == typeof(int[])) {
