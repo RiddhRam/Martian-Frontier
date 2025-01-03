@@ -26,9 +26,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
 
+    // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
+
     // Start is called before the first frame update
     void Start()
     {
+        // ADMOB DISABLE
+        /*
         SetAdUnitId();
 
         // Need this so rewarded ads actually reward in the real app
@@ -39,10 +43,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             for (int i = 0; i != rewardedAds.Length; i++) {
                 LoadRewardedAd(i);
             }
-            
+            // ADMOB DISABLE
             // This callback is called once the MobileAds SDK is initialized.
-            IncrementLoadedItems();
-        });
+            
+        });*/
+        //MOVE THIS BACK INTO MobileAds.Initialize WHERE IT SAYS ADMOB DISABLE
+        IncrementLoadedItems(); 
+
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
 
@@ -53,7 +60,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
         timer = 0;
-        
+
+        // ADMOB DISABLE
+        /*
         // If no internet
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             for (int i = 0; i != rewardedAds.Length; i++) {
@@ -67,6 +76,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             ToggleDisplay();
             return;
         }
+        */
 
         // If there is internet
         FillEmptyAdSlots();
@@ -80,13 +90,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     {
         bool isDebugBuild = Debug.isDebugBuild;
 
-        // Android Test
+        // Android Real App ID
+        // ca-app-pub-5607588731152504~5074236463
+        // iOS App ID
+        // ca-app-pub-5607588731152504~7307043368
+
+        // Android Test Ad Unit
         // ca-app-pub-3940256099942544/5224354917
-        // Android Real
+        // Android Real Ad Unit
         // ca-app-pub-5607588731152504/9913767660
-        // iOS Test
+        // iOS Test Ad Unit
         // ca-app-pub-3940256099942544/1712485313
-        // iOS Real
+        // iOS Real Ad Unit
         // ca-app-pub-5607588731152504/4737462608
 
         // TODO: Change the real ad units to their actual code
@@ -147,6 +162,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 rewardedAds[rewardIndex] = ad;
 
+                // We only need to load 1 ad, if 1 loads, then its most likely the last thing that needs to load
+                // so LoadingScreen will be destroyed
                 try {
                     IncrementLoadedItems();
                 } catch {
@@ -165,6 +182,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 break;
             }
         }
+
+        // ADMOB DISABLE
+        /*
 
         if (rewardedAds[rewardIndex] != null && rewardedAds[rewardIndex].CanShowAd())
         {
@@ -186,6 +206,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             RegisterEventHandlers(rewardedAds[rewardIndex]);
             return;
         }
+        */
 
         // If unable to show ad, reward user anyways
         if (type == "Profit") {
