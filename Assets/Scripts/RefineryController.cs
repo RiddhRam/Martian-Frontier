@@ -206,7 +206,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Initialize and uncover map
         mineRenderer.InitializeMine();
-        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 0;
+        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 3;
 
         // Create the new mine
         GameObject genTrigGameObject = Instantiate(generationTriggers);
