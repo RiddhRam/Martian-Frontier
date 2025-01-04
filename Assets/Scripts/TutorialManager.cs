@@ -35,6 +35,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator WaitForGameLoad() {
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
+
         // Skip tutorial if already completed
         // When restarting tutorial, this doesn't immediately destroy the game object,
         // because LoadGame() is only called once when the game is first launched and finishedTutorial is initialized to false
@@ -42,13 +46,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         
         if (finishedTutorial)
         {
+            analyticsDelegator.FinishTutorial();
             Destroy(gameObject);
             yield break;
         }
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.StartTutorial();
     }
 

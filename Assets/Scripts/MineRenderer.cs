@@ -93,6 +93,29 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     Vector3Int[] tilesToSet;
     TileBase[] tilesBeingRevealed;
     Vector3Int vectorValue;
+    GameObject mineBackgroundTilemapGameObject;
+    Tilemap mineTilemap;
+    Tilemap mineBackgroundTilemap;
+    SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue;
+    int veinCount;
+    int centerX;
+    int centerY;
+    int radius;
+    int oreToPlace;
+    int oreIndex;
+    int minOreIndex;
+    int maxOreIndex;
+    int oreCount;
+    float depthFactor;
+    float[] weights;
+    float totalWeight;
+    float randomValue;
+    float cumulative;
+    bool isBaseTile;
+    float distanceFromCenter;
+    int tileX;
+    int tileY;
+    Vector2Int tilePosition;
 
     // Called before Start
     void Awake()
@@ -204,6 +227,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         materialsDelegator.uncollectedMaterials.Clear();
 
         // Create first 4 rows
+        // Change to totalRows + 1 to create entire map
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
@@ -211,7 +235,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         /* Uncomment this too to log the quantity of each ore
         for (int i = 0; i != oresCount.Length; i++) {
             Debug.Log(i + ": " + oresCount[i]);
-        }*/
+        } */
 
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
@@ -246,17 +270,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
 
-            GameObject mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
+            mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
 
-            Tilemap mineTilemap = tilemapsDictionary[GetTilemapObject().name];
-            Tilemap mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
+            mineTilemap = tilemapsDictionary[GetTilemapObject().name];
+            mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
             
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
 
             // y = y coordinate of tile
             // x = x coordinate of tile
-            SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue = new();
+            unplacedTilemapsTileValue = new();
 
             // Set the base tiles of the chunk to unknown tile
             for (int y = 0; y < gridSize.y; y++)
@@ -289,7 +313,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - (chunkRow * gridSize.y), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - ((chunkRow + 1) * gridSize.y), 0);
     }
 
     public void LoadTiles() {
@@ -335,24 +359,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
     {
-        int veinCount = Random.Range(1, 2);
+        veinCount = Random.Range(1, 2);
 
         for (int v = 0; v < veinCount; v++)
         {
             // Randomly choose the center position for each vein within the chunk
-            int centerX = Random.Range(0, gridSize.x);
-            int centerY = Random.Range(0, gridSize.y);
-            int radius = Random.Range(2, 4); // Radius of 2-4 tiles for variation
+            centerX = Random.Range(0, gridSize.x);
+            centerY = Random.Range(0, gridSize.y);
+            radius = Random.Range(1, 4); // Radius of 1-4 tiles for variation
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
-            int oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
+            oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
 
             // In order to see quantity of each ore in the mine
-            // Uncomment this, in initialize mine generate entire map by changing for loop where it only generates first few rows
+            // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
             // and also uncomment oresCount integer array above
-            /*int oreIndex = 0;
+            /*
+            oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++) {
-                bool isBaseTile = false;
+               isBaseTile = false;
 
                 for (int j = 0; j != tierThresholds.Length; j++) {
                     if (tierThresholds[j] == i) {
@@ -378,15 +403,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 for (int y = -radius; y <= radius; y++)
                 {
                     // Create a random offset to make the blob shape irregular
-                    float distanceFromCenter = Mathf.Sqrt(x * x + y * y) + Random.Range(-0.5f, 0.5f);
+                    distanceFromCenter = Mathf.Sqrt(x * x + y * y) + Random.Range(-0.5f, 0.5f);
 
                     // Only place tiles within the defined radius and randomness threshold
                     if (distanceFromCenter > radius) {
                         continue;
                     }
 
-                    int tileX = centerX + x;
-                    int tileY = centerY + y;
+                    tileX = centerX + x;
+                    tileY = centerY + y;
 
                     // Ensure we stay within grid bounds
                     if (tileX < 0 || tileX >= gridSize.x || tileY < 0 || tileY >= gridSize.y) {
@@ -394,7 +419,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     }
 
                     // Get the position and place it in the SerializableDictionary
-                    Vector2Int tilePosition = new(chunkX + tileX, (chunkRow - 1) * -(gridSize.y) - 5 - tileY);
+                    tilePosition = new(chunkX + tileX, (chunkRow - 1) * -gridSize.y - 5 - tileY);
                     unplacedTilemapsTileValue[tilePosition] = oreToPlace;
                 }
             }
@@ -405,14 +430,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int SelectOreBasedOnDepth(int chunkRow, int level)
     {
         // Define the ore range for this tier
-        int minOreIndex = tierThresholds[level] + 1;
-        int maxOreIndex = tierThresholds[level] + oresPerTier[level];
-        int oreCount = maxOreIndex - minOreIndex + 1;
+        minOreIndex = tierThresholds[level] + 1;
+        maxOreIndex = tierThresholds[level] + oresPerTier[level];
+        oreCount = maxOreIndex - minOreIndex + 1;
 
         // Calculate the probability weights based on depth
-        float depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
-        float[] weights = new float[oreCount];
-        float totalWeight = 0f;
+        depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
+        weights = new float[oreCount];
+        totalWeight = 0f;
 
         // Calculate dynamic weights for each ore
         for (int i = 0; i < oreCount; i++)
@@ -429,8 +454,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // Random selection based on probabilities
-        float randomValue = Random.value;
-        float cumulative = 0f;
+        randomValue = Random.value;
+        cumulative = 0f;
 
         for (int i = 0; i < oreCount; i++)
         {
