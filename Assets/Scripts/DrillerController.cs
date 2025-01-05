@@ -10,6 +10,7 @@ public class DrillerController : MonoBehaviour
     private TileBase[] ores;
     private GameObject[] materials;
     private MineRenderer mineRenderer;
+    private JoystickMovement joystickMovement;
     [SerializeField]
     private float playerSpeed;
     [SerializeField]
@@ -70,6 +71,7 @@ public class DrillerController : MonoBehaviour
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
 
         boxCollider2D = GetComponent<BoxCollider2D>();
         // Get the bounds of the BoxCollider2D
@@ -100,6 +102,7 @@ public class DrillerController : MonoBehaviour
         colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, drillRotation);
 
         dontPlayAudio = false;
+
         foreach (Collider2D collision in colliders) {
 
             if (!collision.gameObject.CompareTag("Mine Tag")) {
@@ -162,7 +165,7 @@ public class DrillerController : MonoBehaviour
 
             mineRenderer.DestroyTiles(currentTilePositions, false);
 
-            if (!dontPlayAudio) {
+            if (!dontPlayAudio && joystickMovement.joystickVec != Vector2.zero) {
                 PlayAudio();
             }
 
