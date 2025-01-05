@@ -149,7 +149,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // just as the mine was shutting down, and the ore didn't have enough time to have 
         // the mine set as its parent
         // This HAS to go first otherwise the mine will not reset tilemaps properly
-        MaterialManager[] materials = FindObjectsOfType<MaterialManager>();
+        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
+        MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
+
+        for (int i = 0; i < taggedObjects.Length; i++)
+        {
+            materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
+        }
 
         foreach (var material in materials) {
             mineRenderer.ReturnMaterialObject(material.gameObject, material.materialIndex, material.id);
