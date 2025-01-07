@@ -94,8 +94,6 @@ public class UIDelegation : MonoBehaviour
 
         // Make sure its active
         if (!mapCamera.activeSelf) {
-            Destroy(renderTexture);
-            renderTexture = null;
             return;
         }
 
@@ -105,10 +103,9 @@ public class UIDelegation : MonoBehaviour
         } else {
             aspectRatio *= 1.15f;
         }
-        
+
         // Create a new RenderTexture
         renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
-        renderTexture.antiAliasing = 8;
         renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
         renderTexture.Create();
 
