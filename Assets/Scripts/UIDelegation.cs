@@ -97,6 +97,8 @@ public class UIDelegation : MonoBehaviour
             return;
         }
 
+        primaryElements[7].SetActive(true);
+
         float aspectRatio = Screen.height / Screen.width;
         if (aspectRatio >= 1.8) {
             aspectRatio /= 1.12f;
