@@ -32,6 +32,11 @@ public class PlayerMovement : MonoBehaviour
     {
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
+
+        // Disable this if using AI Movement
+        if (gameObject.GetComponent<AIMovement>().isActiveAndEnabled) {
+            joystickMovement = null;
+        }
     }
 
     // Update is called once per frame
@@ -43,6 +48,11 @@ public class PlayerMovement : MonoBehaviour
         // Smooth camera follow
         targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
         mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+
+        // Disable this if using AI Movement
+        if (!joystickMovement) {
+            return;
+        }
 
         joystickVec = joystickMovement.joystickVec;
 

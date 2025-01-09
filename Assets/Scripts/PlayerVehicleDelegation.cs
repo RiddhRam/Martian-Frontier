@@ -71,6 +71,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = haulerController.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+            gameObject.GetComponent<AIMovement>().vehicleType = "Hauler";
             if (!analyticsDelegator) {
                 analyticsDelegator = AnalyticsDelegator.Instance;
             }
@@ -87,8 +88,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+
         int tier = drillerController.GetDrillTier();
-        
+        gameObject.GetComponent<AIMovement>().vehicleType = "Driller";
+        gameObject.GetComponent<AIMovement>().drillTier = tier;
         if (!analyticsDelegator) {
             analyticsDelegator = AnalyticsDelegator.Instance;
         }

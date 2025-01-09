@@ -99,13 +99,14 @@ public class UIDelegation : MonoBehaviour
 
         primaryElements[7].SetActive(true);
 
-        float aspectRatio = Screen.height / Screen.width;
-        if (aspectRatio >= 1.8) {
+        float aspectRatio = (float) Screen.height / Screen.width;
+
+        if (aspectRatio >= 1.7) {
             aspectRatio /= 1.12f;
         } else {
-            aspectRatio *= 1.15f;
+            aspectRatio /= 1.15f;
         }
-
+        
         // Create a new RenderTexture
         renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
         renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;

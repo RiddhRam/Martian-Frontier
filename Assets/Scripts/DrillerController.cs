@@ -165,7 +165,7 @@ public class DrillerController : MonoBehaviour
 
             mineRenderer.DestroyTiles(currentTilePositions, false);
 
-            if (!dontPlayAudio && joystickMovement.joystickVec != Vector2.zero) {
+            if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                 PlayAudio();
             }
 

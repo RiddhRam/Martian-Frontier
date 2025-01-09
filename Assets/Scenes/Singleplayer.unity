@@ -32112,6 +32112,7 @@ GameObject:
   - component: {fileID: 1012335947}
   - component: {fileID: 1012335948}
   - component: {fileID: 1012335949}
+  - component: {fileID: 1012335950}
   m_Layer: 0
   m_Name: Player Vehicle
   m_TagString: Untagged
@@ -32196,6 +32197,20 @@ MonoBehaviour:
   currentVehicle: 
   garageDelegator: {fileID: 648771411}
   playerVehicle: {fileID: 0}
+--- !u!114 &1012335950
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1012335945}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfa8e9fcf84494acaaec2cd8f5093afb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vehicleType: Driller
+  drillTier: 1
 --- !u!1 &1029776632
 GameObject:
   m_ObjectHideFlags: 0
@@ -33678,6 +33693,18 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 2042653428}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 319486926}
+        m_TargetAssemblyTypeName: UIDelegation, Scripts
+        m_MethodName: RevealElement
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1676524116}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
@@ -37630,7 +37657,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1676524117
 RectTransform:
   m_ObjectHideFlags: 0
@@ -37715,6 +37742,18 @@ MonoBehaviour:
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 2042653428}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 319486926}
+        m_TargetAssemblyTypeName: UIDelegation, Scripts
+        m_MethodName: HideElement
+        m_Mode: 2
+        m_Arguments:
+          m_ObjectArgument: {fileID: 1676524116}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
