@@ -5,7 +5,6 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Ump.Api;
-using System.Collections.Generic;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -17,7 +16,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private string[] rewardTypes;
     public GameObject movementJoystick;
     public GameObject tutorial;
-
+    public GameObject customAdScreen;
     private RewardedAd[] rewardedAds = new RewardedAd[3];
     private int timer = 60;
     private bool internetReachable = false;
@@ -28,13 +27,14 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private int[] timerIndexes = new int[3];
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
+
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     // Start is called before the first frame update
     void Start()
     {
         // Only uncomment when debugging user consent settings
-        ConsentInformation.Reset();
+        /*ConsentInformation.Reset();
         var debugSettings = new ConsentDebugSettings
         {
             DebugGeography = DebugGeography.EEA,
@@ -49,10 +49,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         ConsentRequestParameters request = new ConsentRequestParameters
         {
             ConsentDebugSettings = debugSettings,
-        };
+        };*/
 
         // Create a ConsentRequestParameters object.
-        //ConsentRequestParameters request = new();
+        ConsentRequestParameters request = new();
 
         // Check the current consent information status.
         ConsentInformation.Update(request, OnConsentInfoUpdated);
@@ -95,9 +95,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     // Initialize the Google Mobile Ads SDK.
                     MobileAds.Initialize((InitializationStatus initStatus) =>
                     {
-                        for (int i = 0; i != rewardedAds.Length; i++) {
-                            LoadRewardedAd(i);
-                        }
+                        FillEmptyAdSlots();
 
                         IncrementLoadedItems(); 
                         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
@@ -112,10 +110,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         
     }
 
-    void Update() {
+    void FixedUpdate() {
         timer++;
 
-        if (timer < 60) {
+        if (timer < 100) {
             return;
         }
         timer = 0;
@@ -178,7 +176,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
             else
             {
-                _adUnitId = "ca-app-pub-3940256099942544/1712485313"; // iOS Real Ad Unit
+                _adUnitId = "ca-app-pub-5607588731152504/4737462608"; // iOS Real Ad Unit
             }
         #else
             _adUnitId = "unused"; // Default for other platforms
@@ -266,13 +264,33 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // If unable to show ad, reward user anyways
         if (type == "Profit") {
-            RewardWithProfit();
+            StartCoroutine(UseCustomAdScreen(() => RewardWithProfit()));
         } else if (type == "Speed") {
-            RewardWithSpeed();
+            StartCoroutine(UseCustomAdScreen(() => RewardWithSpeed()));
         } if (type == "Vision") {
-            RewardWithVision();
+            StartCoroutine(UseCustomAdScreen(() => RewardWithVision()));
         }
         dataPersistenceManager.SaveGame();
+    }
+
+    private IEnumerator UseCustomAdScreen(Action callbackFunc) {
+        Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
+
+        customAdScreen.SetActive(true);
+
+        int timer = 0;
+
+        while (timer < 15) {
+            progressSlider.value = timer / 15f; // Update the slider value
+            timer++; // Increment the timer
+            yield return new WaitForSeconds(1f); // Wait for 1 second
+        }
+
+        customAdScreen.SetActive(false);
+
+        callbackFunc?.Invoke();
+
+        yield break;
     }
 
     // Listen to user events during ad
@@ -334,10 +352,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         };
     }
 
-    // Flip between showing ad buttons, or internet error depending on internet reachability
+    // Flip between showing ad buttons and Ad Opt Out text, or internet error depending on internet reachability
     private void ToggleDisplay() {
         if (internetReachable) {
             noInternetIcon.SetActive(false);
+
+            // If showing ad buttons, don't show ad opt out text
             for (int i = 0; i != adButtons.Length; i++) {
                 adButtons[i].SetActive(true);
             }
@@ -350,7 +370,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         noInternetIcon.SetActive(true);
     }
 
-    private void RewardWithProfit(int? totalTime = 10) {
+    private void RewardWithProfit(int? totalTime = 300) {
         RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         // Reset to 1 after 3 mins
         refineryController.SetProfitMultiplier(2);
@@ -358,7 +378,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         LogAnalytics("Profit");
     }
 
-    private void RewardWithSpeed(int? totalTime = 10) {
+    private void RewardWithSpeed(int? totalTime = 300) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
         // Reset to original value after 3 mins
@@ -367,7 +387,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         LogAnalytics("Speed");
     }
 
-    private void RewardWithVision(int? totalTime = 10) {
+    private void RewardWithVision(int? totalTime = 300) {
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         // Reset to 3 after 3 mins
         mineRenderer.SetVisionRadius(9);
