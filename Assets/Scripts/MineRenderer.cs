@@ -844,4 +844,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void SetVisionRadius(int newRadius) {
         visionRadius = newRadius;
     }
+
+    public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
+        return unplacedTilemapsTileValues;
+    }
+
+    public SerializableDictionary<Vector2Int, int>[,] GetRevealedTilemapsTileValues() {
+        return revealedTilemapsTileValues;
+    }
+
+    public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {
+        return destroyedTilemapsTileValues;
+    }
 }

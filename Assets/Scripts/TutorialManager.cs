@@ -1,7 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.EventSystems;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
@@ -25,7 +23,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     {
         StartCoroutine(WaitForGameLoad());
 
-        loadingScreen = GameObject.Find("Loading Screen");
+        try {
+            loadingScreen = GameObject.Find("Loading Screen");
+        } catch {
+        }
+        
         if (!analyticsDelegator) {
             analyticsDelegator = AnalyticsDelegator.Instance;
         }

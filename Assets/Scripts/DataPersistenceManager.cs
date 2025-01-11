@@ -87,8 +87,29 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     private List<IDataPersistence> FindAllDataPersistenceObjects() {
-        IEnumerable<IDataPersistence> dataPersistenceObjects = FindObjectsOfType<MonoBehaviour>().OfType<IDataPersistence>();
+        List<IDataPersistence> dataPersistenceObjects = new();
 
-        return new List<IDataPersistence>(dataPersistenceObjects);
+        // Find all root objects in the scene
+        GameObject[] rootObjects = UnityEngine.SceneManagement.SceneManager.GetActiveScene().GetRootGameObjects();
+
+        // Loop through all root objects and find inactive objects in the hierarchy
+        foreach (GameObject rootObject in rootObjects) {
+            FindDataPersistenceInHierarchy(rootObject, dataPersistenceObjects);
+        }
+
+        return dataPersistenceObjects;
+    }
+
+    private void FindDataPersistenceInHierarchy(GameObject obj, List<IDataPersistence> dataPersistenceObjects) {
+        // Check for IDataPersistence component in this object
+        IDataPersistence dataPersistence = obj.GetComponent<IDataPersistence>();
+        if (dataPersistence != null) {
+            dataPersistenceObjects.Add(dataPersistence);
+        }
+
+        // Recurse through all children, including inactive ones
+        foreach (Transform child in obj.transform) {
+            FindDataPersistenceInHierarchy(child.gameObject, dataPersistenceObjects);
+        }
     }
 }
