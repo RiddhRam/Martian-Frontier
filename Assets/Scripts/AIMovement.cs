@@ -3,10 +3,8 @@ using UnityEngine;
 
 public class AIMovement : MonoBehaviour
 {
-    public GameObject mine;
     public string vehicleType = "Driller";
     public int drillTier = 1;
-
 
     private Vector3 targetPosition;
     private bool isMoving = false;
@@ -14,14 +12,20 @@ public class AIMovement : MonoBehaviour
     float step;
 
     private MineRenderer mineRenderer;
+    private RefineryController refineryController;
+    private GameObject materialsDelegator;
+    private UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
 
     // For detecting if the vehicle is stuck
     private Vector3 previousPosition;
     private float stuckTimer = 0f;
     private float stuckThreshold = 3f; // Time threshold for being stuck (3 seconds)
     private float pushDistance = 3f; // Distance to push forward if stuck
-    float positionTolerance = 0.01f; // Adjust this value if needed
-    List<Vector3> travelPositions = new();
+    float positionTolerance = 0.1f; // Adjust this value if needed
+    readonly List<Vector3> travelPositions = new();
+
+    bool firstThresholdReached = false;
+    bool secondThresholdReached = false;
 
     // X: from -68 to 68
     // Y: 
@@ -36,7 +40,11 @@ public class AIMovement : MonoBehaviour
         // Set initial target position
         ChooseNewTargetPosition();
         previousPosition = transform.position; // Store initial position
-        mineRenderer = mine.GetComponent<MineRenderer>();
+
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        materialsDelegator = GameObject.Find("Materials Delegator");
+        uncollectedMaterialsDelegator = materialsDelegator.GetComponent<UncollectedMaterialsDelegator>();
     }
 
     void Update()
@@ -59,14 +67,6 @@ public class AIMovement : MonoBehaviour
 
         angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
         transform.rotation = Quaternion.Euler(0, 0, angle);
-
-        // Use bezier curve to curve between 2 points.
-        // Place all interpolated points into a list
-        // targetPosition = first element in list
-        // Remove element when done.
-        // Use the list even for a straight line, for readability
-        // If a straight line, there will be only one point in the list
-        // Wait until vehicle is done moving toward point before editing list by adding or removing elements
 
         // Move towards the target position
         if (isMoving)
@@ -96,11 +96,34 @@ public class AIMovement : MonoBehaviour
                     }
                 }
 
-                Debug.Log(alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed));
-
+                float progress = alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed);
+                Debug.Log(progress);
                 // If at least 20%, reset mine
-                if ((alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed)) >= 20) {
-                    GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>().CallResetMineFromButton();
+                if (progress >= 20) {
+                    ResetMine();
+                    return;
+
+                } else if (progress >= 14 && !secondThresholdReached) {
+                    transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+                    ReduceBattery();
+                    RemoveMaterials();
+
+                    if (refineryController.GetRefineryBattery() == 0) {
+                        ResetMine();
+                    }
+                    secondThresholdReached = true;
+                    return;
+
+                } else if (progress >= 7 && !firstThresholdReached) {
+                    transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+                    ReduceBattery();
+                    RemoveMaterials();
+
+                    if (refineryController.GetRefineryBattery() == 0) {
+                        ResetMine();
+                    }
+
+                    firstThresholdReached = true;
                     return;
                 }
 
@@ -135,7 +158,51 @@ public class AIMovement : MonoBehaviour
         previousPosition = transform.position;
     }
 
-    void ChooseNewTargetPosition()
+    private void ReduceBattery() {
+        float initial = refineryController.GetInitialBattery();
+        float randomPercentage = Random.Range(0.25f, 0.35f); 
+        float current = refineryController.GetRefineryBattery() - (initial * randomPercentage);
+
+        // Clamp current between 0 and initial
+        current = Mathf.Clamp(current, 0, initial);
+        refineryController.SetRefineryBattery(current);
+    }
+
+    private void ResetMine() {
+        refineryController.CallResetMineFromButton();
+        firstThresholdReached = false;
+        secondThresholdReached = false;
+    }
+
+    private void RemoveMaterials() {
+        List<Transform> activeChildren = new();
+
+        foreach (Transform child in materialsDelegator.transform) {
+            if (child.gameObject.activeSelf) {
+                activeChildren.Add(child);
+            }
+        }
+
+        int numberToDestroy = Mathf.Min(6, activeChildren.Count);
+        // Shuffle the list of active children
+        for (int i = 0; i < activeChildren.Count; i++) {
+            int randomIndex = Random.Range(0, activeChildren.Count);
+
+            Transform temp = activeChildren[i];
+            activeChildren[i] = activeChildren[randomIndex];
+            activeChildren[randomIndex] = temp;
+        }
+
+        MaterialManager materialManager;
+        // Destroy the first 'numberToDestroy' active children
+        for (int i = 0; i < numberToDestroy; i++) {
+            materialManager = activeChildren[i].GetComponent<MaterialManager>();
+            uncollectedMaterialsDelegator.RemoveMaterial(materialManager.id);
+            mineRenderer.ReturnMaterialObject(activeChildren[i].gameObject, materialManager.materialIndex, materialManager.id);
+        }
+    }
+
+    private void ChooseNewTargetPosition()
     {
         travelPositions.Clear();
 

@@ -9,10 +9,34 @@ public class MaterialManager : MonoBehaviour
     public int materialIndex;
     public string id;
     private MaterialManagerData materialManagerData;
+    private SpriteRenderer spriteRenderer;
+    private float timer = 0f;
+    private GameObject mapCamera;
 
     void Awake() {
         GenerateGuid();
         materialManagerData = new();
+        spriteRenderer = transform.GetChild(1).GetComponent<SpriteRenderer>();
+        mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
+    }
+
+    private void Update() {
+        if (!mapCamera.activeSelf) {
+            return;
+        }
+
+        timer += Time.deltaTime;
+
+        if (spriteRenderer.isVisible && timer >= 1.5f)
+        {
+            spriteRenderer.enabled = false; // Hide the sprite
+            timer = 0f; // Reset timer
+        }
+        else if (!spriteRenderer.isVisible && timer >= 0.5f)
+        {
+            spriteRenderer.enabled = true; // Show the sprite
+            timer = 0f; // Reset timer
+        }
     }
 
     private void GenerateGuid() {

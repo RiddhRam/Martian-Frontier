@@ -11,9 +11,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public Sprite mineEntranceOff;
     public GameObject generationTriggers;
     public GameObject mine;
-    public GameObject refineryProgressSliderWorld;
-    public GameObject refineryProgressSliderUI;
-    public GameObject refineryProgressSliderUIPercentageText;
+    public GameObject[] refineryProgressSliders;
+    public GameObject[] refineryProgressSlidersText;
     public GameObject playerState;
     public AudioSource vehicleSoundEffects;
     public AudioSource UISoundEffects;
@@ -261,18 +260,24 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Ensure the final value is exactly the target
         refineryBattery = initialBattery;
-        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
-        refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
-        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = "100%";
+
+        for (int i = 0; i != refineryProgressSliders.Length; i++) {
+            refineryProgressSliders[i].GetComponent<Slider>().value = refineryBattery;
+        }
+
+        for (int i = 0; i != refineryProgressSlidersText.Length; i++) {
+            refineryProgressSlidersText[i].GetComponent<TextMeshProUGUI>().text = "100%";
+        }
 
         doneAnimation = true;
     }
 
     private void UpdateRefineryProgressBars() {
-        refineryProgressSliderWorld.GetComponent<Slider>().maxValue = initialBattery;
-        refineryProgressSliderWorld.GetComponent<Slider>().value = refineryBattery;
-        refineryProgressSliderUI.GetComponent<Slider>().maxValue = initialBattery;
-        refineryProgressSliderUI.GetComponent<Slider>().value = refineryBattery;
+
+        for (int i = 0; i != refineryProgressSliders.Length; i++) {
+            refineryProgressSliders[i].GetComponent<Slider>().maxValue = initialBattery;
+            refineryProgressSliders[i].GetComponent<Slider>().value = refineryBattery;
+        }
 
         // Round up to nearest int
         string barText = Mathf.CeilToInt(refineryBattery * 100 / initialBattery) + "%";
@@ -281,7 +286,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             barText = "99%";
         }
 
-        refineryProgressSliderUIPercentageText.GetComponent<TextMeshProUGUI>().text = barText;
+        for (int i = 0; i != refineryProgressSlidersText.Length; i++) {
+            refineryProgressSlidersText[i].GetComponent<TextMeshProUGUI>().text = barText;
+        }
     }
 
     public void SetBattery(float newValue) {
@@ -289,6 +296,19 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         initialBattery = newValue;
         SaveGame();
         UpdateRefineryProgressBars();
+    }
+
+    public void SetRefineryBattery(float newValue) {
+        refineryBattery = newValue;
+        UpdateRefineryProgressBars();
+    }
+
+    public float GetRefineryBattery() {
+        return refineryBattery;
+    }
+
+    public float GetInitialBattery() {
+        return initialBattery;
     }
 
     public void SetEfficiency(float newValue) {
