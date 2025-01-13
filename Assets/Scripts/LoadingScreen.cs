@@ -14,7 +14,7 @@ public class LoadingScreen : MonoBehaviour
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
        SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
-        AdDelegator: Initialize Mobile ads SDK, LoadRewardedAd() x 3, LoadData()  (5 total)
+        AdDelegator: Consent loaded, LoadRewardedAd() x 3, LoadData()  (5 total)
         MineRenderer: LoadData() (1 total)
         PlayerState: LoadData() (1 total)
         PlayerVehicleDelegation: LoadData() (1 total)

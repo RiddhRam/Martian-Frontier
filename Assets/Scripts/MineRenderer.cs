@@ -187,9 +187,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     void Start()
     {
         // This doesn't necessarily mean the player is new, just that a new mine is needed
-        if (mineInitialization == 0) {
-            InitializeMine();
-        }
         analyticsDelegator = AnalyticsDelegator.Instance;
     }
 

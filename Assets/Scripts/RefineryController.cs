@@ -40,6 +40,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private MineRenderer mineRenderer;
     string childName;
     bool doneAnimation;
+    SpriteRenderer fogOfWarSprite;
 
     int y;
     int x;
@@ -47,6 +48,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     void Start() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
+        fogOfWarSprite = largeFogOfWar.GetComponent<SpriteRenderer>();
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         playerVehicle = GameObject.Find("Player Vehicle");
@@ -136,10 +138,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
         playerVehicle.transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
-
-        // Cover the map
-        largeFogOfWar.position = new(0, -256, 0);
-        largeFogOfWar.GetComponent<SpriteRenderer>().sortingOrder = 6;
 
         doneAnimation = false;
         StartCoroutine(GraduallyIncreaseBattery(initialBattery));
@@ -252,6 +250,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         while (elapsed < duration)
         {
+            // Cover the map
+            largeFogOfWar.position = new(0, -256, 0);
+            fogOfWarSprite.sortingOrder = 6;
+
             elapsed += Time.deltaTime;
             refineryBattery = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
             UpdateRefineryProgressBars();
@@ -327,6 +329,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // If refinery controller bar was in reset animation, then skip it and go straight to 100%
         if (data.mineInitialization == 1) {
             this.refineryBattery = initialBattery;
+        } else if (data.mineInitialization == 0) {
+            StartCoroutine(ResetMine());
         }
 
         UpdateRefineryProgressBars();

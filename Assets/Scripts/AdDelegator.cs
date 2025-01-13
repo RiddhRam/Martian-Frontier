@@ -27,12 +27,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private int[] timerIndexes = new int[3];
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
+    private bool adsInitialized = false;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
-    // Start is called before the first frame update
-    void Start()
-    {
+    void Awake() {
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+
         // Only uncomment when debugging user consent settings
         /*ConsentInformation.Reset();
         var debugSettings = new ConsentDebugSettings
@@ -58,6 +59,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         ConsentInformation.Update(request, OnConsentInfoUpdated);
     }
 
+    // Start is called before the first frame update
+    void Start()
+    {
+        movementJoystick.SetActive(true);
+        tutorial.SetActive(true);
+
+        IncrementLoadedItems(); 
+    }
+
     void OnConsentInfoUpdated(FormError consentError)
     {
         if (consentError != null)
@@ -71,17 +81,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // You are now ready to check if a form is available.
         ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
         {
-
             if (formError != null)
             {
                 // Consent gathering failed.
                 Debug.LogError(consentError);
                 return;
             }
-
-            movementJoystick.SetActive(true);
-            tutorial.SetActive(true);
-
             // Consent has been gathered.
             if (ConsentInformation.CanRequestAds())
             {
@@ -92,22 +97,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
                     // Need this so rewarded ads actually reward in the real app
                     MobileAds.RaiseAdEventsOnUnityMainThread = true;
-                    // Initialize the Google Mobile Ads SDK.
-                    MobileAds.Initialize((InitializationStatus initStatus) =>
-                    {
-                        FillEmptyAdSlots();
+                    adsInitialized = true;
 
-                        IncrementLoadedItems(); 
-                        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-                    });
+                    FillEmptyAdSlots();
+
+                    dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
                 });
-            } else {
-                IncrementLoadedItems(); 
-                dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
             }
 
         });
-        
     }
 
     void FixedUpdate() {
@@ -117,6 +115,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
         timer = 0;
+
+        FillEmptyAdSlots();
 
         // ADMOB DISABLE
         // If no internet
@@ -131,11 +131,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             internetReachable = false;
             ToggleDisplay();
             return;
-        }
+        } 
 
         // If there is internet
-        FillEmptyAdSlots();
-
         internetReachable = true;
         ToggleDisplay();
     }
@@ -199,11 +197,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             rewardedAds[rewardIndex] = null;
         }
 
-        // create our request used to load the ad.
-        var adRequest = new AdRequest();
-
         // send the request to load the ad.
-        RewardedAd.Load(_adUnitId, adRequest,
+        if (adsInitialized) {
+             // create our request used to load the ad.
+            var adRequest = new AdRequest();
+
+            RewardedAd.Load(_adUnitId, adRequest,
             (RewardedAd ad, LoadAdError error) =>
             {
                 // if error is not null, the load request failed.
@@ -225,6 +224,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 IncrementLoadedItems();
 
             });
+        } else {
+            // if MobileAds SDK not initialized
+            IncrementLoadedItems();
+        }
+        
     }
 
     // Show ad to user
