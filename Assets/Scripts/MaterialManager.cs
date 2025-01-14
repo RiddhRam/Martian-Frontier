@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Collections;
 
 [System.Serializable]
 public class MaterialManager : MonoBehaviour
@@ -20,22 +21,30 @@ public class MaterialManager : MonoBehaviour
         mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
     }
 
-    private void Update() {
-        if (!mapCamera.activeSelf) {
-            return;
-        }
+    void OnEnable() {
+        StartCoroutine(ToggleSpriteVisibility());
+    }
 
-        timer += Time.deltaTime;
+    private IEnumerator ToggleSpriteVisibility() {
+        float timer = 0f;
 
-        if (spriteRenderer.isVisible && timer >= 1.5f)
-        {
-            spriteRenderer.enabled = false; // Hide the sprite
-            timer = 0f; // Reset timer
-        }
-        else if (!spriteRenderer.isVisible && timer >= 0.5f)
-        {
-            spriteRenderer.enabled = true; // Show the sprite
-            timer = 0f; // Reset timer
+        while (true) {
+            yield return new WaitForSeconds(0.5f);
+
+            if (!mapCamera.activeSelf) {
+                continue;
+            }
+
+            timer += 0.5f;
+
+            if (spriteRenderer.isVisible && timer >= 1.5f) {
+                spriteRenderer.enabled = false; // Hide the sprite
+                timer = 0f; // Reset timer
+            } else if (!spriteRenderer.isVisible && timer >= 0.5f) {
+                spriteRenderer.enabled = true; // Show the sprite
+                timer = 0f; // Reset timer
+                yield return new WaitForSeconds(1f);
+            }
         }
     }
 
