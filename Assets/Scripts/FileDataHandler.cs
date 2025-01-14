@@ -202,24 +202,26 @@ public class FileDataHandler
     }
 
     public void Save(GameData data) {
-        string fullpath = Path.Combine(dataDirPath, dataFileName);
+        string fullPath = Path.Combine(dataDirPath, dataFileName);
+        string tempPath = fullPath + ".tmp";
 
         try {
             // Create directory to save file in if it doesn't exist
-            Directory.CreateDirectory(Path.GetDirectoryName(fullpath));
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
             string dataToStore = CreateJson(data);
 
-            // Write the serialized data to the file
-            using (FileStream stream = new FileStream(fullpath, FileMode.Create)) 
-            {
-                using (StreamWriter writer = new StreamWriter(stream)) {
-                    writer.Write(dataToStore);
-                }
+            // Write to a temporary file first
+            using (FileStream stream = new FileStream(tempPath, FileMode.Create))
+            using (StreamWriter writer = new StreamWriter(stream)) {
+                writer.Write(dataToStore);
             }
+
+            // Replace the original file with the temporary file
+            File.Replace(tempPath, fullPath, null);
         } 
-        catch {
-            Debug.LogError("Error when trying to save data to file: ");
+        catch (Exception ex) {
+            Debug.LogError($"Error when trying to save data to file: {ex.Message}");
         }
     }
 
