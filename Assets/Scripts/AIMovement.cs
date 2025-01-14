@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 public class AIMovement : MonoBehaviour
@@ -11,10 +12,14 @@ public class AIMovement : MonoBehaviour
     float angle;
     float step;
 
+    public GameObject cashEarnedText;
+    public GameObject mapText;
+    public GameObject progressBar;
     private MineRenderer mineRenderer;
     private RefineryController refineryController;
     private GameObject materialsDelegator;
     private UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
+    private OreDelegation oreDelegation;
 
     // For detecting if the vehicle is stuck
     private Vector3 previousPosition;
@@ -26,14 +31,7 @@ public class AIMovement : MonoBehaviour
 
     bool firstThresholdReached = false;
     bool secondThresholdReached = false;
-
-    // X: from -68 to 68
-    // Y: 
-    // Maximum: -5
-    // Minimum: (Manually measured)
-    // Tier 1: -150
-    // Tier 2: -320
-    // Tier 3: -500
+    long cashEarned = 0;
 
     void Start()
     {
@@ -45,6 +43,11 @@ public class AIMovement : MonoBehaviour
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         materialsDelegator = GameObject.Find("Materials Delegator");
         uncollectedMaterialsDelegator = materialsDelegator.GetComponent<UncollectedMaterialsDelegator>();
+        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+
+        cashEarnedText.transform.parent.gameObject.SetActive(true);
+        mapText.SetActive(false);
+        progressBar.SetActive(true);
     }
 
     void Update()
@@ -160,8 +163,8 @@ public class AIMovement : MonoBehaviour
 
     private void ReduceBattery() {
         float initial = refineryController.GetInitialBattery();
-        float randomPercentage = Random.Range(0.25f, 0.35f); 
-        float current = refineryController.GetRefineryBattery() - (initial * randomPercentage);
+        float percentage = 0.33f; 
+        float current = refineryController.GetRefineryBattery() - (initial * percentage);
 
         // Clamp current between 0 and initial
         current = Mathf.Clamp(current, 0, initial);
@@ -172,10 +175,16 @@ public class AIMovement : MonoBehaviour
         refineryController.CallResetMineFromButton();
         firstThresholdReached = false;
         secondThresholdReached = false;
+
+        cashEarnedText.GetComponent<TextMeshProUGUI>().text = FormatPrice(cashEarned);
+
+        cashEarned = 0;
     }
 
     private void RemoveMaterials() {
         List<Transform> activeChildren = new();
+        string[] oreNames = oreDelegation.GetOreNames();
+        int[] prices = oreDelegation.GetMaterialPrices();
 
         foreach (Transform child in materialsDelegator.transform) {
             if (child.gameObject.activeSelf) {
@@ -183,22 +192,37 @@ public class AIMovement : MonoBehaviour
             }
         }
 
-        int numberToDestroy = Mathf.Min(6, activeChildren.Count);
-        // Shuffle the list of active children
-        for (int i = 0; i < activeChildren.Count; i++) {
-            int randomIndex = Random.Range(0, activeChildren.Count);
-
-            Transform temp = activeChildren[i];
-            activeChildren[i] = activeChildren[randomIndex];
-            activeChildren[randomIndex] = temp;
-        }
-
+        float oresToDestroy = refineryController.GetInitialBattery() * 0.33f;
         MaterialManager materialManager;
-        // Destroy the first 'numberToDestroy' active children
-        for (int i = 0; i < numberToDestroy; i++) {
-            materialManager = activeChildren[i].GetComponent<MaterialManager>();
-            uncollectedMaterialsDelegator.RemoveMaterial(materialManager.id);
-            mineRenderer.ReturnMaterialObject(activeChildren[i].gameObject, materialManager.materialIndex, materialManager.id);
+
+        int destroyedCount = 0;
+        // Start at highest index, and go down
+        for (int j = oreNames.Length - 1; j >= 0; j--) {
+            // Go through all active children and find if any of highest one is active
+            for (int i = activeChildren.Count - 1; i >= 0; i--) {
+                
+                // If already destroyed 33% then stop
+                if (destroyedCount >= oresToDestroy) {
+                    destroyedCount = (int) oresToDestroy;
+                    break;
+                }
+
+                // Make sure it matches (child name has '(Clone)' in it, that's why we use .Contains method)
+                if (!activeChildren[i].name.Contains(oreNames[j])) {
+                    continue;
+                }
+
+                // Remove material
+                materialManager = activeChildren[i].GetComponent<MaterialManager>();
+
+                destroyedCount += materialManager.count;
+                cashEarned += materialManager.count * prices[j];
+
+                uncollectedMaterialsDelegator.RemoveMaterial(materialManager.id);
+                mineRenderer.ReturnMaterialObject(activeChildren[i].gameObject, materialManager.materialIndex, materialManager.id);
+                activeChildren.RemoveAt(i);
+            }
+            
         }
     }
 
@@ -206,24 +230,40 @@ public class AIMovement : MonoBehaviour
     {
         travelPositions.Clear();
 
+        // (Manually measured)
+        // X: from -68 to 68
+        // Y: 
+        // Maximum:
+        // Tier 1: -6
+        // Tier 2: -165
+        // Tier 3: -335
+        // Minimum: 
+        // Tier 1: -155
+        // Tier 2: -325
+        // Tier 3: -505
+
         // Determine y-bounds based on drill tier
-        float minY = -5;
+        float minY = -6;
+        float maxY = -6;
         switch (drillTier)
         {
             case 1:
-                minY = -150;
+                minY = -155;
+                maxY = -6;
                 break;
             case 2:
-                minY = -320;
+                minY = -325;
+                maxY = -165;
                 break;
             case 3:
-                minY = -500;
+                minY = -505;
+                maxY = -335;
                 break;
         }
 
         // Choose a random position within the bounds
         float randomX = Random.Range(-68f, 68f);
-        float randomY = Random.Range(minY, -5f);
+        float randomY = Random.Range(minY, maxY);
 
         Vector3 finalPos = new(randomX, randomY, 0);
 
@@ -261,4 +301,42 @@ public class AIMovement : MonoBehaviour
             2 * (1 - t) * t * p1 +
             Mathf.Pow(t, 2) * p2;
     }
+
+    private string FormatPrice(long price)
+    {
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Qu"
+            return (Mathf.Floor(price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Q"
+            return (Mathf.Floor(price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "T"
+            return (Mathf.Floor(price / 1_000_000_000_000f * 1000) / 1000).ToString("0.###") + "T";
+        }
+        else if (price >= 1_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "B"
+            return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 3 decimal places and format with "M"
+            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
+    }
+
 }

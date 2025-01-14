@@ -16,13 +16,15 @@ public class OreDelegation : MonoBehaviour
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
     private int[] oresPerTier;
-
-    void Awake() {
-
-    }
+    private string[] oreNames;
 
     void Start() {
         oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
+
+        oreNames = new string[materials.Length];
+        for (int i = 0; i != materials.Length; i++) {
+            oreNames[i] = materials[i].name;
+        }
     }
 
     public void PrepareGrid() {
@@ -156,4 +158,9 @@ public class OreDelegation : MonoBehaviour
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);
     }
+
+    public string[] GetOreNames() {
+        return oreNames;
+    }
+
 }

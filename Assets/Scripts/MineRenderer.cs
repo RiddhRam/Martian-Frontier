@@ -58,12 +58,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
     private OreDelegation oreDelegation;
-    //private int[] oresCount = new int[9];
-    private int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
+    public int[] oresCount;
+    private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
     private List<GameObject> mineTilemaps;
     private List<GameObject> mineBackgroundTilemaps;
-    private List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
+    private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     private PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
@@ -120,7 +120,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Called before Start
     void Awake()
     {
-        
         totalColumns = mapHalfLength * 2 / gridSize.x;
         totalRowsForFunc = totalRows - 1;
         totalColumnsForFunc = totalColumns - 1;
@@ -168,13 +167,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
+        int sum = 0 ;
+
         for (int i = 0; i != tierThresholds.Length; i++) {
             if (i == tierThresholds.Length - 1) {
                 oresPerTier[i] = tileValues.Length - tierThresholds[i] - 1;
                 break;
             }
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
+            sum += oresPerTier[i];
         }
+
+        oresCount = new int[sum];
     
         oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
         materials = oreDelegation.materials;
@@ -371,8 +375,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // In order to see quantity of each ore in the mine
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
             // and also uncomment oresCount integer array above
-            /*
-            oreIndex = 0;
+            
+            /*oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++) {
                isBaseTile = false;
 
