@@ -34,29 +34,32 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     void Awake() {
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
 
-        // Only uncomment when debugging user consent settings
-        /*ConsentInformation.Reset();
-        var debugSettings = new ConsentDebugSettings
-        {
-            DebugGeography = DebugGeography.EEA,
-            TestDeviceHashedIds =
-            new List<string>
+        try {
+            // Only uncomment when debugging user consent settings
+            /*ConsentInformation.Reset();
+            var debugSettings = new ConsentDebugSettings
             {
-                "93001fda-7fff-44e5-80b1-b086356f0b51"
-            }
-        };
+                DebugGeography = DebugGeography.EEA,
+                TestDeviceHashedIds =
+                new List<string>
+                {
+                    "93001fda-7fff-44e5-80b1-b086356f0b51"
+                }
+            };
 
-        // Create a ConsentRequestParameters object.
-        ConsentRequestParameters request = new ConsentRequestParameters
-        {
-            ConsentDebugSettings = debugSettings,
-        };*/
+            // Create a ConsentRequestParameters object.
+            ConsentRequestParameters request = new ConsentRequestParameters
+            {
+                ConsentDebugSettings = debugSettings,
+            };*/
+            
+            // Create a ConsentRequestParameters object.
+            ConsentRequestParameters request = new();
 
-        // Create a ConsentRequestParameters object.
-        ConsentRequestParameters request = new();
-
-        // Check the current consent information status.
-        ConsentInformation.Update(request, OnConsentInfoUpdated);
+            // Check the current consent information status.
+            ConsentInformation.Update(request, OnConsentInfoUpdated);
+        } catch {
+        }
     }
 
     // Start is called before the first frame update
@@ -70,42 +73,43 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     void OnConsentInfoUpdated(FormError consentError)
     {
-        if (consentError != null)
-        {
-            // Handle the error.
-            Debug.LogError(consentError);
-            return;
-        }
-
-        // If the error is null, the consent information state was updated.
-        // You are now ready to check if a form is available.
-        ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
-        {
-            if (formError != null)
+        try {
+            if (consentError != null)
             {
-                // Consent gathering failed.
+                // Handle the error.
                 Debug.LogError(consentError);
                 return;
             }
-            // Consent has been gathered.
-            if (ConsentInformation.CanRequestAds())
+
+            // If the error is null, the consent information state was updated.
+            // You are now ready to check if a form is available.
+            ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
             {
-                MobileAds.Initialize((InitializationStatus initstatus) =>
+                if (formError != null)
                 {
-                    // ADMOB DISABLE
-                    SetAdUnitId();
+                    // Consent gathering failed.
+                    Debug.LogError(consentError);
+                    return;
+                }
+                // Consent has been gathered.
+                if (ConsentInformation.CanRequestAds() && !adsInitialized)
+                {
+                    MobileAds.Initialize((InitializationStatus initstatus) =>
+                    {
+                        // ADMOB DISABLE
+                        SetAdUnitId();
 
-                    // Need this so rewarded ads actually reward in the real app
-                    MobileAds.RaiseAdEventsOnUnityMainThread = true;
-                    adsInitialized = true;
+                        // Need this so rewarded ads actually reward in the real app
+                        MobileAds.RaiseAdEventsOnUnityMainThread = true;
+                        adsInitialized = true;
 
-                    FillEmptyAdSlots();
+                        FillEmptyAdSlots();
+                    });
+                }
 
-                    dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-                });
-            }
-
-        });
+            });
+        } catch {
+        }
     }
 
     void FixedUpdate() {
@@ -185,11 +189,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public void LoadRewardedAd(int rewardIndex)
     {
         // ADMOB DISABLE
-        // Delete this to enable
         //IncrementLoadedItems();
 
         // ADMOB DISABLE
-        
         // Clean up the old ad before loading a new one.
         if (rewardedAds[rewardIndex] != null)
         {
