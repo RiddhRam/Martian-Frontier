@@ -21,8 +21,7 @@ public class GarageDelegator : MonoBehaviour
     public GameObject playerState;
     public GameObject playerVehicleDelegation;
     public GameObject UIDelegation;
-    [SerializeField]
-    private Color[] tierColors;
+    public Color[] tierColors;
     private string activePanel = "Drillers";
     private PlayerState playerStateScript;
 

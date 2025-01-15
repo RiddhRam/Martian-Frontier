@@ -12,8 +12,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject[] adButtons;
     public GameObject noInternetIcon;
     public GameObject[] timerTexts;
-    [SerializeField]
-    private string[] rewardTypes;
+    public string[] rewardTypes;
     public GameObject movementJoystick;
     public GameObject tutorial;
     public GameObject customAdScreen;

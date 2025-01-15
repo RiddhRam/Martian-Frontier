@@ -45,8 +45,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
-    [SerializeField]
-    private int highestRow = 0;
+    public int highestRow = 0;
 
     // 0 = Not created
     // 1 = in the process of initializing
@@ -846,6 +845,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         visionRadius = newRadius;
     }
 
+    public int GetVisionRadius() {
+        return visionRadius;
+    }
+
     public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
         return unplacedTilemapsTileValues;
     }
@@ -856,5 +859,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {
         return destroyedTilemapsTileValues;
+    }
+
+    public int GetSeed() {
+        return seed;
     }
 }

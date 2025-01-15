@@ -102,11 +102,11 @@ public class AIMovement : MonoBehaviour
                 float progress = alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed);
                 Debug.Log(progress);
                 // If at least 20%, reset mine
-                if (progress >= 20) {
+                if (progress >= 19) {
                     ResetMine();
                     return;
 
-                } else if (progress >= 14 && !secondThresholdReached) {
+                } else if (progress >= 13 && !secondThresholdReached) {
                     transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
                     ReduceBattery();
                     RemoveMaterials();
@@ -117,7 +117,7 @@ public class AIMovement : MonoBehaviour
                     secondThresholdReached = true;
                     return;
 
-                } else if (progress >= 7 && !firstThresholdReached) {
+                } else if (progress >= 6 && !firstThresholdReached) {
                     transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
                     ReduceBattery();
                     RemoveMaterials();

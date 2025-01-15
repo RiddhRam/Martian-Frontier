@@ -67,7 +67,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     void Start() {
         analyticsDelegator = AnalyticsDelegator.Instance;
-        materialProfitPanel = null;
 
         if (cashSliderGO) {
             cashSlider = cashSliderGO.GetComponent<Slider>();

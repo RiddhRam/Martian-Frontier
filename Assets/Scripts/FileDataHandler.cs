@@ -218,7 +218,12 @@ public class FileDataHandler
             }
 
             // Replace the original file with the temporary file
-            File.Replace(tempPath, fullPath, null);
+            // If the original file exists, replace it. Otherwise, move the temp file.
+            if (File.Exists(fullPath)) {
+                File.Replace(tempPath, fullPath, null);
+            } else {
+                File.Move(tempPath, fullPath);
+            }
         } 
         catch (Exception ex) {
             Debug.LogError($"Error when trying to save data to file: {ex.Message}");

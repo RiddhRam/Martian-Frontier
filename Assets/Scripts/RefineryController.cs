@@ -318,6 +318,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         SaveGame();
     }
 
+    public float GetInefficiency() {
+        return refineryInefficiency;
+    }
+
     public void LoadData(GameData data) {
         // This will call LoadCorrectUpgrade in RefineryUpgrades
         capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity, gameObject);

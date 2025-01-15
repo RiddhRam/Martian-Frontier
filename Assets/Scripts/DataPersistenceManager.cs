@@ -6,8 +6,7 @@ public class DataPersistenceManager : MonoBehaviour
 {
 
     [Header("File Storage Config")]
-    [SerializeField] 
-    private string fileName;
+    public string fileName;
     private bool useEncryption = true;
 
     private GameData gameData;
