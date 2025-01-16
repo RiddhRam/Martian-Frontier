@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
+using TMPro;
 
 public class LoadingTest
 {
@@ -25,12 +26,30 @@ public class LoadingTest
     PlayerMovement playerMovement;
     MineRenderer mineRenderer;
 
+    // DELETE GAME SAVE FILE BEFORE RUNNING
+
     [UnityTest]
-    public IEnumerator CheckPublicValues()
+    // Might fail cuz no object found
+    public IEnumerator A_LoadingScreen()
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
 
+        // Loading Screen
+        loadingScreen = GameObject.Find("Loading Screen");
+        loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
+
+        Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
+        Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
+        Assert.AreEqual(9, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+    }
+
+    [UnityTest]
+    public IEnumerator B_CheckPublicValues()
+    {
+        SceneManager.LoadScene("Singleplayer");
+        yield return null;
+        
         // Player State
         playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
@@ -225,14 +244,6 @@ public class LoadingTest
         Assert.True(tutorialSettingsDelegator.restartTutorialButton == null);
         Assert.True(tutorialSettingsDelegator.tutorialPreFab == null);
 
-        // Loading Screen
-        loadingScreen = GameObject.Find("Loading Screen");
-        loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
-
-        Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
-        Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(9, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
-
         // Custom Ad Screen
         customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
@@ -258,6 +269,62 @@ public class LoadingTest
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
         Assert.AreEqual(mineRenderer.playerState.GetComponent<PlayerState>(), playerState);
+        Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
+        Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
+        Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
+        Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
+        Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
+
+        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
+            Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
+        }
+
+        Assert.True(mineRenderer.GetSeed() == 0);
+        Assert.AreEqual(mineRenderer.highestRow, 0);
+        Assert.AreEqual(mineRenderer.mineInitialization, 0);
+        Assert.AreEqual(new int[] {0, 4, 8}, mineRenderer.tierThresholds);
+        Assert.AreEqual(new int[] {3, 3, 3}, mineRenderer.oresPerTier);
+
+        Transform generationTriggers = mineRenderer.transform.GetChild(2);
+        for (int i = 0; i != generationTriggers.childCount; i++) {
+            Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
+        }
+
+        yield return null;
+    }
+
+    [UnityTest]
+    public IEnumerator C_AfterMineInitialized()
+    {
+        SceneManager.LoadScene("Singleplayer");
+        yield return null;
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
+        // Refinery Controller
+        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        Assert.AreEqual(refineryController.mineEntrance.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
+        Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
+        Assert.AreEqual(refineryController.generationTriggers.name, "GenerationTriggers");
+        Assert.AreEqual(refineryController.mine.name, "Mine");
+        Assert.AreEqual(refineryController.playerState.name, "PlayerState");
+
+        int refineryProgressCount = 3;
+        Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
+        for (int i = 0; i != refineryProgressCount; i++) {
+            Transform refineryControllerTransform = refineryController.refineryProgressSliders[i].transform;
+            if (refineryControllerTransform.childCount == 3) {
+                Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "100%");
+            }
+        }
+
+        Assert.AreEqual(refineryController.GetInitialBattery(), 120);
+        Assert.AreEqual(refineryController.GetRefineryBattery(), 120);
+
+        // Mine Renderer
+        Assert.AreEqual(3, mineRenderer.GetVisionRadius());
+        Assert.AreEqual(mineRenderer.playerState.name, "PlayerState");
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
