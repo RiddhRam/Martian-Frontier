@@ -11,14 +11,19 @@ public class MaterialManager : MonoBehaviour
     public string id;
     private MaterialManagerData materialManagerData;
     private SpriteRenderer spriteRenderer;
-    private float timer = 0f;
     private GameObject mapCamera;
+    float baseTimeWait = 0.5f;
+    float extraTimeWait = 1f;
 
     void Awake() {
         GenerateGuid();
         materialManagerData = new();
         spriteRenderer = transform.GetChild(1).GetComponent<SpriteRenderer>();
         mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
+        if (GameObject.Find("Player Vehicle").GetComponent<AIMovement>().isActiveAndEnabled) {
+            baseTimeWait *= 18;
+            extraTimeWait *= 18;
+        }
     }
 
     void OnEnable() {
@@ -29,21 +34,21 @@ public class MaterialManager : MonoBehaviour
         float timer = 0f;
 
         while (true) {
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(baseTimeWait);
 
             if (!mapCamera.activeSelf) {
                 continue;
             }
 
-            timer += 0.5f;
+            timer += baseTimeWait;
 
-            if (spriteRenderer.isVisible && timer >= 1.5f) {
+            if (spriteRenderer.isVisible && timer >= (baseTimeWait + extraTimeWait)) {
                 spriteRenderer.enabled = false; // Hide the sprite
                 timer = 0f; // Reset timer
-            } else if (!spriteRenderer.isVisible && timer >= 0.5f) {
+            } else if (!spriteRenderer.isVisible && timer >= baseTimeWait) {
                 spriteRenderer.enabled = true; // Show the sprite
                 timer = 0f; // Reset timer
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(extraTimeWait);
             }
         }
     }
