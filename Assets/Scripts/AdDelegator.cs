@@ -68,6 +68,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         tutorial.SetActive(true);
 
         IncrementLoadedItems(); 
+
+        SetAdUnitId();
+        // ADMOB DISABLE
+        MobileAds.Initialize((InitializationStatus initstatus) =>
+        {
+            // Need this so rewarded ads actually reward in the real app
+            MobileAds.RaiseAdEventsOnUnityMainThread = true; 
+            adsInitialized = true;
+        });
     }
 
     void OnConsentInfoUpdated(FormError consentError)
@@ -91,19 +100,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     return;
                 }
                 // Consent has been gathered.
-                if (ConsentInformation.CanRequestAds() && !adsInitialized)
+                if (ConsentInformation.CanRequestAds())
                 {
-                    MobileAds.Initialize((InitializationStatus initstatus) =>
-                    {
-                        // ADMOB DISABLE
-                        SetAdUnitId();
-
-                        // Need this so rewarded ads actually reward in the real app
-                        MobileAds.RaiseAdEventsOnUnityMainThread = true;
-                        adsInitialized = true;
-
-                        FillEmptyAdSlots();
-                    });
+                    FillEmptyAdSlots();
                 }
 
             });
@@ -154,23 +153,26 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Android Test Ad Unit
         // ca-app-pub-3940256099942544/5224354917
         // Android Real Ad Unit
-        // ca-app-pub-5607588731152504/9913767660
+        // ca-app-pub-5607588731152504/1308199501
         // iOS Test Ad Unit
         // ca-app-pub-3940256099942544/1712485313
         // iOS Real Ad Unit
         // ca-app-pub-5607588731152504/4737462608
 
         // TODO: Change the real ad units to their actual code
-        #if UNITY_ANDROID
+        if (Application.platform == RuntimePlatform.Android)
+        {
             if (isDebugBuild)
             {
                 _adUnitId = "ca-app-pub-3940256099942544/5224354917"; // Android Test Ad Unit
             }
             else
             {
-                _adUnitId = "ca-app-pub-5607588731152504/9913767660"; // Android Real Ad Unit
+                _adUnitId = "ca-app-pub-5607588731152504/1308199501"; // Android Real Ad Unit
             }
-        #elif UNITY_IPHONE
+        }
+        else if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
             if (isDebugBuild)
             {
                 _adUnitId = "ca-app-pub-3940256099942544/1712485313"; // iOS Test Ad Unit
@@ -179,9 +181,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             {
                 _adUnitId = "ca-app-pub-5607588731152504/4737462608"; // iOS Real Ad Unit
             }
-        #else
+        }
+        else {
             _adUnitId = "unused"; // Default for other platforms
-        #endif
+        }
     }
 
     // Loads the rewarded ad.
