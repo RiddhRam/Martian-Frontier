@@ -130,6 +130,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private IEnumerator ResetMine() {
         mineRenderer.mineInitialization = 0;
 
+        // Disable drop offs while resetting
+        BoxCollider2D gameObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
+        gameObjectBoxCollider2D.isTrigger = false;
+
         SpriteRenderer mineEntranceSpriteRenderer = mineEntrance.GetComponent<SpriteRenderer>();
         BoxCollider2D mineEntranceBoxCollider = mineEntrance.GetComponent<BoxCollider2D>();
         // Disable mine temporarily
@@ -232,7 +236,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.enabled = false;
 
-        BoxCollider2D gameObjectBoxCollider2D = gameObject.GetComponent<BoxCollider2D>();
         // Let user use dropoff, also flash it in case user was anxiously trying to use it by pressing against it
         gameObjectBoxCollider2D.isTrigger = true;
         gameObjectBoxCollider2D.enabled = false;
