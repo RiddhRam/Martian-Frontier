@@ -162,7 +162,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform safeArea = GameObject.Find("SafeArea").transform;
-        string[] safeAreaChildrenNames = { "Important Info", "CargoInfo", "Map Camera Panel", "Movement Joystick", "Map Close", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], safeArea.GetChild(i).name);
         }
