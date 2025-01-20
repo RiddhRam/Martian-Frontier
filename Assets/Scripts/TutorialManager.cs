@@ -48,7 +48,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         
         if (finishedTutorial)
         {
-            analyticsDelegator.FinishTutorial();
             Destroy(gameObject);
             yield break;
         }
@@ -78,7 +77,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } else if (currentScreenIndex == 3) {
                 bottomControls.transform.GetChild(4).gameObject.SetActive(false);
                 bottomControls.transform.GetChild(5).gameObject.SetActive(true);
-            } else if (currentScreenIndex == 4) {
+            } else if (currentScreenIndex == 100) {
+                // Change back to 4 to enable rewardedAdButtons
                 rewardedAdButtons.SetActive(true);
             }
 
@@ -93,7 +93,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } else if (currentScreenIndex == 3) {
                 bottomControls.transform.GetChild(4).gameObject.SetActive(true);
                 bottomControls.transform.GetChild(5).gameObject.SetActive(false);
-            } else if (currentScreenIndex == 4) {
+            } else if (currentScreenIndex == 100) {
+                // Change back to 4 to enable rewardedAdButtons
                 rewardedAdButtons.SetActive(false);
             }
 
@@ -106,7 +107,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
         finishedTutorial = true;
         GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
-        analyticsDelegator.StartTutorial();
+        analyticsDelegator.FinishTutorial();
         Destroy(gameObject);
     }
 

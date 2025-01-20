@@ -16,6 +16,11 @@ public class AnalyticsDelegator : MonoBehaviour
     }
 
     async void Start() {
+        // Disable analytics in editor and development
+        if (Debug.isDebugBuild) {
+            return;
+        }
+
         await UnityServices.InitializeAsync();
         AnalyticsService.Instance.StartDataCollection();
         isInitialized = true;
