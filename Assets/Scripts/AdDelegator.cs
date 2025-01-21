@@ -560,9 +560,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             RewardWithVision(timerIndexes[i]);
         }
 
-        // If first load, give user free 2.5 min (120s + 30s) ad window, otherwise no freebie
+        // If first load, give user free 5 min (270s + 30s) ad window, otherwise no freebie
         if (!data.finishedTutorial) {
-            lastAdShown = DateTime.Now.AddSeconds(120);
+            lastAdShown = DateTime.Now.AddSeconds(270);
         } else {
             lastAdShown = DateTime.Now.AddSeconds(-30);
         }
