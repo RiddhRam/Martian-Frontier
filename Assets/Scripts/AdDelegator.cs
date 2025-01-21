@@ -27,6 +27,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
     private bool adsInitialized = false;
+    // After 30 seconds of user watching an ad, request a new one.
+    // Once user watches an ad, ad boosts are free for the next 30 seconds
+    System.DateTime lastAdShown;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
@@ -238,6 +241,20 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
+        // If user watched an ad in the last 30 seconds
+        if (lastAdShown >= DateTime.Now.AddSeconds(-30)) {
+            // Give reward with no strings attached
+            if (type == "Profit") {
+                RewardWithProfit();
+            } else if (type == "Speed") {
+                RewardWithSpeed();
+            } if (type == "Vision") {
+                RewardWithVision();
+            }
+            dataPersistenceManager.SaveGame();
+            return;
+        }
+
         int rewardIndex = 0;
 
         for (int i = 0; i != rewardTypes.Length; i++) {
@@ -248,11 +265,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // ADMOB DISABLE
-
         if (rewardedAds[rewardIndex] != null && rewardedAds[rewardIndex].CanShowAd())
         {
             rewardedAds[rewardIndex].Show((Reward reward) =>
             {
+                lastAdShown = DateTime.Now;
                 if (type == "Profit") {
                     RewardWithProfit();
                 } else if (type == "Speed") {
@@ -278,6 +295,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } if (type == "Vision") {
             StartCoroutine(UseCustomAdScreen(() => RewardWithVision()));
         }
+        lastAdShown = DateTime.Now;
         dataPersistenceManager.SaveGame();
     }
 
@@ -540,6 +558,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
 
             RewardWithVision(timerIndexes[i]);
+        }
+
+        // If first load, give user free 2.5 min (120s + 30s) ad window, otherwise no freebie
+        if (!data.finishedTutorial) {
+            lastAdShown = DateTime.Now.AddSeconds(120);
+        } else {
+            lastAdShown = DateTime.Now.AddSeconds(-30);
         }
 
         IncrementLoadedItems();
