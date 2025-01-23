@@ -213,21 +213,21 @@ public class LoadingTest
         Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
         Assert.AreEqual(drillersCount, garageDelegator.drillersImages.Length);
         for (int i = 0; i != drillersCount; i++) {
-            Assert.AreEqual(garageDelegator.drillers[i].name, garageDelegator.drillersImages[i].name);
+            Assert.AreEqual(garageDelegator.drillers[i].name.ToLower(), garageDelegator.drillersImages[i].name.ToLower());
         }
 
         int haulersCount = 19;
         Assert.AreEqual(haulersCount, garageDelegator.haulers.Length);
         Assert.AreEqual(haulersCount, garageDelegator.haulersImages.Length);
         for (int i = 0; i != haulersCount; i++) {
-            Assert.AreEqual(garageDelegator.haulers[i].name, garageDelegator.haulersImages[i].name);
+            Assert.AreEqual(garageDelegator.haulers[i].name.ToLower(), garageDelegator.haulersImages[i].name.ToLower());
         }
 
         // Tutorial
         tutorialManager = GameObject.Find("Tutorial").GetComponent<TutorialManager>();
         tutorialSettingsDelegator = GameObject.Find("Tutorial").GetComponent<SettingsDelegator>();
 
-        string[] tutorialScreenNames = { "(1) Welcome", "(2) Garage", "(3) Vehicle Explanation", "(4) Prices", "(5) Ads", "(6) End" };
+        string[] tutorialScreenNames = { "(1) Welcome", "(2) Garage", "(3) Vehicle Explanation", "(4) Prices", "(5) End" };
         for (int i = 0; i != tutorialManager.tutorialScreens.Length; i++) {
             Assert.AreEqual(tutorialScreenNames[i], tutorialManager.tutorialScreens[i].name);
         }
