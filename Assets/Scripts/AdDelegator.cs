@@ -8,7 +8,7 @@ using GoogleMobileAds.Ump.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
-    private string _adUnitId;
+    private string _adUnitId = "unused";
     public GameObject[] adButtons;
     public GameObject noInternetIcon;
     public GameObject[] timerTexts;
@@ -29,11 +29,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool adsInitialized = false;
     // After 30 seconds of user watching an ad, request a new one.
     // Once user watches an ad, ad boosts are free for the next 30 seconds
-    System.DateTime lastAdShown;
+    DateTime lastAdShown;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     void Awake() {
+        SetAdUnitId();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
 
         try {
@@ -72,12 +73,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         IncrementLoadedItems(); 
 
-        SetAdUnitId();
+        // Need this so rewarded ads actually reward in the real app
+        MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
         MobileAds.Initialize((InitializationStatus initstatus) =>
         {
-            // Need this so rewarded ads actually reward in the real app
-            MobileAds.RaiseAdEventsOnUnityMainThread = true; 
             adsInitialized = true;
         });
     }
@@ -112,6 +112,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
     }
+
 
     void FixedUpdate() {
         timer++;
@@ -186,7 +187,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             }
         }
         else {
-            _adUnitId = "unused"; // Default for other platforms
+            _adUnitId = "unknown"; // Default for other platforms
         }
     }
 
@@ -205,7 +206,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // send the request to load the ad.
-        if (adsInitialized) {
+        if (adsInitialized && _adUnitId != "unused") {
              // create our request used to load the ad.
             var adRequest = new AdRequest();
 

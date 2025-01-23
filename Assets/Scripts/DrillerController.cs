@@ -146,7 +146,7 @@ public class DrillerController : MonoBehaviour
                             errorCounter++;
                             
                             // Dont spam the user with errors
-                            if (errorCounter >= 500) {
+                            if (errorCounter >= 1000) {
                                 uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                                 errorCounter = 0;
                             }
