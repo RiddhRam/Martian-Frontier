@@ -1,9 +1,11 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
 public class AIMovement : MonoBehaviour
 {
+    public string mode = "Random";
     public string vehicleType = "Driller";
     public int drillTier = 1;
 
@@ -25,18 +27,26 @@ public class AIMovement : MonoBehaviour
     private Vector3 previousPosition;
     private float stuckTimer = 0f;
     private float stuckThreshold = 3f; // Time threshold for being stuck (3 seconds)
-    private float pushDistance = 3f; // Distance to push forward if stuck
+
     float positionTolerance = 0.1f; // Adjust this value if needed
+    float rotationTolerance = 20f;
+
     readonly List<Vector3> travelPositions = new();
 
     bool firstThresholdReached = false;
     bool secondThresholdReached = false;
     long cashEarned = 0;
 
+
     void Start()
     {
-        // Set initial target position
-        ChooseNewTargetPosition();
+        // Set initial target position(s)
+        if (mode == "Random") {
+            ChooseNewRandomTargetPosition();
+        } else if (mode == "Grid") {
+            GridMove();
+        }
+
         previousPosition = transform.position; // Store initial position
 
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -61,6 +71,7 @@ public class AIMovement : MonoBehaviour
         }
 
         if (travelPositions.Count <= 0) {
+            GetNewPos();
             return;
         }
 
@@ -83,82 +94,145 @@ public class AIMovement : MonoBehaviour
 
                 travelPositions.RemoveAt(0);
 
-                // Check mine progress
-                int leftToDestroy = 0;
-                int alreadyDestroyed = 0;
-                SerializableDictionary<Vector2Int, int>[,] unplaced = mineRenderer.GetUnplacedTilemapsTileValues();
-                SerializableDictionary<Vector2Int, int>[,] destroyed = mineRenderer.GetDestroyedTilemapsTileValues();
-
-                for (int i = 0; i != unplaced.GetLength(0); i++) {
-                    for (int j = 0; j != unplaced.GetLength(1); j++) {
-                        if (unplaced[i, j] == null) {
-                            break;
-                        }
-                        leftToDestroy += unplaced[i, j].Count;
-                        alreadyDestroyed += destroyed[i, j].Count;
-                    }
-                }
-
-                float progress = alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed);
-                Debug.Log(progress);
-                // If at least 20%, reset mine
-                if (progress >= 19) {
-                    ResetMine();
-                    return;
-
-                } else if (progress >= 13 && !secondThresholdReached) {
-                    transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
-                    ReduceBattery();
-                    RemoveMaterials();
-
-                    if (refineryController.GetRefineryBattery() == 0) {
-                        ResetMine();
-                    }
-                    secondThresholdReached = true;
-                    return;
-
-                } else if (progress >= 6 && !firstThresholdReached) {
-                    transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
-                    ReduceBattery();
-                    RemoveMaterials();
-
-                    if (refineryController.GetRefineryBattery() == 0) {
-                        ResetMine();
-                    }
-
-                    firstThresholdReached = true;
-                    return;
-                }
-
-                // If reached final desintation
-                if (travelPositions.Count == 0) {
-                    isMoving = false;
-                    // Go to new position
-                    ChooseNewTargetPosition();
+                if (mode == "Random") {
+                    RandomlyMove();
                 }
             }
         }
 
         // Check 1: Check if vehicle is in same spot as earlier (within position tolerance)
-        if (Vector3.Distance(transform.position, previousPosition) < positionTolerance)
+        if (Vector3.Distance(transform.position, previousPosition) < positionTolerance + 0.01f)
         {
             stuckTimer += Time.deltaTime;
 
             // Check 2: Check if the vehicle is stuck (hasn't moved for 'stuckThreshold' seconds)
             if (stuckTimer >= stuckThreshold)
             {
-                // Push the vehicle forward in the direction it's facing
-                transform.position += direction * pushDistance;
+                StartCoroutine(WiggleVehicle());
+
                 stuckTimer = 0f; // Reset stuck timer
             }
-        }
-        else
-        {
-            stuckTimer = 0f; // Reset stuck timer if position changed
         }
 
         // Store the current position for next frame
         previousPosition = transform.position;
+    }
+
+    private IEnumerator WiggleVehicle() {
+        // Store the original rotation
+        Vector3 originalRotation = transform.rotation.eulerAngles;
+
+        transform.rotation = Quaternion.Euler(originalRotation.x, originalRotation.y, originalRotation.z + 15);
+        yield return new WaitForSeconds(0.1f);
+
+        transform.rotation = Quaternion.Euler(originalRotation.x, originalRotation.y, originalRotation.z - 15);
+        yield return new WaitForSeconds(0.1f);
+
+        transform.rotation = Quaternion.Euler(originalRotation);
+    }
+
+    private void GetNewPos() {
+        // If reached final desintation
+        isMoving = false;
+
+        // Go to new position
+        if (mode == "Random") {
+            ChooseNewRandomTargetPosition();
+        } else if (mode == "Grid") {
+            GridMove();
+        }
+    }
+
+    private void RandomlyMove() {
+        // Check mine progress
+        int leftToDestroy = 0;
+        int alreadyDestroyed = 0;
+        SerializableDictionary<Vector2Int, int>[,] unplaced = mineRenderer.GetUnplacedTilemapsTileValues();
+        SerializableDictionary<Vector2Int, int>[,] destroyed = mineRenderer.GetDestroyedTilemapsTileValues();
+
+        for (int i = 0; i != unplaced.GetLength(0); i++) {
+            for (int j = 0; j != unplaced.GetLength(1); j++) {
+                if (unplaced[i, j] == null) {
+                    break;
+                }
+                leftToDestroy += unplaced[i, j].Count;
+                alreadyDestroyed += destroyed[i, j].Count;
+            }
+        }
+
+        float progress = alreadyDestroyed * 100f / (leftToDestroy + alreadyDestroyed);
+        Debug.Log(progress);
+        // If at least 20%, reset mine
+        if (progress >= 19) {
+            ResetMine();
+
+        } else if (progress >= 13 && !secondThresholdReached) {
+            transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+            ReduceBattery();
+            RemoveMaterials();
+
+            if (refineryController.GetRefineryBattery() == 0) {
+                ResetMine();
+            }
+            secondThresholdReached = true;
+
+        } else if (progress >= 6 && !firstThresholdReached) {
+            transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+            ReduceBattery();
+            RemoveMaterials();
+
+            if (refineryController.GetRefineryBattery() == 0) {
+                ResetMine();
+            }
+
+            firstThresholdReached = true;
+        }
+    }
+
+    private void GridMove() {
+
+        float x = transform.position.x;
+        float y = transform.position.y;
+        float currentRotation = transform.rotation.eulerAngles.z;
+
+        isMoving = true;
+
+        bool IsClose(float a, float b, float tolerance) => Mathf.Abs(a - b) <= tolerance;
+
+        if (IsClose(0, x, 4) && IsClose(-7, y, 4) && IsClose(180, currentRotation, rotationTolerance)) {
+            transform.rotation = Quaternion.Euler(0, 0, 270);
+            travelPositions.Add(new(73, -7));
+        }
+        // If facing right 
+        else if (IsClose(270, currentRotation, rotationTolerance)) {
+            // Face down
+            transform.rotation = Quaternion.Euler(0, 0, 180);
+            travelPositions.Add(new(x, -505));
+        }
+        // If facing down 
+        else if (IsClose(180, currentRotation, rotationTolerance)) {
+            // Face left
+            transform.rotation = Quaternion.Euler(0, 0, 90);
+            travelPositions.Add(new(x - 4, -505));
+        }
+        // If facing left and at the bottom
+        else if (IsClose(90, currentRotation, rotationTolerance) && IsClose(-505, y, 10)) {
+            // Face up
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+            travelPositions.Add(new(x, -8));
+        }
+        // If facing left and at the top
+        else if (IsClose(90, currentRotation, rotationTolerance) && IsClose(-8, y, 10)) {
+            // Face down
+            transform.rotation = Quaternion.Euler(0, 0, 180);
+            travelPositions.Add(new(x, -8));
+        }
+        // If facing up
+        else if (IsClose(0, currentRotation, rotationTolerance) || IsClose(360, currentRotation, rotationTolerance) && IsClose(-8, y, 10)) {
+            // Face left
+            //transform.rotation = Quaternion.Euler(0, 0, 90);
+            travelPositions.Add(new(x - 4, -8));
+        }
     }
 
     private void ReduceBattery() {
@@ -226,7 +300,7 @@ public class AIMovement : MonoBehaviour
         }
     }
 
-    private void ChooseNewTargetPosition()
+    private void ChooseNewRandomTargetPosition()
     {
         travelPositions.Clear();
 

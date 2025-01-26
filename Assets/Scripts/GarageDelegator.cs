@@ -289,6 +289,7 @@ public class GarageDelegator : MonoBehaviour
 
     public void OnDeployButtonClick (GameObject vehicle, GameObject button) {
         UIDelegation.GetComponent<UIDelegation>().HideElement(gameObject);
+        DeactivatePanel();
         UIDelegation.GetComponent<UIDelegation>().RevealAll();
         playerVehicleDelegation.GetComponent<PlayerVehicleDelegation>().SwitchVehicle(vehicle);
     }
