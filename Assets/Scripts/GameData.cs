@@ -39,7 +39,7 @@ public class GameData
         this.playerPos = new(4.5f, 5.4f, 0);
         this.playerRotation = 180;
         this.blocksMined = "0";
-        this.materialsSold = "180";
+        this.materialsSold = "0";
         this.moneyEarned = "0";
         this.vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
         this.currentVehicle = "GRINDER I";
