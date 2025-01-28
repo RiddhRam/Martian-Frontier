@@ -14,6 +14,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject[] refineryProgressSliders;
     public GameObject[] refineryProgressSlidersText;
     public GameObject playerState;
+    public GameObject askForReviewScreen;
     public AudioSource vehicleSoundEffects;
     public AudioSource UISoundEffects;
     public AudioClip oreSaleSoundEffect;
@@ -25,6 +26,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private float initialBattery;
     [SerializeField]
     private float refineryInefficiency;
+    private System.Numerics.BigInteger materialsSold;
+    [SerializeField]
+    private bool askedForReview;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;
@@ -38,6 +42,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private GameObject playerVehicle;
     private AnalyticsDelegator analyticsDelegator;
     private MineRenderer mineRenderer;
+    private bool doneLoading = false;
     string childName;
     bool doneAnimation;
     SpriteRenderer fogOfWarSprite;
@@ -74,6 +79,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         
         int[] materialCount = haulerController.GetMaterialCount();
 
+        int preSale = haulerController.GetTotalMaterialCount();
+
         // Track what's being added so we can verify the cash amount
         int[] savedMaterialCount = new int[materialCount.Length];
 
@@ -91,6 +98,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 playerState.GetComponent<PlayerState>().NewMaterialSold();
                 savedMaterialCount[i]++;
             }
+        }
+
+        materialsSold += preSale - haulerController.GetTotalMaterialCount();
+
+        if (materialsSold >= 200 && !askedForReview && doneLoading) {
+            askedForReview = true;
+            askForReviewScreen.SetActive(true);
+        } else if (askedForReview) {
+            Destroy(askForReviewScreen);
         }
 
         // Reset the mine if needed
@@ -326,6 +342,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        this.askedForReview = data.askedForReview;
         // This will call LoadCorrectUpgrade in RefineryUpgrades
         capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity, gameObject);
         efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency, gameObject);
@@ -340,14 +357,18 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StartCoroutine(ResetMine());
         }
 
+        this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
+
         UpdateRefineryProgressBars();
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        doneLoading = true;
     }
 
     public void SaveData(ref GameData data) {
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
         data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
+        data.askedForReview = this.askedForReview;
     }
 
     private void SaveGame() {

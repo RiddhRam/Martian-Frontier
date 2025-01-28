@@ -25,4 +25,5 @@ public class GameDataString
     public string timerIndexes;
     public string rebirthProfitMultiplier;
     public string finishedTutorial;
+    public string askedForReview;
 }

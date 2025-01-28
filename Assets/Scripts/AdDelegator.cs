@@ -113,7 +113,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
     }
 
-
     void FixedUpdate() {
         timer++;
 
