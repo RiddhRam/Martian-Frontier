@@ -37,8 +37,6 @@ public class AskForReview : MonoBehaviour
             } else if (screenType == "Public Review") {
                 StartCoroutine(RequestForReviews());
                 GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().EnjoyingGame();
-                
-                Destroy(gameObject);
             }
             
         }
@@ -57,16 +55,11 @@ public class AskForReview : MonoBehaviour
         }
         else if (responseTracker == 1) {
             Destroy(gameObject);
-
         }
     }
 
-    public void Test() {
-        StartCoroutine(RequestForReviews());
-    }
-
     private IEnumerator RequestForReviews() {
-        Debug.Log("REQUESTING REVIEW");
+
         #if UNITY_ANDROID
             ReviewManager _reviewManager = new();
             PlayReviewInfo _playReviewInfo;
@@ -91,6 +84,9 @@ public class AskForReview : MonoBehaviour
         #elif UNITY_IPHONE
             UnityEngine.iOS.Device.RequestStoreReview();
         #endif
+
+        yield return new WaitForSeconds(1f);
+        gameObject.SetActive(false);
 
         yield break;
     }
