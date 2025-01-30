@@ -42,6 +42,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
+    // Lowercase
+    private string[] oreNames;
+    // Uppercase
+    private string[] materialNames;
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
@@ -181,6 +185,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     
         oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
         materials = oreDelegation.materials;
+        oreNames = oreDelegation.GetOreNames();
+        materialNames = oreDelegation.materialNames;
 
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         playerStateScript = playerState.GetComponent<PlayerState>();
@@ -638,6 +644,36 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Return only the tiles of ores
         return ores;
+    }
+
+    public string[] GetTier1OreNames() {
+        string[] tier1OreNames = new string[oresPerTier[0]];
+
+        for (int i = 0; i != oresPerTier[0]; i++) {
+            tier1OreNames[i] = materialNames[i];
+        }
+
+        return tier1OreNames;
+    }
+
+    public string[] GetTier2OreNames() {
+        string[] tier2OreNames = new string[oresPerTier[1]];
+
+        for (int i = 0; i != oresPerTier[1]; i++) {
+            tier2OreNames[i] = materialNames[oresPerTier[0] + i];
+        }
+
+        return tier2OreNames;
+    }
+
+    public string[] GetTier3OreNames() {
+        string[] tier3OreNames = new string[oresPerTier[2]];
+
+        for (int i = 0; i != oresPerTier[2]; i++) {
+            tier3OreNames[i] = materialNames[oresPerTier[0] + oresPerTier[1] + i];
+        }
+
+        return tier3OreNames;
     }
 
     // Get the index of the tile

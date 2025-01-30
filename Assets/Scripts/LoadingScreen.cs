@@ -9,18 +9,19 @@ public class LoadingScreen : MonoBehaviour
 
     private int loadedItems = 0;
     // See comment below to see why total items is this value
-    private int totalItems = 9;
+    private int totalItems = 10;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
        SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
         AdDelegator: Consent loaded, LoadRewardedAd() x 3, LoadData()  (5 total)
+        DailyChallengeDelegator(): LoadData() (1 total)
         MineRenderer: LoadData() (1 total)
         PlayerState: LoadData() (1 total)
         PlayerVehicleDelegation: LoadData() (1 total)
         RefineryController: LoadData() (1 total)
-        Total as of Jan 11 2025: 9
-        Last check: Jan 11 2025
+        Total as of Jan 30 2025: 10
+        Last check: Jan 30 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second
