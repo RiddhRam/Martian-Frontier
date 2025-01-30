@@ -116,9 +116,9 @@ public class DrillerController : MonoBehaviour
 
             nearestTilePos = Vector3Int.zero;
 
-                currentTilePositions.Clear();
-                tileWorldPositions.Clear();
-                tileBasesToDestroy.Clear();
+            currentTilePositions.Clear();
+            tileWorldPositions.Clear();
+            tileBasesToDestroy.Clear();
             // Iterate over nearby tiles within the radius
             // Not actually a radius, it's a square
             for (int x = -radius; x <= radius; x++)

@@ -14,6 +14,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject[] refineryProgressSliders;
     public GameObject[] refineryProgressSlidersText;
     public GameObject playerState;
+    public GameObject dailyChallengeDelegatorGO;
     public GameObject askForReviewScreen;
     public AudioSource vehicleSoundEffects;
     public AudioSource UISoundEffects;
@@ -42,6 +43,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private GameObject playerVehicle;
     private AnalyticsDelegator analyticsDelegator;
     private MineRenderer mineRenderer;
+    private DailyChallengeDelegator dailyChallengeDelegator;
     private bool doneLoading = false;
     string childName;
     bool doneAnimation;
@@ -51,13 +53,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     int x;
 
     void Start() {
-        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
-        largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
-        fogOfWarSprite = largeFogOfWar.GetComponent<SpriteRenderer>();
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        playerVehicle = GameObject.Find("Player Vehicle");
-        mineRenderer = mine.GetComponent<MineRenderer>();
         analyticsDelegator = AnalyticsDelegator.Instance;
         if (initialBattery < refineryBattery || initialBattery < 120) {
             initialBattery = 120;
@@ -101,6 +96,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         materialsSold += preSale - haulerController.GetTotalMaterialCount();
+        dailyChallengeDelegator.SoldOres(preSale - haulerController.GetTotalMaterialCount());
 
         if (materialsSold >= 200 && !askedForReview && doneLoading) {
             askedForReview = true;
@@ -358,6 +354,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
+
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
+        fogOfWarSprite = largeFogOfWar.GetComponent<SpriteRenderer>();
+        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        playerVehicle = GameObject.Find("Player Vehicle");
+        mineRenderer = mine.GetComponent<MineRenderer>();
 
         UpdateRefineryProgressBars();
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());

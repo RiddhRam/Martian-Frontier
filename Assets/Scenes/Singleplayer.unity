@@ -1615,6 +1615,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 111103591}
   m_CullTransparentMesh: 1
+--- !u!1 &113577296 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5313251504090321606, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+  m_PrefabInstance: {fileID: 1407566034}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &114079837
 GameObject:
   m_ObjectHideFlags: 0
@@ -3719,6 +3724,7 @@ MonoBehaviour:
   - {fileID: 2095068546}
   garagePanel: {fileID: 648771411}
   materialProfitPanel: {fileID: 1333755067}
+  dailyChallengeDelegatorGO: {fileID: 875091221}
   savedAmountSubtract: 0
   rebirthProfitMultiplier: 0
   cashSliderGO: {fileID: 234378139}
@@ -5350,6 +5356,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!1 &385228509 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5313251504090321606, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+  m_PrefabInstance: {fileID: 2107616914}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &386126055
 GameObject:
   m_ObjectHideFlags: 0
@@ -6480,7 +6491,8 @@ MonoBehaviour:
   - {fileID: 429137496}
   - {fileID: 1157386730}
   playerState: {fileID: 276248152}
-  askForReviewScreen: {fileID: 0}
+  dailyChallengeDelegatorGO: {fileID: 875091221}
+  askForReviewScreen: {fileID: 6042496262643239731}
   vehicleSoundEffects: {fileID: 426944011}
   UISoundEffects: {fileID: 421432858}
   oreSaleSoundEffect: {fileID: 8300000, guid: 0601ccdfa1d5d4344900cec0fae6948b, type: 3}
@@ -23171,7 +23183,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 30:00
+  m_text: 20:00
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -26027,7 +26039,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 865414930}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 875091222}
+        m_TargetAssemblyTypeName: DailyChallengeDelegator, Scripts
+        m_MethodName: StartSuperChallenge
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &865414930
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -26352,6 +26376,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mineRenderGO: {fileID: 1093208304}
   dailyTimer: {fileID: 716016731}
+  buttonGemIconGO: {fileID: 661234443}
+  challengePanel: {fileID: 1571751672}
+  challengeStatusIconsGO:
+  - {fileID: 1499513741443514368}
+  - {fileID: 113577296}
+  - {fileID: 385228509}
+  - {fileID: 1311392307}
+  - {fileID: 1448972059}
+  - {fileID: 1009924576}
   challengeDescriptionTexts:
   - {fileID: 173607447142337523}
   - {fileID: 1907822288}
@@ -26382,6 +26415,7 @@ MonoBehaviour:
   - {fileID: 94673719}
   superChallengeSliderGO: {fileID: 1844796674}
   superChallengeTimerTextGO: {fileID: 636793350}
+  buttonGemIcon: {fileID: 0}
 --- !u!4 &875091223
 Transform:
   m_ObjectHideFlags: 0
@@ -34244,6 +34278,11 @@ Tilemap:
     e31: 0
     e32: 0
     e33: 1
+--- !u!1 &1009924576 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5313251504090321606, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+  m_PrefabInstance: {fileID: 1398531328}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1012335945
 GameObject:
   m_ObjectHideFlags: 0
@@ -35009,6 +35048,38 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 875091222}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DailyChallengeDelegator, Scripts
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6845968657881360371, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -35395,6 +35466,7 @@ MonoBehaviour:
   visionRadius: 3
   playerState: {fileID: 276248152}
   largeFogOfWar: {fileID: 1438017626}
+  dailyChallengeDelegatorGO: {fileID: 875091221}
   mineTilemapPrefab: {fileID: 3638634728784657662, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
   mineBackgroundTilemapPrefab: {fileID: 8053565804712313070, guid: cf767454c5de94b9598a7d116503d05f, type: 3}
   mineBackgroundRuleTile: {fileID: 11400000, guid: 2281943e1507b442e8d449872abba95c, type: 2}
@@ -37570,6 +37642,11 @@ Transform:
   - {fileID: 422203781}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1311392307 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5313251504090321606, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+  m_PrefabInstance: {fileID: 1051110488}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1311555959
 GameObject:
   m_ObjectHideFlags: 0
@@ -37687,6 +37764,18 @@ MonoBehaviour:
         m_Arguments:
           m_ObjectArgument: {fileID: 1571751672}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 875091222}
+        m_TargetAssemblyTypeName: DailyChallengeDelegator, Scripts
+        m_MethodName: UpdateDisplay
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -39089,6 +39178,38 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 875091222}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DailyChallengeDelegator, Scripts
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6845968657881360371, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -39385,6 +39506,38 @@ PrefabInstance:
     - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_Interactable
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 875091222}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DailyChallengeDelegator, Scripts
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 6845968657881360371, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_AnchorMax.y
@@ -39692,6 +39845,11 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!1 &1448972059 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5313251504090321606, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+  m_PrefabInstance: {fileID: 2083458139}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1451107642
 GameObject:
   m_ObjectHideFlags: 0
@@ -43386,7 +43544,6 @@ RectTransform:
   m_Children:
   - {fileID: 478628819}
   - {fileID: 960103116}
-  - {fileID: 2024879687}
   m_Father: {fileID: 548110006}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
@@ -46220,142 +46377,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5723480774134805281, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
   m_PrefabInstance: {fileID: 2083458139}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2024879686
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2024879687}
-  - component: {fileID: 2024879689}
-  - component: {fileID: 2024879688}
-  m_Layer: 0
-  m_Name: Super Challenge Progress
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &2024879687
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2024879686}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1844796675}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.00022626, y: 0.00051116943}
-  m_SizeDelta: {x: 434.78, y: 75.001}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &2024879688
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2024879686}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
-  m_Maskable: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_text: '0
-
-'
-  m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
-  m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
-  m_fontSharedMaterials: []
-  m_fontMaterial: {fileID: 0}
-  m_fontMaterials: []
-  m_fontColor32:
-    serializedVersion: 2
-    rgba: 4278190080
-  m_fontColor: {r: 0, g: 0, b: 0, a: 1}
-  m_enableVertexGradient: 0
-  m_colorMode: 3
-  m_fontColorGradient:
-    topLeft: {r: 1, g: 1, b: 1, a: 1}
-    topRight: {r: 1, g: 1, b: 1, a: 1}
-    bottomLeft: {r: 1, g: 1, b: 1, a: 1}
-    bottomRight: {r: 1, g: 1, b: 1, a: 1}
-  m_fontColorGradientPreset: {fileID: 0}
-  m_spriteAsset: {fileID: 0}
-  m_tintAllSprites: 0
-  m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: -1183493901
-  m_overrideHtmlColors: 0
-  m_faceColor:
-    serializedVersion: 2
-    rgba: 4294967295
-  m_fontSize: 70
-  m_fontSizeBase: 70
-  m_fontWeight: 400
-  m_enableAutoSizing: 0
-  m_fontSizeMin: 18
-  m_fontSizeMax: 72
-  m_fontStyle: 17
-  m_HorizontalAlignment: 2
-  m_VerticalAlignment: 4096
-  m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
-  m_lineSpacing: 0
-  m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
-  m_charWidthMaxAdj: 0
-  m_enableWordWrapping: 1
-  m_wordWrappingRatios: 0.4
-  m_overflowMode: 0
-  m_linkedTextComponent: {fileID: 0}
-  parentLinkedComponent: {fileID: 0}
-  m_enableKerning: 1
-  m_enableExtraPadding: 0
-  checkPaddingRequired: 0
-  m_isRichText: 1
-  m_parseCtrlCharacters: 1
-  m_isOrthographic: 1
-  m_isCullingEnabled: 0
-  m_horizontalMapping: 0
-  m_verticalMapping: 0
-  m_uvLineOffset: 0
-  m_geometrySortingOrder: 0
-  m_IsTextObjectScaleStatic: 0
-  m_VertexBufferAutoSizeReduction: 0
-  m_useMaxVisibleDescender: 1
-  m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
-  m_isUsingLegacyAnimationComponent: 0
-  m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
-  m_baseMaterial: {fileID: 0}
-  m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!222 &2024879689
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2024879686}
-  m_CullTransparentMesh: 1
 --- !u!1 &2031452034
 GameObject:
   m_ObjectHideFlags: 0
@@ -47254,6 +47275,38 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 875091222}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DailyChallengeDelegator, Scripts
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6845968657881360371, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -47997,6 +48050,38 @@ PrefabInstance:
       propertyPath: m_AnchorMax.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 875091222}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: DailyChallengeDelegator, Scripts
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_IntArgument
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5266228296185162956, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 6845968657881360371, guid: 372426c36a29041679f9f843cbb36b33, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -48588,7 +48673,7 @@ MonoBehaviour:
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_PressedColor: {r: 1, g: 1, b: 1, a: 1}
+    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 1, g: 1, b: 1, a: 1}
     m_DisabledColor: {r: 0.7921569, g: 0.78039217, b: 0.78039217, a: 0.79607844}
     m_ColorMultiplier: 1
@@ -48608,7 +48693,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6529104033532935132}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 875091222}
+        m_TargetAssemblyTypeName: DailyChallengeDelegator, Scripts
+        m_MethodName: CollectReward
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1499513741443514368
 GameObject:
   m_ObjectHideFlags: 0
@@ -48843,6 +48940,7 @@ GameObject:
   - component: {fileID: 5619264259426616162}
   - component: {fileID: 6529104033532935132}
   - component: {fileID: 1469940813896744458}
+  - component: {fileID: 7802926177028766039}
   m_Layer: 5
   m_Name: 'Super Challenge Button '
   m_TagString: Untagged
@@ -51174,6 +51272,20 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 1680, y: 404.5575}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &7802926177028766039
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2277858245915449278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 759379b3225b642d0a6aa92659d4bbd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shrinkFactor: 0.95
+  shrinkSpeed: 10
 --- !u!224 &7810748794803312283
 RectTransform:
   m_ObjectHideFlags: 0
@@ -51751,6 +51863,7 @@ SceneRoots:
   - {fileID: 405986136}
   - {fileID: 1743240307}
   - {fileID: 1257639992}
+  - {fileID: 875091223}
   - {fileID: 1308672357}
   - {fileID: 2078999018}
   - {fileID: 165361378}
@@ -51759,4 +51872,3 @@ SceneRoots:
   - {fileID: 1012335946}
   - {fileID: 1093208306}
   - {fileID: 1779852220}
-  - {fileID: 875091223}

@@ -357,6 +357,7 @@ GameObject:
   - component: {fileID: 1191345898609693092}
   - component: {fileID: 571720055941703962}
   - component: {fileID: 5266228296185162956}
+  - component: {fileID: 865320193685813413}
   m_Layer: 5
   m_Name: Daily Challenge Button
   m_TagString: Untagged
@@ -466,6 +467,20 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &865320193685813413
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4823273680512468344}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 759379b3225b642d0a6aa92659d4bbd8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  shrinkFactor: 0.95
+  shrinkSpeed: 10
 --- !u!1 &5313251504090321606
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,7 +493,7 @@ GameObject:
   - component: {fileID: 2016671448500309348}
   - component: {fileID: 7258128212874119206}
   m_Layer: 5
-  m_Name: Gem Icon
+  m_Name: Challenge Icon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

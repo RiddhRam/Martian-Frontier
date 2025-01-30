@@ -10,6 +10,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int visionRadius;
     public GameObject playerState;
     public GameObject largeFogOfWar;
+    public GameObject dailyChallengeDelegatorGO;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
@@ -61,6 +62,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
     private OreDelegation oreDelegation;
+    private DailyChallengeDelegator dailyChallengeDelegator;
+    private Dictionary<string, int> quantities = new();
     public int[] oresCount;
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
@@ -128,6 +131,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         totalColumnsForFunc = totalColumns - 1;
         invGridHeight = 1f / -gridSize.y; // Precompute inverse for division
         invGridWidth = 1f / gridSize.x;  // Precompute inverse for division
+
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
 
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
@@ -597,6 +602,20 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             if (oreMined) {
                 oresMined++;
+                int adjustment = 0;
+
+                for (int i = 0; i != tierThresholds.Length; i++) {
+                    if (identifiedTile > tierThresholds[i]) {
+                        adjustment++;
+                    }
+                }
+
+                if (!quantities.ContainsKey(materialNames[identifiedTile - adjustment])) {
+                    quantities[materialNames[identifiedTile - adjustment]] = 1;
+                } else {
+                    
+                    quantities[materialNames[identifiedTile - adjustment]]++;
+                }
             }
         }
 
@@ -615,6 +634,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+
+        dailyChallengeDelegator.MinedOres(quantities);
+        quantities.Clear();
 
         // Reveal the tiles
         RevealTiles(tilesToReveal);

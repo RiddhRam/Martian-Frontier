@@ -10,6 +10,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
+    public GameObject dailyChallengeDelegatorGO;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -29,6 +30,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private ProfitPanelDelegator profitPanelDelegator;
     private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
+    private DailyChallengeDelegator dailyChallengeDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -58,6 +60,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
         profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
@@ -113,9 +116,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
             if (objectBeingPurchased.GetComponent<HaulerController>()) {
                 vehicleType = "Hauler";
+                dailyChallengeDelegator.PurchasedVehicle(1);
             } else if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
                 vehicleType = "Driller";
                 tier = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
+                dailyChallengeDelegator.PurchasedVehicle(0);
             }
 
             // If it's a hauler or driller, it won't be null
