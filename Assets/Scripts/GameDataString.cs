@@ -26,4 +26,32 @@ public class GameDataString
     public string rebirthProfitMultiplier;
     public string finishedTutorial;
     public string askedForReview;
+    public string lastChallengeDate;
+
+    public GameDataString() {
+        this.userCash = null;
+        this.userXP = null;
+        this.playerPos = null;
+        this.playerRotation = null;
+        this.blocksMined = null;
+        this.materialsSold = null;
+        this.moneyEarned = null;
+        this.vehiclesOwned = null;
+        this.currentVehicle = null;
+        this.haulerCargo = null;
+        this.materials = null;
+        this.refineryInefficiency = null;
+        this.refineryCapacity = null;
+        this.refineryBattery = null;
+        this.destroyedTilemapsTileValues = null;
+        this.revealedTilemapsTileValues = null;        
+        this.seed = null;
+        this.highestRow = null;
+        this.mineInitialization = null;
+        this.timerIndexes = null;
+        this.rebirthProfitMultiplier = null;
+        this.finishedTutorial = null;
+        this.askedForReview = null;
+        this.lastChallengeDate = null;
+    }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -32,6 +33,7 @@ public class GameData
     public float rebirthProfitMultiplier;
     public bool finishedTutorial;
     public bool askedForReview;
+    public int lastChallengeDate;
 
     public GameData() {
         this.userCash = "0";
@@ -67,5 +69,6 @@ public class GameData
         this.rebirthProfitMultiplier = 0;
         this.finishedTutorial = false;
         this.askedForReview = false;
+        this.lastChallengeDate = (int) (DateTime.UtcNow.Date - new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
     }
 }
