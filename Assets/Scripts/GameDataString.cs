@@ -27,6 +27,11 @@ public class GameDataString
     public string finishedTutorial;
     public string askedForReview;
     public string lastChallengeDate;
+    public string challengeProgress;
+    public string challengeCollection;
+    public string superChallengeTimer;
+    public string userGems;
+    public string gemsEarned;
 
     public GameDataString() {
         this.userCash = null;
@@ -53,5 +58,10 @@ public class GameDataString
         this.finishedTutorial = null;
         this.askedForReview = null;
         this.lastChallengeDate = null;
+        this.challengeProgress = null;
+        this.challengeCollection = null;
+        this.superChallengeTimer = null;
+        this.userGems = null;
+        this.gemsEarned = null;
     }
 }

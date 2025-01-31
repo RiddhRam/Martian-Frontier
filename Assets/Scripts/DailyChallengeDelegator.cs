@@ -6,6 +6,7 @@ using UnityEngine.Localization.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+using System.Numerics;
 
 public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 {
@@ -18,6 +19,8 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject[] rewardTexts;
     public GameObject[] challengeProgressSlidersGO;
     public GameObject[] challengeProgressSlidersTextGO;
+    public GameObject superChallengeStartButtonGO;
+    public GameObject superChallengeStartButtonTextGO;
     public GameObject superChallengeSliderGO;
     public GameObject superChallengeTimerTextGO;
 
@@ -25,7 +28,8 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private AnalyticsDelegator analyticsDelegator;
     private TextMeshProUGUI dailyTimerText;
     private MineRenderer mineRenderer;
-    public Image buttonGemIcon;
+    private PlayerState playerState;
+    private Image buttonGemIcon;
     private Image[] challengeStatusIcons = new Image[6];
     private TextMeshProUGUI[] challengeTextMeshes = new TextMeshProUGUI[6];
     private TextMeshProUGUI[] rewardTextMeshes = new TextMeshProUGUI[6];
@@ -33,13 +37,13 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI[] challengeProgressSlidersText = new TextMeshProUGUI[6];
     private Slider superChallengeSlider;
     private TextMeshProUGUI superChallengeTimerText;
+    private TextMeshProUGUI superChallengeStartButtonText;
     private string timerMessage;
     private DateTime endTime;
     private TimeSpan timeRemaining;
     private string timeString;
     // Used to check index
     private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "MINE {0} ORES", "MINE {0} ORES OF {1}", "BUY {0} DRILLERS", "BUY {0} HAULERS", "SELL {0} ORES"};
-    private string[][] oreNames;
     // This one is not related to challenge types, just order of challenges display
     private int[] difficulty = {8, 1, 2, 5, 3, 1};
     private int baseGemReward = 3;
@@ -49,13 +53,14 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
     private int[] rewardAmounts = new int[6];
+    private readonly List<string> oreNeeded = new();
     // Save these
     // Last time user generated challenges, in seconds since last point (birthday)
     private int lastChallengeDate;
     private int[] challengeProgress = new int[6];
     private bool[] challengeCollection = new bool[6];
+    private readonly int superChallengeStartTimer = 1200;
     private int superChallengeTimer = 1200;
-    private List<string> oreNeeded = new();
 
     // Listen for language changes
     private void OnEnable()
@@ -64,11 +69,12 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         LocalizationSettings.SelectedLocaleChanged += OnLocaleChanged;
     }
 
-    void Initialize() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
+    void Awake() {
+        playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
+        mineRenderer = mineRenderGO.GetComponent<MineRenderer>();
+
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
         buttonGemIcon = buttonGemIconGO.GetComponent<Image>();
-        mineRenderer = mineRenderGO.GetComponent<MineRenderer>();
 
         for (int i = 0; i != challengeDescriptionTexts.Length; i++) {
             challengeStatusIcons[i] = challengeStatusIconsGO[i].GetComponent<Image>();
@@ -80,17 +86,19 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
         superChallengeSlider = superChallengeSliderGO.GetComponent<Slider>();
         superChallengeTimerText = superChallengeTimerTextGO.GetComponent<TextMeshProUGUI>();
+        superChallengeStartButtonText = superChallengeStartButtonTextGO.GetComponent<TextMeshProUGUI>();
+    }
 
-        oreNames = new string[mineRenderer.tierThresholds.Length][];
+    void Initialize() {
+        analyticsDelegator = AnalyticsDelegator.Instance;
 
-        /*if (lastChallengeDate == TimeSinceBirthday()) {
+        if (lastChallengeDate == TimeSinceBirthday()) {
             LoadChallenges();
         } else {
-            GenerateChallenges();
-        }*/
+            GenerateChallenges(false);
+        }
 
         SetDailyTimer();
-        GenerateChallenges();
     }
 
     void Update() {
@@ -100,6 +108,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         dailyTimerText.text = timerMessage;
 
         if (timeRemaining.TotalSeconds <= 0) {
+            ResetDailyChallenges();
             SetDailyTimer();
         }
     }
@@ -117,9 +126,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void SetDailyTimer() {
         DateTime now = DateTime.UtcNow;
-        DateTime targetTime = new(now.Year, now.Month, now.Day, 21, 20, 0, DateTimeKind.Utc);
+        DateTime targetTime = new(now.Year, now.Month, now.Day, 12, 0, 0, DateTimeKind.Utc);
 
-        // If the current time is already past 8:50 PM, set it for tomorrow
+        // If the current time is already past 8:00 PM, set it for tomorrow
         if (now > targetTime) {
             targetTime = targetTime.AddDays(1);
         }
@@ -127,14 +136,14 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         endTime = targetTime;
     }
 
-    public void GenerateChallenges() {
+    public void GenerateChallenges(bool loading) {
 
         lastChallengeDate = TimeSinceBirthday();
 
         // Don't set the last one
-        for (int i = 0; i != selectedChallenges.Length - 1; i++) {
+        for (int i = 0; i != selectedChallenges.Length; i++) {
             // Put seed inside brackets
-            rng = new System.Random();
+            rng = new System.Random(lastChallengeDate + i);
             selectedChallenges[i] = rng.Next(1, challengeTypes.Length);
 
             if (i == 0) {
@@ -143,35 +152,34 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             }
 
             challengeValues[i] = difficulty[i] * baseGoalAmount[selectedChallenges[i]];
+
+            if (!loading) {
+                challengeProgress[i] = 0;
+                challengeCollection[i] = false;
+            }
+
             rewardAmounts[i] = difficulty[i] * baseGemReward;
 
             // This option needs 2 variables
-            if (selectedChallenges[i] == 2) {
-                oreNeeded.Add(mineRenderer.GetTier1OreNames()[0]);
+            if (selectedChallenges[i] == 2 && i != 5) {
+                AddOreBasedOnTier(i);
             }
 
             challengeStatusIcons[i].color = new(255/255, 0, 0);
             challengeStatusIcons[i].transform.parent.parent.GetComponent<Button>().interactable = true;
-
-            string oreValue = oreNeeded.Count > 0 ? oreNeeded[^1].ToString() : "";
-
-            //Debug.Log(GetLocalizedValue(challengeTypes[selectedChallenges[i]], challengeValues[i], oreValue) + " FOR " + rewardAmounts[i] + " GEMS");
         }
 
         rewardAmounts[0] *= 2;
         // COMPLETE ALL DAILY CHALLENGES
         selectedChallenges[5] = 0;
         rewardAmounts[5] = 10;
-        challengeProgress[5] = 0;
         challengeValues[5] = 5;
-        challengeStatusIcons[5].color = new(255/255, 0, 0);
-        challengeStatusIcons[5].transform.parent.parent.GetComponent<Button>().interactable = true;
 
         UpdateDisplay();
     }
 
     public void LoadChallenges() {
-        Debug.Log("Loading");
+        GenerateChallenges(true);
     }
 
     public void UpdateDisplay() {
@@ -200,14 +208,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 challengeProgressSliders[i].value = challengeProgress[i];
                 challengeProgressSlidersText[i].text = challengeProgress[i].ToString();
             }
-            
 
             if (challengeProgress[i] >= challengeValues[i] && !challengeCollection[i]) {
                 uncollectedReward = true;
-            }
-
-            if (challengeCollection[i]) {
-                continue;
             }
 
             if (challengeProgress[i] != challengeValues[i]) {
@@ -233,7 +236,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         foreach (string key in quantities.Keys) {
 
             for (int i = 0; i != selectedChallenges.Length; i++) {
-                if (i == 0 && superChallengeTimer == 1200) {
+                if (i == 0 && superChallengeTimer == superChallengeStartTimer) {
                     continue;
                 }
                 if (selectedChallenges[i] != 1 && selectedChallenges[i] != 2) {
@@ -246,6 +249,8 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
                 if (selectedChallenges[i] == 2 && oreNeeded[oreNeededCounter] == key) {
                     challengeProgress[i] += quantities[key];
+                    oreNeededCounter++;
+                } else if (selectedChallenges[i] == 2) {
                     oreNeededCounter++;
                 }
             }
@@ -275,8 +280,8 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void SoldOres(int quantity) {
         for (int i = 0; i != selectedChallenges.Length; i++) {
-            if (i == 0 && superChallengeTimer == 1200) {
-                    continue;
+            if (i == 0 && (superChallengeTimer == superChallengeStartTimer || superChallengeTimer == 0)) {
+                continue;
             }
             if (selectedChallenges[i] != 5) {
                 continue;
@@ -292,7 +297,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        Debug.Log("Collected " + rewardAmounts[challengeIndex] + " gems");
+        playerState.AddGems(rewardAmounts[challengeIndex]);
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
@@ -304,10 +309,34 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         return (int) (DateTime.UtcNow.Date - new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
     }
 
-    public void StartSuperChallenge() {
-        superChallengeTimer = 1200;
+    public void AddOreBasedOnTier(int challengeIndex) {
+        string[] oreList;
 
-        StartCoroutine(CountdownSuperChallengeTimer(superChallengeTimer));
+        if (playerState.GetHighestDrillTier() == 1) {
+            oreList = mineRenderer.GetTier1OreNames();
+        } else if (playerState.GetHighestDrillTier() == 2) {
+            oreList = mineRenderer.GetTier2OreNames();
+        } else {
+            oreList = mineRenderer.GetTier3OreNames();
+        }
+
+        rng = new System.Random(lastChallengeDate + challengeIndex);
+        oreNeeded.Add(oreList[rng.Next(oreList.Length)]);
+    }
+ 
+    public void ScaleAllTiers() {
+        oreNeeded.Clear();
+
+        for (int i = 0; i != selectedChallenges.Length; i++) {
+            if (selectedChallenges[i] == 2) {
+                AddOreBasedOnTier(i);
+            } 
+        }
+
+    }
+
+    public void StartSuperChallenge() {
+        StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -315,26 +344,61 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         int minutes;
         int seconds;
 
+        superChallengeStartButtonGO.GetComponent<Button>().interactable = false;
         superChallengeSliderGO.SetActive(true);
         superChallengeTimerTextGO.SetActive(true);
 
-        while (superChallengeTimer > 0) {
+        while (superChallengeTimer > 0 && challengeProgress[0] < challengeValues[0]) {
             superChallengeTimer--;
             // Calculate minutes and seconds
             minutes = superChallengeTimer / 60;
             seconds = superChallengeTimer % 60;
             superChallengeTimerText.text = $"{minutes}:{seconds:D2}";
+            superChallengeStartButtonText.text =  $"{minutes}:{seconds:D2}";
             yield return new WaitForSeconds(1f);
         }
 
         superChallengeSliderGO.SetActive(false);
         superChallengeTimerTextGO.SetActive(false);
+        
+        if (challengeProgress[0] < challengeValues[0]) {
+            challengeProgress[0] = 0;
+            superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
+        }
+
+        superChallengeStartButtonText.text = "START";
+
+        UpdateDisplay();
+    }
+
+    private void ResetDailyChallenges() {
+        superChallengeTimer = 0;
+
+        GenerateChallenges(false);
     }
 
     public void LoadData(GameData data)
     {
         this.lastChallengeDate = data.lastChallengeDate;
+        this.challengeProgress = data.challengeProgress;
+        this.challengeCollection = data.challengeCollection;
+        this.superChallengeTimer = data.superChallengeTimer;
         Initialize();
+
+        for (int i = 0; i != challengeCollection.Length; i++) {
+            if (challengeCollection[i]) {
+                challengeStatusIcons[i].transform.parent.parent.GetComponent<Button>().interactable = false;
+                challengeCollection[i] = true;
+
+                if (i == 0) {
+                    superChallengeStartButtonGO.SetActive(false);
+                }
+            }
+        }
+
+        if (superChallengeTimer < superChallengeStartTimer) {
+            StartCoroutine(CountdownSuperChallengeTimer(superChallengeTimer));
+        }
 
         try {
              StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
@@ -345,6 +409,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public void SaveData(ref GameData data)
     {
         data.lastChallengeDate = this.lastChallengeDate;
+        data.challengeProgress = this.challengeProgress;
+        data.challengeCollection = this.challengeCollection;
+        data.superChallengeTimer = this.superChallengeTimer;
     }
 
     // Method that is called when the locale changes

@@ -34,6 +34,11 @@ public class GameData
     public bool finishedTutorial;
     public bool askedForReview;
     public int lastChallengeDate;
+    public int[] challengeProgress;
+    public bool[] challengeCollection;
+    public int superChallengeTimer;
+    public string userGems;
+    public string gemsEarned;
 
     public GameData() {
         this.userCash = "0";
@@ -70,5 +75,10 @@ public class GameData
         this.finishedTutorial = false;
         this.askedForReview = false;
         this.lastChallengeDate = (int) (DateTime.UtcNow.Date - new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
+        this.challengeProgress = new int[6];
+        this.challengeCollection = new bool[6];
+        this.superChallengeTimer = 1200;
+        this.userGems = "0";
+        this.gemsEarned = "0";
     }
 }

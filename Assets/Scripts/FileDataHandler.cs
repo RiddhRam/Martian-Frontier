@@ -126,7 +126,8 @@ public class FileDataHandler
                 }
 
                 correspondingField.SetValue(tempData, newArray);
-            } else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
+            } 
+            else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
                 // Trim the outer [ ] and also turn the url encoding back to quotation marks
                 value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
                 value = "{" + value + "}";
@@ -169,14 +170,21 @@ public class FileDataHandler
                         strValue = strValue.Replace("%22", "\"");
                         List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
-                    } else if (fieldType == typeof(int)) {
+                    } 
+                    else if (fieldType == typeof(int)) {
                         int newInt = int.Parse(strValue);
                         correspondingField.SetValue(tempData, newInt);
-                    } else if (fieldType == typeof(bool)) {
+                    } 
+                    else if (fieldType == typeof(bool)) {
                         bool newBool = bool.Parse(strValue);
                         correspondingField.SetValue(tempData, newBool);
-                    } else if (fieldType == typeof(int[])) {
+                    } 
+                    else if (fieldType == typeof(int[])) {
                         int[] deserializedValue = JsonConvert.DeserializeObject<int[]>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
+                    else if (fieldType == typeof(bool[])) {
+                        bool[] deserializedValue = JsonConvert.DeserializeObject<bool[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
                     else {
@@ -284,8 +292,20 @@ public class FileDataHandler
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
-            } else if (fieldValue is int[]) {
+            } 
+            else if (fieldValue is int[]) {
                 int[] value = (int[]) fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption) {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is bool[]) {
+                bool[] value = (bool[]) fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 
