@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -158,6 +159,23 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
         UpdateCashDisplays();
     } 
+
+    public void PurchaseCashWithGems(GameObject gemPanel) {
+        GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
+
+        if (gemCashPurchasePanel.gemPrice > userGems) {
+            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            return;
+        }
+
+        userCash += gemCashPurchasePanel.cashAmount;
+        userGems -= gemCashPurchasePanel.gemPrice;
+
+        UpdateCashDisplays();
+        UpdateGemDisplays();
+
+        dataPersistenceManager.SaveGame();
+    }
 
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
@@ -387,6 +405,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         highestDrillTier = 1;
         dailyChallengeDelegator.ScaleAllTiers();
     }
+   
+    public int GetHighestDrillTier() {
+        return highestDrillTier;
+    }
 
     // For development only
     public void FreeMoney() {
@@ -399,9 +421,5 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         freeMoneyToAdd = (int) cashSlider.value;
 
         cashText.text = "$" + FormatPrice(freeMoneyToAdd);
-    }
-
-    public int GetHighestDrillTier() {
-        return highestDrillTier;
     }
 }

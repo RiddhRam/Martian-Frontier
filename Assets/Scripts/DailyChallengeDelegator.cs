@@ -23,12 +23,14 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject superChallengeStartButtonTextGO;
     public GameObject superChallengeSliderGO;
     public GameObject superChallengeTimerTextGO;
+    public GameObject[] gemCashPurchasePanels;
 
     private System.Random rng;
     private AnalyticsDelegator analyticsDelegator;
     private TextMeshProUGUI dailyTimerText;
     private MineRenderer mineRenderer;
     private PlayerState playerState;
+    private readonly int[]  baseCashAmountForGemPurchase = {50_000, 100_000, 250_000, 600_000};
     private Image buttonGemIcon;
     private Image[] challengeStatusIcons = new Image[6];
     private TextMeshProUGUI[] challengeTextMeshes = new TextMeshProUGUI[6];
@@ -99,6 +101,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         }
 
         SetDailyTimer();
+        ScaleAllTiers();
     }
 
     void Update() {
@@ -331,6 +334,12 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             if (selectedChallenges[i] == 2) {
                 AddOreBasedOnTier(i);
             } 
+        }
+
+        int highestDrillTier = playerState.GetHighestDrillTier();
+
+        for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
+            gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>().UpdateCashAmount(baseCashAmountForGemPurchase[i] * (BigInteger.Pow(100, (-1 + highestDrillTier ))));
         }
 
     }
