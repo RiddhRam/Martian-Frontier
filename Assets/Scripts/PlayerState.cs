@@ -2,14 +2,17 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
 {
     public GameObject[] cashDisplays;
+    public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
+    public GameObject dailyChallengeDelegatorGO;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -19,6 +22,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger blocksMined;
     private BigInteger materialsSold;
     private BigInteger moneyEarned;
+    private BigInteger userGems;
+    private BigInteger gemsEarned;
     private List<string> vehiclesOwned = new();
     private int[] materialPrices;
     private RefineryController refineryController;
@@ -29,6 +34,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private ProfitPanelDelegator profitPanelDelegator;
     private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
+    private DailyChallengeDelegator dailyChallengeDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -38,6 +44,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI cashText;
     private Slider[] xpDisplaysSliders;
     private TextMeshProUGUI[] xpDisplaysText;
+    private GameObject[] drillers;
+    private int highestDrillTier = 1;
 
     int baseXP; 
     int increment; 
@@ -58,16 +66,17 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
         profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        
     }
 
     void Start() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
         if (cashSliderGO) {
             cashSlider = cashSliderGO.GetComponent<Slider>();
         }
@@ -98,6 +107,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateCashDisplays();
     }
 
+    public void AddGems(int gemsToAdd) {
+
+        userGems += gemsToAdd;
+        gemsEarned += gemsToAdd;
+
+        UpdateGemDisplays();
+    }
+
     // Validate again and subtract cash
     // Only call if VerifyEnoughCash was called
     // For vehicles
@@ -113,9 +130,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
             if (objectBeingPurchased.GetComponent<HaulerController>()) {
                 vehicleType = "Hauler";
+                dailyChallengeDelegator.PurchasedVehicle(1);
             } else if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
                 vehicleType = "Driller";
                 tier = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
+                dailyChallengeDelegator.PurchasedVehicle(0);
             }
 
             // If it's a hauler or driller, it won't be null
@@ -124,6 +143,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
+            UpdateHighestDrillTier();
             dataPersistenceManager.SaveGame();
             analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
@@ -139,6 +159,23 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
         UpdateCashDisplays();
     } 
+
+    public void PurchaseCashWithGems(GameObject gemPanel) {
+        GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
+
+        if (gemCashPurchasePanel.gemPrice > userGems) {
+            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            return;
+        }
+
+        userCash += gemCashPurchasePanel.cashAmount;
+        userGems -= gemCashPurchasePanel.gemPrice;
+
+        UpdateCashDisplays();
+        UpdateGemDisplays();
+
+        dataPersistenceManager.SaveGame();
+    }
 
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
@@ -204,12 +241,32 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return false;
     }
 
+    public void UpdateHighestDrillTier() {
+        for (int i = 0; i != drillers.Length; i++) {
+            if (!CheckVehicleOwnerShip(drillers[i].name)) {
+                continue;
+            }
+
+            if (drillers[i].transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier() > highestDrillTier) {
+                highestDrillTier = drillers[i].transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
+                dailyChallengeDelegator.ScaleAllTiers();
+            }
+        }
+    }
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
         string cashText = "$" + FormatPrice(userCash);
 
         for (int i = 0; i != cashDisplays.Length; i++) {
             cashDisplays[i].GetComponent<TextMeshProUGUI>().text = cashText;
+        }
+    }
+
+    public void UpdateGemDisplays() {
+        string gemText = FormatPrice(userGems);
+
+        for (int i = 0; i != gemDisplays.Length; i++) {
+            gemDisplays[i].GetComponent<TextMeshProUGUI>().text = gemText;
         }
     }
 
@@ -255,6 +312,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
         
+        analyticsDelegator = AnalyticsDelegator.Instance;
+
         loading = true;
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
@@ -263,12 +322,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.moneyEarned = BigInteger.Parse(data.moneyEarned);
         this.vehiclesOwned = data.vehiclesOwned;
         this.rebirthProfitMultiplier = data.rebirthProfitMultiplier;
+        this.userGems = BigInteger.Parse(data.userGems);
+        this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
-        
         loading = false;
        
         UpdateCashDisplays();
+        UpdateGemDisplays();
         UpdateXPDisplays();
+        UpdateHighestDrillTier();
 
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
@@ -281,6 +343,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.moneyEarned = this.moneyEarned.ToString();
         data.vehiclesOwned = this.vehiclesOwned;
         data.rebirthProfitMultiplier = this.rebirthProfitMultiplier;
+        data.userGems = this.userGems.ToString();
+        data.gemsEarned = this.gemsEarned.ToString();
     }
 
     private void UpdateXPDisplays() {
@@ -337,6 +401,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         UpdateCashDisplays();
         UpdateXPDisplays();
+
+        highestDrillTier = 1;
+        dailyChallengeDelegator.ScaleAllTiers();
+    }
+   
+    public int GetHighestDrillTier() {
+        return highestDrillTier;
     }
 
     // For development only
@@ -351,5 +422,4 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         cashText.text = "$" + FormatPrice(freeMoneyToAdd);
     }
-
 }

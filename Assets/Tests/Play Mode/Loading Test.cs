@@ -58,10 +58,16 @@ public class LoadingTest
         Assert.False(playerState.materialProfitPanel.activeSelf);
         Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
 
-        int cashDisplayCount = 4;
+        int cashDisplayCount = 5;
         Assert.AreEqual(playerState.cashDisplays.Length, cashDisplayCount);
         for (int i = 0; i != cashDisplayCount; i++) {
             Assert.True(playerState.cashDisplays[i].activeSelf);
+        }
+
+        int gemDisplayCount = 3;
+        Assert.AreEqual(playerState.gemDisplays.Length, gemDisplayCount);
+        for (int i = 0; i != gemDisplayCount; i++) {
+            Assert.True(playerState.gemDisplays[i].activeSelf);
         }
 
         int xpDisplayCount = 2;
@@ -143,9 +149,9 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings" };
-        int primaryElementCount = 10;
-        Assert.AreEqual(uIDelegation.primaryElements.Length, primaryElementCount);
+        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Daily Challenge" };
+        int primaryElementCount = 11;
+        Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
         }
@@ -162,7 +168,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform safeArea = GameObject.Find("SafeArea").transform;
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Daily Challenge", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" ,"Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], safeArea.GetChild(i).name);
         }

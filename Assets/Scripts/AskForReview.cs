@@ -58,10 +58,6 @@ public class AskForReview : MonoBehaviour
         }
     }
 
-    public void Test() {
-        StartCoroutine(RequestForReviews());
-    }
-
     private IEnumerator RequestForReviews() {
 
         #if UNITY_ANDROID

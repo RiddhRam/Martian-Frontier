@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 public class DataPersistenceManager : MonoBehaviour
 {
@@ -59,7 +60,11 @@ public class DataPersistenceManager : MonoBehaviour
 
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
-            dataPersistenceObj.LoadData(gameData);
+            try {
+                dataPersistenceObj.LoadData(gameData);
+            } catch (Exception error) {
+                Debug.LogError(error);
+            }
         }
     }
 

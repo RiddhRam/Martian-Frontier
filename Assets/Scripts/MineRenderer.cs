@@ -10,6 +10,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private int visionRadius;
     public GameObject playerState;
     public GameObject largeFogOfWar;
+    public GameObject dailyChallengeDelegatorGO;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
@@ -42,6 +43,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
+    // Lowercase
+    private string[] oreNames;
+    // Uppercase
+    private string[] materialNames;
     private UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
@@ -57,6 +62,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     private AnalyticsDelegator analyticsDelegator;
     private OreDelegation oreDelegation;
+    private DailyChallengeDelegator dailyChallengeDelegator;
+    private Dictionary<string, int> quantities = new();
     public int[] oresCount;
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
@@ -125,6 +132,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         invGridHeight = 1f / -gridSize.y; // Precompute inverse for division
         invGridWidth = 1f / gridSize.x;  // Precompute inverse for division
 
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
+
         materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
@@ -181,6 +190,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     
         oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
         materials = oreDelegation.materials;
+        oreNames = oreDelegation.GetOreNames();
+        materialNames = oreDelegation.materialNames;
 
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         playerStateScript = playerState.GetComponent<PlayerState>();
@@ -591,6 +602,20 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             if (oreMined) {
                 oresMined++;
+                int adjustment = 0;
+
+                for (int i = 0; i != tierThresholds.Length; i++) {
+                    if (identifiedTile > tierThresholds[i]) {
+                        adjustment++;
+                    }
+                }
+
+                if (!quantities.ContainsKey(materialNames[identifiedTile - adjustment])) {
+                    quantities[materialNames[identifiedTile - adjustment]] = 1;
+                } else {
+                    
+                    quantities[materialNames[identifiedTile - adjustment]]++;
+                }
             }
         }
 
@@ -609,6 +634,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+
+        dailyChallengeDelegator.MinedOres(quantities);
+        quantities.Clear();
 
         // Reveal the tiles
         RevealTiles(tilesToReveal);
@@ -638,6 +666,36 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Return only the tiles of ores
         return ores;
+    }
+
+    public string[] GetTier1OreNames() {
+        string[] tier1OreNames = new string[oresPerTier[0]];
+
+        for (int i = 0; i != oresPerTier[0]; i++) {
+            tier1OreNames[i] = materialNames[i];
+        }
+
+        return tier1OreNames;
+    }
+
+    public string[] GetTier2OreNames() {
+        string[] tier2OreNames = new string[oresPerTier[1]];
+
+        for (int i = 0; i != oresPerTier[1]; i++) {
+            tier2OreNames[i] = materialNames[oresPerTier[0] + i];
+        }
+
+        return tier2OreNames;
+    }
+
+    public string[] GetTier3OreNames() {
+        string[] tier3OreNames = new string[oresPerTier[2]];
+
+        for (int i = 0; i != oresPerTier[2]; i++) {
+            tier3OreNames[i] = materialNames[oresPerTier[0] + oresPerTier[1] + i];
+        }
+
+        return tier3OreNames;
     }
 
     // Get the index of the tile

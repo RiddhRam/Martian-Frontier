@@ -16,15 +16,18 @@ public class OreDelegation : MonoBehaviour
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
     private int[] oresPerTier;
+    // Lowercase verion of materialNames
     private string[] oreNames;
 
-    void Start() {
-        oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
-
+    void Awake() {
         oreNames = new string[materials.Length];
         for (int i = 0; i != materials.Length; i++) {
             oreNames[i] = materials[i].name;
         }
+    }
+
+    void Start() {
+        oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
     }
 
     public void PrepareGrid() {
