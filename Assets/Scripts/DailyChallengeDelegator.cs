@@ -50,7 +50,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private int[] difficulty = {8, 1, 2, 5, 3, 1};
     private int baseGemReward = 3;
     // Related to the above challenge types
-    private int[] baseGoalAmount = {5, 60, 40, 1, 2, 80};
+    private int[] baseGoalAmount = {5, 150, 80, 1, 2, 80};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];

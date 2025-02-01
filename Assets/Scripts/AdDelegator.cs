@@ -22,6 +22,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // This needs to be seperate because user can swap vehicle while boost active
     public float originalSpeed;
     public bool speedBoostActive;
+    private int adPermissionGiven;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
     private DataPersistenceManager dataPersistenceManager;
@@ -34,9 +35,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     void Awake() {
+        adPermissionGiven = PlayerPrefs.GetInt("APG");
         SetAdUnitId();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+    }
 
+    public void GetAdConsent() {
         try {
             // Only uncomment when debugging user consent settings
             /*ConsentInformation.Reset();
@@ -84,6 +88,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     void OnConsentInfoUpdated(FormError consentError)
     {
+
         try {
             if (consentError != null)
             {

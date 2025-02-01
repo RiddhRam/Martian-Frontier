@@ -52,6 +52,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     int y;
     int x;
 
+    void Awake() {
+        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
+        fogOfWarSprite = largeFogOfWar.GetComponent<SpriteRenderer>();
+        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        playerVehicle = GameObject.Find("Player Vehicle");
+        mineRenderer = mine.GetComponent<MineRenderer>();
+    }
+
     void Start() {
         analyticsDelegator = AnalyticsDelegator.Instance;
         if (initialBattery < refineryBattery || initialBattery < 120) {
@@ -354,15 +365,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
-
-        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
-        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
-        largeFogOfWar = GameObject.Find("Large Fog Of War").transform;
-        fogOfWarSprite = largeFogOfWar.GetComponent<SpriteRenderer>();
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        playerVehicle = GameObject.Find("Player Vehicle");
-        mineRenderer = mine.GetComponent<MineRenderer>();
 
         UpdateRefineryProgressBars();
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());

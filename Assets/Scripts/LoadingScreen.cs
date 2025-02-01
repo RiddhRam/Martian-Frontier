@@ -44,6 +44,7 @@ public class LoadingScreen : MonoBehaviour
         }
 
         Destroy(gameObject);
+        GameObject.Find("Ad Delegator").GetComponent<AdDelegator>().GetAdConsent();
     }
 
     public IEnumerator IncrementLoadedItems()
