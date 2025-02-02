@@ -167,10 +167,10 @@ public class LoadingTest
         }
 
         // Safe Area - Make sure correct order
-        Transform safeArea = GameObject.Find("SafeArea").transform;
+        Transform uISafeArea = uIDelegation.transform.GetChild(0);
         string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Daily Challenge", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" ,"Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
-            Assert.AreEqual(safeAreaChildrenNames[i], safeArea.GetChild(i).name);
+            Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
 
         // Joystick Movement

@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using GoogleMobileAds.Ump.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -22,7 +21,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // This needs to be seperate because user can swap vehicle while boost active
     public float originalSpeed;
     public bool speedBoostActive;
-    private int adPermissionGiven;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
     private DataPersistenceManager dataPersistenceManager;
@@ -35,46 +33,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     void Awake() {
-        adPermissionGiven = PlayerPrefs.GetInt("APG");
         SetAdUnitId();
         dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-    }
-
-    public void GetAdConsent() {
-        try {
-            // Only uncomment when debugging user consent settings
-            /*ConsentInformation.Reset();
-            var debugSettings = new ConsentDebugSettings
-            {
-                DebugGeography = DebugGeography.EEA,
-                TestDeviceHashedIds =
-                new List<string>
-                {
-                    "93001fda-7fff-44e5-80b1-b086356f0b51"
-                }
-            };
-
-            // Create a ConsentRequestParameters object.
-            ConsentRequestParameters request = new ConsentRequestParameters
-            {
-                ConsentDebugSettings = debugSettings,
-            };*/
-            
-            // Create a ConsentRequestParameters object.
-            ConsentRequestParameters request = new();
-
-            // Check the current consent information status.
-            ConsentInformation.Update(request, OnConsentInfoUpdated);
-        } catch {
-        }
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        movementJoystick.SetActive(true);
-        tutorial.SetActive(true);
-
         IncrementLoadedItems(); 
 
         // Need this so rewarded ads actually reward in the real app
@@ -83,39 +48,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         MobileAds.Initialize((InitializationStatus initstatus) =>
         {
             adsInitialized = true;
+            FillEmptyAdSlots();
         });
-    }
-
-    void OnConsentInfoUpdated(FormError consentError)
-    {
-
-        try {
-            if (consentError != null)
-            {
-                // Handle the error.
-                Debug.LogError(consentError);
-                return;
-            }
-
-            // If the error is null, the consent information state was updated.
-            // You are now ready to check if a form is available.
-            ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
-            {
-                if (formError != null)
-                {
-                    // Consent gathering failed.
-                    Debug.LogError(consentError);
-                    return;
-                }
-                // Consent has been gathered.
-                if (ConsentInformation.CanRequestAds())
-                {
-                    FillEmptyAdSlots();
-                }
-
-            });
-        } catch {
-        }
     }
 
     void FixedUpdate() {
