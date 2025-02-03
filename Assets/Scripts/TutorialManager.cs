@@ -11,6 +11,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private int currentScreenIndex = 0; // Tracks the current tutorial screen
     private GameObject loadingScreen;
     private GameObject[] primaryElements;
+    private GameObject oreRefineryCanvas;
     private bool goToNext;
     private bool gameLoaded;
     private AnalyticsDelegator analyticsDelegator;
@@ -25,6 +26,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try {
             loadingScreen = GameObject.Find("Loading Screen");
+            oreRefineryCanvas = GameObject.Find("UI").GetComponent<UIDelegation>().oreRefineryCanvas;
         } catch {
         }
         
@@ -71,13 +73,17 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             primaryElements = new GameObject[] { settingsButton, newScreen };
 
             // Highlight the important stuff
-            if (currentScreenIndex == 1 || currentScreenIndex == 2) {
+            if (currentScreenIndex == 1) {
                 bottomControls.transform.GetChild(0).gameObject.SetActive(false);
                 bottomControls.transform.GetChild(1).gameObject.SetActive(true);
+            } else if (currentScreenIndex == 2) {
+                oreRefineryCanvas.SetActive(true);
             } else if (currentScreenIndex == 3) {
                 bottomControls.transform.GetChild(4).gameObject.SetActive(false);
                 bottomControls.transform.GetChild(5).gameObject.SetActive(true);
-            } else if (currentScreenIndex == 100) {
+            } 
+            
+            else if (currentScreenIndex == 100) {
                 // Change back to 4 to enable rewardedAdButtons
                 rewardedAdButtons.SetActive(true);
             }
@@ -87,13 +93,17 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             goToNext = false;
 
             // Unhighlight the stuff
-            if (currentScreenIndex == 1 || currentScreenIndex == 2) {
+            if (currentScreenIndex == 1) {
                 bottomControls.transform.GetChild(0).gameObject.SetActive(true);
                 bottomControls.transform.GetChild(1).gameObject.SetActive(false);
+            } else if (currentScreenIndex == 2) {
+                oreRefineryCanvas.SetActive(false);
             } else if (currentScreenIndex == 3) {
                 bottomControls.transform.GetChild(4).gameObject.SetActive(true);
                 bottomControls.transform.GetChild(5).gameObject.SetActive(false);
-            } else if (currentScreenIndex == 100) {
+            }
+            
+             else if (currentScreenIndex == 100) {
                 // Change back to 4 to enable rewardedAdButtons
                 rewardedAdButtons.SetActive(false);
             }
