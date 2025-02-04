@@ -367,7 +367,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
 
         UpdateRefineryProgressBars();
-        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        try {
+            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        } catch {
+
+        }
+       
         doneLoading = true;
     }
 

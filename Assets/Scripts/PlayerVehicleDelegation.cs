@@ -142,7 +142,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             break;
         }
-        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        
+        try {
+            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        } catch {
+        }
     }
 
     public void SaveData(ref GameData data) {

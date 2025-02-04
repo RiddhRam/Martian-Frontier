@@ -4,20 +4,98 @@ using UnityEngine;
 using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
 using Unity.Services.Core;
+using TMPro;
 
 public class CloudDelegator : MonoBehaviour
 {
-    public event Action<PlayerProfile> OnSignedIn;
-    public event Action<PlayerProfile> OnAvatarUpdate;
+    public TMP_Text userNameText;
+    public GameObject loginPanel, userPanel;
+    public GameObject askToLogOut;
 
-    private PlayerInfo playerInfo;
+    public UIDelegation uIDelegation;
+    public SettingsDelegator settingsDelegator;
 
     private PlayerProfile playerProfile;
-    public PlayerProfile PlayerProfile => playerProfile;
+    private PlayerInfo playerInfo;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
         PlayerAccountService.Instance.SignedIn += SignedIn;
+
+        // Check if a cached player already exists by checking if the session token exists
+        if (!AuthenticationService.Instance.SessionTokenExists) 
+        {
+            // if not, then do nothing
+            return;
+        }
+
+        // Sign in Anonymously
+        // This call will sign in the cached player.
+        try
+        {
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            Debug.Log("Sign in anonymously succeeded!");
+
+            OnSignedIn();
+        }
+        catch (AuthenticationException ex)
+        {
+            // Compare error code to AuthenticationErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }
+        catch (RequestFailedException ex)
+        {
+            // Compare error code to CommonErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }
+    }
+
+    public async void LoginButtonPressed()
+    {
+        await InitSignIn();
+    }
+
+    public void AskToLogOut() {
+        askToLogOut.SetActive(true);
+    }
+
+    public void CancelLogOut() {
+        askToLogOut.SetActive(false);
+    }
+
+    public void LogOut()
+    {
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            AuthenticationService.Instance.SignOut(true); // True to clear cache
+
+            loginPanel.SetActive(true);
+            userPanel.SetActive(false);
+
+            uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
+            uIDelegation.RevealAll();
+
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().ResetEntireGame();
+        }
+    }
+
+    private async void OnSignedIn()
+    {
+        playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
+
+        var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+
+        playerInfo = playerProfile.playerInfo;
+        playerProfile.Name = name;
+
+        loginPanel.gameObject.SetActive(false);
+        userPanel.gameObject.SetActive(true);
+       
+        userNameText.text = playerProfile.Name;
+
+        //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
     private async void SignedIn() {
@@ -38,16 +116,9 @@ public class CloudDelegator : MonoBehaviour
         try
         {
             await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
-            Debug.Log("SignIn is successful.");
+            Debug.Log("Sign In With Unity succeeded!");
 
-            playerInfo = AuthenticationService.Instance.PlayerInfo;
-
-            var name = await AuthenticationService.Instance.GetPlayerNameAsync();
-
-            playerProfile.playerInfo = playerInfo;
-            playerProfile.Name = name;
-
-            OnSignedIn?.Invoke(playerProfile);
+            OnSignedIn();
         }
         catch (AuthenticationException ex) {
             Debug.LogError(ex.Message);
@@ -55,10 +126,6 @@ public class CloudDelegator : MonoBehaviour
             Debug.LogError(ex.Message);
         }
     }
-
-    private void OnDestroy() {
-        PlayerAccountService.Instance.SignedIn -= SignedIn;
-    }  
 }
 
 [Serializable]

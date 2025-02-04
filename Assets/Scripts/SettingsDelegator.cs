@@ -19,17 +19,10 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject accountButton;
     public GameObject accountPanel;
 
-    public TMP_Text userIdText;
-    public TMP_Text userNameText;
-    public Transform loginPanel, userPanel;
-    public CloudDelegator cloudDelegator;
-    private PlayerProfile playerProfile;
-
     private GameObject audioDelegator;
     private bool musicEnabled;
     private bool soundFXEnabled;
     private AnalyticsDelegator analyticsDelegator;
-    private bool signUpMode = true;
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
@@ -272,45 +265,4 @@ public class SettingsDelegator : MonoBehaviour
         }
     }
 
-    private void OnEnable()
-    {
-        cloudDelegator.OnSignedIn += CloudDelegator_OnSignedIn;
-        cloudDelegator.OnAvatarUpdate += CloudDelegator_OnAvatarUpdate;
-    }
-
-    private void OnDisable()
-    {
-        cloudDelegator.OnSignedIn -= CloudDelegator_OnSignedIn;
-        cloudDelegator.OnAvatarUpdate -= CloudDelegator_OnAvatarUpdate;
-    }
-
-    public async void LoginButtonPressed()
-    {
-        await cloudDelegator.InitSignIn();
-    }
-
-    private void CloudDelegator_OnSignedIn(PlayerProfile profile)
-    {
-        playerProfile = profile;
-        loginPanel.gameObject.SetActive(false);
-        userPanel.gameObject.SetActive(true);
-       
-        userIdText.text = $"id_{playerProfile.playerInfo.Id}";
-        userNameText.text = profile.Name;
-    }
-    private void CloudDelegator_OnAvatarUpdate(PlayerProfile profile)
-    {
-        playerProfile = profile;
-    }
-
-    private string GetLocalizedValue(string key, params object[] args)
-    {
-        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
-
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
-
-        // Use string.Format to replace placeholders with arguments
-        return string.Format(entry.LocalizedValue, args);
-    }
 }

@@ -116,4 +116,18 @@ public class DataPersistenceManager : MonoBehaviour
             FindDataPersistenceInHierarchy(child.gameObject, dataPersistenceObjects);
         }
     }
+
+    public void ResetEntireGame() {
+        this.gameData = new GameData();
+        gameData.finishedTutorial = true;
+        
+        // initialize values to scripts that need it
+        foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
+            try {
+                dataPersistenceObj.LoadData(gameData);
+            } catch (Exception error) {
+                Debug.LogError(error);
+            }
+        }
+    }   
 }
