@@ -353,6 +353,8 @@ public class LoadingTest
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }
 
+        Assert.Fail("MAKE SURE MAP CAMERA SCRIPT IS DISABLED");
+
         yield return null;
     }
 }

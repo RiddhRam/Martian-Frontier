@@ -6,6 +6,8 @@ public class PlayerMovement : MonoBehaviour
     public GameObject mainCamera;
     public JoystickMovement joystickMovement;
     public GameObject speedText;
+    public TextMeshProUGUI depthTracker;
+
     [SerializeField]
     private float playerSpeed = 5f;
     private readonly float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
@@ -48,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
         // Smooth camera follow
         targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
         mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        UpdateDepth();
 
         // Disable this if using AI Movement
         if (!joystickMovement) {
@@ -142,4 +145,24 @@ public class PlayerMovement : MonoBehaviour
     public float GetSpeed() {
         return playerSpeed;
     }
+
+    public void UpdateDepth() {
+        depthTracker.text = FormatPositionY((int) -(transform.position.y + 5));
+    }
+
+    private string FormatPositionY(int positionY)
+    {
+        if (positionY <= 0) {
+            return "0 M";
+        }
+        
+        if (positionY >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "KM"
+            return (positionY / 1_000) + " KM";
+        } else {
+            return positionY + " M";
+        }
+    }
+
 }
