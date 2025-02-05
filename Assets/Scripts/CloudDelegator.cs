@@ -73,6 +73,7 @@ public class CloudDelegator : MonoBehaviour
 
             loginPanel.SetActive(true);
             userPanel.SetActive(false);
+            askToLogOut.SetActive(false);
 
             uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
             uIDelegation.RevealAll();
@@ -83,6 +84,7 @@ public class CloudDelegator : MonoBehaviour
 
     private async void OnSignedIn()
     {
+        Debug.Log("On Signed In");
         playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
 
         var name = await AuthenticationService.Instance.GetPlayerNameAsync();
@@ -99,6 +101,7 @@ public class CloudDelegator : MonoBehaviour
     }
 
     private async void SignedIn() {
+        Debug.Log("Signed in");
         try {
             var accessToken = PlayerAccountService.Instance.AccessToken;
             await SignInWithUnityAsync(accessToken);
@@ -109,10 +112,12 @@ public class CloudDelegator : MonoBehaviour
     }
 
     public async Task InitSignIn() {
+        Debug.Log("Init Sign in");
         await PlayerAccountService.Instance.StartSignInAsync();
     }
 
     async Task SignInWithUnityAsync(string accessToken) {
+        Debug.Log("Unity Async");
         try
         {
             await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
