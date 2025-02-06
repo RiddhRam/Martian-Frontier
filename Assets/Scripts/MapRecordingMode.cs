@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
@@ -7,8 +5,14 @@ public class MapRecordingMode : MonoBehaviour
 {
     public Transform playerVehicle;
     public GameObject mapText;
-    public GameObject depth;
+    public GameObject videoInfo;
+    public PlayerState playerState;
+    public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
+    public OreDelegation oreDelegation;
+
     public TextMeshProUGUI depthText;
+    public TextMeshProUGUI mineText;
+    public TextMeshProUGUI valueText;
 
     [SerializeField]
     int minimumCameraSize;
@@ -21,14 +25,18 @@ public class MapRecordingMode : MonoBehaviour
     float farthestLeft;
     [SerializeField]
     float farthestDown;
+    [SerializeField]
+    System.Numerics.BigInteger originalBlocksMined;
 
-    private Camera thisCamera;
+    Camera thisCamera;
 
     void Start()
     {
         mapText.SetActive(false);
-        depth.SetActive(true);
+        videoInfo.SetActive(true);
         thisCamera = GetComponent<Camera>();
+
+        originalBlocksMined = playerState.GetBlocksMined();
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
@@ -54,7 +62,7 @@ public class MapRecordingMode : MonoBehaviour
 
         ClampCamera();
         Zoom();
-        UpdateDepth();
+        UpdateText();
     }
 
     private void ClampCamera()
@@ -67,15 +75,27 @@ public class MapRecordingMode : MonoBehaviour
 
     private void Zoom()
     {
-        float width = farthestRight - farthestLeft + (visionRadius * 2);
-        float height = top - farthestDown + (visionRadius * 2);
+        float width = farthestRight - farthestLeft + (visionRadius * 4);
+        float height = (top - farthestDown + (visionRadius * 4)) / 2;
         float targetSize = Mathf.Max(width, height);
         targetSize = Mathf.Clamp(targetSize, minimumCameraSize, 252);
         thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, targetSize, Time.deltaTime * 5);
     }
 
-    public void UpdateDepth() {
+    public void UpdateText() {
         depthText.text = FormatPositionY((int) -playerVehicle.position.y -5);
+        mineText.text = FormatPrice(playerState.GetBlocksMined() - originalBlocksMined);
+        valueText.text = "$" + FormatPrice(GetMineValue());
+    }
+
+    public System.Numerics.BigInteger GetMineValue() {
+        System.Numerics.BigInteger mineValue = 0;
+
+        foreach (var kvp in uncollectedMaterialsDelegator.uncollectedMaterials) {
+            mineValue += kvp.Value.count * oreDelegation.GetMaterialPrices()[kvp.Value.materialIndex];
+        }
+
+        return mineValue;
     }
 
     private string FormatPositionY(int positionY)
@@ -91,5 +111,37 @@ public class MapRecordingMode : MonoBehaviour
         } else {
             return positionY + " M";
         }
+    }
+
+    private string FormatPrice(System.Numerics.BigInteger price)
+    {
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.#") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.#") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.#") + "T";
+        }
+        else if (price >= 1_000_000_000)
+        {
+            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.#") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.#") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.#") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 }

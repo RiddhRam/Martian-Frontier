@@ -22,15 +22,8 @@ public class CloudDelegator : MonoBehaviour
         await UnityServices.InitializeAsync();
         PlayerAccountService.Instance.SignedIn += SignedIn;
 
-        // Check if a cached player already exists by checking if the session token exists
-        if (!AuthenticationService.Instance.SessionTokenExists) 
-        {
-            // if not, then do nothing
-            return;
-        }
-
         // Sign in Anonymously
-        // This call will sign in the cached player.
+        // This call will sign in the cached player, or make a new account.
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -50,6 +43,7 @@ public class CloudDelegator : MonoBehaviour
             // Notify the player with the proper error message
             Debug.LogException(ex);
         }
+
     }
 
     public async void LoginButtonPressed()
@@ -65,11 +59,12 @@ public class CloudDelegator : MonoBehaviour
         askToLogOut.SetActive(false);
     }
 
-    public void LogOut()
+    public async void LogOut()
     {
         if (AuthenticationService.Instance.IsSignedIn)
         {
             AuthenticationService.Instance.SignOut(true); // True to clear cache
+            PlayerAccountService.Instance.SignOut();
 
             loginPanel.SetActive(true);
             userPanel.SetActive(false);
@@ -78,13 +73,69 @@ public class CloudDelegator : MonoBehaviour
             uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
             uIDelegation.RevealAll();
 
+            await AuthenticationService.Instance.SignInAnonymouslyAsync();
+            Debug.Log("Sign in anonymously succeeded!");
+
+            OnSignedIn();
+
             GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().ResetEntireGame();
         }
     }
 
+    public async Task InitSignIn() {
+        try {
+            await PlayerAccountService.Instance.StartSignInAsync();
+        } 
+        catch (AuthenticationException ex)
+        {
+            // Compare error code to AuthenticationErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }
+        catch (RequestFailedException ex)
+        {
+            // Compare error code to CommonErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }  
+    }
+
+    private async void SignedIn() {
+        try {
+            var accessToken = PlayerAccountService.Instance.AccessToken;
+            await ConnectWithUnityAsync(accessToken);
+        } 
+        catch(Exception ex) {
+            Debug.LogError(ex.Message);
+        }
+    }
+
+    async Task ConnectWithUnityAsync(string accessToken) {
+
+        try {
+            await AuthenticationService.Instance.LinkWithUnityAsync(accessToken);
+            Debug.Log("Link is successful.");
+        } 
+        catch (AuthenticationException ex) when (ex.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked) {
+
+            AuthenticationService.Instance.SignOut(true);
+            try {
+                await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
+                Debug.Log("Sign in succeeded!");
+            } 
+            catch (Exception error) {
+                Debug.Log(error.Message);
+            }
+            
+        } catch (Exception error) {
+            Debug.Log(error.Message);
+        }
+
+        OnSignedIn();
+    }
+
     private async void OnSignedIn()
     {
-        Debug.Log("On Signed In");
         playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
 
         var name = await AuthenticationService.Instance.GetPlayerNameAsync();
@@ -92,44 +143,19 @@ public class CloudDelegator : MonoBehaviour
         playerInfo = playerProfile.playerInfo;
         playerProfile.Name = name;
 
-        loginPanel.gameObject.SetActive(false);
-        userPanel.gameObject.SetActive(true);
-       
-        userNameText.text = playerProfile.Name;
+        // Make sure not anonymous
+        if (CheckAnonymity()) {
+            loginPanel.gameObject.SetActive(false);
+            userPanel.gameObject.SetActive(true);
+        
+            userNameText.text = playerProfile.Name;
+        }
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
-    private async void SignedIn() {
-        Debug.Log("Signed in");
-        try {
-            var accessToken = PlayerAccountService.Instance.AccessToken;
-            await SignInWithUnityAsync(accessToken);
-        } 
-        catch(Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-
-    public async Task InitSignIn() {
-        Debug.Log("Init Sign in");
-        await PlayerAccountService.Instance.StartSignInAsync();
-    }
-
-    async Task SignInWithUnityAsync(string accessToken) {
-        Debug.Log("Unity Async");
-        try
-        {
-            await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
-            Debug.Log("Sign In With Unity succeeded!");
-
-            OnSignedIn();
-        }
-        catch (AuthenticationException ex) {
-            Debug.LogError(ex.Message);
-        } catch (RequestFailedException ex) {
-            Debug.LogError(ex.Message);
-        }
+    public bool CheckAnonymity() {
+        return  playerInfo != null && playerInfo.Identities.Count != 0;
     }
 }
 

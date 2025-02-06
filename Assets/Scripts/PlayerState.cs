@@ -413,6 +413,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return highestDrillTier;
     }
 
+    public BigInteger GetBlocksMined() {
+        return blocksMined;
+    }
+
     // For development only
     public void FreeMoney() {
         userCash += freeMoneyToAdd;
