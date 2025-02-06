@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
 using Unity.Services.Core;
+using Unity.Services.CloudSave;
 using TMPro;
 
 public class CloudDelegator : MonoBehaviour
@@ -14,6 +17,7 @@ public class CloudDelegator : MonoBehaviour
 
     public UIDelegation uIDelegation;
     public SettingsDelegator settingsDelegator;
+    public DataPersistenceManager dataPersistenceManager;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
@@ -44,6 +48,7 @@ public class CloudDelegator : MonoBehaviour
             Debug.LogException(ex);
         }
 
+        StartCoroutine(AutoSaveCoroutine());
     }
 
     public async void LoginButtonPressed()
@@ -154,7 +159,37 @@ public class CloudDelegator : MonoBehaviour
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
+    private IEnumerator AutoSaveCoroutine()
+    {
+        while (true) // Run indefinitely
+        {
+            SaveToCloud();
+            yield return new WaitForSeconds(8f); // Wait for 120 seconds before saving again
+            
+        }
+    }
+
+    public async void SaveToCloud() {
+
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
+            return;
+        }
+
+        var data = new Dictionary<string, object>{ { "MySaveKey", "HelloWorld" } };
+        try
+        {
+            await CloudSaveService.Instance.Data.Player.SaveAsync(data);
+            Debug.Log("Data saved to cloud successfully.");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Cloud save failed: {e.Message}");
+        }
+    }
+
     public bool CheckAnonymity() {
+        // True if logged in
+        // False if not
         return  playerInfo != null && playerInfo.Identities.Count != 0;
     }
 }

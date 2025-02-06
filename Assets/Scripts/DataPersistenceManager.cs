@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System;
 
 public class DataPersistenceManager : MonoBehaviour
@@ -8,6 +7,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     [Header("File Storage Config")]
     public string fileName;
+    public CloudDelegator cloudDelegator;
     private bool useEncryption = true;
 
     private GameData gameData;
@@ -19,6 +19,7 @@ public class DataPersistenceManager : MonoBehaviour
     public static DataPersistenceManager instance {get; private set; }
 
     private void Awake() {
+
         if (instance != null) {
             Debug.LogError("Found more than one data persistence manager");
         }
@@ -28,6 +29,7 @@ public class DataPersistenceManager : MonoBehaviour
         if (Application.isEditor) {
             useEncryption = false;
         }
+
     }
 
     private void Start() {
@@ -83,10 +85,12 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
+        cloudDelegator.SaveToCloud();
         SaveGame();
     }
 
     private void OnApplicationPause() {
+        cloudDelegator.SaveToCloud();
         SaveGame();
     }
 
