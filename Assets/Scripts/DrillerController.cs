@@ -61,7 +61,7 @@ public class DrillerController : MonoBehaviour
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         ores = mineRenderer.GetOres();
 
-        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        oreDelegation = mineRenderer.oreDelegation;
         materials = oreDelegation.materials;
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);

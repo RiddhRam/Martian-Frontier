@@ -274,7 +274,7 @@ public class LoadingTest
         // Mine Renderer
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
-        Assert.AreEqual(mineRenderer.playerState.GetComponent<PlayerState>(), playerState);
+        Assert.AreEqual(mineRenderer.playerStateScript, playerState);
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
@@ -330,7 +330,7 @@ public class LoadingTest
 
         // Mine Renderer
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
-        Assert.AreEqual(mineRenderer.playerState.name, "PlayerState");
+        Assert.AreEqual(mineRenderer.playerStateScript.gameObject.name, "PlayerState");
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");

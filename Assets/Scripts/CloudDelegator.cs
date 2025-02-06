@@ -1,13 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
 using Unity.Services.Core;
 using Unity.Services.CloudSave;
 using TMPro;
+using System.IO;
+using System.Text;
 
 public class CloudDelegator : MonoBehaviour
 {
@@ -16,8 +17,8 @@ public class CloudDelegator : MonoBehaviour
     public GameObject askToLogOut;
 
     public UIDelegation uIDelegation;
-    public SettingsDelegator settingsDelegator;
     public DataPersistenceManager dataPersistenceManager;
+    public LoadingScreen loadingScreen;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
@@ -31,7 +32,6 @@ public class CloudDelegator : MonoBehaviour
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            Debug.Log("Sign in anonymously succeeded!");
 
             OnSignedIn();
         }
@@ -47,6 +47,8 @@ public class CloudDelegator : MonoBehaviour
             // Notify the player with the proper error message
             Debug.LogException(ex);
         }
+
+        IncrementLoadedItems();
 
         StartCoroutine(AutoSaveCoroutine());
     }
@@ -119,14 +121,12 @@ public class CloudDelegator : MonoBehaviour
 
         try {
             await AuthenticationService.Instance.LinkWithUnityAsync(accessToken);
-            Debug.Log("Link is successful.");
         } 
         catch (AuthenticationException ex) when (ex.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked) {
 
             AuthenticationService.Instance.SignOut(true);
             try {
                 await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
-                Debug.Log("Sign in succeeded!");
             } 
             catch (Exception error) {
                 Debug.Log(error.Message);
@@ -150,10 +150,11 @@ public class CloudDelegator : MonoBehaviour
 
         // Make sure not anonymous
         if (CheckAnonymity()) {
-            loginPanel.gameObject.SetActive(false);
-            userPanel.gameObject.SetActive(true);
+            loginPanel.SetActive(false);
+            userPanel.SetActive(true);
         
             userNameText.text = playerProfile.Name;
+            LoadGameDataFromCloud();
         }
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
@@ -163,28 +164,61 @@ public class CloudDelegator : MonoBehaviour
     {
         while (true) // Run indefinitely
         {
-            SaveToCloud();
-            yield return new WaitForSeconds(8f); // Wait for 120 seconds before saving again
+            SaveGameDataToCloud();
+            yield return new WaitForSeconds(120f); // Wait for 120 seconds before saving again
             
         }
     }
 
-    public async void SaveToCloud() {
+    public async void SaveGameDataToCloud() {
 
         if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
             return;
         }
 
-        var data = new Dictionary<string, object>{ { "MySaveKey", "HelloWorld" } };
+        string jsonData = dataPersistenceManager.CreateJson();
+        byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
+        
         try
         {
-            await CloudSaveService.Instance.Data.Player.SaveAsync(data);
-            Debug.Log("Data saved to cloud successfully.");
+            await CloudSaveService.Instance.Files.Player.SaveAsync("GameSave.json", new MemoryStream(jsonBytes));            
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            Debug.LogError($"Cloud save failed: {e.Message}");
+            Debug.Log($"Cloud save failed: {e}");
         }
+    }
+
+    public async void LoadGameDataFromCloud() {
+
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
+            return;
+        }
+
+        try
+        {
+            // Load the file from the cloud
+            var file = await CloudSaveService.Instance.Files.Player.LoadBytesAsync("GameSave.json");
+
+            // Convert the file's byte data to a string
+            string jsonData = Encoding.UTF8.GetString(file);
+            
+            GameData gameData = dataPersistenceManager.ParseJson(jsonData);
+
+            if (dataPersistenceManager.CompareGameData(gameData)) {
+                loadingScreen.loadedItems = 0;
+                loadingScreen.totalItems = loadingScreen.cloudSaveItems;
+                loadingScreen.gameObject.SetActive(true);
+
+                dataPersistenceManager.LoadGame();
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"Cloud load failed: {e}");
+        }
+
+        IncrementLoadedItems();
     }
 
     public bool CheckAnonymity() {
@@ -192,6 +226,14 @@ public class CloudDelegator : MonoBehaviour
         // False if not
         return  playerInfo != null && playerInfo.Identities.Count != 0;
     }
+
+    // Just so it gets factor into Loading
+    private void IncrementLoadedItems() {
+        try {
+             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+        } catch {
+        }
+    } 
 }
 
 [Serializable]

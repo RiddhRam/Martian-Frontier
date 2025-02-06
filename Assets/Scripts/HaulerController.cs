@@ -35,12 +35,14 @@ public class HaulerController : MonoBehaviour
     void Awake() {
         UIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+
+        materialNames = mineRenderer.oreDelegation.materialNames;
+        materialsDelegator = mineRenderer.materialsDelegator;
     }
 
     void Start() {
         floatingText = transform.GetChild(0).gameObject;
-        materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
-        materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
+
         if (materialCount == null || materialCount.Length != materialNames.Length) {
             materialCount = new int[materialNames.Length];
         }

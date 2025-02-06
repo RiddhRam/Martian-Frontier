@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -8,9 +10,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Have to change through hierarchy not through here
     [SerializeField]
     private int visionRadius;
-    public GameObject playerState;
     public GameObject largeFogOfWar;
-    public GameObject dailyChallengeDelegatorGO;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
@@ -47,10 +47,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private string[] oreNames;
     // Uppercase
     private string[] materialNames;
-    private UncollectedMaterialsDelegator materialsDelegator;
+    public UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
     public int highestRow = 0;
+    private bool loadedLocalGame = false;
 
     // 0 = Not created
     // 1 = in the process of initializing
@@ -59,10 +60,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
-    private OreDelegation oreDelegation;
-    private DailyChallengeDelegator dailyChallengeDelegator;
+    public DataPersistenceManager dataPersistenceManager;
+    public AnalyticsDelegator analyticsDelegator;
+    public OreDelegation oreDelegation;
+    public DailyChallengeDelegator dailyChallengeDelegator;
     private Dictionary<string, int> quantities = new();
     public int[] oresCount;
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
@@ -70,12 +71,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private List<GameObject> mineTilemaps;
     private List<GameObject> mineBackgroundTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
-    private PlayerState playerStateScript;
+    public PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
     float invGridWidth;  // Precompute inverse for division
     int totalRowsForFunc;
     int totalColumnsForFunc;
+
 
     private int tileTier;
     GameObject obj;
@@ -122,6 +124,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int tileX;
     int tileY;
     Vector2Int tilePosition;
+    string childName;
+    int y;
+    int x;
 
     // Called before Start
     void Awake()
@@ -132,9 +137,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         invGridHeight = 1f / -gridSize.y; // Precompute inverse for division
         invGridWidth = 1f / gridSize.x;  // Precompute inverse for division
 
-        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
-
-        materialsDelegator = GameObject.Find("Materials Delegator").GetComponent<UncollectedMaterialsDelegator>();
         unplacedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
@@ -188,20 +190,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         oresCount = new int[sum];
     
-        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
         materials = oreDelegation.materials;
         oreNames = oreDelegation.GetOreNames();
         materialNames = oreDelegation.materialNames;
-
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        playerStateScript = playerState.GetComponent<PlayerState>();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        // This doesn't necessarily mean the player is new, just that a new mine is needed
-        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
@@ -714,6 +705,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        // This has to be done async so that we can return all objects to the pool when loading a cloud save
+        // Return objects happens over several frames to reduce lag
+        StartCoroutine(AsyncLoadData(data));
+    }
+
+    private IEnumerator AsyncLoadData(GameData data) {
+        if (loadedLocalGame) {
+            // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
+            yield return StartCoroutine(ReturnAllObjectsToPool());
+        }
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
         this.seed = data.seed;
@@ -750,11 +751,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         LoadTiles();
-        
+
+        loadedLocalGame = true;
+
         try {
             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
         } catch {
         }
+
+        yield break;
     }
 
     public void SaveData(ref GameData data) {
@@ -901,6 +906,68 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         tilemap.SetTiles(tilesToSet, tilesBeingUsed);
         mineBackgroundTilemaps.Insert(0, obj);
+    }
+
+    public IEnumerator ReturnAllObjectsToPool() {
+        // Return materials
+        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
+        MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
+
+        for (int i = 0; i < taggedObjects.Length; i++)
+        {
+            materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
+        }
+
+        foreach (var material in materials) {
+            ReturnMaterialObject(material.gameObject, material.materialIndex, material.id);
+        }
+
+        // Reset the mine        
+        int counter = 0;
+
+        // Split the mine reset work into intervals
+        for (int i = 0; i < transform.childCount; i++)
+        {
+            GameObject child = transform.GetChild(i).gameObject;
+
+            // Skip null objects
+            if (!child)
+                continue;
+
+            childName = child.name;
+
+            // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
+            if ((childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) && child.activeSelf)
+            {
+                // Repool or destroy
+                if (childName.Contains("Row")) {
+                    // Define a regex to capture Y and X values
+                    var match = Regex.Match(childName, @"Row (\d+), Column (\d+)");
+
+                    y = int.Parse(match.Groups[1].Value);
+                    x = int.Parse(match.Groups[2].Value);
+
+                    ReturnTilemapObject(child, x * 25, y * -12 - 5);
+
+                } else if (childName.Contains("Background")) {
+
+                    ReturnBackgroundTilemapObject(child);
+                } else {
+
+                    Destroy(child);
+                    i--;
+                }
+            
+
+                // Only delete 42 per frame
+                if (counter >= 84) {
+                    yield return new WaitForSecondsRealtime(0.1f);
+                    counter = 0;
+                }
+                counter++;
+            }
+        }
+
     }
 
     public void SetVisionRadius(int newRadius) {

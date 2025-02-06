@@ -39,7 +39,7 @@ public class FileDataHandler
             }
 
             // Deserialize the data from the json back into the C# object
-            loadedData = ParseJson(dataToLoad);
+            loadedData = ParseJson(dataToLoad, useEncryption);
         }  
         catch {
         }
@@ -47,7 +47,7 @@ public class FileDataHandler
         return loadedData;
     }
 
-    private GameData ParseJson(string dataToLoad) {
+    public GameData ParseJson(string dataToLoad, bool useEncryption) {
         // Temporarily save data here, then we will return it later
         GameData tempData = new();
         
@@ -216,7 +216,7 @@ public class FileDataHandler
             // Create directory to save file in if it doesn't exist
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
-            string dataToStore = CreateJson(data);
+            string dataToStore = CreateJson(data, useEncryption);
 
             // Write to a temporary file first
             using (FileStream stream = new FileStream(tempPath, FileMode.Create))
@@ -237,7 +237,7 @@ public class FileDataHandler
         }
     }
 
-    private string CreateJson(GameData data)
+    public string CreateJson(GameData data, bool useEncryption)
     {
         StringBuilder jsonBuilder = new StringBuilder();
         jsonBuilder.Append("{\n");
@@ -369,4 +369,5 @@ public class FileDataHandler
             return Encoding.UTF8.GetString(result);
         }
     }
+
 }

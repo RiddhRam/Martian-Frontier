@@ -45,12 +45,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private MineRenderer mineRenderer;
     private DailyChallengeDelegator dailyChallengeDelegator;
     private bool doneLoading = false;
-    string childName;
     bool doneAnimation;
     SpriteRenderer fogOfWarSprite;
-
-    int y;
-    int x;
 
     void Awake() {
         dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
@@ -173,64 +169,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // just as the mine was shutting down, and the ore didn't have enough time to have 
         // the mine set as its parent
         // This HAS to go first otherwise the mine will not reset tilemaps properly
-        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
-        MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
-
-        for (int i = 0; i < taggedObjects.Length; i++)
-        {
-            materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
-        }
-
-        foreach (var material in materials) {
-            mineRenderer.ReturnMaterialObject(material.gameObject, material.materialIndex, material.id);
-        }
-        materials = null;
-
-        // Reset the mine        
-        int counter = 0;
-
-        // Split the mine reset work into intervals
-        for (int i = 0; i < mine.transform.childCount; i++)
-        {
-            GameObject child = mine.transform.GetChild(i).gameObject;
-
-            // Skip null objects
-            if (!child)
-                continue;
-
-            childName = child.name;
-
-            // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
-            if ((childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) && child.activeSelf)
-            {
-                // Repool or destroy
-                if (childName.Contains("Row")) {
-                    // Define a regex to capture Y and X values
-                    var match = Regex.Match(childName, @"Row (\d+), Column (\d+)");
-
-                    y = int.Parse(match.Groups[1].Value);
-                    x = int.Parse(match.Groups[2].Value);
-
-                    mineRenderer.ReturnTilemapObject(child, x * 25, y * -12 - 5);
-
-                } else if (childName.Contains("Background")) {
-
-                    mineRenderer.ReturnBackgroundTilemapObject(child);
-                } else {
-
-                    Destroy(child);
-                    i--;
-                }
-            
-
-                // Only delete 42 per frame
-                if (counter >= 84) {
-                    yield return new WaitForSecondsRealtime(0.1f);
-                    counter = 0;
-                }
-                counter++;
-            }
-        }
+        yield return mineRenderer.ReturnAllObjectsToPool();
 
         yield return new WaitUntil(() => doneAnimation);
 

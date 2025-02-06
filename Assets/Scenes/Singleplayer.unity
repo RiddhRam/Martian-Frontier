@@ -4338,6 +4338,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: ryd
+  cloudDelegator: {fileID: 779610164}
 --- !u!4 &244266722
 Transform:
   m_ObjectHideFlags: 0
@@ -8285,7 +8286,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   bufferCircle: {fileID: 2038149527}
-  progressBar: {fileID: 984960589}
+  progressBar: {fileID: 984960591}
+  loadedItems: 0
+  totalItems: 11
+  cloudSaveItems: 7
 --- !u!1 &459722255
 GameObject:
   m_ObjectHideFlags: 0
@@ -27336,7 +27340,8 @@ MonoBehaviour:
   userPanel: {fileID: 236782079}
   askToLogOut: {fileID: 153107077}
   uIDelegation: {fileID: 319486926}
-  settingsDelegator: {fileID: 1257639991}
+  dataPersistenceManager: {fileID: 244266721}
+  loadingScreen: {fileID: 457368003}
 --- !u!4 &779610165
 Transform:
   m_ObjectHideFlags: 0
@@ -31613,7 +31618,7 @@ MonoBehaviour:
   m_Direction: 0
   m_MinValue: 0
   m_MaxValue: 1
-  m_WholeNumbers: 0
+  m_WholeNumbers: 1
   m_Value: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -38908,9 +38913,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   visionRadius: 3
-  playerState: {fileID: 276248152}
   largeFogOfWar: {fileID: 1438017626}
-  dailyChallengeDelegatorGO: {fileID: 875091221}
   mineTilemapPrefab: {fileID: 3638634728784657662, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
   mineBackgroundTilemapPrefab: {fileID: 8053565804712313070, guid: cf767454c5de94b9598a7d116503d05f, type: 3}
   mineBackgroundRuleTile: {fileID: 11400000, guid: 2281943e1507b442e8d449872abba95c, type: 2}
@@ -38928,12 +38931,18 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
   - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
   - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  materialsDelegator: {fileID: 1262672824}
   seed: 0
   highestRow: 0
   mineInitialization: 0
   tierThresholds: 000000000000000000000000
   oresPerTier: 000000000000000000000000
+  dataPersistenceManager: {fileID: 244266721}
+  analyticsDelegator: {fileID: 1743240306}
+  oreDelegation: {fileID: 295927379}
+  dailyChallengeDelegator: {fileID: 875091222}
   oresCount: 
+  playerStateScript: {fileID: 276248154}
 --- !u!1 &1112818198
 GameObject:
   m_ObjectHideFlags: 0
