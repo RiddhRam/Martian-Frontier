@@ -18,11 +18,12 @@ public class MapRecordingMode : MonoBehaviour
     int minimumCameraSize;
     [SerializeField]
     int visionRadius;
-    readonly float top = -4;
     [SerializeField]
     float farthestRight;
     [SerializeField]
     float farthestLeft;
+    [SerializeField]
+    float farthestTop;
     [SerializeField]
     float farthestDown;
     [SerializeField]
@@ -44,6 +45,20 @@ public class MapRecordingMode : MonoBehaviour
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
         farthestLeft = pos.x;
+        farthestTop = pos.y;
+        farthestDown = pos.y;
+    }
+
+    [ContextMenu("Reset Camera")]
+    public void ResetCamera() {
+        transform.position = new(0, -256, -17);
+        thisCamera.orthographicSize = 252;
+        
+        Vector3 pos = playerVehicle.position;
+
+        farthestRight = pos.x;
+        farthestLeft = pos.x;
+        farthestTop = pos.y;
         farthestDown = pos.y;
     }
 
@@ -57,6 +72,9 @@ public class MapRecordingMode : MonoBehaviour
         if (pos.x < farthestLeft)
             farthestLeft = pos.x;
 
+        if (pos.y > farthestTop)
+            farthestTop = pos.y;
+
         if (pos.y < farthestDown)
             farthestDown = pos.y;
 
@@ -69,14 +87,14 @@ public class MapRecordingMode : MonoBehaviour
     {
         Vector3 clampedPosition = thisCamera.transform.position;
         clampedPosition.x = Mathf.Clamp((farthestLeft + farthestRight) / 2, farthestLeft - visionRadius, farthestRight + visionRadius);
-        clampedPosition.y = -thisCamera.orthographicSize + top;
+        clampedPosition.y = Mathf.Clamp(-thisCamera.orthographicSize + farthestTop + (visionRadius * 2), -600, -thisCamera.orthographicSize - 4.5f);
         thisCamera.transform.position = clampedPosition;
     }
 
     private void Zoom()
     {
         float width = farthestRight - farthestLeft + (visionRadius * 4);
-        float height = (top - farthestDown + (visionRadius * 4)) / 2;
+        float height = (farthestTop - farthestDown + (visionRadius * 4)) / 2;
         float targetSize = Mathf.Max(width, height);
         targetSize = Mathf.Clamp(targetSize, minimumCameraSize, 252);
         thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, targetSize, Time.deltaTime * 5);
