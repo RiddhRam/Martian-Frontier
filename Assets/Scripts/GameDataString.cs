@@ -32,6 +32,7 @@ public class GameDataString
     public string superChallengeTimer;
     public string userGems;
     public string gemsEarned;
+    public string currentOresMined;
 
     public GameDataString() {
         this.userCash = null;
@@ -63,5 +64,6 @@ public class GameDataString
         this.superChallengeTimer = null;
         this.userGems = null;
         this.gemsEarned = null;
+        this.currentOresMined = null;
     }
 }

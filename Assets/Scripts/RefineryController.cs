@@ -174,6 +174,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
         increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
+        mineRenderer.currentOresMined = 0;
+        mineRenderer.oresMinedText.text = "0";
+
         // Destroy all leftover materials, we do it this way, in case someone mined something 
         // just as the mine was shutting down, and the ore didn't have enough time to have 
         // the mine set as its parent

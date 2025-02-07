@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -18,6 +19,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
+    public TextMeshProUGUI oresMinedText;
+    public TextMeshProUGUI mineValueText;
     // Height of the map, measured in tilemaps
     private readonly int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
@@ -48,6 +51,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private string[] oreNames;
     // Uppercase
     private string[] materialNames;
+    private int[] materialPrices;
     public UncollectedMaterialsDelegator materialsDelegator;
     [SerializeField]
     private int seed;
@@ -129,6 +133,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int x;
     private Coroutine _loadDataCoroutine;
     private bool cloudLoading = false;
+    public int currentOresMined = 0;
+    public System.Numerics.BigInteger currentMineValue = 0;
 
     // Called before Start
     void Awake()
@@ -195,6 +201,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         materials = oreDelegation.materials;
         oreNames = oreDelegation.GetOreNames();
         materialNames = oreDelegation.materialNames;
+        materialPrices = oreDelegation.GetMaterialPrices();
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
@@ -613,6 +620,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             }
 
+            currentOresMined++;
             if (oreMined) {
                 oresMined++;
                 int adjustment = 0;
@@ -646,6 +654,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
         }
 
+        oresMinedText.text = currentOresMined.ToString();
         playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
 
         dailyChallengeDelegator.MinedOres(quantities);
@@ -759,6 +768,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
+        this.currentOresMined = data.currentOresMined;
 
         // Create pools of materials before loading materials
         materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
@@ -802,6 +812,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         data.seed = this.seed;
         data.highestRow = this.highestRow;
         data.mineInitialization = this.mineInitialization;
+        data.currentOresMined = this.currentOresMined;
     }
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {
@@ -852,7 +863,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
     {
-
         if (materialPools[materialIndex].Count > 0)
         {
             obj = materialPools[materialIndex].Dequeue();
@@ -866,12 +876,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         obj.transform.position = materialPosition;
         obj.SetActive(true);
         materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount);
+
+        currentMineValue += materialPrices[materialIndex] * materialCount;
+        mineValueText.text = FormatPrice(currentMineValue);
         //return obj;
     }
 
     // Method to return an object to the pool
     public void ReturnMaterialObject(GameObject obj, int materialIndex, string materialID)
     {
+        currentMineValue -= materialPrices[materialIndex] * materialsDelegator.uncollectedMaterials[materialID].count;
+        mineValueText.text = FormatPrice(currentMineValue);
+
         materialsDelegator.RemoveMaterial(materialID);
         obj.SetActive(false);
         materialPools[materialIndex].Enqueue(obj);
@@ -1026,4 +1042,42 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int GetSeed() {
         return seed;
     }
+
+    private string FormatPrice(System.Numerics.BigInteger price)
+    {
+        if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Qu"
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "Qu";
+        }
+        else if (price >= 1_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Q"
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "Q";
+        }
+        else if (price >= 1_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "T"
+            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "T";
+        }
+        else if (price >= 1_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "B"
+            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("$0.#") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 3 decimal places and format with "M"
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("$0.#") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 3 decimal places and format with "K"
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("$0.#") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
+    }
+
 }
