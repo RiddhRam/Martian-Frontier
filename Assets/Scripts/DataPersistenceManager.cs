@@ -1,24 +1,27 @@
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
 using System;
+using System.Numerics;
 
 public class DataPersistenceManager : MonoBehaviour
 {
 
     [Header("File Storage Config")]
     public string fileName;
+    public CloudDelegator cloudDelegator;
     private bool useEncryption = true;
 
-    private GameData gameData;
+    private GameData gameData = new();
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
     private float timer = 0f;
     private float interval = 90f; // Save time interval
+    private SerializableDictionary<string, object> gameToCloudData = new();
 
     public static DataPersistenceManager instance {get; private set; }
 
     private void Awake() {
+
         if (instance != null) {
             Debug.LogError("Found more than one data persistence manager");
         }
@@ -28,11 +31,17 @@ public class DataPersistenceManager : MonoBehaviour
         if (Application.isEditor) {
             useEncryption = false;
         }
+
     }
 
     private void Start() {
         this.dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
         this.dataPersistenceObjects = FindAllDataPersistenceObjects();
+
+        // Load saved data from file from a file handler
+        CompareGameData(dataHandler.Load());
+
+        LoadGame();
     }
 
     void Update() {
@@ -49,9 +58,6 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public void LoadGame() {
-        // Load saved data from file from a file handler
-        this.gameData = dataHandler.Load();
-
         // If no file, create a new game
         if (this.gameData == null) {
             Debug.Log("No game data to load, creating new game");
@@ -62,8 +68,21 @@ public class DataPersistenceManager : MonoBehaviour
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {
                 dataPersistenceObj.LoadData(gameData);
+
+                try {
+                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                } catch {
+                }
             } catch (Exception error) {
-                Debug.LogError(error);
+                // Sometimes tutorial doesn't load
+                if (error.ToString().Contains("Tutorial")) {
+                    try {
+                        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                    } catch {
+                    }
+                }
+
+                Debug.Log(error);
             }
         }
     }
@@ -83,10 +102,12 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
+        cloudDelegator.SaveGameDataToCloud();
         SaveGame();
     }
 
     private void OnApplicationPause() {
+        cloudDelegator.SaveGameDataToCloud();
         SaveGame();
     }
 
@@ -116,4 +137,57 @@ public class DataPersistenceManager : MonoBehaviour
             FindDataPersistenceInHierarchy(child.gameObject, dataPersistenceObjects);
         }
     }
+
+    public void ResetEntireGame() {
+        this.gameData = new GameData();
+        gameData.finishedTutorial = true;
+        
+        // initialize values to scripts that need it
+        foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
+            try {
+                dataPersistenceObj.LoadData(gameData);
+            } catch (Exception error) {
+                Debug.Log(error);
+            }
+        }
+    }   
+
+    // For web saving only
+    public string CreateJson() {
+        return dataHandler.CreateJson(gameData, false);
+    }
+
+    public GameData ParseJson(string webData) {
+        return dataHandler.ParseJson(webData, false);
+    }
+
+    // Used here as well
+    public bool CompareGameData(GameData gameData) {
+        // If cloud save has higher rebirth use the cloud save, else use local save
+        if (gameData.rebirthProfitMultiplier > this.gameData.rebirthProfitMultiplier) {
+            this.gameData = gameData;
+            return true;
+        }
+        // If less than, return, other wise, they are equal so we look for a tie breaker
+        if (gameData.rebirthProfitMultiplier < this.gameData.rebirthProfitMultiplier) {
+            return false;
+        }
+
+        // Keep one with most cash, if rebirth is equal
+        if (BigInteger.Parse(gameData.userCash) > BigInteger.Parse(this.gameData.userCash)) {
+            this.gameData = gameData;
+            return true;
+        }
+        if (BigInteger.Parse(gameData.userCash) < BigInteger.Parse(this.gameData.userCash)) {
+            return false;
+        }
+
+        // Keep one with most XP if cash and rebirth is equal
+        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
+            this.gameData = gameData;
+            return true;
+        }
+        return false;
+    }
+
 }

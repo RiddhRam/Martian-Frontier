@@ -3,7 +3,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
-using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class SettingsDelegator : MonoBehaviour
@@ -15,6 +14,10 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject graphicsQualityDropdown;
     public GameObject restartTutorialButton;
     public GameObject tutorialPreFab;
+    public GameObject generalButton;
+    public GameObject generalPanel;
+    public GameObject accountButton;
+    public GameObject accountPanel;
 
     private GameObject audioDelegator;
     private bool musicEnabled;
@@ -241,4 +244,25 @@ public class SettingsDelegator : MonoBehaviour
         tutorialGO.transform.SetParent(UIDelegation.transform, false);
         tutorialGO.GetComponent<TutorialManager>().GameLoaded();
     }
+
+    public void TogglePanel(string type) {
+        if (type == "General") {
+            accountPanel.SetActive(false);
+            accountButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
+            accountButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+
+            generalPanel.SetActive(true);
+            generalButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+            generalButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+        } else {
+            generalPanel.SetActive(false);
+            generalButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
+            generalButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+
+            accountPanel.SetActive(true);
+            accountButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+            accountButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+        }
+    }
+
 }

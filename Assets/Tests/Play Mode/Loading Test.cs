@@ -41,7 +41,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(9, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(10, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]
@@ -111,12 +111,12 @@ public class LoadingTest
         // Refinery Controller
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
 
-        Assert.AreEqual(refineryController.mineEntrance.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
-        Assert.AreEqual(refineryController.generationTriggers.name, "GenerationTriggers");
         Assert.AreEqual(refineryController.mine.name, "Mine");
-        Assert.AreEqual(refineryController.playerState.name, "PlayerState");
+        Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
 
         int refineryProgressCount = 3;
         bool[] refineryActiveValues = { true, true, false };
@@ -168,7 +168,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Daily Challenge", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" ,"Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Daily Challenge", "Depth", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" ,"Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -274,12 +274,13 @@ public class LoadingTest
         // Mine Renderer
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
-        Assert.AreEqual(mineRenderer.playerState.GetComponent<PlayerState>(), playerState);
+        Assert.AreEqual(mineRenderer.playerStateScript, playerState);
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
+        Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
@@ -309,12 +310,12 @@ public class LoadingTest
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
         // Refinery Controller
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-        Assert.AreEqual(refineryController.mineEntrance.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
-        Assert.AreEqual(refineryController.generationTriggers.name, "GenerationTriggers");
         Assert.AreEqual(refineryController.mine.name, "Mine");
-        Assert.AreEqual(refineryController.playerState.name, "PlayerState");
+        Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
 
         int refineryProgressCount = 3;
         Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
@@ -330,12 +331,13 @@ public class LoadingTest
 
         // Mine Renderer
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
-        Assert.AreEqual(mineRenderer.playerState.name, "PlayerState");
+        Assert.AreEqual(mineRenderer.playerStateScript.gameObject.name, "PlayerState");
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
+        Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
@@ -352,6 +354,11 @@ public class LoadingTest
         for (int i = 0; i != generationTriggers.childCount; i++) {
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }
+
+        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+
+        Assert.False(uIDelegation.mapCamera.activeSelf);
+        Assert.False(!uIDelegation.mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled);
 
         yield return null;
     }

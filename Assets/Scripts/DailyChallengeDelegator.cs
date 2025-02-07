@@ -408,11 +408,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         if (superChallengeTimer < superChallengeStartTimer) {
             StartCoroutine(CountdownSuperChallengeTimer(superChallengeTimer));
         }
-
-        try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
-        } catch {
-        }
     }
 
     public void SaveData(ref GameData data)

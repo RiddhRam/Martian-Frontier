@@ -200,7 +200,7 @@ public class UIDelegation : MonoBehaviour
         errorInstance.GetComponent<TextMeshProUGUI>().text = message;
 
         // Place it within the safe area
-        errorInstance.transform.SetParent(transform.GetChild(0));
+        errorInstance.transform.SetParent(transform.GetChild(0), false);
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
         if (!analyticsDelegator) {

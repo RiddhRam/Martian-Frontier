@@ -331,8 +331,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateGemDisplays();
         UpdateXPDisplays();
         UpdateHighestDrillTier();
-
-        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
     }
 
     public void SaveData(ref GameData data) {
@@ -408,6 +406,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
    
     public int GetHighestDrillTier() {
         return highestDrillTier;
+    }
+
+    public BigInteger GetBlocksMined() {
+        return blocksMined;
     }
 
     // For development only
