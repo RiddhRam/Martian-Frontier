@@ -50,6 +50,12 @@ public class CloudDelegator : MonoBehaviour
         if (attemptedLogIn) {
             return;
         }
+
+        // Only sign in when needed
+        if (AuthenticationService.Instance.IsSignedIn)
+        {
+            return;
+        }
         
         // Sign in Anonymously
         // This call will sign in the cached player, or make a new account.
@@ -218,13 +224,13 @@ public class CloudDelegator : MonoBehaviour
         while (true) // Run indefinitely
         {
             SaveGameDataToCloud();
-            yield return new WaitForSeconds(120f); // Wait for 120 seconds before saving again
+            yield return new WaitForSeconds(60f); // Wait for 60 seconds before saving again
         }
     }
 
     public async void SaveGameDataToCloud() {
 
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
         }
 
@@ -237,7 +243,7 @@ public class CloudDelegator : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log($"Cloud save failed: {e}");
+            Debug.Log($"Cloud save failed: {e.Message}");
         }
     }
 
@@ -267,7 +273,7 @@ public class CloudDelegator : MonoBehaviour
         }
         catch (Exception e)
         {
-            Debug.Log($"Cloud load failed: {e}");
+            Debug.Log($"Cloud load failed: {e.Message}");
         }
     }
 

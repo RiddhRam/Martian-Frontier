@@ -41,6 +41,11 @@ public class LoadingScreen : MonoBehaviour
             return;
         }
 
+        try {
+            GameObject.Find("Tutorial").GetComponent<TutorialManager>().loadingScreen = null;
+        } catch {
+
+        }
         gameObject.SetActive(false);
     }
 

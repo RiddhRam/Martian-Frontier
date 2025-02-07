@@ -11,6 +11,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     [SerializeField]
     private int visionRadius;
     public GameObject largeFogOfWar;
+    public GameObject generationTriggers;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
@@ -207,8 +208,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             Random.InitState(seed);
         }
-        
-        mineInitialization = 1;
 
         // Clear all dictionaries in reveal and destroyed array
         // unplacedTilemapsTileValues will be populated as each row is created
@@ -244,6 +243,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
         DestroyTiles(initializeTiles, true);
+        CreateGenTriggers();
         mineInitialization = 2;
         SaveGame();
 
@@ -309,27 +309,36 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             chunkColumn++;
         }
 
+        MoveFogOfWar(chunkRow);
+    }
+
+    public void MoveFogOfWar(int rowLoaded) {
         // If the last row, send it very far down where it won't be seen at the edge of the map
-        if (chunkRow == totalRows) {
+        if (rowLoaded == totalRows) {
             largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
 
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - ((chunkRow + 1) * gridSize.y), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded+ 1) * gridSize.y), 0);
     }
 
     public void LoadTiles() {
         int savedHighestRow = highestRow;
         // highestRow is going to get reassigned in CreateTiles, so save it's value
         // We create all tiles first, that way there's no error when revealing tiles when we run DestroyTiles
-        for (int i = 0; i != savedHighestRow; i++) {
-            // Destroy Generation Trigger
-            if (i >= 4) {
-                
-                Destroy(GameObject.Find("Generate Row (" + (i + 1) + ")"));
-            }
+        
+        // Destroy Generation Trigger
 
+        try{
+            Destroy(GameObject.Find("GenerationTriggers"));
+        } catch {
+        }
+
+        CreateGenTriggers();
+
+        for (int i = 0; i != savedHighestRow; i++) {
+            Destroy(GameObject.Find("Generate Row (" + (i + 1) + ")"));
             // Create tiles for this row which populates unplacedTilemapsTileValues
             CreateTiles(i + 1);
         }
@@ -358,6 +367,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         RevealTiles(tilesToReveal);
         DestroyTiles(tilesToDestroy, true);
+    }
+
+    public void CreateGenTriggers() {
+        // Create the new mine
+        GameObject genTrigGameObject = Instantiate(generationTriggers);
+        genTrigGameObject.transform.SetParent(transform);
+        // Remove the last 7 characters from the name (the (Clone) part)
+        genTrigGameObject.name = genTrigGameObject.name.Substring(0, genTrigGameObject.name.Length - 7);
+        // Set the mineGameObject variable for each row trigger
+        for (int i = 0; i != genTrigGameObject.transform.childCount; i++) {
+            genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(gameObject);
+        }
     }
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
@@ -759,8 +780,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count);
         }
 
-        LoadTiles();
-
+        if (mineInitialization == 2) {
+            LoadTiles();
+        }
+        
         if (currentCloudLoadState == cloudLoading) {
             cloudLoading = true;
             try {

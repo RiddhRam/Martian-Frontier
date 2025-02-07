@@ -22,9 +22,9 @@ public class FileDataHandler
 
     public GameData Load() {
         string fullpath = Path.Combine(dataDirPath, dataFileName);
-        GameData loadedData = null;
+        GameData loadedData = new();
 
-        // If no game save, then return null
+        // If no game save, then return new()
         if (!File.Exists(fullpath)) {
             return loadedData;
         }

@@ -9,7 +9,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject settingsButton;
     private bool finishedTutorial;
     private int currentScreenIndex = 0; // Tracks the current tutorial screen
-    private GameObject loadingScreen;
+    public GameObject loadingScreen;
     private GameObject[] primaryElements;
     private GameObject oreRefineryCanvas;
     private bool goToNext;
@@ -25,8 +25,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         StartCoroutine(WaitForGameLoad());
 
         try {
-            loadingScreen = GameObject.Find("Loading Screen");
             oreRefineryCanvas = GameObject.Find("UI").GetComponent<UIDelegation>().oreRefineryCanvas;
+            loadingScreen = GameObject.Find("Loading Screen");
         } catch {
         }
         
@@ -47,12 +47,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // When restarting tutorial, this doesn't immediately destroy the game object,
         // because LoadGame() is only called once when the game is first launched and finishedTutorial is initialized to false
         yield return new WaitUntil(() => gameLoaded);
-        
-        if (finishedTutorial)
-        {
-            Destroy(gameObject);
-            yield break;
-        }
 
         analyticsDelegator.StartTutorial();
     }
@@ -123,6 +117,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
         this.finishedTutorial = data.finishedTutorial;
+
+        if (data.finishedTutorial) {
+            Destroy(gameObject);
+        }
+
         GameLoaded();
     }
 

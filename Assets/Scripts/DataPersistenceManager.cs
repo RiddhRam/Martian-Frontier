@@ -68,12 +68,21 @@ public class DataPersistenceManager : MonoBehaviour
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {
                 dataPersistenceObj.LoadData(gameData);
+
                 try {
                     StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
                 } catch {
                 }
             } catch (Exception error) {
-                Debug.LogError(error);
+                // Sometimes tutorial doesn't load
+                if (error.ToString().Contains("Tutorial")) {
+                    try {
+                        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                    } catch {
+                    }
+                }
+
+                Debug.Log(error);
             }
         }
     }
@@ -138,7 +147,7 @@ public class DataPersistenceManager : MonoBehaviour
             try {
                 dataPersistenceObj.LoadData(gameData);
             } catch (Exception error) {
-                Debug.LogError(error);
+                Debug.Log(error);
             }
         }
     }   

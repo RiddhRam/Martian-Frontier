@@ -6297,7 +6297,6 @@ MonoBehaviour:
   - {fileID: 1848292937}
   - {fileID: 983257794}
   - {fileID: 548110005}
-  - {fileID: 1595171513}
   materialButton: {fileID: 3846792466893615226, guid: 58698b35ff67147199311dca14ebe7f7, type: 3}
   errorMessage: {fileID: 1765642785447469807, guid: 6092a0253b3574cc4a97a9b5d4699a4e, type: 3}
   cargoProgressBars:
@@ -8354,10 +8353,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d049bf271ce1472f93d8c2b197674e9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mineEntrance: {fileID: 1644249860}
   mineEntranceOn: {fileID: 2023280331, guid: 49164be2f59cc48178fce16f5864be08, type: 3}
   mineEntranceOff: {fileID: -1097257338, guid: 49164be2f59cc48178fce16f5864be08, type: 3}
-  generationTriggers: {fileID: 6107535236090058210, guid: c1973338a717c4c9c80856867fc95de0, type: 3}
+  mineEntranceSpriteRenderer: {fileID: 1644249863}
+  mineEntranceBoxCollider: {fileID: 1644249865}
+  gameObjectBoxCollider2D: {fileID: 422203782}
   mine: {fileID: 1093208304}
   refineryProgressSliders:
   - {fileID: 664511045}
@@ -8366,8 +8366,7 @@ MonoBehaviour:
   refineryProgressSlidersText:
   - {fileID: 429137496}
   - {fileID: 1157386730}
-  playerState: {fileID: 276248152}
-  dailyChallengeDelegatorGO: {fileID: 875091221}
+  playerState: {fileID: 276248154}
   askForReviewScreen: {fileID: 6042496262643239731}
   vehicleSoundEffects: {fileID: 426944011}
   UISoundEffects: {fileID: 421432858}
@@ -8380,6 +8379,14 @@ MonoBehaviour:
   capacityUpgrades: {fileID: 418957904}
   efficiencyUpgrades: {fileID: 18897285}
   rebirthProfitMultiplier: 0
+  largeFogOfWar: {fileID: 1438017627}
+  audioDelegator: {fileID: 178773787}
+  dataPersistenceManager: {fileID: 244266721}
+  playerVehicle: {fileID: 1012335945}
+  analyticsDelegator: {fileID: 1743240306}
+  mineRenderer: {fileID: 1093208307}
+  dailyChallengeDelegator: {fileID: 875091222}
+  fogOfWarSprite: {fileID: 1438017628}
 --- !u!1 &426944010
 GameObject:
   m_ObjectHideFlags: 0
@@ -40371,6 +40378,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   visionRadius: 3
   largeFogOfWar: {fileID: 1438017626}
+  generationTriggers: {fileID: 6107535236090058210, guid: c1973338a717c4c9c80856867fc95de0, type: 3}
   mineTilemapPrefab: {fileID: 3638634728784657662, guid: 4074e1d1726b54b0b86463a72cc92063, type: 3}
   mineBackgroundTilemapPrefab: {fileID: 8053565804712313070, guid: cf767454c5de94b9598a7d116503d05f, type: 3}
   mineBackgroundRuleTile: {fileID: 11400000, guid: 2281943e1507b442e8d449872abba95c, type: 2}
@@ -41712,9 +41720,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1595171514}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 32.5, y: -50}
   m_SizeDelta: {x: 57.82, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1180191261
@@ -47084,9 +47092,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 1595171514}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 178.91, y: -50}
   m_SizeDelta: {x: 235, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1582226347
@@ -47587,7 +47595,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1595171514
 RectTransform:
   m_ObjectHideFlags: 0
@@ -55032,7 +55040,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2036068593
 RectTransform:
   m_ObjectHideFlags: 0
