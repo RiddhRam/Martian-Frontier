@@ -9,20 +9,22 @@ public class LoadingScreen : MonoBehaviour
 
     public int loadedItems = 0;
     // See comment below to see why total items is this value
-    public int totalItems = 11;
-    public int cloudSaveItems = 7;
+    public int totalItems = 10;
+    public int cloudSaveItems = 9;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
-       SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
+        SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
-        AdDelegator: LoadRewardedAd() x 3, LoadData(), Start() (5 total) || LoadData() (1 Total)
-        CloudDelegator: Awake() (1 total) || LoadGameDataFromCloud() (1 total)
-        DailyChallengeDelegator(): LoadData() (1 total)
-        MineRenderer: LoadData() (1 total)
-        PlayerState: LoadData() (1 total)
-        PlayerVehicleDelegation: LoadData() (1 total)
-        RefineryController: LoadData() (1 total)
-        Total as of Feb 6 2025: 11 || 7
+        LoadData() (7 total)
+        AdDelegator, DailyChallengeDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, TutorialManager
+        
+        Extras:
+        AdDelegator: LoadRewardedAd() (1 total) (initial load) runs asynchronously, may interfere with cloud loading screen
+        CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
+        MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
+
+
+        Total as of Feb 6 2025: 10 || 9
         Last check: Feb 6 2025
     */
 
@@ -42,12 +44,10 @@ public class LoadingScreen : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public IEnumerator IncrementLoadedItems()
+    public IEnumerator IncrementLoadedItems(GameObject name)
     {
-        //int randomDelay = Random.Range(1, 7);
-        // Simulate a loading duration
-        //yield return new WaitForSeconds(randomDelay);
         loadedItems++;
+        //Debug.Log(loadedItems + ": " + name.name);
         yield break;
     }
 }

@@ -51,7 +51,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     [SerializeField]
     private int seed;
     public int highestRow = 0;
-    private bool loadedLocalGame = false;
 
     // 0 = Not created
     // 1 = in the process of initializing
@@ -127,6 +126,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     string childName;
     int y;
     int x;
+    private Coroutine _loadDataCoroutine;
+    private bool cloudLoading = false;
 
     // Called before Start
     void Awake()
@@ -705,16 +706,24 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        // If there's already a coroutine running, stop it
+        if (_loadDataCoroutine != null) {
+            StopCoroutine(_loadDataCoroutine);
+        }
+
         // This has to be done async so that we can return all objects to the pool when loading a cloud save
         // Return objects happens over several frames to reduce lag
-        StartCoroutine(AsyncLoadData(data));
+        // Start the new coroutine and store its reference
+        _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
     }
 
     private IEnumerator AsyncLoadData(GameData data) {
-        if (loadedLocalGame) {
-            // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
-            yield return StartCoroutine(ReturnAllObjectsToPool());
-        }
+
+        bool currentCloudLoadState = cloudLoading;
+
+        // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
+        yield return StartCoroutine(ReturnAllObjectsToPool());
+
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
         this.seed = data.seed;
@@ -752,11 +761,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         LoadTiles();
 
-        loadedLocalGame = true;
-
-        try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
-        } catch {
+        if (currentCloudLoadState == cloudLoading) {
+            cloudLoading = true;
+            try {
+                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            } catch {
+            }
         }
 
         yield break;

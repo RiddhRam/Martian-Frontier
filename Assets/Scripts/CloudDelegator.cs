@@ -9,12 +9,15 @@ using Unity.Services.CloudSave;
 using TMPro;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 
 public class CloudDelegator : MonoBehaviour
 {
     public TMP_Text userNameText;
     public GameObject loginPanel, userPanel;
     public GameObject askToLogOut;
+    public GameObject askToChangeName;
+    public TMP_InputField newName;
 
     public UIDelegation uIDelegation;
     public DataPersistenceManager dataPersistenceManager;
@@ -22,17 +25,34 @@ public class CloudDelegator : MonoBehaviour
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
+    bool attemptedLogIn = false;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
         PlayerAccountService.Instance.SignedIn += SignedIn;
 
+        try {
+            await AttemptLogIn();
+        } catch {
+        }
+
+        IncrementLoadedItems();
+
+        StartCoroutine(AutoSaveCoroutine());
+    }
+
+    public async Task AttemptLogIn() {
+
+        if (attemptedLogIn) {
+            return;
+        }
+        
         // Sign in Anonymously
         // This call will sign in the cached player, or make a new account.
         try
         {
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
+            attemptedLogIn = true;
             OnSignedIn();
         }
         catch (AuthenticationException ex)
@@ -47,10 +67,6 @@ public class CloudDelegator : MonoBehaviour
             // Notify the player with the proper error message
             Debug.LogException(ex);
         }
-
-        IncrementLoadedItems();
-
-        StartCoroutine(AutoSaveCoroutine());
     }
 
     public async void LoginButtonPressed()
@@ -81,12 +97,44 @@ public class CloudDelegator : MonoBehaviour
             uIDelegation.RevealAll();
 
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            Debug.Log("Sign in anonymously succeeded!");
 
             OnSignedIn();
 
-            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().ResetEntireGame();
+            dataPersistenceManager.ResetEntireGame();
         }
+    }
+
+    public void AskToChangeName() {
+        askToChangeName.SetActive(true);
+    }
+
+    public void CancelChangeName() {
+        askToChangeName.SetActive(false);
+    }
+
+    public async void ChangeName()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable) {
+            uIDelegation.ShowError("NO INTERNET!");
+            return;
+        }
+
+        if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]")) {
+            uIDelegation.ShowError("INVALID NAME!");
+            return;
+        }
+
+        try {
+            await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
+            askToChangeName.SetActive(false);
+
+            var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+            playerProfile.Name = name;
+            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
+        } catch {
+            uIDelegation.ShowError("NAME IS ALREADY TAKEN");
+        }
+
     }
 
     public async Task InitSignIn() {
@@ -153,7 +201,7 @@ public class CloudDelegator : MonoBehaviour
             loginPanel.SetActive(false);
             userPanel.SetActive(true);
         
-            userNameText.text = playerProfile.Name;
+            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
             LoadGameDataFromCloud();
         }
 
@@ -166,7 +214,6 @@ public class CloudDelegator : MonoBehaviour
         {
             SaveGameDataToCloud();
             yield return new WaitForSeconds(120f); // Wait for 120 seconds before saving again
-            
         }
     }
 
@@ -209,7 +256,7 @@ public class CloudDelegator : MonoBehaviour
                 loadingScreen.loadedItems = 0;
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
                 loadingScreen.gameObject.SetActive(true);
-
+                IncrementLoadedItems();
                 dataPersistenceManager.LoadGame();
             }
         }
@@ -217,8 +264,6 @@ public class CloudDelegator : MonoBehaviour
         {
             Debug.Log($"Cloud load failed: {e}");
         }
-
-        IncrementLoadedItems();
     }
 
     public bool CheckAnonymity() {
@@ -230,10 +275,31 @@ public class CloudDelegator : MonoBehaviour
     // Just so it gets factor into Loading
     private void IncrementLoadedItems() {
         try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
         } catch {
         }
     } 
+
+    // VERSION NUMBER IS BASED ON ANDROID BUNDLE IDENTIFIER
+    // ONLY UNCOMMENT IF YOU ARE UPDATING THE LOWEST_VERSION_ALLOWED
+    // ALL GAME CLIENTS BEFORE THIS WILL GET A MESSAGE TELLING THEM TO UPDATE OR ELSE THEY CAN'T ENTER SOCIAL EVENTS
+    // CLOUD SAVE IS STILL ALLOWED
+    // VERSION 33 AND LOWER HAVE NO RESTRICTION BECAUSE THEY DO NOT USE THE CLOUD
+    /*public class CloudSaveManager : MonoBehaviour
+    {
+        private async void Start()
+        {
+            await UnityServices.InitializeAsync();
+
+            int myInteger = 34; // Replace with your integer value
+            var data = new SerializableDictionary<string, object>
+            {
+                { "Lowest_Version_Allowed", myInteger }
+            };
+
+            await CloudSaveService.Instance.Data.ForceSaveAsync(data);
+        }
+    }*/
 }
 
 [Serializable]

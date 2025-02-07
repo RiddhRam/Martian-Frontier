@@ -127,7 +127,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             SwitchVehicle(haulers[i]);
             playerVehicle.GetComponent<HaulerController>().SetMaterialCount(tempHaulerCargo);
             playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
             return;
         }
 
@@ -141,11 +140,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             SwitchVehicle(drillers[i]);
             playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             break;
-        }
-        
-        try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
-        } catch {
         }
     }
 

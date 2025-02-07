@@ -331,11 +331,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateGemDisplays();
         UpdateXPDisplays();
         UpdateHighestDrillTier();
-
-        try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
-        } catch {
-        }
     }
 
     public void SaveData(ref GameData data) {

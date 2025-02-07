@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-using System.Reflection;
 using System.Numerics;
 
 public class DataPersistenceManager : MonoBehaviour
@@ -69,6 +68,10 @@ public class DataPersistenceManager : MonoBehaviour
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {
                 dataPersistenceObj.LoadData(gameData);
+                try {
+                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                } catch {
+                }
             } catch (Exception error) {
                 Debug.LogError(error);
             }

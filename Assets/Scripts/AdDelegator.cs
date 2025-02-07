@@ -15,33 +15,36 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject movementJoystick;
     public GameObject tutorial;
     public GameObject customAdScreen;
-    private RewardedAd[] rewardedAds = new RewardedAd[3];
-    private int timer = 60;
+    public GameObject signupNoWifi;
+    public GameObject signUpButton;
+    public GameObject accountNoWifi;
+    public GameObject changeNameButton;
+    private RewardedAd rewardedAd;
+    private int timer = 0;
     private bool internetReachable = false;
     // This needs to be seperate because user can swap vehicle while boost active
     public float originalSpeed;
     public bool speedBoostActive;
     private bool currentlyUsingDriller = true;
     private int[] timerIndexes = new int[3];
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
+    public DataPersistenceManager dataPersistenceManager;
+    public AnalyticsDelegator analyticsDelegator;
+    public CloudDelegator cloudDelegator;
     private bool adsInitialized = false;
     // After 30 seconds of user watching an ad, request a new one.
     // Once user watches an ad, ad boosts are free for the next 30 seconds
     DateTime lastAdShown;
+    private bool cloudLoading = false;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     void Awake() {
         SetAdUnitId();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
     }
 
     // Start is called before the first frame update
     void Start()
     {
-        IncrementLoadedItems(); 
-
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
@@ -65,11 +68,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // ADMOB DISABLE
         // If no internet
         if (Application.internetReachability == NetworkReachability.NotReachable) {
-            for (int i = 0; i != rewardedAds.Length; i++) {
-                if (rewardedAds[i] != null) {
-                    rewardedAds[i].Destroy();
-                    rewardedAds[i] = null;
-                }
+            if (rewardedAd != null) {
+                rewardedAd.Destroy();
+                rewardedAd = null;
             }
             
             internetReachable = false;
@@ -130,17 +131,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     // Loads the rewarded ad.
-    public void LoadRewardedAd(int rewardIndex)
+    public void LoadRewardedAd()
     {
+        bool currentCloudLoadState = cloudLoading;
         // ADMOB DISABLE
         //IncrementLoadedItems();
 
         // ADMOB DISABLE
         // Clean up the old ad before loading a new one.
-        if (rewardedAds[rewardIndex] != null)
+        if (rewardedAd != null)
         {
-            rewardedAds[rewardIndex].Destroy();
-            rewardedAds[rewardIndex] = null;
+            rewardedAd.Destroy();
+            rewardedAd = null;
         }
 
         // send the request to load the ad.
@@ -157,22 +159,32 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     Debug.LogError("Rewarded ad failed to load an ad " +
                                     "with error : " + error);
 
-                    IncrementLoadedItems();
+                    if (currentCloudLoadState == cloudLoading) { 
+                        cloudLoading = true;  
+                        IncrementLoadedItems();
+                    }
                     
                     return;
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
-                rewardedAds[rewardIndex] = ad;
+                rewardedAd = ad;
 
                 // We only need to load 1 ad, if 1 loads, then its most likely the last thing that needs to load
                 // so LoadingScreen will be destroyed
-                IncrementLoadedItems();
+                if (currentCloudLoadState == cloudLoading) {   
+                    cloudLoading = true;
+                    IncrementLoadedItems();
+                }
 
             });
-        } else {
-            // if MobileAds SDK not initialized
-            IncrementLoadedItems();
+        } 
+        // if MobileAds SDK not initialized
+        else {
+            if (currentCloudLoadState == cloudLoading) {   
+                cloudLoading = true;
+                IncrementLoadedItems();
+            }
         }
         
     }
@@ -204,9 +216,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // ADMOB DISABLE
-        if (rewardedAds[rewardIndex] != null && rewardedAds[rewardIndex].CanShowAd())
+        if (rewardedAd != null && rewardedAd.CanShowAd())
         {
-            rewardedAds[rewardIndex].Show((Reward reward) =>
+            rewardedAd.Show((Reward reward) =>
             {
                 lastAdShown = DateTime.Now;
                 if (type == "Profit") {
@@ -218,11 +230,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
                 dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-                LoadRewardedAd(rewardIndex);
+                LoadRewardedAd();
             });
 
             // Listen to user events during ad
-            RegisterEventHandlers(rewardedAds[rewardIndex]);
+            RegisterEventHandlers(rewardedAd);
             return;
         }
 
@@ -321,7 +333,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private void ToggleDisplay() {
         if (internetReachable) {
             noInternetIcon.SetActive(false);
+            signupNoWifi.SetActive(false);
+            signUpButton.SetActive(true);
+            accountNoWifi.SetActive(false);
+            changeNameButton.SetActive(true);
 
+            cloudDelegator.AttemptLogIn();
+            
             // If showing ad buttons, don't show ad opt out text
             for (int i = 0; i != adButtons.Length; i++) {
                 adButtons[i].SetActive(true);
@@ -333,6 +351,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             adButtons[i].SetActive(false);
         }
         noInternetIcon.SetActive(true);
+        signupNoWifi.SetActive(true);
+        signUpButton.SetActive(false);
+        accountNoWifi.SetActive(true);
+        changeNameButton.SetActive(false);
     }
 
     private void RewardWithProfit(int? totalTime = 300) {
@@ -505,8 +527,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } else {
             lastAdShown = DateTime.Now.AddSeconds(-30);
         }
-
-        IncrementLoadedItems();
     }
 
     public void SaveData(ref GameData data) {
@@ -515,16 +535,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private void IncrementLoadedItems() {
         try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems());
+             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
         } catch {
         }
     }    
 
     private void FillEmptyAdSlots() {
-        for (int i = 0; i != rewardedAds.Length; i++) {
-            if (rewardedAds[i] == null) {
-                LoadRewardedAd(i);
-            }
+
+        if (rewardedAd == null) {
+            LoadRewardedAd();
         }
     }
 
