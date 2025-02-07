@@ -6,10 +6,12 @@ using Unity.Services.Authentication;
 using Unity.Services.Authentication.PlayerAccounts;
 using Unity.Services.Core;
 using Unity.Services.CloudSave;
+using Unity.Services.CloudCode;
 using TMPro;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Collections.Generic;
 
 public class CloudDelegator : MonoBehaviour
 {
@@ -18,6 +20,7 @@ public class CloudDelegator : MonoBehaviour
     public GameObject askToLogOut;
     public GameObject askToChangeName;
     public TMP_InputField newName;
+    public GameObject forceUpdate;
 
     public UIDelegation uIDelegation;
     public DataPersistenceManager dataPersistenceManager;
@@ -26,6 +29,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
+    private readonly int currentVersionNumber = 34;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -189,6 +193,7 @@ public class CloudDelegator : MonoBehaviour
 
     private async void OnSignedIn()
     {
+        GetLowestVersionAllowed();
         playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
 
         var name = await AuthenticationService.Instance.GetPlayerNameAsync();
@@ -285,21 +290,39 @@ public class CloudDelegator : MonoBehaviour
     // ALL GAME CLIENTS BEFORE THIS WILL GET A MESSAGE TELLING THEM TO UPDATE OR ELSE THEY CAN'T ENTER SOCIAL EVENTS
     // CLOUD SAVE IS STILL ALLOWED
     // VERSION 33 AND LOWER HAVE NO RESTRICTION BECAUSE THEY DO NOT USE THE CLOUD
-    /*public class CloudSaveManager : MonoBehaviour
+    // To change current version change it above 'currentVersionNumber'
+    // To change lowest version allowed, change it in Unity Cloud Dashboard -> Cloud Code -> JS Scripts -> Get_Lowest_Version_Allowed and then change the integer in the script
+    private async void GetLowestVersionAllowed()
     {
-        private async void Start()
+        try
         {
-            await UnityServices.InitializeAsync();
+            var arguments = new Dictionary<string, object>();
+            var response = await CloudCodeService.Instance.CallEndpointAsync<LowestVersionCloudResponse>("Get_Lowest_Version_Allowed", arguments);
 
-            int myInteger = 34; // Replace with your integer value
-            var data = new SerializableDictionary<string, object>
-            {
-                { "Lowest_Version_Allowed", myInteger }
-            };
-
-            await CloudSaveService.Instance.Data.ForceSaveAsync(data);
+            if (response.Lowest_Version_Allowed > currentVersionNumber) {
+                forceUpdate.SetActive(true);
+                Time.timeScale = 0;
+            }
         }
-    }*/
+        catch (Exception e)
+        {
+            Debug.LogError("Error calling Cloud Code function: " + e.Message);
+        }
+    }
+
+    public void GoToAppStore() {
+        string url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier";
+        
+        #if UNITY_ANDROID
+            url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier"; // Replace with your app's package name
+        #elif UNITY_IOS
+            url = "https://apps.apple.com/us/app/martian-frontier/id6740146979"; // Replace with your app's iOS app ID
+        #endif
+        
+        Application.OpenURL(url);
+    
+    }
+    
 }
 
 [Serializable]
@@ -307,4 +330,10 @@ public struct PlayerProfile
 {
     public PlayerInfo playerInfo;
     public string Name;
+}
+
+[Serializable]
+public class LowestVersionCloudResponse
+{
+    public int Lowest_Version_Allowed;
 }
