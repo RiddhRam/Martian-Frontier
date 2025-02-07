@@ -25,6 +25,7 @@ public class UIDelegation : MonoBehaviour
     public GameObject[] cargoCounters;
     private Sprite[] materialHighResSprites;
     private string[] materialNames;
+    public int[] materialPrices;
     private bool showCargoInfo;
     private GameCameraController mainCameraController;
     private AnalyticsDelegator analyticsDelegator;
@@ -34,6 +35,7 @@ public class UIDelegation : MonoBehaviour
         ToggleCargoInfo(false);
         materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
         materialHighResSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialHighResSprites;
+        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         mainCameraController = Camera.main.GetComponent<GameCameraController>();
         analyticsDelegator = AnalyticsDelegator.Instance;
     }

@@ -87,6 +87,10 @@ public class HaulerController : MonoBehaviour
 
                 // Reduce the count of the material
                 materialManager.SetCount(materialManager.count - amountPickedUp);
+
+                mineRenderer.currentMineValue -= UIDelegation.materialPrices[materialManager.materialIndex] * amountPickedUp;
+                mineRenderer.mineValueText.text = mineRenderer.FormatPrice(mineRenderer.currentMineValue);
+
                 materialsDelegator.UpdateMaterial(materialManager);
                 PickUpOre(amountPickedUp);
                 return;

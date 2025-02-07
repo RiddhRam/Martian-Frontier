@@ -1043,7 +1043,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return seed;
     }
 
-    private string FormatPrice(System.Numerics.BigInteger price)
+    public string FormatPrice(System.Numerics.BigInteger price)
     {
         if (price >= 1_000_000_000_000_000_000)
         {
@@ -1077,7 +1077,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // Return the original price as a string for smaller numbers
-        return price.ToString();
+        return "$" + price.ToString();
     }
 
 }

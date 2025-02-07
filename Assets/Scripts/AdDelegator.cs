@@ -58,7 +58,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     void FixedUpdate() {
         timer++;
 
-        if (timer < 100) {
+        if (timer < 250) {
             return;
         }
         timer = 0;
