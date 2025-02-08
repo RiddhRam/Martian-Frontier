@@ -304,6 +304,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
+        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
@@ -346,6 +347,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
+        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -373,6 +375,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         if (challengeProgress[0] < challengeValues[0]) {
             challengeProgress[0] = 0;
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
+        } else {
+            // If successfully completed then log how long it took
+            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";

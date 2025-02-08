@@ -885,10 +885,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Method to return an object to the pool
     public void ReturnMaterialObject(GameObject obj, int materialIndex, string materialID)
     {
-        currentMineValue -= materialPrices[materialIndex] * materialsDelegator.uncollectedMaterials[materialID].count;
-        mineValueText.text = FormatPrice(currentMineValue);
-
+        try {
+            currentMineValue -= materialPrices[materialIndex] * materialsDelegator.uncollectedMaterials[materialID].count;
+            mineValueText.text = FormatPrice(currentMineValue);
+        } catch {
+        }
         materialsDelegator.RemoveMaterial(materialID);
+        
         obj.SetActive(false);
         materialPools[materialIndex].Enqueue(obj);
     }
