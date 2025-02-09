@@ -90,7 +90,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             amountToAdd += materialCount[i] * materialPrices[i];
         }
 
-        amountToAdd = (int) (amountToAdd * refineryController.GetTotalProfitMultiplier());
+        amountToAdd = (long) (amountToAdd * refineryController.GetTotalProfitMultiplier());
 
         // If the amounts are correct, add the money
         if (amountToAdd == cashToAdd) {

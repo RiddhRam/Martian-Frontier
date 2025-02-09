@@ -362,6 +362,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             return;
         }
+
         LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, amount);
     }
 
