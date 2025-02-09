@@ -25,6 +25,7 @@ public class CloudDelegator : MonoBehaviour
     public UIDelegation uIDelegation;
     public DataPersistenceManager dataPersistenceManager;
     public LoadingScreen loadingScreen;
+    public LeaderboardDelegator leaderboardDelegator;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
@@ -96,6 +97,11 @@ public class CloudDelegator : MonoBehaviour
     {
         if (AuthenticationService.Instance.IsSignedIn)
         {
+            try {
+                SaveGameDataToCloud();
+            } catch {
+            }
+
             AuthenticationService.Instance.SignOut(true); // True to clear cache
             PlayerAccountService.Instance.SignOut();
 
@@ -215,6 +221,8 @@ public class CloudDelegator : MonoBehaviour
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
             LoadGameDataFromCloud();
         }
+
+        _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }

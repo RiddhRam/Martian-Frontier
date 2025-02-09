@@ -277,6 +277,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     {
         if (price >= 1_000_000_000_000_000_000)
         {
+            // Truncate to 3 decimal places and format with "Se"
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Se";
+        }
+        else if (price >= 1_000_000_000_000_000_000)
+        {
             // Truncate to 3 decimal places and format with "Qu"
             return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
         }
