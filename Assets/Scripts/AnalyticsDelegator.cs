@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Unity.Services.Analytics;
 using Unity.Services.Core;
 using UnityEngine;
@@ -21,7 +22,9 @@ public class AnalyticsDelegator : MonoBehaviour
             return;
         }
 
-        await UnityServices.InitializeAsync();
+        // Wait for initialization in Cloud Delegator
+        await Task.Delay(500);
+
         AnalyticsService.Instance.StartDataCollection();
         isInitialized = true;
     }
@@ -203,12 +206,46 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
-        public void NotEnjoyingGame(string reason) {
+    public void NotEnjoyingGame(string reason) {
         if (!isInitialized) {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Not_Enjoying_Game") {
             {"Reason", reason}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+    public void StartSuperChallenge(int selectedChallengeIndex) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Start_Super_Challenge") {
+            {"Selected_Challenge_Index", selectedChallengeIndex},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+    public void CompleteSuperChallenge(int selectedChallengeIndex, int timeLeft) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Complete_Super_Challenge") {
+            {"Selected_Challenge_Index", selectedChallengeIndex},
+            {"Time_Left", timeLeft},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+    public void CollectChallengeReward(int selectedChallengeIndex) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Collect_Challenge_Reward") {
+            {"selected_Challenge_Index", selectedChallengeIndex},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();

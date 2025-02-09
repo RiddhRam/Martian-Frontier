@@ -19,6 +19,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject signUpButton;
     public GameObject accountNoWifi;
     public GameObject changeNameButton;
+    public GameObject leaderboardNoWifi;
+
+    public GameObject leaderboardTabButtons;
+    public GameObject leaderboardCashPanel;
+    public GameObject leaderboardVehiclesPanel;
+    private bool cashPanelWasOpen = true;
+
     private RewardedAd rewardedAd;
     private int timer = 0;
     private bool internetReachable = false;
@@ -35,6 +42,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Once user watches an ad, ad boosts are free for the next 30 seconds
     DateTime lastAdShown;
     private bool cloudLoading = false;
+    private bool displayStatus = true;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
@@ -58,7 +66,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     void FixedUpdate() {
         timer++;
 
-        if (timer < 100) {
+        if (timer < 250) {
             return;
         }
         timer = 0;
@@ -331,12 +339,16 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     // Flip between showing ad buttons and Ad Opt Out text, or internet error depending on internet reachability
     private void ToggleDisplay() {
-        if (internetReachable) {
+        if (internetReachable && !displayStatus) {
             noInternetIcon.SetActive(false);
             signupNoWifi.SetActive(false);
             signUpButton.SetActive(true);
             accountNoWifi.SetActive(false);
             changeNameButton.SetActive(true);
+            leaderboardCashPanel.SetActive(cashPanelWasOpen);
+            leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
+            leaderboardTabButtons.SetActive(true);
+            leaderboardNoWifi.SetActive(false);
 
             cloudDelegator.AttemptLogIn();
             
@@ -344,6 +356,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             for (int i = 0; i != adButtons.Length; i++) {
                 adButtons[i].SetActive(true);
             }
+            displayStatus = true;
+            return;
+        }
+
+        if (!displayStatus || internetReachable) {
             return;
         }
 
@@ -355,6 +372,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         signUpButton.SetActive(false);
         accountNoWifi.SetActive(true);
         changeNameButton.SetActive(false);
+        cashPanelWasOpen = leaderboardCashPanel.activeSelf;
+        leaderboardCashPanel.SetActive(false);
+        leaderboardVehiclesPanel.SetActive(false);
+        leaderboardTabButtons.SetActive(false);
+        leaderboardNoWifi.SetActive(true);
+
+        displayStatus = false;
     }
 
     private void RewardWithProfit(int? totalTime = 300) {

@@ -40,7 +40,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private Slider superChallengeSlider;
     private TextMeshProUGUI superChallengeTimerText;
     private TextMeshProUGUI superChallengeStartButtonText;
-    private string timerMessage;
     private DateTime endTime;
     private TimeSpan timeRemaining;
     private string timeString;
@@ -102,17 +101,21 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
         SetDailyTimer();
         ScaleAllTiers();
+        StartCoroutine(TimerController());
     }
 
-    void Update() {
-        timeRemaining = endTime - DateTime.UtcNow;
-        timeString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeRemaining.Hours, timeRemaining.Minutes, timeRemaining.Seconds);
-        timerMessage = GetLocalizedValue("RESETS IN {0}", timeString);
-        dailyTimerText.text = timerMessage;
+    private IEnumerator TimerController() {
+        while (true) {
+            timeRemaining = endTime - DateTime.UtcNow;
+            timeString = string.Format("{0:D2}:{1:D2}:{2:D2}", timeRemaining.Hours, timeRemaining.Minutes, timeRemaining.Seconds);
+            dailyTimerText.text = GetLocalizedValue("RESETS IN {0}", timeString);
 
-        if (timeRemaining.TotalSeconds <= 0) {
-            ResetDailyChallenges();
-            SetDailyTimer();
+            if (timeRemaining.TotalSeconds <= 0) {
+                ResetDailyChallenges();
+                SetDailyTimer();
+            }
+
+            yield return new WaitForSecondsRealtime(1);
         }
     }
 
@@ -131,7 +134,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         DateTime now = DateTime.UtcNow;
         DateTime targetTime = new(now.Year, now.Month, now.Day, 12, 0, 0, DateTimeKind.Utc);
 
-        // If the current time is already past 8:00 PM, set it for tomorrow
+        // If the current time is already past 12:00 PM, set it for tomorrow
         if (now > targetTime) {
             targetTime = targetTime.AddDays(1);
         }
@@ -304,6 +307,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
+        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
@@ -346,6 +350,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
+        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -373,6 +378,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         if (challengeProgress[0] < challengeValues[0]) {
             challengeProgress[0] = 0;
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
+        } else {
+            // If successfully completed then log how long it took
+            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";

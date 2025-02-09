@@ -39,6 +39,8 @@ public class GameData
     public int superChallengeTimer;
     public string userGems;
     public string gemsEarned;
+    public int currentOresMined;
+    public long gemRewardsToCollect;
 
     public GameData() {
         this.userCash = "0";
@@ -80,5 +82,7 @@ public class GameData
         this.superChallengeTimer = 1200;
         this.userGems = "0";
         this.gemsEarned = "0";
+        this.currentOresMined = 0;
+        this.gemRewardsToCollect = 0;
     }
 }

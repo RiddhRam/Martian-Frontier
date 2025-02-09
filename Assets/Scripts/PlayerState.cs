@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -12,7 +11,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
-    public GameObject dailyChallengeDelegatorGO;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -26,15 +24,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger gemsEarned;
     private List<string> vehiclesOwned = new();
     private int[] materialPrices;
-    private RefineryController refineryController;
     private bool loading = true;
     [SerializeField]
     private float rebirthProfitMultiplier;
-    private DataPersistenceManager dataPersistenceManager;
-    private ProfitPanelDelegator profitPanelDelegator;
-    private UIDelegation uIDelegation;
-    private AnalyticsDelegator analyticsDelegator;
-    private DailyChallengeDelegator dailyChallengeDelegator;
+    public RefineryController refineryController;
+    public DataPersistenceManager dataPersistenceManager;
+    public ProfitPanelDelegator profitPanelDelegator;
+    public UIDelegation uIDelegation;
+    public AnalyticsDelegator analyticsDelegator;
+    public DailyChallengeDelegator dailyChallengeDelegator;
+    public LeaderboardDelegator leaderboardDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -66,11 +65,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
-        dailyChallengeDelegator = dailyChallengeDelegatorGO.GetComponent<DailyChallengeDelegator>();
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-        profitPanelDelegator = materialProfitPanel.GetComponent<ProfitPanelDelegator>();
-        dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
         
@@ -102,12 +96,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         if (amountToAdd == cashToAdd) {
             userCash += cashToAdd;
             moneyEarned += cashToAdd;
+            leaderboardDelegator.AddCashScore(cashToAdd);
         }
         
         UpdateCashDisplays();
     }
 
-    public void AddGems(int gemsToAdd) {
+    public void AddGems(long gemsToAdd) {
 
         userGems += gemsToAdd;
         gemsEarned += gemsToAdd;
@@ -143,6 +138,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
+            leaderboardDelegator.AddVehicleScore(1);
             UpdateHighestDrillTier();
             dataPersistenceManager.SaveGame();
             analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
@@ -276,6 +272,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private string FormatPrice(BigInteger price)
     {
         if (price >= 1_000_000_000_000_000_000)
+        {
+            // Truncate to 3 decimal places and format with "Se"
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Se";
+        }
+        else if (price >= 1_000_000_000_000_000_000)
         {
             // Truncate to 3 decimal places and format with "Qu"
             return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";

@@ -25,11 +25,12 @@ public class CloudDelegator : MonoBehaviour
     public UIDelegation uIDelegation;
     public DataPersistenceManager dataPersistenceManager;
     public LoadingScreen loadingScreen;
+    public LeaderboardDelegator leaderboardDelegator;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 34;
+    private readonly int currentVersionNumber = 35;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -96,6 +97,11 @@ public class CloudDelegator : MonoBehaviour
     {
         if (AuthenticationService.Instance.IsSignedIn)
         {
+            try {
+                SaveGameDataToCloud();
+            } catch {
+            }
+
             AuthenticationService.Instance.SignOut(true); // True to clear cache
             PlayerAccountService.Instance.SignOut();
 
@@ -216,6 +222,9 @@ public class CloudDelegator : MonoBehaviour
             LoadGameDataFromCloud();
         }
 
+        _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
+        leaderboardDelegator.CheckForRewards();
+
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
@@ -326,9 +335,7 @@ public class CloudDelegator : MonoBehaviour
         #endif
         
         Application.OpenURL(url);
-    
     }
-    
 }
 
 [Serializable]
