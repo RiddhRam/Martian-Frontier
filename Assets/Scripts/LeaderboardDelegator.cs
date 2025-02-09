@@ -1,19 +1,26 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
+using Unity.Services.CloudSave;
 using Unity.Services.Leaderboards;
 using Unity.Services.Leaderboards.Models;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
-public class LeaderboardDelegator : MonoBehaviour
+public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
+    public PlayerState playerState;
+
     public GameObject cashTournamentPanel;
     public GameObject vehicleTournamentPanel;
     public GameObject cashTournamentButton;
     public GameObject vehicleTournamentButton;
+
+    public GameObject collectReward;
+    public TextMeshProUGUI collectRewardText;
 
     public Sprite[] tierSprites;
     public TextMeshProUGUI cashTierText;
@@ -34,7 +41,7 @@ public class LeaderboardDelegator : MonoBehaviour
     public Image[] cashPlayerScoreImages;
     public GameObject[] cashPlayerScoreBars;
 
-     public TextMeshProUGUI[] vehiclesPlayerNameTextMeshes;
+    public TextMeshProUGUI[] vehiclesPlayerNameTextMeshes;
     public TextMeshProUGUI[] vehiclesScoreTextMeshes;
     public TextMeshProUGUI[] vehiclesRewardTextMeshes;
     public Image[] vehiclesPlayerScoreImages;
@@ -45,6 +52,7 @@ public class LeaderboardDelegator : MonoBehaviour
     private string timeString;
     private PlayerProfile playerProfile;
     private int lastUpdateTimer = 0;
+    private long gemRewardsToCollect = 0;
 
     private readonly string cashLeaderboardID = "Cash";
     private readonly string vehiclesLeaderboardID = "Vehicles";
@@ -60,6 +68,7 @@ public class LeaderboardDelegator : MonoBehaviour
 
     private void OnEnable()
     {
+        SetLeaderBoardTimer();
         StartCoroutine(TimerController());
     }
     
@@ -73,6 +82,8 @@ public class LeaderboardDelegator : MonoBehaviour
 
             if (timeRemaining.TotalSeconds <= 0) {
                 SetLeaderBoardTimer();
+                yield return new WaitForSeconds(60);
+                CheckForRewards();
             }
  
             if (timeRemaining.Seconds == 0 || timeRemaining.Seconds == 30) {
@@ -95,6 +106,47 @@ public class LeaderboardDelegator : MonoBehaviour
         DateTime nextResetTime = epoch.AddDays((cyclesSinceEpoch + 1) * 2);
 
         endTime = nextResetTime;
+    }
+
+    public async void CheckForRewards() {
+        if (Application.internetReachability == NetworkReachability.NotReachable) {
+            if (gemRewardsToCollect > 0) {
+                collectRewardText.text = gemRewardsToCollect.ToString();
+                collectReward.SetActive(true);
+            }
+            return;
+        }
+
+        try
+        {
+            // Load the file from the cloud
+            var data = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string>{"leaderboard_gems"});
+
+            if (data.TryGetValue("leaderboard_gems", out var keyName)) {
+                gemRewardsToCollect += keyName.Value.GetAs<long>();
+
+                if (keyName.Value.GetAs<long>() > 0) {
+                    var newData = new Dictionary<string, object>{{"leaderboard_gems", 0}};
+                    await CloudSaveService.Instance.Data.Player.SaveAsync(newData);
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"Reward check failed: {e.Message}");
+        }
+
+        if (gemRewardsToCollect > 0) {
+            collectRewardText.text = gemRewardsToCollect.ToString();
+            collectReward.SetActive(true);
+        }
+    }
+
+    public void CollectLeaderboardRewards() {
+        playerState.AddGems(gemRewardsToCollect);
+        playerState.UpdateGemDisplays();
+        gemRewardsToCollect = 0;
+        collectReward.SetActive(false);
     }
 
     public async void UpdateLeaderBoardData() {
@@ -282,6 +334,16 @@ public class LeaderboardDelegator : MonoBehaviour
 
             lastUpdateTimer = 0;
         } catch (Exception ex) {
+            // In case no score submitted
+            try {
+                await LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, 0);
+            } catch {
+            }
+
+            try {
+                await LeaderboardsService.Instance.AddPlayerScoreAsync(vehiclesLeaderboardID, 0);
+            } catch {
+            }
             Debug.Log(ex);
         }
     }
@@ -292,7 +354,6 @@ public class LeaderboardDelegator : MonoBehaviour
         await LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, 0);
 
         await LeaderboardsService.Instance.AddPlayerScoreAsync(vehiclesLeaderboardID, 0);
-
 
         UpdateLeaderBoardData();
     }
@@ -386,4 +447,13 @@ public class LeaderboardDelegator : MonoBehaviour
         return price.ToString();
     }
 
+    public void LoadData(GameData data)
+    {
+        this.gemRewardsToCollect = data.gemRewardsToCollect;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.gemRewardsToCollect = this.gemRewardsToCollect;
+    }
 }

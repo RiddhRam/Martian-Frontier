@@ -30,7 +30,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 34;
+    private readonly int currentVersionNumber = 35;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -223,6 +223,7 @@ public class CloudDelegator : MonoBehaviour
         }
 
         _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
+        leaderboardDelegator.CheckForRewards();
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
@@ -334,9 +335,7 @@ public class CloudDelegator : MonoBehaviour
         #endif
         
         Application.OpenURL(url);
-    
     }
-    
 }
 
 [Serializable]

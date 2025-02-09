@@ -40,6 +40,7 @@ public class GameData
     public string userGems;
     public string gemsEarned;
     public int currentOresMined;
+    public long gemRewardsToCollect;
 
     public GameData() {
         this.userCash = "0";
@@ -82,5 +83,6 @@ public class GameData
         this.userGems = "0";
         this.gemsEarned = "0";
         this.currentOresMined = 0;
+        this.gemRewardsToCollect = 0;
     }
 }
