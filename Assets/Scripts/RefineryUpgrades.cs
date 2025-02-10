@@ -11,17 +11,17 @@ public class RefineryUpgrades : MonoBehaviour
     // Current Value of this upgrade type
     // It is an element of upgradeValues
     private float currentValue;
-    public GameObject PlayerState;
-    private RefineryController refineryController;
-    private AnalyticsDelegator analyticsDelegator;
+    public PlayerState PlayerState;
+    public RefineryController refineryController;
+    public AnalyticsDelegator analyticsDelegator;
+    public UIDelegation uIDelegation;
+    public TextMeshProUGUI upgradeValueText;
+    public Button upgradeButton;
+    public TextMeshProUGUI upgradeButtonText;
+    public Image upgradeButtonImage;
 
-    void Start() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
-    public void InitializeRefinery(float newValue, GameObject refineryDropOffGO) {
-        refineryController = refineryDropOffGO.GetComponent<RefineryController>();
-
+    public void InitializeRefinery(float newValue) {
         currentValue = newValue;
         LoadCorrectUpgrade();
     }
@@ -39,12 +39,12 @@ public class RefineryUpgrades : MonoBehaviour
             break;
         }
 
-        if (!PlayerState.GetComponent<PlayerState>().VerifyEnoughCash(upgradePrices[currentIndex])) {
-            transform.parent.parent.parent.parent.GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
+        if (!PlayerState.VerifyEnoughGems(upgradePrices[currentIndex])) {
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
             return;
         }
 
-        PlayerState.GetComponent<PlayerState>().SubtractCash(upgradePrices[currentIndex]);
+        PlayerState.SubtractGems(upgradePrices[currentIndex]);
 
         if (upgradeValues[currentIndex] != upgradeValues[^1]) {
             currentIndex++;
@@ -81,16 +81,21 @@ public class RefineryUpgrades : MonoBehaviour
     private void UpdateDisplay(int currentIndex) {
         // If the final upgrade, make it unavailable to purchase anymore
         if (upgradeValues[currentIndex] == upgradeValues[^1]) {
-            transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = upgradeValues[currentIndex].ToString();
-            transform.GetChild(4).GetComponent<Button>().interactable = false;
-            transform.GetChild(4).GetChild(0).GetComponent<TextMeshProUGUI>().text = "MAX";
-            transform.GetChild(4).GetComponent<Image>().color = new(255, 0, 0);
-        } else {
-            transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = upgradeValues[currentIndex].ToString();
+            upgradeValueText.text = upgradeValues[currentIndex].ToString();
+            upgradeButton.interactable = false;
+            upgradeButtonText.text = "MAX";
+            upgradeButtonImage.color = new(255, 0, 0);
             if (gameObject.name == "Efficiency Panel") {
-                transform.GetChild(3).GetComponent<TextMeshProUGUI>().text += "%";
+                upgradeValueText.text += "%";
             }
-            transform.GetChild(4).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(upgradePrices[currentIndex]);
+        } else {
+            upgradeValueText.text = upgradeValues[currentIndex].ToString();
+            if (gameObject.name == "Efficiency Panel") {
+                upgradeValueText.text += "%";
+            }
+            upgradeButton.interactable = true;
+            upgradeButtonImage.color = new(57/255f, 255, 20/255f);
+            upgradeButtonText.text = FormatPrice(upgradePrices[currentIndex]);
         }
     }
 
@@ -121,6 +126,7 @@ public class RefineryUpgrades : MonoBehaviour
         return currentValue;
     }
 
+    /* Upgrades now persist across rebirth so this isn't needed
     public void ResetUpgrade() {
         currentValue = upgradeValues[0];
 
@@ -131,5 +137,5 @@ public class RefineryUpgrades : MonoBehaviour
         }
         
         LoadCorrectUpgrade();
-    }
+    }*/
 }

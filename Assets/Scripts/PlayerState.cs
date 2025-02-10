@@ -156,6 +156,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateCashDisplays();
     } 
 
+    public void SubtractGems(long amountToSubtract) {
+        userGems -= amountToSubtract;
+        UpdateGemDisplays();
+    }
+
     public void PurchaseCashWithGems(GameObject gemPanel) {
         GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
 
@@ -196,6 +201,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         savedAmountSubtract = price;
 
         if (userCash - savedAmountSubtract >= 0) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public bool VerifyEnoughGems(long price) {
+        if (userGems - price >= 0) {
             return true;
         }
 

@@ -297,8 +297,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         this.askedForReview = data.askedForReview;
         // This will call LoadCorrectUpgrade in RefineryUpgrades
-        capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity, gameObject);
-        efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency, gameObject);
+        capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity);
+        efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency);
         
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
@@ -405,8 +405,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void PlayerRebirth() {
-        capacityUpgrades.GetComponent<RefineryUpgrades>().ResetUpgrade();
-        efficiencyUpgrades.GetComponent<RefineryUpgrades>().ResetUpgrade();
 
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
