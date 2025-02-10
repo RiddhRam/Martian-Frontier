@@ -28,8 +28,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     [SerializeField]
     private float refineryInefficiency;
     private System.Numerics.BigInteger materialsSold;
-    [SerializeField]
-    private bool askedForReview;
+    public bool askedForReview;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
     public GameObject efficiencyUpgrades;

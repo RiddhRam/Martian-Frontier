@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -11,14 +12,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
+    public TextMeshProUGUI collectRewardMessage;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
     private long savedAmountSubtract;
     private BigInteger userXP;
-    private BigInteger blocksMined;
-    private BigInteger materialsSold;
+    public BigInteger blocksMined;
+    public BigInteger materialsSold;
     private BigInteger moneyEarned;
     private BigInteger userGems;
     private BigInteger gemsEarned;
@@ -426,6 +428,28 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public BigInteger GetBlocksMined() {
         return blocksMined;
     }
+
+    public void RewardPlayerWithGems(int amount, string message = null) {
+
+        if (message != null) {
+            collectRewardMessage.text = GetLocalizedValue(message);
+        }
+        
+        leaderboardDelegator.gemRewardsToCollect += amount;
+        leaderboardDelegator.CheckForRewards();
+    }
+
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
+
 
     // For development only
     public void FreeMoney() {

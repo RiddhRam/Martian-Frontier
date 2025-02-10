@@ -661,10 +661,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
         }
 
-        oresMinedText.text = currentOresMined.ToString();
-        playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+        if (!loading) {
+            oresMinedText.text = currentOresMined.ToString();
+            playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+            dailyChallengeDelegator.MinedOres(quantities);
+        
+        }
 
-        dailyChallengeDelegator.MinedOres(quantities);
         quantities.Clear();
 
         // Reveal the tiles

@@ -12,8 +12,6 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject soundFXToggle;
     public GameObject languageDropdown;
     public GameObject graphicsQualityDropdown;
-    public GameObject restartTutorialButton;
-    public GameObject tutorialPreFab;
     public GameObject generalButton;
     public GameObject generalPanel;
     public GameObject accountButton;
@@ -237,12 +235,6 @@ public class SettingsDelegator : MonoBehaviour
             default:
                 return "en"; // Default case for unsupported full names
         }
-    }
-
-    public void RestartTutorial() {
-        GameObject tutorialGO = Instantiate(tutorialPreFab);
-        tutorialGO.transform.SetParent(UIDelegation.transform, false);
-        tutorialGO.GetComponent<TutorialManager>().GameLoaded();
     }
 
     public void TogglePanel(string type) {

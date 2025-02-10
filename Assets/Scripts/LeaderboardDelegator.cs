@@ -52,7 +52,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     private string timeString;
     private PlayerProfile playerProfile;
     private int lastUpdateTimer = 0;
-    private long gemRewardsToCollect = 0;
+    public long gemRewardsToCollect = 0;
 
     private readonly string cashLeaderboardID = "Cash";
     private readonly string vehiclesLeaderboardID = "Vehicles";
@@ -147,6 +147,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         playerState.UpdateGemDisplays();
         gemRewardsToCollect = 0;
         collectReward.SetActive(false);
+        collectReward.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("CONGRATULATIONS! YOU RECEIVED SOME REWARDS!");
     }
 
     public async void UpdateLeaderBoardData() {

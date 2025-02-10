@@ -16,7 +16,6 @@ public class DataPersistenceManager : MonoBehaviour
     private FileDataHandler dataHandler;
     private float timer = 0f;
     private float interval = 90f; // Save time interval
-    private SerializableDictionary<string, object> gameToCloudData = new();
 
     public static DataPersistenceManager instance {get; private set; }
 
@@ -63,26 +62,18 @@ public class DataPersistenceManager : MonoBehaviour
             Debug.Log("No game data to load, creating new game");
             NewGame();
         }
-
+        
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {
                 dataPersistenceObj.LoadData(gameData);
-
-                try {
-                    StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
-                } catch {
-                }
             } catch (Exception error) {
-                // Sometimes tutorial doesn't load
-                if (error.ToString().Contains("Tutorial")) {
-                    try {
-                        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
-                    } catch {
-                    }
-                }
-
                 Debug.Log(error);
+            }
+
+            try {
+                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            } catch {
             }
         }
     }
@@ -92,11 +83,20 @@ public class DataPersistenceManager : MonoBehaviour
         if (dataPersistenceObjects == null) {
             return;
         }
+
         // Get data from scripts to save
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
-            dataPersistenceObj.SaveData(ref gameData);
+            if (dataPersistenceObj.ToString() == "null") {
+                continue;
+            }
+            
+            try {
+                dataPersistenceObj.SaveData(ref gameData);
+            } catch (Exception ex) {
+                Debug.Log(ex);
+            }
         }
-
+        
         // Save the data as a file
         dataHandler.Save(gameData);
     }
@@ -139,13 +139,15 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public void ResetEntireGame() {
-        this.gameData = new GameData();
-        gameData.finishedTutorial = true;
-        
+        this.gameData = new GameData
+        {
+            finishedTutorial = true
+        };
+
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {
-                dataPersistenceObj.LoadData(gameData);
+                dataPersistenceObj.LoadData(this.gameData);
             } catch (Exception error) {
                 Debug.Log(error);
             }
@@ -163,6 +165,9 @@ public class DataPersistenceManager : MonoBehaviour
 
     // Used here as well
     public bool CompareGameData(GameData gameData) {
+        // true = use new save (cloud save or something else)
+        // false = use current save
+        
         // If cloud save has higher rebirth use the cloud save, else use local save
         if (gameData.rebirthProfitMultiplier > this.gameData.rebirthProfitMultiplier) {
             this.gameData = gameData;

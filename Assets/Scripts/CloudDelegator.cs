@@ -289,7 +289,9 @@ public class CloudDelegator : MonoBehaviour
     public bool CheckAnonymity() {
         // True if logged in
         // False if not
-        return  playerInfo != null && playerInfo.Identities.Count != 0;
+        if (playerInfo != null && playerInfo.Identities.Count != 0) {
+        }
+        return playerInfo != null && playerInfo.Identities.Count != 0;
     }
 
     // Just so it gets factor into Loading

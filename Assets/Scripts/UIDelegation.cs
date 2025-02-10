@@ -12,7 +12,6 @@ public class UIDelegation : MonoBehaviour
     public GameObject playerVehicle;
     public GameObject sliderCount;
     public GameObject destroyButton;
-    public GameObject oreRefineryCanvas;
 
     // Higher resolution UI version of the minerals, because they will be larger now in the cargo panel
     // The first elements a user sees, these are the ones they see while playing the game

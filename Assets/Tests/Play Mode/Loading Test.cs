@@ -25,6 +25,8 @@ public class LoadingTest
     GameObject playerVehicle;
     PlayerMovement playerMovement;
     MineRenderer mineRenderer;
+    OreDelegation oreDelegation;
+    LeaderboardDelegator leaderboardDelegator;
 
     // DELETE GAME SAVE FILE BEFORE RUNNING
 
@@ -105,8 +107,10 @@ public class LoadingTest
         Assert.AreEqual(settingsDelegator.soundFXToggle.name, "Sound FX Toggle");
         Assert.AreEqual(settingsDelegator.languageDropdown.name, "Language Dropdown");
         Assert.AreEqual(settingsDelegator.graphicsQualityDropdown.name, "Framerate Dropdown");
-        Assert.AreEqual(settingsDelegator.restartTutorialButton.name, "Restart Tutorial");
-        Assert.AreEqual(settingsDelegator.tutorialPreFab.name, "Tutorial");
+        Assert.AreEqual(settingsDelegator.generalButton.name, "GENERAL");
+        Assert.AreEqual(settingsDelegator.generalPanel.name, "General Settings");
+        Assert.AreEqual(settingsDelegator.accountButton.name, "ACCOUNT");
+        Assert.AreEqual(settingsDelegator.accountPanel.name, "Account Panel");
 
         // Refinery Controller
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
@@ -115,8 +119,12 @@ public class LoadingTest
         Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
+        Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.gameObjectBoxCollider2D.gameObject.name, "Ore Refinery Dropoff");
         Assert.AreEqual(refineryController.mine.name, "Mine");
         Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
+        Assert.AreEqual(refineryController.askForReviewScreen.name, "Ask For Review");
+        Assert.False(refineryController.askedForReview);
 
         int refineryProgressCount = 3;
         bool[] refineryActiveValues = { true, true, false };
@@ -138,6 +146,15 @@ public class LoadingTest
         Assert.AreEqual(refineryController.efficiencyUpgrades.name, "Efficiency Panel");
 
         Assert.AreEqual(refineryController.GetRebirthProfitMultiplier(), 0);
+
+        Assert.AreEqual(refineryController.largeFogOfWar.gameObject.name, "Large Fog Of War");
+        Assert.AreEqual(refineryController.audioDelegator.gameObject.name, "Audio Delegator");
+        Assert.AreEqual(refineryController.dataPersistenceManager.gameObject.name, "Data Persistence Manager");
+        Assert.AreEqual(refineryController.playerVehicle.name, "Player Vehicle");
+        Assert.AreEqual(refineryController.analyticsDelegator.gameObject.name, "Analytics Delegator");
+        Assert.AreEqual(refineryController.mineRenderer.gameObject.name, "Mine");
+        Assert.AreEqual(refineryController.dailyChallengeDelegator.gameObject.name, "Daily Challenge Delegator");
+        Assert.AreEqual(refineryController.fogOfWarSprite.gameObject.name, "Large Fog Of War");
 
         // UI Delegation
         uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
@@ -219,6 +236,8 @@ public class LoadingTest
         Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
         Assert.AreEqual(drillersCount, garageDelegator.drillersImages.Length);
         for (int i = 0; i != drillersCount; i++) {
+            Assert.True(garageDelegator.drillers[i].name != "");
+            Assert.True(garageDelegator.drillers[i].name != null);
             Assert.AreEqual(garageDelegator.drillers[i].name.ToLower(), garageDelegator.drillersImages[i].name.ToLower());
         }
 
@@ -226,29 +245,20 @@ public class LoadingTest
         Assert.AreEqual(haulersCount, garageDelegator.haulers.Length);
         Assert.AreEqual(haulersCount, garageDelegator.haulersImages.Length);
         for (int i = 0; i != haulersCount; i++) {
+            Assert.True(garageDelegator.haulers[i].name != "");
+            Assert.True(garageDelegator.haulers[i].name != null);
             Assert.AreEqual(garageDelegator.haulers[i].name.ToLower(), garageDelegator.haulersImages[i].name.ToLower());
         }
 
         // Tutorial
         tutorialManager = GameObject.Find("Tutorial").GetComponent<TutorialManager>();
-        tutorialSettingsDelegator = GameObject.Find("Tutorial").GetComponent<SettingsDelegator>();
 
-        string[] tutorialScreenNames = { "(1) Welcome", "(2) Garage", "(3) Vehicle Explanation", "(4) Prices", "(5) End" };
+        string[] tutorialScreenNames = { "(1) Mine those ores", "(2) Use a hauler", "(3) Go pick up the ores" };
         for (int i = 0; i != tutorialManager.tutorialScreens.Length; i++) {
             Assert.AreEqual(tutorialScreenNames[i], tutorialManager.tutorialScreens[i].name);
         }
 
         Assert.AreEqual("Bottom Controls", tutorialManager.bottomControls.name);
-        Assert.AreEqual("Rewarded Ad Buttons", tutorialManager.rewardedAdButtons.name);
-        Assert.AreEqual("Settings", tutorialManager.settingsButton.name);
-
-        Assert.AreEqual("Tutorial", tutorialSettingsDelegator.UIDelegation.name);
-        Assert.AreEqual("Music Toggle", tutorialSettingsDelegator.musicToggle.name);
-        Assert.AreEqual("Sound FX Toggle", tutorialSettingsDelegator.soundFXToggle.name);
-        Assert.AreEqual("Language Dropdown", tutorialSettingsDelegator.languageDropdown.name);
-        Assert.AreEqual("Framerate Dropdown", tutorialSettingsDelegator.graphicsQualityDropdown.name);
-        Assert.True(tutorialSettingsDelegator.restartTutorialButton == null);
-        Assert.True(tutorialSettingsDelegator.tutorialPreFab == null);
 
         // Custom Ad Screen
         customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
@@ -297,6 +307,29 @@ public class LoadingTest
         for (int i = 0; i != generationTriggers.childCount; i++) {
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }
+
+        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        int materialCount = 9;
+        Assert.AreEqual(materialCount, oreDelegation.materialNames.Length);
+        Assert.AreEqual(materialCount, oreDelegation.materials.Length);
+        Assert.AreEqual(materialCount, oreDelegation.GetMaterialPrices().Length);
+        Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
+
+        string[] materialNames = new string[] {"Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium"};
+        int[] materialPrices = new int[] {75, 200, 300, 5000, 15000, 25000, 500000, 1500000, 2500000};
+        for (int i = 0; i != materialCount; i++) {
+            Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
+            Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
+            Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
+            Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialNames[i] + " High Res");
+        }
+
+        Assert.AreEqual(oreDelegation.oreMaterialTierPanel.name, "Ore Material Tier Panel");
+        Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
+        Assert.AreEqual(oreDelegation.contentGO.name, "Content");
+
+        leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
+        Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
 
         yield return null;
     }

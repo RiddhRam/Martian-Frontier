@@ -7,6 +7,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public string currentVehicle;
     public GameObject garageDelegator;
     public GameObject playerVehicle;
+    public string vehicleType;
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
@@ -72,6 +73,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
             gameObject.GetComponent<AIMovement>().vehicleType = "Hauler";
+            vehicleType = "Hauler";
             if (!analyticsDelegator) {
                 analyticsDelegator = AnalyticsDelegator.Instance;
             }
@@ -92,6 +94,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         int tier = drillerController.GetDrillTier();
         gameObject.GetComponent<AIMovement>().vehicleType = "Driller";
         gameObject.GetComponent<AIMovement>().drillTier = tier;
+        vehicleType = "Driller";
         if (!analyticsDelegator) {
             analyticsDelegator = AnalyticsDelegator.Instance;
         }

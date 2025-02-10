@@ -23,9 +23,8 @@ public class LoadingScreen : MonoBehaviour
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
 
-
-        Total as of Feb 6 2025: 11 || 10
-        Last check: Feb 6 2025
+        Total as of Feb 10 2025: 11 || 10
+        Last check: Feb 10 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second
@@ -41,11 +40,6 @@ public class LoadingScreen : MonoBehaviour
             return;
         }
 
-        try {
-            GameObject.Find("Tutorial").GetComponent<TutorialManager>().loadingScreen = null;
-        } catch {
-
-        }
         gameObject.SetActive(false);
     }
 
