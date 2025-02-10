@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
+using GoogleMobileAds.Mediation.UnityAds.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -47,6 +48,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
 
     void Awake() {
+        // TODO: Im pretty sure this is ok because I'm using non personalized ads, but do research to make sure
+        UnityAds.SetConsentMetaData("gdpr.consent", true);
+        UnityAds.SetConsentMetaData("privacy.consent", true);
         SetAdUnitId();
     }
 

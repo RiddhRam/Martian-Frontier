@@ -60,13 +60,13 @@ public class LoadingTest
         Assert.False(playerState.materialProfitPanel.activeSelf);
         Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
 
-        int cashDisplayCount = 5;
+        int cashDisplayCount = 4;
         Assert.AreEqual(playerState.cashDisplays.Length, cashDisplayCount);
         for (int i = 0; i != cashDisplayCount; i++) {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 3;
+        int gemDisplayCount = 4;
         Assert.AreEqual(playerState.gemDisplays.Length, gemDisplayCount);
         for (int i = 0; i != gemDisplayCount; i++) {
             Assert.True(playerState.gemDisplays[i].activeSelf);
@@ -251,7 +251,7 @@ public class LoadingTest
         }
 
         // Tutorial
-        tutorialManager = GameObject.Find("Tutorial").GetComponent<TutorialManager>();
+        tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
         string[] tutorialScreenNames = { "(1) Mine those ores", "(2) Use a hauler", "(3) Go pick up the ores" };
         for (int i = 0; i != tutorialManager.tutorialScreens.Length; i++) {
