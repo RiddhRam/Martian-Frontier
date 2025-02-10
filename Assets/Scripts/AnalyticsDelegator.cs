@@ -250,4 +250,15 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
     }
+
+    public void PurchaseCashWithGems(float amount) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Purchase_Cash_With_Gems") {
+            {"Amount", amount},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 }

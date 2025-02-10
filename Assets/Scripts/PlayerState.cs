@@ -174,6 +174,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         UpdateCashDisplays();
         UpdateGemDisplays();
+        analyticsDelegator.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
 
         dataPersistenceManager.SaveGame();
     }

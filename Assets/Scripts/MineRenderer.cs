@@ -212,7 +212,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         if (mineInitialization < 2) {
             // My birthday: Dec 8
             System.DateTime epoch = new System.DateTime(2024, 12, 8, 0, 0, 0, System.DateTimeKind.Utc);
-            seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
+
+            if (seed == 0) {
+                // Tutorial map, 14 gold at the surface
+                seed = 5572860;
+            } else {
+                seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
+            }
+            
             Random.InitState(seed);
         }
 
