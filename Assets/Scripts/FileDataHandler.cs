@@ -6,6 +6,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 
 public class FileDataHandler
 {
@@ -208,7 +209,7 @@ public class FileDataHandler
         return tempData;
     }
 
-    public void Save(GameData data) {
+    public async Task Save(GameData data) {
         string fullPath = Path.Combine(dataDirPath, dataFileName);
         string tempPath = fullPath + ".tmp";
 
@@ -219,9 +220,9 @@ public class FileDataHandler
             string dataToStore = CreateJson(data, useEncryption);
 
             // Write to a temporary file first
-            using (FileStream stream = new FileStream(tempPath, FileMode.Create))
+            using (FileStream stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 2097152, useAsync: true))
             using (StreamWriter writer = new StreamWriter(stream)) {
-                writer.Write(dataToStore);
+                await writer.WriteAsync(dataToStore);
             }
 
             // Replace the original file with the temporary file
@@ -233,7 +234,7 @@ public class FileDataHandler
             }
         } 
         catch (Exception ex) {
-            Debug.LogError($"Error when trying to save data to file: {ex.Message}");
+            Debug.Log($"Error when trying to save data to file: {ex.Message}");
         }
     }
 

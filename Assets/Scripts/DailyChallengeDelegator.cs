@@ -30,7 +30,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI dailyTimerText;
     private MineRenderer mineRenderer;
     private PlayerState playerState;
-    private readonly int[]  baseCashAmountForGemPurchase = {50_000, 100_000, 250_000, 600_000};
+    private readonly int[]  baseCashAmountForGemPurchase = {45_000, 100_000, 250_000, 600_000};
     private Image buttonGemIcon;
     private Image[] challengeStatusIcons = new Image[6];
     private TextMeshProUGUI[] challengeTextMeshes = new TextMeshProUGUI[6];
@@ -47,7 +47,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "MINE {0} ORES", "MINE {0} ORES OF {1}", "BUY {0} DRILLERS", "BUY {0} HAULERS", "SELL {0} ORES"};
     // This one is not related to challenge types, just order of challenges display
     private int[] difficulty = {8, 1, 2, 5, 3, 1};
-    private int baseGemReward = 3;
+    private int baseGemReward = 9;
     // Related to the above challenge types
     private int[] baseGoalAmount = {5, 150, 80, 1, 2, 80};
     // Can be retrieved through seed generation

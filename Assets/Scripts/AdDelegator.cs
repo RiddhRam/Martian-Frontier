@@ -354,7 +354,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             leaderboardTabButtons.SetActive(true);
             leaderboardNoWifi.SetActive(false);
 
-            cloudDelegator.AttemptLogIn();
+            _ = cloudDelegator.AttemptLogIn();
             
             // If showing ad buttons, don't show ad opt out text
             for (int i = 0; i != adButtons.Length; i++) {

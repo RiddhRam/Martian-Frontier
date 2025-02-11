@@ -245,7 +245,7 @@ public class AnalyticsDelegator : MonoBehaviour
             return;
         }
         CustomEvent myEvent = new CustomEvent("Collect_Challenge_Reward") {
-            {"selected_Challenge_Index", selectedChallengeIndex},
+            {"Selected_Challenge_Index", selectedChallengeIndex},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
