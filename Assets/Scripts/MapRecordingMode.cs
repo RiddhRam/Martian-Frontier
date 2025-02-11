@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class MapRecordingMode : MonoBehaviour
 {
@@ -9,6 +10,7 @@ public class MapRecordingMode : MonoBehaviour
     public PlayerState playerState;
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
     public OreDelegation oreDelegation;
+    public RawImage mapCameraView;
 
     public TextMeshProUGUI depthText;
     public TextMeshProUGUI mineText;
@@ -60,6 +62,15 @@ public class MapRecordingMode : MonoBehaviour
         farthestLeft = pos.x;
         farthestTop = pos.y;
         farthestDown = pos.y;
+        
+        // Create a new RenderTexture
+        RenderTexture renderTexture = new RenderTexture(1749, 2725, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
+        renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
+        renderTexture.Create();
+
+        // Assign the RenderTexture to the mapCamera's target texture
+        GetComponent<Camera>().targetTexture = renderTexture;
+        mapCameraView.texture = renderTexture;
     }
 
     void Update()
@@ -87,14 +98,14 @@ public class MapRecordingMode : MonoBehaviour
     {
         Vector3 clampedPosition = thisCamera.transform.position;
         clampedPosition.x = Mathf.Clamp((farthestLeft + farthestRight) / 2, farthestLeft - visionRadius, farthestRight + visionRadius);
-        clampedPosition.y = Mathf.Clamp(-thisCamera.orthographicSize + farthestTop + (visionRadius * 2), -600, -thisCamera.orthographicSize - 4.5f);
+        clampedPosition.y = Mathf.Clamp((farthestTop + farthestDown) / 2, -600, -thisCamera.orthographicSize - 4.5f);
         thisCamera.transform.position = clampedPosition;
     }
 
     private void Zoom()
     {
-        float width = farthestRight - farthestLeft + (visionRadius * 4);
-        float height = (farthestTop - farthestDown + (visionRadius * 4)) / 2;
+        float width = farthestRight - farthestLeft + (visionRadius * 3);
+        float height = (farthestTop - farthestDown + (visionRadius * 5))/2;
         float targetSize = Mathf.Max(width, height);
         targetSize = Mathf.Clamp(targetSize, minimumCameraSize, 252);
         thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, targetSize, Time.deltaTime * 5);
