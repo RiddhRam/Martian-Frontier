@@ -11,6 +11,7 @@ public class MapRecordingMode : MonoBehaviour
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
     public OreDelegation oreDelegation;
     public RawImage mapCameraView;
+    public Outline panelOutline;
 
     public TextMeshProUGUI depthText;
     public TextMeshProUGUI mineText;
@@ -28,8 +29,8 @@ public class MapRecordingMode : MonoBehaviour
     float farthestTop;
     [SerializeField]
     float farthestDown;
-    [SerializeField]
     System.Numerics.BigInteger originalBlocksMined;
+    System.Numerics.BigInteger originalMineValue;
 
     Camera thisCamera;
 
@@ -38,8 +39,10 @@ public class MapRecordingMode : MonoBehaviour
         mapText.SetActive(false);
         videoInfo.SetActive(true);
         thisCamera = GetComponent<Camera>();
+        panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
 
         originalBlocksMined = playerState.GetBlocksMined();
+        originalMineValue = GetMineValue();
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
@@ -71,6 +74,8 @@ public class MapRecordingMode : MonoBehaviour
         // Assign the RenderTexture to the mapCamera's target texture
         GetComponent<Camera>().targetTexture = renderTexture;
         mapCameraView.texture = renderTexture;
+        originalBlocksMined = playerState.GetBlocksMined();
+        originalMineValue = GetMineValue();
     }
 
     void Update()
@@ -114,7 +119,7 @@ public class MapRecordingMode : MonoBehaviour
     public void UpdateText() {
         depthText.text = FormatPositionY((int) -playerVehicle.position.y -5);
         mineText.text = FormatPrice(playerState.GetBlocksMined() - originalBlocksMined);
-        valueText.text = "$" + FormatPrice(GetMineValue());
+        valueText.text = "$" + FormatPrice(GetMineValue() - originalMineValue);
     }
 
     public System.Numerics.BigInteger GetMineValue() {
