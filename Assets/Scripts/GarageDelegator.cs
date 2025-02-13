@@ -97,14 +97,14 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.localScale = new(1, 1, 1);
 
                 // Set the panel to the right colour
-                panelTransform.GetComponent<Image>().color = tierColors[tier - 1];
+                panelTransform.GetChild(0).GetComponent<Outline>().effectColor = tierColors[tier - 1];
 
                 // Set the sprite, drill width, speed and name
-                panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
-                panelTransform.GetChild(2).GetComponent<Image>().sprite = drillersImages[i];
-                panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-                panelTransform.GetChild(4).GetChild(1).GetComponent<Slider>().value = drillSpeed;
-                panelTransform.GetChild(5).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+                panelTransform.GetChild(1).GetComponent<Image>().sprite = drillersImages[i];
+                panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+                panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
+                panelTransform.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+                panelTransform.GetChild(6).GetChild(1).GetComponent<Slider>().value = drillSpeed;
 
                 // I made some changes, these comments might be wrong
                 // Multiply the width and height of the panel image relative to the proportion of 
@@ -116,24 +116,24 @@ public class GarageDelegator : MonoBehaviour
 
                 float scaleFactor = drillersImages[i].bounds.size.x / 2.89f * drillers[i].transform.localScale.x;
 
-                panelTransform.GetChild(2).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
+                panelTransform.GetChild(1).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
                 
                 tierItems[tier-1]++;
 
                 // Get the Buy Button component
-                Button buyButton = panelTransform.GetChild(5).GetComponent<Button>();
+                Button buyButton = panelTransform.GetChild(2).GetComponent<Button>();
                 // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
                 int index = i;
 
                 // If vehicle is owned
                 if (playerStateScript.CheckVehicleOwnerShip(drillers[i].name)) {
-                    PurchasedVehicle(newVehiclePanel, drillers[i], 5);
+                    PurchasedVehicle(newVehiclePanel, drillers[i], 2);
                     continue;
                 }
 
                 // If not owned
                 // Add an OnClick listener to the button and pass in the prefab of the vehicle
-                buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, drillers[index], 5));
+                buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, drillers[index], 2));
             }
 
             float bigContentHeight = 0;
@@ -176,12 +176,12 @@ public class GarageDelegator : MonoBehaviour
             panelTransform.localScale = new(1, 1, 1);
 
             // Set the sprite, hauler width, speed and name
-            panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
-            panelTransform.GetChild(2).GetComponent<Image>().sprite = haulersImages[i];
-            panelTransform.GetChild(3).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
-            panelTransform.GetChild(4).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-            panelTransform.GetChild(5).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
-            panelTransform.GetChild(6).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+            panelTransform.GetChild(1).GetComponent<Image>().sprite = haulersImages[i];
+            panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+            panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
+            panelTransform.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
+            panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+            panelTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
 
             // I made some changes, these comments might be wrong
             // Multiply the width and height of the panel image relative to the proportion of 
@@ -193,22 +193,22 @@ public class GarageDelegator : MonoBehaviour
 
             float scaleFactor = haulersImages[i].bounds.size.x / 2.89f * haulers[i].transform.localScale.x;
 
-            panelTransform.GetChild(2).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
+            panelTransform.GetChild(1).transform.localScale = new(scaleFactor, 1.16f * scaleFactor, 1);
 
             // Get the Buy Button component
-            Button buyButton = panelTransform.GetChild(6).GetComponent<Button>();
+            Button buyButton = panelTransform.GetChild(2).GetComponent<Button>();
             // Have to save it as a variable with a local scope, or else it keeps going up and out of bounds
             int index = i;
             
             // If vehicle is owned
             if (playerStateScript.CheckVehicleOwnerShip(haulers[i].name)) {
-                PurchasedVehicle(newVehiclePanel, haulers[i], 6);
+                PurchasedVehicle(newVehiclePanel, haulers[i], 2);
                 continue;
             }
 
             // If not owned
             // Add an OnClick listener to the button and pass in the prefab of the vehicle
-            buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, haulers[index], 6));
+            buyButton.onClick.AddListener(() => OnBuyButtonClick(newVehiclePanel, haulers[index], 2));
         }
 
         Canvas.ForceUpdateCanvases();
@@ -247,7 +247,7 @@ public class GarageDelegator : MonoBehaviour
 
     public void OnBuyButtonClick (GameObject panelPurchasingFrom, GameObject vehicle, int buyButtonIndex) {
 
-        if (!(playerStateScript.VerifyEnoughCash(vehicle))) {
+        if (!playerStateScript.VerifyEnoughCash(vehicle)) {
             // If not enough money display quick error, but later change this to prompt to pay money for for in game cash
             transform.parent.parent.GetComponent<UIDelegation>().ShowError("NOT ENOUGH CASH!");
             return;
@@ -257,7 +257,6 @@ public class GarageDelegator : MonoBehaviour
         } else {
             playerStateScript.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
         }
-        
 
         // If purchase was successful
         if (playerStateScript.CheckVehicleOwnerShip(vehicle.name)) {
