@@ -261,4 +261,16 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
     }
+
+    public void UpgradeVehicle(string vehicleName, int upgradeLevel) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Drop_Off_Ores") {
+            {"Vehicle_Name", vehicleName},
+            {"Upgrade_Level", upgradeLevel}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 }

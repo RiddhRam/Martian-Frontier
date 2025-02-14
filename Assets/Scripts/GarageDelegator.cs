@@ -18,12 +18,12 @@ public class GarageDelegator : MonoBehaviour
     public Sprite[] drillersImages;
     public GameObject[] haulers;
     public Sprite[] haulersImages;
-    public GameObject playerState;
     public GameObject playerVehicleDelegation;
     public GameObject UIDelegation;
     public Color[] tierColors;
     private string activePanel = "Drillers";
-    private PlayerState playerStateScript;
+    public PlayerState playerStateScript;
+    public VehicleUpgradesDelegator vehicleUpgradesDelegator;
 
     public void DeactivatePanel() {
         // If drillers
@@ -52,10 +52,6 @@ public class GarageDelegator : MonoBehaviour
     }
 
     public void GeneratePanel(string panelToActivate) {
-
-        if (playerStateScript == null) {
-            playerStateScript = playerState.GetComponent<PlayerState>();
-        }
         
         // If drillers
         if (panelToActivate == "Drillers") {
@@ -103,8 +99,9 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.GetChild(1).GetComponent<Image>().sprite = drillersImages[i];
                 panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
                 panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
-                panelTransform.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-                panelTransform.GetChild(6).GetChild(1).GetComponent<Slider>().value = drillSpeed;
+                panelTransform.GetChild(5).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", vehicleUpgradesDelegator.GetVehicleLevel(drillers[i].name));
+                panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+                panelTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value = drillSpeed;
 
                 // I made some changes, these comments might be wrong
                 // Multiply the width and height of the panel image relative to the proportion of 
@@ -147,7 +144,7 @@ public class GarageDelegator : MonoBehaviour
 
                 // Resize the scroll view content height to fit the rows (top padding of tier panels + cell height * rows + vertical spacing between cell rows * (rows - 1))
                 RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 50 + 1950 * rows + 40 * (rows - 1));
+                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 50 + 2150 * rows + 40 * (rows - 1));
                 tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
                 bigContentHeight += contentRect.sizeDelta.y;
             }
@@ -179,9 +176,10 @@ public class GarageDelegator : MonoBehaviour
             panelTransform.GetChild(1).GetComponent<Image>().sprite = haulersImages[i];
             panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
             panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
-            panelTransform.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
-            panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-            panelTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
+            panelTransform.GetChild(5).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", vehicleUpgradesDelegator.GetVehicleLevel(haulers[i].name));
+            panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
+            panelTransform.GetChild(7).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
+            panelTransform.GetChild(8).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
 
             // I made some changes, these comments might be wrong
             // Multiply the width and height of the panel image relative to the proportion of 
@@ -220,7 +218,7 @@ public class GarageDelegator : MonoBehaviour
 
         // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
         RectTransform haulersContentRect = haulersContent.GetComponent<RectTransform>();
-        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 1900 * haulerRows + 40 * (haulerRows - 1));
+        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 2100 * haulerRows + 40 * (haulerRows - 1));
         haulersContent.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
     }
 
@@ -269,7 +267,7 @@ public class GarageDelegator : MonoBehaviour
     }
 
     // The FormatPrice in PlayerState is slightly different
-    private string FormatPrice(long price)
+    public string FormatPrice(long price)
     {
         if (price >= 1_000_000_000) {
             return (price / 1_000_000_000f).ToString("0.#") + "B"; // For billions
@@ -322,7 +320,7 @@ public class GarageDelegator : MonoBehaviour
         GeneratePanel("Haulers");
     }
 
-    private string GetLocalizedValue(string key, params object[] args)
+    public string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 

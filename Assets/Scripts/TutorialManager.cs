@@ -121,6 +121,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     }
 
     public void TapToContinue() {
+
         if (!newScreen.GetComponent<TutorialTextBox>().readyToGoNext) {
             return;
         }

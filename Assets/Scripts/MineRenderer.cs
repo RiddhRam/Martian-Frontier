@@ -797,7 +797,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         foreach (string id in savedMaterials.Keys) {
             // Copy all the saved values into the loaded material
             MaterialManagerData savedMaterialManager = savedMaterials[id];
-            GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count);
+            GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count, savedMaterialManager.drillProfitMultiplier);
         }
 
         if (mineInitialization == 2) {
@@ -871,7 +871,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tileTier;
     }
 
-    public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount)
+    public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount, float profitMultiplier)
     {
         if (materialPools[materialIndex].Count > 0)
         {
@@ -885,7 +885,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         obj.transform.position = materialPosition;
         obj.SetActive(true);
-        materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount);
+        materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount, profitMultiplier);
 
         currentMineValue += materialPrices[materialIndex] * materialCount;
         mineValueText.text = FormatPrice(currentMineValue);

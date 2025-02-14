@@ -9,6 +9,7 @@ public class MaterialManager : MonoBehaviour
     public string materialName;
     public int materialIndex;
     public string id;
+    public float drillProfitMultiplier;
     private MaterialManagerData materialManagerData;
     private SpriteRenderer spriteRenderer;
     private GameObject mapCamera;
@@ -63,6 +64,7 @@ public class MaterialManager : MonoBehaviour
         materialManagerData.materialIndex = materialIndex;
         materialManagerData.position = transform.localPosition;
         materialManagerData.materialName = materialName;
+        materialManagerData.drillProfitMultiplier = drillProfitMultiplier;
     }
 
     // Use this instead of start in case of lag, this way count will be gauranteed to be updated

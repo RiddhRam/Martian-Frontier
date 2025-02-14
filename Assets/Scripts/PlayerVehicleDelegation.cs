@@ -11,14 +11,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
-    private MineRenderer mineRenderer;
-    private AdDelegator adDelegator;
-    private AnalyticsDelegator analyticsDelegator;
-
-    public void Start() {
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
+    public MineRenderer mineRenderer;
+    public AdDelegator adDelegator;
+    public AnalyticsDelegator analyticsDelegator;
+    public VehicleUpgradesDelegator vehicleUpgradesDelegator;
 
     public void SwitchVehicle(GameObject newVehicle) {
 
@@ -30,8 +26,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
         loading = false;
 
-        if (oldVehicle.GetComponent<HaulerController>()) {
-            int[] materialCount = oldVehicle.GetComponent<HaulerController>().GetMaterialCount();
+        HaulerController haulerController1 = oldVehicle.GetComponent<HaulerController>();
+
+        if (haulerController1) {
+            int[] materialCount = haulerController1.GetMaterialCount();
 
             for (int i = 0; i != materialCount.Length; i++) {
                 // Should never be less than zero but just in case
@@ -39,13 +37,13 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i]);
+                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i], haulerController1.GetProfitMultiplier());
             }
         }
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
         Destroy(oldVehicle);
-        oldVehicle = null;
+
         transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
 
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)
@@ -61,22 +59,22 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         float playerSpeed;
         
+        HaulerController haulerController2 = playerVehicle.GetComponent<HaulerController>();
+        
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
-        if (playerVehicle.GetComponent<HaulerController>()) {
+        if (haulerController2) {
             // Disable rewarded ad vision boost button
             adDelegator.SetUsingDriller(false);
             // Display the hauler cargo button
             cargoInfo.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
-            HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
-            playerSpeed = haulerController.GetPlayerSpeed();
+            playerSpeed = haulerController2.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
             gameObject.GetComponent<AIMovement>().vehicleType = "Hauler";
+            haulerController2.SetProfitMultiplier(vehicleUpgradesDelegator.GetVehicleProfitMultiplier(haulerController2.name));
             vehicleType = "Hauler";
-            if (!analyticsDelegator) {
-                analyticsDelegator = AnalyticsDelegator.Instance;
-            }
+
             analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
@@ -90,19 +88,17 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
+        drillerController.SetProfitMultiplier(vehicleUpgradesDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
 
         int tier = drillerController.GetDrillTier();
         gameObject.GetComponent<AIMovement>().vehicleType = "Driller";
         gameObject.GetComponent<AIMovement>().drillTier = tier;
         vehicleType = "Driller";
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
+
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", tier);
     }
 
     public void LoadData(GameData data) {
-        adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
@@ -111,6 +107,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Hauler cargo is loaded lower down
         // It's saved to this temp variable because otherwise it magically gets wiped I don't know how
         int[] tempHaulerCargo = data.haulerCargo;
+        float[] tempMaterialProfitMultipliers = data.materialProfitMultipliers;
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
@@ -128,7 +125,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
             // Switch to that vehicle
             SwitchVehicle(haulers[i]);
-            playerVehicle.GetComponent<HaulerController>().SetMaterialCount(tempHaulerCargo);
+            HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
+            haulerController.SetMaterialProfitMultipliers(tempMaterialProfitMultipliers);
+            haulerController.SetMaterialCount(tempHaulerCargo);
             playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             return;
         }
@@ -158,10 +157,13 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         data.playerPos = playerVehicle.transform.parent.position;
         data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
 
-        if (playerVehicle.GetComponent<HaulerController>()) {
-            data.haulerCargo = playerVehicle.GetComponent<HaulerController>().GetMaterialCount();
+        HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
+        if (haulerController) {
+            data.haulerCargo = haulerController.GetMaterialCount();
+            data.materialProfitMultipliers = haulerController.GetMaterialProfitMultipliers();
         } else {
             data.haulerCargo = new int[9];
+            data.materialProfitMultipliers = new float[9];
         }
         
     }

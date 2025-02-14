@@ -1,9 +1,8 @@
-using System;
 using UnityEngine;
 
 public class GameCameraController : MonoBehaviour
 {
-    private Boolean zoomingEnabled = true;
+    private bool zoomingEnabled = true;
     public float zoomOutMin;
     public float zoomOutMax;
 
