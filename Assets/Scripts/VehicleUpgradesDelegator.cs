@@ -19,6 +19,7 @@ public class VehicleUpgradesDelegator : MonoBehaviour, IDataPersistence
     public GarageDelegator garageDelegator;
     public UIDelegation uIDelegation;
     public GameObject playerVehicle;
+    public AnalyticsDelegator analyticsDelegator;
 
     private readonly int[] upgradeGemPrices = new int[] {10, 20, 30, 60, 90, 140, 190, 260, 340, 420, 520, 630, 740, 870, 1000, 1200, 
                 1300, 1500, 1700, 1900, 2100, 2300, 2500, 2700, 2900, 3200, 3500, 3700, 4000, 
@@ -251,6 +252,8 @@ public class VehicleUpgradesDelegator : MonoBehaviour, IDataPersistence
                 vehicle.GetChild(1).GetComponent<DrillerController>().SetProfitMultiplier(profitMultiplier);
             }
         }
+
+        analyticsDelegator.UpgradeVehicle(vehicleName, newLevel);
         
     }
 

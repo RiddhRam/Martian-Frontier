@@ -391,7 +391,7 @@ public class LoadingTest
         uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
 
         Assert.False(uIDelegation.mapCamera.activeSelf);
-        Assert.False(uIDelegation.mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled);
+        Assert.False(uIDelegation.mapCamera.GetComponent<MapRecordingMode>().enabled);
 
         yield return null;
     }
