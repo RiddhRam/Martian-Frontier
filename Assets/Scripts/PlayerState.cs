@@ -274,7 +274,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     // The FormatPrice in other places is slightly different. 
     // Here we need to purposefully round down so the user doesn't 
     // overestimate their money and buy something they can't afford
-    private string FormatPrice(BigInteger price)
+    public string FormatPrice(BigInteger price)
     {
         if (price >= 1_000_000_000_000_000_000)
         {

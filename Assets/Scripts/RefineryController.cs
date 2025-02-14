@@ -46,6 +46,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
+    public AdDelegator adDelegator;
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
 
@@ -139,6 +140,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Verify that this is the right amount
         playerState.AddCash(cashToAdd);
+        adDelegator.ShowLobbyAdButton(cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);

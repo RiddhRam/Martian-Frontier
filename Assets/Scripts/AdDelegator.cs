@@ -5,6 +5,7 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
+using System.Numerics;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -28,6 +29,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool cashPanelWasOpen = true;
 
     private RewardedAd rewardedAd;
+    private RewardedAd lobbyAd;
     private int timer = 0;
     private bool internetReachable = false;
     // This needs to be seperate because user can swap vehicle while boost active
@@ -38,15 +40,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
     public CloudDelegator cloudDelegator;
+    public PlayerState playerState;
     private bool adsInitialized = false;
     // After 30 seconds of user watching an ad, request a new one.
     // Once user watches an ad, ad boosts are free for the next 30 seconds
     DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
+    public BigInteger lobbyAdReward = 0;
+    public GameObject lobbyAdButton;
+    private int lobbyAdTimer = 30;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
-
     void Awake() {
         // TODO: Im pretty sure this is ok because I'm using non personalized ads, but do research to make sure
         UnityAds.SetConsentMetaData("gdpr.consent", true);
@@ -83,6 +88,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             if (rewardedAd != null) {
                 rewardedAd.Destroy();
                 rewardedAd = null;
+            }
+            if (lobbyAd != null) {
+                lobbyAd.Destroy();
+                lobbyAd = null;
             }
             
             internetReachable = false;
@@ -143,7 +152,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     // Loads the rewarded ad.
-    public void LoadRewardedAd()
+    public void LoadRewardedAd(string type)
     {
         bool currentCloudLoadState = cloudLoading;
         // ADMOB DISABLE
@@ -151,10 +160,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // ADMOB DISABLE
         // Clean up the old ad before loading a new one.
-        if (rewardedAd != null)
+        if (rewardedAd != null && type == "Boost")
         {
             rewardedAd.Destroy();
             rewardedAd = null;
+        } else if (lobbyAd != null && type == "Lobby") {
+            lobbyAd.Destroy();
+            lobbyAd = null;
         }
 
         // send the request to load the ad.
@@ -180,7 +192,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
-                rewardedAd = ad;
+                if (type == "Boost") {
+                    rewardedAd = ad;
+                } else {
+                    lobbyAd = ad;
+                }
+                
 
                 // We only need to load 1 ad, if 1 loads, then its most likely the last thing that needs to load
                 // so LoadingScreen will be destroyed
@@ -242,7 +259,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
                 dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-                LoadRewardedAd();
+                LoadRewardedAd("Boost");
             });
 
             // Listen to user events during ad
@@ -262,6 +279,53 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
+    public void ShowLobbyAdButton(long rewardAmount) {
+        lobbyAdReward = rewardAmount;
+        lobbyAdButton.transform.GetChild(0).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(rewardAmount);
+
+        lobbyAdButton.SetActive(true);
+        lobbyAdTimer = 30;
+        analyticsDelegator.AdWatchAttempt("Lobby");
+        StartCoroutine(LobbyAdCountdown());
+    }
+
+    private IEnumerator LobbyAdCountdown() {
+        while (lobbyAdTimer > 0) {
+            if (internetReachable == false) {
+                lobbyAdTimer = 0;
+            }
+
+            yield return new WaitForSeconds(1);
+            lobbyAdTimer--;
+        }
+
+        lobbyAdButton.SetActive(false);
+    }
+
+    public void ShowLobbyRewardedAd() {
+
+        // ADMOB DISABLE
+        if (lobbyAd != null && lobbyAd.CanShowAd())
+        {
+            lobbyAd.Show((Reward reward) =>
+            {
+                // Reward user
+                playerState.AddCash((long) lobbyAdReward);
+                lobbyAdTimer = 0;
+                //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
+                LoadRewardedAd("Lobby");
+                
+            });
+
+            // Listen to user events during ad
+            RegisterEventHandlers(rewardedAd);
+            return;
+        }
+
+        // Reward user if no ad
+        playerState.AddCash((long) lobbyAdReward);
+        lobbyAdTimer = 0;
+    }
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
 
@@ -571,7 +635,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private void FillEmptyAdSlots() {
 
         if (rewardedAd == null) {
-            LoadRewardedAd();
+            LoadRewardedAd("Boost");
+        }
+        if (lobbyAd == null) {
+            LoadRewardedAd("Lobby");
         }
     }
 
