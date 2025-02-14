@@ -194,6 +194,10 @@ public class FileDataHandler
                         int[] deserializedValue = JsonConvert.DeserializeObject<int[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
+                    else if (fieldType == typeof(float[])) {
+                        float[] deserializedValue = JsonConvert.DeserializeObject<float[]>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
                     else if (fieldType == typeof(bool[])) {
                         bool[] deserializedValue = JsonConvert.DeserializeObject<bool[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
@@ -317,6 +321,17 @@ public class FileDataHandler
             } 
             else if (fieldValue is int[]) {
                 int[] value = (int[]) fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption) {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is float[]) {
+                float[] value = (float[]) fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 

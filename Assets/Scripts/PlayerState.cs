@@ -84,22 +84,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd, int[] materialCount) {
+    public void AddCash(long cashToAdd) {
 
-        // Count the prices of all materials
-        long amountToAdd = 0;
-        for (int i = 0; i != materialCount.Length; i++) {
-            amountToAdd += materialCount[i] * materialPrices[i];
-        }
-
-        amountToAdd = (long) (amountToAdd * refineryController.GetTotalProfitMultiplier());
-
-        // If the amounts are correct, add the money
-        if (amountToAdd == cashToAdd) {
-            userCash += cashToAdd;
-            moneyEarned += cashToAdd;
-            leaderboardDelegator.AddCashScore(cashToAdd);
-        }
+        userCash += cashToAdd;
+        moneyEarned += cashToAdd;
+        leaderboardDelegator.AddCashScore(cashToAdd);
         
         UpdateCashDisplays();
     }

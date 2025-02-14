@@ -243,6 +243,7 @@ public class HaulerController : MonoBehaviour
     public float GetProfitMultiplier() {
         return profitMultiplier;
     }
+    
     public void SetMaterialProfitMultipliers(float[] newMaterialProfitMultipliers) {
         this.materialProfitMultipliers = newMaterialProfitMultipliers;
     }

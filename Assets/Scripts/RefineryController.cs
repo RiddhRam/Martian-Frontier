@@ -74,6 +74,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
         
         int[] materialCount = haulerController.GetMaterialCount();
+        float[] materialProfitMultipliers = haulerController.GetMaterialProfitMultipliers();
 
         int preSale = haulerController.GetTotalMaterialCount();
 
@@ -126,7 +127,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // Calculate how much money to add
         long cashToAdd = 0;
         for (int i = 0; i != savedMaterialCount.Length; i++) {
-            cashToAdd += savedMaterialCount[i] * materialPrices[i];
+            cashToAdd += (long) (savedMaterialCount[i] * materialPrices[i] * (1 + materialProfitMultipliers[i]));
         }
 
         // Should never be less than
@@ -134,10 +135,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             return;
         }
 
-        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
+        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier() * (1 + haulerController.GetProfitMultiplier()));
 
         // Verify that this is the right amount
-        playerState.AddCash(cashToAdd, savedMaterialCount);
+        playerState.AddCash(cashToAdd);
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
