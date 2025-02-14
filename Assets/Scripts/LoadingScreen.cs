@@ -9,22 +9,22 @@ public class LoadingScreen : MonoBehaviour
 
     public int loadedItems = 0;
     // See comment below to see why total items is this value
-    public int totalItems = 11;
-    public int cloudSaveItems = 10;
+    public int totalItems = 12;
+    public int cloudSaveItems = 11;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
         LoadData() (8 total)
-        AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, TutorialManager
+        AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, TutorialManager, VehicleUpgradesDelegator
         
         Extras:
         AdDelegator: LoadRewardedAd() (1 total) (initial load) runs asynchronously, may interfere with cloud loading screen
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
 
-        Total as of Feb 10 2025: 11 || 10
-        Last check: Feb 10 2025
+        Total as of Feb 14 2025: 12 || 11
+        Last check: Feb 14 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second

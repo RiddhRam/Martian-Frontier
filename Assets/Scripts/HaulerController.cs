@@ -10,12 +10,16 @@ public class HaulerController : MonoBehaviour
     // Initializes array with all values at 0
     private int[] materialCount;
     [SerializeField]
+    private float[] materialProfitMultipliers;
+    [SerializeField]
     private int maxMaterials;
     [SerializeField]
     // This is how much of the battery each material of this hauler will use. The compacter hauler uses half the amount as the others ones
     private float materialEnergyUsage;
     [SerializeField]
     private float playerSpeed;
+    [SerializeField]
+    private float profitMultiplier;
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
     private int concurrentFadeEvents = 0;
@@ -46,6 +50,9 @@ public class HaulerController : MonoBehaviour
         if (materialCount == null || materialCount.Length != materialNames.Length) {
             materialCount = new int[materialNames.Length];
         }
+        if (materialProfitMultipliers == null || materialProfitMultipliers.Length != materialNames.Length) {
+            materialProfitMultipliers = new float[materialNames.Length];
+        }
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
@@ -73,12 +80,14 @@ public class HaulerController : MonoBehaviour
             }
             // If it matches
             int amountPickedUp = materialManager.count;
+            float materialProfitMultiplier = materialManager.drillProfitMultiplier;
 
             // If max material limit of the hauler is exceeded then just reduce the count of the material
             if (amountPickedUp + GetTotalMaterialCount() > maxMaterials) {
                 // Only pick up what we can
                 amountPickedUp = maxMaterials - GetTotalMaterialCount();
-                // then increase the count at that index
+                // then update the profit multplier and material count
+                UpdateMaterialProfitMultiplierIndex(i, materialProfitMultiplier, amountPickedUp);
                 materialCount[i] += amountPickedUp;
 
                 if (amountPickedUp == 0) {
@@ -97,7 +106,9 @@ public class HaulerController : MonoBehaviour
             }
 
             // If limit isn't exceeded then destroy the game object
+            UpdateMaterialProfitMultiplierIndex(i, materialProfitMultiplier, amountPickedUp);
             materialCount[i] += amountPickedUp;
+
             mineRenderer.ReturnMaterialObject(other.gameObject, i, materialManager.id);
             PickUpOre(amountPickedUp);
         }
@@ -186,6 +197,13 @@ public class HaulerController : MonoBehaviour
     public void SetMaterialCount(int[] newMaterialCount) {
         materialCount = newMaterialCount;
 
+        // If value is 0, reset the average multiplier to 0
+        for (int i = 0; i != materialCount.Length; i++) {
+            if (materialCount[i] == 0) {
+                materialProfitMultipliers[i] = 0;
+            }
+        }
+
         UpdateCargoUI();
     }
 
@@ -216,5 +234,28 @@ public class HaulerController : MonoBehaviour
             cargoProgressBars[i].GetComponent<Slider>().value = GetTotalMaterialCount();
             cargoCounters[i].GetComponent<TextMeshProUGUI>().text = GetTotalMaterialCount().ToString();
         }
+    }
+
+    public void SetProfitMultiplier(float newProfitMultiplier) {
+        this.profitMultiplier = newProfitMultiplier;
+    }
+
+    public float GetProfitMultiplier() {
+        return profitMultiplier;
+    }
+    public void SetMaterialProfitMultipliers(float[] newMaterialProfitMultipliers) {
+        this.materialProfitMultipliers = newMaterialProfitMultipliers;
+    }
+
+    public float[] GetMaterialProfitMultipliers() {
+        return materialProfitMultipliers;
+    }
+
+    public void UpdateMaterialProfitMultiplierIndex(int materialIndex, float newProfitMultiplier, int newCount) {
+        float totalValue = materialCount[materialIndex] * materialProfitMultipliers[materialIndex];
+
+        totalValue += newCount * newProfitMultiplier;
+
+        materialProfitMultipliers[materialIndex] = totalValue / (materialCount[materialIndex] + newCount);
     }
 }

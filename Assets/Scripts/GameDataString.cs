@@ -35,6 +35,8 @@ public class GameDataString
     public string currentOresMined;
     public string gemRewardsToCollect;
     public string tutorialScreenIndex;
+    public string vehicleUpgradeLevels;
+    public string materialProfitMultipliers;
 
     public GameDataString() {
         this.userCash = null;
@@ -69,5 +71,7 @@ public class GameDataString
         this.currentOresMined = null;
         this.gemRewardsToCollect = null;
         this.tutorialScreenIndex = null;
+        this.vehicleUpgradeLevels = null;
+        this.materialProfitMultipliers = null;
     }
 }

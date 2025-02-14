@@ -5715,7 +5715,7 @@ MonoBehaviour:
   m_ChildAlignment: 1
   m_StartCorner: 0
   m_StartAxis: 0
-  m_CellSize: {x: 680, y: 1900}
+  m_CellSize: {x: 680, y: 2100}
   m_Spacing: {x: 50, y: 40}
   m_Constraint: 0
   m_ConstraintCount: 4
@@ -12792,7 +12792,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 526807793}
   m_HandleRect: {fileID: 526807792}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -33048,6 +33048,55 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 280, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &816394806
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 816394808}
+  - component: {fileID: 816394807}
+  m_Layer: 0
+  m_Name: Vehicle Upgrades Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &816394807
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 816394806}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df4742ca8c64b46459fe4c6e8616fd83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  vehicleUpgradeLevels:
+    keys: []
+    values: 
+  playerVehicleDelegation: {fileID: 1012335949}
+  playerVehicle: {fileID: 1012335945}
+--- !u!4 &816394808
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 816394806}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.8672903, y: -11.545475, z: -17.787975}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &821114070
 GameObject:
   m_ObjectHideFlags: 0
@@ -43114,7 +43163,11 @@ MonoBehaviour:
   currentVehicle: 
   garageDelegator: {fileID: 648771411}
   playerVehicle: {fileID: 0}
-  vehicleType: 
+  vehicleType: Driller
+  mineRenderer: {fileID: 1093208307}
+  adDelegator: {fileID: 405986135}
+  analyticsDelegator: {fileID: 1743240306}
+  vehicleUpgradesDelegator: {fileID: 816394807}
 --- !u!114 &1012335950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -56196,7 +56249,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1779852217}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b5c573af8a54351a600572b076dceb, type: 3}
   m_Name: 
@@ -76123,6 +76176,7 @@ SceneRoots:
   - {fileID: 875091223}
   - {fileID: 779610165}
   - {fileID: 750670077}
+  - {fileID: 816394808}
   - {fileID: 1423374345}
   - {fileID: 1308672357}
   - {fileID: 2078999018}

@@ -19,6 +19,8 @@ public class DrillerController : MonoBehaviour
     public int width;
     [SerializeField]
     private long price;
+    [SerializeField]
+    private float profitMultiplier;
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 50;
     private int lastErrorCounter = 50;
@@ -203,7 +205,7 @@ public class DrillerController : MonoBehaviour
                         mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
                     }
 
-                    mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1);
+                    mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, profitMultiplier);
                     break;
                 }
 
@@ -222,6 +224,10 @@ public class DrillerController : MonoBehaviour
 
     public long GetPrice() {
         return price;
+    }
+
+    public void SetProfitMultiplier(float newProfitMultiplier) {
+        this.profitMultiplier = newProfitMultiplier;
     }
 
     public void PlayAudio() {
