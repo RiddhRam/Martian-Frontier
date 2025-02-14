@@ -43,7 +43,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(11, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(12, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]
@@ -222,7 +222,7 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.haulersPanel.name, "Haulers Panel");
         Assert.AreEqual(garageDelegator.haulersContent.name, "Content");
         Assert.AreEqual(garageDelegator.haulerDisplayPanel.name, "Haul Display Panel");
-        Assert.AreEqual(garageDelegator.playerState.name, "PlayerState");
+        Assert.AreEqual(garageDelegator.playerStateScript.gameObject.name, "PlayerState");
         Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
         Assert.AreEqual(garageDelegator.UIDelegation.name, "UI");
 

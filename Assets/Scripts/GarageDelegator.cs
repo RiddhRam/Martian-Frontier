@@ -18,12 +18,12 @@ public class GarageDelegator : MonoBehaviour
     public Sprite[] drillersImages;
     public GameObject[] haulers;
     public Sprite[] haulersImages;
-    public GameObject playerState;
     public GameObject playerVehicleDelegation;
     public GameObject UIDelegation;
     public Color[] tierColors;
     private string activePanel = "Drillers";
-    private PlayerState playerStateScript;
+    public PlayerState playerStateScript;
+    public VehicleUpgradesDelegator vehicleUpgradesDelegator;
 
     public void DeactivatePanel() {
         // If drillers
@@ -52,10 +52,6 @@ public class GarageDelegator : MonoBehaviour
     }
 
     public void GeneratePanel(string panelToActivate) {
-
-        if (playerStateScript == null) {
-            playerStateScript = playerState.GetComponent<PlayerState>();
-        }
         
         // If drillers
         if (panelToActivate == "Drillers") {
@@ -103,6 +99,7 @@ public class GarageDelegator : MonoBehaviour
                 panelTransform.GetChild(1).GetComponent<Image>().sprite = drillersImages[i];
                 panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
                 panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = drillers[i].name;
+                panelTransform.GetChild(5).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", vehicleUpgradesDelegator.GetVehicleLevel(drillers[i].name));
                 panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
                 panelTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value = drillSpeed;
 
@@ -179,6 +176,7 @@ public class GarageDelegator : MonoBehaviour
             panelTransform.GetChild(1).GetComponent<Image>().sprite = haulersImages[i];
             panelTransform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
             panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = haulers[i].name;
+            panelTransform.GetChild(5).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", vehicleUpgradesDelegator.GetVehicleLevel(haulers[i].name));
             panelTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text = cargo.ToString();
             panelTransform.GetChild(7).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
             panelTransform.GetChild(8).GetChild(1).GetComponent<Slider>().value = haulerSpeed;
@@ -269,7 +267,7 @@ public class GarageDelegator : MonoBehaviour
     }
 
     // The FormatPrice in PlayerState is slightly different
-    private string FormatPrice(long price)
+    public string FormatPrice(long price)
     {
         if (price >= 1_000_000_000) {
             return (price / 1_000_000_000f).ToString("0.#") + "B"; // For billions
@@ -322,7 +320,7 @@ public class GarageDelegator : MonoBehaviour
         GeneratePanel("Haulers");
     }
 
-    private string GetLocalizedValue(string key, params object[] args)
+    public string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
