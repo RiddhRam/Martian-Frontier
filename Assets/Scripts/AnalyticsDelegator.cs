@@ -266,7 +266,7 @@ public class AnalyticsDelegator : MonoBehaviour
         if (!isInitialized) {
             return;
         }
-        CustomEvent myEvent = new CustomEvent("Drop_Off_Ores") {
+        CustomEvent myEvent = new CustomEvent("Upgrade_Vehicle") {
             {"Vehicle_Name", vehicleName},
             {"Upgrade_Level", upgradeLevel}
         };

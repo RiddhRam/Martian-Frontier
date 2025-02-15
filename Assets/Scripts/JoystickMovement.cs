@@ -12,6 +12,7 @@ public class JoystickMovement : MonoBehaviour
     private float joystickRadius;
     private Camera mainCamera;
     private RectTransform myRectTransform;
+    public MapRecordingMode mapRecordingMode;
 
     // Start is called before the first frame update
     void Start()
@@ -86,5 +87,9 @@ public class JoystickMovement : MonoBehaviour
         joystickVec = Vector2.zero;
         joystick.transform.localPosition = joystickOriginalPos;
         joystickBG.transform.position = joystickOriginalPos;
+        
+        if (mapRecordingMode.isActiveAndEnabled) {
+            mapRecordingMode.ResetCamera();
+        }
     }
 }

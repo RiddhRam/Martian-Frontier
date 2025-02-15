@@ -135,6 +135,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool cloudLoading = false;
     public int currentOresMined = 0;
     public System.Numerics.BigInteger currentMineValue = 0;
+    public int minVeinRadius;
+    public int maxVeinRadius;
+    public int minVeinCount;
+    public int maxVeinCount;
+
 
     // Called before Start
     void Awake()
@@ -397,14 +402,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
     {
-        veinCount = Random.Range(1, 2);
+        veinCount = Random.Range(minVeinCount, maxVeinCount);
 
         for (int v = 0; v < veinCount; v++)
         {
             // Randomly choose the center position for each vein within the chunk
             centerX = Random.Range(0, gridSize.x);
             centerY = Random.Range(0, gridSize.y);
-            radius = Random.Range(1, 4); // Radius of 1-4 tiles for variation
+            radius = Random.Range(minVeinRadius, maxVeinRadius); // Radius of 1-4 tiles for variation
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
             oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
