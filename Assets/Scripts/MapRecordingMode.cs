@@ -110,7 +110,7 @@ public class MapRecordingMode : MonoBehaviour
     private void Zoom()
     {
         float width = farthestRight - farthestLeft + (visionRadius * 3);
-        float height = (farthestTop - farthestDown + (visionRadius * 9))/2;
+        float height = (farthestTop - farthestDown + (visionRadius * 8))/2;
         float targetSize = Mathf.Max(width, height);
         targetSize = Mathf.Clamp(targetSize, minimumCameraSize, 252);
         thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, targetSize, Time.deltaTime * 5);
