@@ -47,7 +47,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
-    public BigInteger lobbyAdReward = 0;
+    public long lobbyAdReward = 0;
     public GameObject lobbyAdButton;
     private int lobbyAdTimer = 30;
 
@@ -280,12 +280,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ShowLobbyAdButton(long rewardAmount) {
-        lobbyAdReward = rewardAmount;
-        lobbyAdButton.transform.GetChild(0).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(rewardAmount);
+
+        if (UnityEngine.Random.value < 0.66f) {
+            return;
+        }
+
+        lobbyAdReward = (long) (rewardAmount * 1.5);
+        Debug.Log(rewardAmount);
+        Debug.Log(lobbyAdReward);
+        lobbyAdButton.transform.GetChild(0).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(lobbyAdReward);
 
         lobbyAdButton.SetActive(true);
         lobbyAdTimer = 30;
-        analyticsDelegator.AdWatchAttempt("Lobby");
         StartCoroutine(LobbyAdCountdown());
     }
 
@@ -303,6 +309,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ShowLobbyRewardedAd() {
+        try {
+            analyticsDelegator.AdWatchAttempt("Lobby");
+        } catch {
+        }
 
         // ADMOB DISABLE
         if (lobbyAd != null && lobbyAd.CanShowAd())
@@ -310,7 +320,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             lobbyAd.Show((Reward reward) =>
             {
                 // Reward user
-                playerState.AddCash((long) lobbyAdReward);
+                playerState.AddCash(lobbyAdReward);
                 lobbyAdTimer = 0;
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
                 LoadRewardedAd("Lobby");
@@ -323,7 +333,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // Reward user if no ad
-        playerState.AddCash((long) lobbyAdReward);
+        playerState.AddCash(lobbyAdReward);
         lobbyAdTimer = 0;
     }
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {

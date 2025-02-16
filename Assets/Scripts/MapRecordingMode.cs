@@ -33,12 +33,14 @@ public class MapRecordingMode : MonoBehaviour
     System.Numerics.BigInteger originalMineValue;
 
     Camera thisCamera;
+    Camera mainCamera;
 
     void Start()
     {
         mapText.SetActive(false);
         videoInfo.SetActive(true);
         thisCamera = GetComponent<Camera>();
+        mainCamera = Camera.main;
         panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
 
         originalBlocksMined = playerState.GetBlocksMined();
@@ -46,42 +48,20 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        
+        thisCamera.orthographicSize = 20;
+
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
         farthestLeft = pos.x;
         farthestTop = pos.y;
         farthestDown = pos.y;
-    }
-
-    [ContextMenu("Reset Camera")]
-    public void ResetCamera() {
-        transform.position = new(0, -256, -17);
-        thisCamera.orthographicSize = 252;
-        
-        Vector3 pos = playerVehicle.position;
-
-        farthestRight = pos.x;
-        farthestLeft = pos.x;
-        farthestTop = pos.y;
-        farthestDown = pos.y;
-        
-        // Create a new RenderTexture
-        RenderTexture renderTexture = new RenderTexture(1749, 2725, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
-        renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
-        renderTexture.Create();
-
-        // Assign the RenderTexture to the mapCamera's target texture
-        GetComponent<Camera>().targetTexture = renderTexture;
-        mapCameraView.texture = renderTexture;
-        originalBlocksMined = playerState.GetBlocksMined();
-        originalMineValue = GetMineValue();
     }
 
     void Update()
     {
         Vector3 pos = playerVehicle.position;
 
+        /*
         if (pos.x > farthestRight)
             farthestRight = pos.x;
 
@@ -93,18 +73,21 @@ public class MapRecordingMode : MonoBehaviour
 
         if (pos.y < farthestDown)
             farthestDown = pos.y;
-
+        
         ClampCamera();
-        Zoom();
+        Zoom(); */
+        
+        transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y + 5, transform.position.z);
+
         UpdateText();
     }
 
     private void ClampCamera()
     {
-        Vector3 clampedPosition = thisCamera.transform.position;
+        Vector3 clampedPosition = transform.position;
         clampedPosition.x = Mathf.Clamp((farthestLeft + farthestRight) / 2, farthestLeft - visionRadius, farthestRight + visionRadius);
         clampedPosition.y = Mathf.Clamp((farthestTop + farthestDown) / 2, -600, -thisCamera.orthographicSize - 4.5f);
-        thisCamera.transform.position = clampedPosition;
+        transform.position = clampedPosition;
     }
 
     private void Zoom()
@@ -151,31 +134,57 @@ public class MapRecordingMode : MonoBehaviour
     {
         if (price >= 1_000_000_000_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.#") + "Qu";
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Qu";
         }
         else if (price >= 1_000_000_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.#") + "Q";
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
         }
         else if (price >= 1_000_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.#") + "T";
+            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
         }
         else if (price >= 1_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.#") + "B";
+            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
         }
         else if (price >= 1_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.#") + "M";
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.#") + "K";
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
         }
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
+    }
+
+
+    [ContextMenu("Reset Camera")]
+    public void ResetCamera() {
+        
+        transform.position = new(0, -256, -17);
+        thisCamera.orthographicSize = 20;
+        
+        Vector3 pos = playerVehicle.position;
+
+        farthestRight = pos.x;
+        farthestLeft = pos.x;
+        farthestTop = pos.y;
+        farthestDown = pos.y;
+        
+        // Create a new RenderTexture
+        RenderTexture renderTexture = new RenderTexture(1749, 2725, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
+        renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
+        renderTexture.Create();
+
+        // Assign the RenderTexture to the mapCamera's target texture
+        GetComponent<Camera>().targetTexture = renderTexture;
+        mapCameraView.texture = renderTexture;
+        originalBlocksMined = playerState.GetBlocksMined();
+        originalMineValue = GetMineValue();
     }
 }
