@@ -20,6 +20,8 @@ public class MapRecordingMode : MonoBehaviour
     [SerializeField]
     int minimumCameraSize;
     [SerializeField]
+    int maximumCameraSize;
+    [SerializeField]
     int visionRadius;
     [SerializeField]
     float farthestRight;
@@ -38,7 +40,7 @@ public class MapRecordingMode : MonoBehaviour
     void Start()
     {
         mapText.SetActive(false);
-        videoInfo.SetActive(true);
+        //videoInfo.SetActive(true);
         thisCamera = GetComponent<Camera>();
         mainCamera = Camera.main;
         panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
@@ -48,7 +50,7 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        thisCamera.orthographicSize = 20;
+        thisCamera.orthographicSize = 22;
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
@@ -61,7 +63,7 @@ public class MapRecordingMode : MonoBehaviour
     {
         Vector3 pos = playerVehicle.position;
 
-        /*
+        
         if (pos.x > farthestRight)
             farthestRight = pos.x;
 
@@ -74,20 +76,27 @@ public class MapRecordingMode : MonoBehaviour
         if (pos.y < farthestDown)
             farthestDown = pos.y;
         
-        ClampCamera();
-        Zoom(); */
+        //Zoom();
+        //ClampCamera();
         
-        transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y + 5, transform.position.z);
+        
+        transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y, transform.position.z);
 
         UpdateText();
     }
 
     private void ClampCamera()
     {
-        Vector3 clampedPosition = transform.position;
-        clampedPosition.x = Mathf.Clamp((farthestLeft + farthestRight) / 2, farthestLeft - visionRadius, farthestRight + visionRadius);
-        clampedPosition.y = Mathf.Clamp((farthestTop + farthestDown) / 2, -600, -thisCamera.orthographicSize - 4.5f);
-        transform.position = clampedPosition;
+        
+        if (thisCamera.orthographicSize >= maximumCameraSize - 0.5) {
+            transform.position = Vector3.Lerp(transform.position, new(playerVehicle.position.x, playerVehicle.position.y, transform.position.z), Time.deltaTime * 5f);
+        } else {
+            Vector3 clampedPosition = transform.position;
+            clampedPosition.x = Mathf.Clamp((farthestLeft + farthestRight) / 2, farthestLeft - visionRadius, farthestRight + visionRadius);
+            clampedPosition.y = Mathf.Clamp((farthestTop + farthestDown) / 2, -600, -thisCamera.orthographicSize - 4.5f);
+            transform.position = clampedPosition;
+        }
+        
     }
 
     private void Zoom()
@@ -95,7 +104,7 @@ public class MapRecordingMode : MonoBehaviour
         float width = farthestRight - farthestLeft + (visionRadius * 3);
         float height = (farthestTop - farthestDown + (visionRadius * 8))/2;
         float targetSize = Mathf.Max(width, height);
-        targetSize = Mathf.Clamp(targetSize, minimumCameraSize, 252);
+        targetSize = Mathf.Clamp(targetSize, minimumCameraSize, maximumCameraSize);
         thisCamera.orthographicSize = Mathf.Lerp(thisCamera.orthographicSize, targetSize, Time.deltaTime * 5);
     }
 
@@ -167,7 +176,7 @@ public class MapRecordingMode : MonoBehaviour
     public void ResetCamera() {
         
         transform.position = new(0, -256, -17);
-        thisCamera.orthographicSize = 20;
+        thisCamera.orthographicSize = 22;
         
         Vector3 pos = playerVehicle.position;
 
@@ -186,5 +195,11 @@ public class MapRecordingMode : MonoBehaviour
         mapCameraView.texture = renderTexture;
         originalBlocksMined = playerState.GetBlocksMined();
         originalMineValue = GetMineValue();
+
+        Transform vehicle = playerVehicle.transform.GetChild(0);
+        BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();
+        if (boxCollider2D) {
+            boxCollider2D.size = new(boxCollider2D.size.x + 2, boxCollider2D.size.y);
+        }
     }
 }
