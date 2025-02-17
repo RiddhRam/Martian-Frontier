@@ -5,7 +5,6 @@ using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
-using System.Numerics;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -41,7 +40,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public AnalyticsDelegator analyticsDelegator;
     public CloudDelegator cloudDelegator;
     public PlayerState playerState;
+    public RefineryController refineryController;
+    public LobbyAd lobbyAdScript;
     private bool adsInitialized = false;
+    private string adPermissionGiven;
     // After 30 seconds of user watching an ad, request a new one.
     // Once user watches an ad, ad boosts are free for the next 30 seconds
     DateTime lastAdShown;
@@ -50,18 +52,30 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public long lobbyAdReward = 0;
     public GameObject lobbyAdButton;
     private int lobbyAdTimer = 30;
+    private bool firstTimePlaying = false;
+    private bool lobbyAdSuccessfullyShown = false;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {
-        // TODO: Im pretty sure this is ok because I'm using non personalized ads, but do research to make sure
-        UnityAds.SetConsentMetaData("gdpr.consent", true);
-        UnityAds.SetConsentMetaData("privacy.consent", true);
+        adPermissionGiven = PlayerPrefs.GetString("APG");
+
+        if (adPermissionGiven == "Allowed") {
+            UnityAds.SetConsentMetaData("gdpr.consent", true);
+            UnityAds.SetConsentMetaData("privacy.consent", true);
+        } else if (adPermissionGiven == "Not Allowed") {
+            UnityAds.SetConsentMetaData("gdpr.consent", false);
+            UnityAds.SetConsentMetaData("privacy.consent", false);
+        }
+
         SetAdUnitId();
     }
 
     // Start is called before the first frame update
     void Start()
     {
+        if (adPermissionGiven == "Not Allowed") {
+            return;
+        }
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
@@ -73,6 +87,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     void FixedUpdate() {
+
+        if (firstTimePlaying) {
+            return;
+        }
+        
         timer++;
 
         if (timer < 250) {
@@ -221,6 +240,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
+        if (firstTimePlaying) {
+            if (type == "Profit") {
+                RewardWithProfit();
+            } else if (type == "Speed") {
+                RewardWithSpeed();
+            } else if (type == "Vision") {
+                RewardWithVision();
+            }
+
+            return;
+        }
+
         // If user watched an ad in the last 30 seconds
         if (lastAdShown >= DateTime.Now.AddSeconds(-30)) {
             // Give reward with no strings attached
@@ -267,12 +298,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        // If unable to show ad, reward user anyways
+        // If unable to show ad, use custom screen
         if (type == "Profit") {
             StartCoroutine(UseCustomAdScreen(() => RewardWithProfit()));
         } else if (type == "Speed") {
             StartCoroutine(UseCustomAdScreen(() => RewardWithSpeed()));
-        } if (type == "Vision") {
+        } else if (type == "Vision") {
             StartCoroutine(UseCustomAdScreen(() => RewardWithVision()));
         }
         lastAdShown = DateTime.Now;
@@ -281,14 +312,14 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public void ShowLobbyAdButton(long rewardAmount) {
 
-        if (UnityEngine.Random.value < 0.66f) {
+        // TODO: CHANGE THIS
+        if (UnityEngine.Random.value < 0) {
             return;
         }
 
         lobbyAdReward = (long) (rewardAmount * 1.5);
-        Debug.Log(rewardAmount);
-        Debug.Log(lobbyAdReward);
-        lobbyAdButton.transform.GetChild(0).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(lobbyAdReward);
+
+        lobbyAdButton.transform.GetChild(1).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(lobbyAdReward);
 
         lobbyAdButton.SetActive(true);
         lobbyAdTimer = 30;
@@ -297,12 +328,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private IEnumerator LobbyAdCountdown() {
         while (lobbyAdTimer > 0) {
-            if (internetReachable == false) {
+            if (internetReachable == false && !firstTimePlaying) {
                 lobbyAdTimer = 0;
+                break;
             }
 
             yield return new WaitForSeconds(1);
             lobbyAdTimer--;
+        }
+
+        if (lobbyAdSuccessfullyShown) {
+            yield return new WaitForSeconds(3);
+            lobbyAdSuccessfullyShown = false;
         }
 
         lobbyAdButton.SetActive(false);
@@ -314,17 +351,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
 
+        string rewardAmount = playerState.FormatPrice(lobbyAdReward);
+
         // ADMOB DISABLE
-        if (lobbyAd != null && lobbyAd.CanShowAd())
+        if (lobbyAd != null && lobbyAd.CanShowAd() && !firstTimePlaying)
         {
             lobbyAd.Show((Reward reward) =>
             {
                 // Reward user
                 playerState.AddCash(lobbyAdReward);
-                lobbyAdTimer = 0;
+                LobbyRewardSuccess(rewardAmount);
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
                 LoadRewardedAd("Lobby");
-                
             });
 
             // Listen to user events during ad
@@ -333,8 +371,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // Reward user if no ad
-        playerState.AddCash(lobbyAdReward);
+        LobbyRewardSuccess(rewardAmount);
+    }
+
+    private void LobbyRewardSuccess(string rewardAmount) {
+        lobbyAdSuccessfullyShown = true;
         lobbyAdTimer = 0;
+        lobbyAdScript.ShowRewardSuccess(rewardAmount);
     }
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
@@ -623,11 +666,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             RewardWithVision(timerIndexes[i]);
         }
 
-        // If first load, give user free 5 min (270s + 30s) ad window, otherwise no freebie
         if (!data.finishedTutorial) {
-            lastAdShown = DateTime.Now.AddSeconds(270);
-        } else {
-            lastAdShown = DateTime.Now.AddSeconds(-30);
+            Debug.Log("First time playing!");
+            firstTimePlaying = true;
         }
     }
 
@@ -644,10 +685,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private void FillEmptyAdSlots() {
 
-        if (rewardedAd == null) {
+        if (rewardedAd == null || !rewardedAd.CanShowAd()) {
             LoadRewardedAd("Boost");
         }
-        if (lobbyAd == null) {
+        if (lobbyAd == null || !rewardedAd.CanShowAd()) {
             LoadRewardedAd("Lobby");
         }
     }

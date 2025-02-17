@@ -147,6 +147,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
     }
 
+    public void PlaySaleNoise() {
+        audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
+    }
+
     public void CallResetMineFromButton() {
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);

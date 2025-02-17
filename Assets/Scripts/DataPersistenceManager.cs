@@ -14,6 +14,7 @@ public class DataPersistenceManager : MonoBehaviour
     private GameData gameData = new();
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
+    public AdConsent adConsent;
     private float timer = 0f;
     private float interval = 90f; // Save time interval
 
@@ -39,7 +40,10 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
-
+        if (adConsent) {
+            adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
+            return;
+        }
         LoadGame();
     }
 
@@ -102,12 +106,22 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
-        cloudDelegator.SaveGameDataToCloud();
+        try {
+            cloudDelegator.SaveGameDataToCloud();
+        } catch (Exception ex) {
+            Debug.Log("Error when saving to cloud: " + ex);
+        }
+        
         SaveGame();
     }
 
     private void OnApplicationPause() {
-        cloudDelegator.SaveGameDataToCloud();
+        try {
+            cloudDelegator.SaveGameDataToCloud();
+        } catch (Exception ex) {
+            Debug.Log("Error when saving to cloud: " + ex);
+        }
+        
         SaveGame();
     }
 
@@ -193,6 +207,10 @@ public class DataPersistenceManager : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    public GameData GetGameData() {
+        return this.gameData;
     }
 
 }
