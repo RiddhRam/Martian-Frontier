@@ -1,5 +1,7 @@
-﻿using Unity.Advertisement.IosSupport.Components;
+﻿using System.Collections;
+using Unity.Advertisement.IosSupport.Components;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Unity.Advertisement.IosSupport.Samples
 {
@@ -17,21 +19,36 @@ namespace Unity.Advertisement.IosSupport.Samples
 
         void Start()
         {
-#if UNITY_IOS
-            // check with iOS to see if the user has accepted or declined tracking
-            var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
+            // APG = Ad Permission Given, 0 = false, 1 = true
+            PlayerPrefs.SetInt("APG", 1);
+            StartCoroutine(WaitForGDPRThenRequest());
+        }
 
-            if (status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
-            {
-                var contextScreen = Instantiate(contextScreenPrefab).GetComponent<ContextScreenView>();
+        private IEnumerator WaitForGDPRThenRequest() {
+            if (!Debug.isDebugBuild) {
+                #if UNITY_IOS
+                // check with iOS to see if the user has accepted or declined tracking
+                var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
 
-                // after the Continue button is pressed, and the tracking request
-                // has been sent, automatically destroy the popup to conserve memory
-                contextScreen.sentTrackingAuthorizationRequest += () => Destroy(contextScreen.gameObject);
+                if (status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
+                {
+                    var contextScreen = Instantiate(contextScreenPrefab).GetComponent<ContextScreenView>();
+
+                    // after the Continue button is pressed, and the tracking request
+                    // has been sent, automatically destroy the popup to conserve memory
+                    //contextScreen.sentTrackingAuthorizationRequest += () => Destroy(contextScreen.gameObject);
+                    contextScreen.RequestAuthorizationTracking();
+                }
+                yield return new WaitUntil(() => ATTrackingStatusBinding.GetAuthorizationTrackingStatus() != ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED);
+
+                if (ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.DENIED) {
+                    PlayerPrefs.SetInt("APG", 0);
+                }
+                #endif
             }
-#else
-            Debug.Log("Unity iOS Support: App Tracking Transparency status not checked, because the platform is not iOS.");
-#endif
+        
+            yield return null;
+            SceneManager.LoadScene(1);
         }
     }   
 }

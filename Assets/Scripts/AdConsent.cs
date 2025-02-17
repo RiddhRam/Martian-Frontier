@@ -18,6 +18,12 @@ public class AdConsent : MonoBehaviour
             SceneManager.LoadScene("Singleplayer");
         }
 
+        if (Application.platform == RuntimePlatform.IPhonePlayer || Application.isEditor) {
+            if (!(PlayerPrefs.GetString("iOSATT") == "Responded")) {
+                SceneManager.LoadScene("Singleplayer");
+            }
+        }
+
         Debug.Log("No response");
     }   
 
@@ -95,8 +101,15 @@ public class AdConsent : MonoBehaviour
                     PlayerPrefs.SetString("APG", "Not Allowed");
                     Debug.Log("Not Allowed");
                 }
-                SceneManager.LoadScene("Singleplayer");
 
+                if (Application.platform == RuntimePlatform.IPhonePlayer || Application.isEditor) {
+                    if (!(PlayerPrefs.GetString("iOSATT") != "Responded")) {
+                        SceneManager.LoadScene("iOS ATT");
+                        return;
+                    }
+                }
+
+                SceneManager.LoadScene("Singleplayer");
             });
         } catch {
         }
