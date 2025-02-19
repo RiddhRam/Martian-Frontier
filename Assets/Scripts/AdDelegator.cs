@@ -59,12 +59,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {
+        
         #if UNITY_ANDROID
         // Reset everything
-        PlayerPrefs.SetString("APG", "");
-        ConsentInformation.Reset();
+        //PlayerPrefs.SetString("APG", "");
+        //ConsentInformation.Reset();
         #endif
-
+        
         adPermissionGiven = PlayerPrefs.GetString("APG");
 
         if (adPermissionGiven == "Allowed") {
@@ -84,7 +85,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (adPermissionGiven == "Not Allowed") {
             return;
         }
-        #if UNITY_IOS
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
@@ -93,12 +93,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             adsInitialized = true;
             FillEmptyAdSlots();
         });
-        #endif
     }
 
     // Called from loading screen
     public void GetAdConsent() {
         #if UNITY_ANDROID
+        try {
             // On iOS this is done in the Ad Consent screen in AdConsent.cs
 
             // Only uncomment when debugging user consent settings
@@ -121,8 +121,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             // Create a ConsentRequestParameters object.
             ConsentRequestParameters request = new ConsentRequestParameters();
 
+            // TODO: Fix on android so that we can show personalized android ads
             // Check the current consent information status.
-            ConsentInformation.Update(request, OnConsentInfoUpdated);
+            //ConsentInformation.Update(request, OnConsentInfoUpdated);
+        } catch {
+            //Debug.Log("CONSENT EXCEPTION: " + ex.Message);
+        }
         #endif
     }
 
@@ -153,12 +157,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 UnityAds.SetConsentMetaData("gdpr.consent", true);
                 UnityAds.SetConsentMetaData("privacy.consent", true);
 
-                MobileAds.Initialize((InitializationStatus initstatus) =>
-                {
-                    adsInitialized = true;
-                    FillEmptyAdSlots();
-                    Debug.Log("Getting ads!");
-                });
+                PlayerPrefs.SetString("APG", "Allowed");
+            } else {
+                UnityAds.SetConsentMetaData("gdpr.consent", false);
+                UnityAds.SetConsentMetaData("privacy.consent", false);
+
+                PlayerPrefs.SetString("APG", "Not Allowed");
             }
         });
     }
@@ -313,7 +317,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
-        if (firstTimePlaying) {
+        // If user watched an ad in the last 30 seconds or first time playing
+        if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-30)) {
             if (type == "Profit") {
                 RewardWithProfit();
             } else if (type == "Speed") {
@@ -321,24 +326,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             } else if (type == "Vision") {
                 RewardWithVision();
             }
-
-            return;
-        }
-
-        // If user watched an ad in the last 30 seconds
-        if (lastAdShown >= DateTime.Now.AddSeconds(-30)) {
-            // Give reward with no strings attached
-            if (type == "Profit") {
-                RewardWithProfit();
-            } else if (type == "Speed") {
-                RewardWithSpeed();
-            } if (type == "Vision") {
-                RewardWithVision();
-            }
             dataPersistenceManager.SaveGame();
             return;
         }
-
+        
         int rewardIndex = 0;
 
         for (int i = 0; i != rewardTypes.Length; i++) {
@@ -426,13 +417,19 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         string rewardAmount = playerState.FormatPrice(lobbyAdReward);
 
+        if (firstTimePlaying) {
+            playerState.AddCash(lobbyAdReward);
+            LobbyRewardSuccess(rewardAmount);
+
+            return;
+        }
+
         // ADMOB DISABLE
-        if (lobbyAd != null && lobbyAd.CanShowAd() && !firstTimePlaying)
+        if (lobbyAd != null && lobbyAd.CanShowAd())
         {
             lobbyAd.Show((Reward reward) =>
             {
                 // Reward user
-                playerState.AddCash(lobbyAdReward);
                 LobbyRewardSuccess(rewardAmount);
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
                 LoadRewardedAd("Lobby");
@@ -441,16 +438,19 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
             return;
+        } else {
+            // CustomAdScreen if no ad ready
+            StartCoroutine(UseCustomAdScreen(() => LobbyRewardSuccess(rewardAmount)));
         }
-
-        // Reward user if no ad
-        LobbyRewardSuccess(rewardAmount);
+        
     }
 
     private void LobbyRewardSuccess(string rewardAmount) {
+         playerState.AddCash(lobbyAdReward);
         lobbyAdSuccessfullyShown = true;
         lobbyAdTimer = 0;
         lobbyAdScript.ShowRewardSuccess(rewardAmount);
+        dataPersistenceManager.SaveGame();
     }
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
@@ -478,9 +478,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Raised when the ad is estimated to have earned money.
         ad.OnAdPaid += (AdValue adValue) =>
         {
-            Debug.Log(String.Format("Rewarded ad paid {0} {1}.",
+            /*Debug.Log(String.Format("Rewarded ad paid {0} {1}.",
                 adValue.Value,
-                adValue.CurrencyCode));
+                adValue.CurrencyCode));*/
         };
         // Raised when an impression is recorded for an ad.
         ad.OnAdImpressionRecorded += () =>
@@ -740,7 +740,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (!data.finishedTutorial) {
-            Debug.Log("First time playing!");
             firstTimePlaying = true;
         }
     }
@@ -754,7 +753,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (rewardedAd == null || !rewardedAd.CanShowAd()) {
             LoadRewardedAd("Boost");
         }
-        if (lobbyAd == null || !rewardedAd.CanShowAd()) {
+        if (lobbyAd == null || !lobbyAd.CanShowAd()) {
             LoadRewardedAd("Lobby");
         }
     }

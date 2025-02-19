@@ -91,6 +91,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         leaderboardDelegator.AddCashScore(cashToAdd);
         
         UpdateCashDisplays();
+        dataPersistenceManager.SaveGame();
     }
 
     public void AddGems(long gemsToAdd) {
@@ -99,6 +100,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         gemsEarned += gemsToAdd;
 
         UpdateGemDisplays();
+        dataPersistenceManager.SaveGame();
     }
 
     // Validate again and subtract cash

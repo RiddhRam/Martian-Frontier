@@ -30,7 +30,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 44;
+    private readonly int currentVersionNumber = 46;
 
     async void Awake() {
         await UnityServices.InitializeAsync();

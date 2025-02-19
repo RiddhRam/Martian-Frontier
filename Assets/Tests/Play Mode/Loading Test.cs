@@ -43,7 +43,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(12, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(11, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]

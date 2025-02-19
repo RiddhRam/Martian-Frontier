@@ -105,9 +105,7 @@ public class DataPersistenceManager : MonoBehaviour
         
         // Save the data as a file
         _ = dataHandler.Save(gameData);
-    }
 
-    private void OnApplicationQuit() {
         try {
             if (cloudDelegator) {
                 cloudDelegator.SaveGameDataToCloud();
@@ -115,19 +113,13 @@ public class DataPersistenceManager : MonoBehaviour
         } catch (Exception ex) {
             Debug.Log("Error when saving to cloud: " + ex);
         }
-        
+    }
+
+    private void OnApplicationQuit() {
         SaveGame();
     }
 
     private void OnApplicationPause() {
-        try {
-            if (cloudDelegator) {
-                cloudDelegator.SaveGameDataToCloud();
-            }
-        } catch (Exception ex) {
-            Debug.Log("Error when saving to cloud: " + ex);
-        }
-        
         SaveGame();
     }
 

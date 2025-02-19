@@ -66,7 +66,7 @@ public class MapRecordingMode : MonoBehaviour
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         mineRenderer.minVeinRadius = 2;
         mineRenderer.maxVeinRadius = 3;
-        mineRenderer.minVeinCount = 2;
+        mineRenderer.minVeinCount = 3;
         mineRenderer.maxVeinCount = 4;
     }
 

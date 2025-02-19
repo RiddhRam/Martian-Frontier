@@ -15,7 +15,7 @@ public class LoadingScreen : MonoBehaviour
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
-        LoadData() (8 total)
+        LoadData() (9 total)
         AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, TutorialManager, VehicleUpgradesDelegator
         
         Extras:
