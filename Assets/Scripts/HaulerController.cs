@@ -259,4 +259,14 @@ public class HaulerController : MonoBehaviour
 
         materialProfitMultipliers[materialIndex] = totalValue / (materialCount[materialIndex] + newCount);
     }
+
+    public System.Numerics.BigInteger GetTotalCargoValue() {
+        System.Numerics.BigInteger cargoValue = 0;
+
+        for (int i = 0; i != materialCount.Length; i++) {
+            cargoValue += (long) (materialCount[i] * UIDelegation.materialPrices[i]);
+        }
+
+        return cargoValue;
+    }
 }

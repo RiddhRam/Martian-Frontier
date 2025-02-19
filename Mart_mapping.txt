@@ -3,8 +3,8 @@
 # min_api: 22
 # common_typos_disable
 # {"id":"com.android.tools.r8.mapping","version":"2.1"}
-# pg_map_id: df428d4
-# pg_map_hash: SHA-256 df428d429f315efbc88247b0c12683bcc0676f2d026ac20ab8b4e5c11b9ddff2
+# pg_map_id: 581747e
+# pg_map_hash: SHA-256 581747e233c0787d196ca86351c0bea293d46b125ce78957af91553f9d32e9f4
 _COROUTINE.ArtificialStackFrames -> _COROUTINE.ArtificialStackFrames:
 # {"id":"sourceFile","fileName":"CoroutineDebugging.kt"}
     21:21:void <init>() -> <init>
@@ -13206,12 +13206,12 @@ com.google.android.ads.nativetemplates.TemplateView -> com.google.android.ads.na
     61:62:void <init>(android.content.Context,android.util.AttributeSet) -> <init>
     181:183:boolean adHasOnlyStore(com.google.android.gms.ads.nativead.NativeAd) -> adHasOnlyStore
     86:177:void applyStyles() -> applyStyles
-    250:250:void destroyNativeAd() -> destroyNativeAd
+    251:251:void destroyNativeAd() -> destroyNativeAd
     81:81:com.google.android.gms.ads.nativead.NativeAdView getNativeAdView() -> getNativeAdView
-    254:256:java.lang.String getTemplateTypeName() -> getTemplateTypeName
-    264:275:void initView(android.content.Context,android.util.AttributeSet) -> initView
-    280:292:void onFinishInflate() -> onFinishInflate
-    187:241:void setNativeAd(com.google.android.gms.ads.nativead.NativeAd) -> setNativeAd
+    255:257:java.lang.String getTemplateTypeName() -> getTemplateTypeName
+    265:276:void initView(android.content.Context,android.util.AttributeSet) -> initView
+    281:293:void onFinishInflate() -> onFinishInflate
+    187:242:void setNativeAd(com.google.android.gms.ads.nativead.NativeAd) -> setNativeAd
     76:77:void setStyles(com.google.android.ads.nativetemplates.NativeTemplateStyle) -> setStyles
 com.google.android.gms.ads.AbstractAdRequestBuilder -> com.google.android.gms.ads.AbstractAdRequestBuilder:
 # {"id":"sourceFile","fileName":"com.google.android.gms:play-services-ads-lite@@23.6.0"}
@@ -61135,22 +61135,24 @@ com.google.unity.ads.nativead.UnityNativeTemplateAd -> com.google.unity.ads.nati
     0:0:void -$$Nest$mupdatePosition(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> -$$Nest$mupdatePosition
       # {"id":"com.android.tools.r8.synthesized"}
     93:98:void <init>(android.app.Activity,com.google.unity.ads.nativead.UnityNativeTemplateAdCallback) -> <init>
-    416:436:void destroy() -> destroy
-    549:562:com.google.unity.ads.nativead.UnityNativeTemplateAd$Insets getInsets() -> getInsets
-    516:542:android.widget.FrameLayout$LayoutParams getLayoutParams() -> getLayoutParams
+    440:460:void destroy() -> destroy
+    420:423:float getHeightInPixels() -> getHeightInPixels
+    573:586:com.google.unity.ads.nativead.UnityNativeTemplateAd$Insets getInsets() -> getInsets
+    540:566:android.widget.FrameLayout$LayoutParams getLayoutParams() -> getLayoutParams
     356:378:com.google.android.gms.ads.ResponseInfo getResponseInfo() -> getResponseInfo
+    432:435:float getWidthInPixels() -> getWidthInPixels
     401:401:void hide() -> hide
     110:110:void loadAd(java.lang.String,com.google.android.gms.ads.nativead.NativeAdOptions,com.google.android.gms.ads.AdRequest) -> loadAd
-    498:499:void removeTemplateView() -> removeTemplateView
+    522:523:void removeTemplateView() -> removeTemplateView
     291:298:void renderCustomSizeAtPosition(com.google.unity.ads.nativead.UnityNativeTemplateStyle,com.google.android.gms.ads.AdSize,int,int) -> renderCustomSizeAtPosition
     328:333:void renderCustomSizeAtPositionCode(com.google.unity.ads.nativead.UnityNativeTemplateStyle,com.google.android.gms.ads.AdSize,int) -> renderCustomSizeAtPositionCode
     222:229:void renderDefaultSizeAtPosition(com.google.unity.ads.nativead.UnityNativeTemplateStyle,int,int) -> renderDefaultSizeAtPosition
     255:260:void renderDefaultSizeAtPositionCode(com.google.unity.ads.nativead.UnityNativeTemplateStyle,int) -> renderDefaultSizeAtPositionCode
-    441:474:void setLayoutChangeListener() -> setLayoutChangeListener
+    465:498:void setLayoutChangeListener() -> setLayoutChangeListener
     201:201:void setPosition(int,int) -> setPosition
     184:184:void setPositionCode(int) -> setPositionCode
     385:385:void show() -> show
-    479:482:void updatePosition() -> updatePosition
+    503:506:void updatePosition() -> updatePosition
 com.google.unity.ads.nativead.UnityNativeTemplateAd$1 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$1:
     111:111:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd,java.lang.String,com.google.android.gms.ads.nativead.NativeAdOptions,com.google.android.gms.ads.AdRequest) -> <init>
     114:173:void run() -> run
@@ -61174,17 +61176,17 @@ com.google.unity.ads.nativead.UnityNativeTemplateAd$10 -> com.google.unity.ads.n
     402:402:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
     405:409:void run() -> run
 com.google.unity.ads.nativead.UnityNativeTemplateAd$11 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$11:
-    417:417:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
-    420:424:void run() -> run
+    441:441:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
+    444:448:void run() -> run
 com.google.unity.ads.nativead.UnityNativeTemplateAd$12 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$12:
-    446:446:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
-    464:465:void onLayoutChange(android.view.View,int,int,int,int,int,int,int,int) -> onLayoutChange
+    470:470:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
+    488:489:void onLayoutChange(android.view.View,int,int,int,int,int,int,int,int) -> onLayoutChange
 com.google.unity.ads.nativead.UnityNativeTemplateAd$13 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$13:
-    483:483:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
-    486:491:void run() -> run
+    507:507:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
+    510:515:void run() -> run
 com.google.unity.ads.nativead.UnityNativeTemplateAd$14 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$14:
-    500:500:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
-    503:504:void run() -> run
+    524:524:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd) -> <init>
+    527:528:void run() -> run
 com.google.unity.ads.nativead.UnityNativeTemplateAd$2 -> com.google.unity.ads.nativead.UnityNativeTemplateAd$2:
     185:185:void <init>(com.google.unity.ads.nativead.UnityNativeTemplateAd,int) -> <init>
     188:189:void run() -> run

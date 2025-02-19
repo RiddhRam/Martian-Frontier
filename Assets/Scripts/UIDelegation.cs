@@ -27,16 +27,16 @@ public class UIDelegation : MonoBehaviour
     public int[] materialPrices;
     private bool showCargoInfo;
     private GameCameraController mainCameraController;
-    private AnalyticsDelegator analyticsDelegator;
+    public AnalyticsDelegator analyticsDelegator;
+    public OreDelegation oreDelegation;
  
     void Start()
     {
         ToggleCargoInfo(false);
-        materialNames = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialNames;
-        materialHighResSprites = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().materialHighResSprites;
-        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
+        materialNames = oreDelegation.materialNames;
+        materialHighResSprites = oreDelegation.materialHighResSprites;
+        materialPrices = oreDelegation.GetMaterialPrices();
         mainCameraController = Camera.main.GetComponent<GameCameraController>();
-        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     public void ToggleCargoInfo(bool newValue) {
@@ -204,9 +204,6 @@ public class UIDelegation : MonoBehaviour
         errorInstance.transform.SetParent(transform.GetChild(0), false);
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.ShowError(error);
     }
 

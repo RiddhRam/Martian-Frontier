@@ -4,7 +4,9 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
+using GoogleMobileAds.Ump.Api;
 using GoogleMobileAds.Mediation.UnityAds.Api;
+using System.Collections.Generic;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -57,6 +59,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {
+        #if UNITY_ANDROID
+        // Reset everything
+        PlayerPrefs.SetString("APG", "");
+        ConsentInformation.Reset();
+        #endif
+
         adPermissionGiven = PlayerPrefs.GetString("APG");
 
         if (adPermissionGiven == "Allowed") {
@@ -76,6 +84,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (adPermissionGiven == "Not Allowed") {
             return;
         }
+        #if UNITY_IOS
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
@@ -84,7 +93,76 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             adsInitialized = true;
             FillEmptyAdSlots();
         });
+        #endif
     }
+
+    // Called from loading screen
+    public void GetAdConsent() {
+        #if UNITY_ANDROID
+            // On iOS this is done in the Ad Consent screen in AdConsent.cs
+
+            // Only uncomment when debugging user consent settings
+            /*var debugSettings = new ConsentDebugSettings
+            {
+                DebugGeography = DebugGeography.EEA,
+                TestDeviceHashedIds =
+                new List<string>
+                {
+                    "93001fda-7fff-44e5-80b1-b086356f0b51"
+                }
+            };
+
+            // Create a ConsentRequestParameters object.
+            ConsentRequestParameters request = new ConsentRequestParameters
+            {
+                ConsentDebugSettings = debugSettings,
+            };*/
+
+            // Create a ConsentRequestParameters object.
+            ConsentRequestParameters request = new ConsentRequestParameters();
+
+            // Check the current consent information status.
+            ConsentInformation.Update(request, OnConsentInfoUpdated);
+        #endif
+    }
+
+    #if UNITY_ANDROID
+    void OnConsentInfoUpdated(FormError consentError)
+    {
+        if (consentError != null)
+        {
+            // Handle the error.
+            Debug.LogError(consentError);
+            return;
+        }
+
+        // If the error is null, the consent information state was updated.
+        // You are now ready to check if a form is available.
+        ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
+        {
+            if (formError != null)
+            {
+                // Consent gathering failed.
+                Debug.LogError(consentError);
+                return;
+            }
+
+            // Consent has been gathered.
+            if (ConsentInformation.CanRequestAds())
+            {
+                UnityAds.SetConsentMetaData("gdpr.consent", true);
+                UnityAds.SetConsentMetaData("privacy.consent", true);
+
+                MobileAds.Initialize((InitializationStatus initstatus) =>
+                {
+                    adsInitialized = true;
+                    FillEmptyAdSlots();
+                    Debug.Log("Getting ads!");
+                });
+            }
+        });
+    }
+    #endif
 
     void FixedUpdate() {
 
@@ -204,7 +282,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
                     if (currentCloudLoadState == cloudLoading) { 
                         cloudLoading = true;  
-                        IncrementLoadedItems();
                     }
                     
                     return;
@@ -218,11 +295,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
                 
 
-                // We only need to load 1 ad, if 1 loads, then its most likely the last thing that needs to load
-                // so LoadingScreen will be destroyed
                 if (currentCloudLoadState == cloudLoading) {   
                     cloudLoading = true;
-                    IncrementLoadedItems();
                 }
 
             });
@@ -231,7 +305,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         else {
             if (currentCloudLoadState == cloudLoading) {   
                 cloudLoading = true;
-                IncrementLoadedItems();
             }
         }
         
@@ -675,13 +748,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public void SaveData(ref GameData data) {
         data.timerIndexes = this.timerIndexes;
     }
-
-    private void IncrementLoadedItems() {
-        try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
-        } catch {
-        }
-    }    
 
     private void FillEmptyAdSlots() {
 

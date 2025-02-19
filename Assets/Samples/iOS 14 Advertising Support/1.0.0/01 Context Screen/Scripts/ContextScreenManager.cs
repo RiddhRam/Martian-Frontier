@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using Unity.Advertisement.IosSupport.Components;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,36 +20,39 @@ namespace Unity.Advertisement.IosSupport.Samples
 
         void Start()
         {
-            // APG = Ad Permission Given, 0 = false, 1 = true
-            PlayerPrefs.SetInt("APG", 1);
             StartCoroutine(WaitForGDPRThenRequest());
         }
 
         private IEnumerator WaitForGDPRThenRequest() {
-            if (!Debug.isDebugBuild) {
-                #if UNITY_IOS
-                // check with iOS to see if the user has accepted or declined tracking
-                var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
+            
+            #if UNITY_IOS
+            // check with iOS to see if the user has accepted or declined tracking
+            var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
 
-                if (status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
-                {
+            
+            if (status == ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED)
+            {
+                try {
                     var contextScreen = Instantiate(contextScreenPrefab).GetComponent<ContextScreenView>();
 
                     // after the Continue button is pressed, and the tracking request
                     // has been sent, automatically destroy the popup to conserve memory
                     //contextScreen.sentTrackingAuthorizationRequest += () => Destroy(contextScreen.gameObject);
                     contextScreen.RequestAuthorizationTracking();
+                    
+                } catch (Exception ex) {
+                    Debug.Log(ex.Message);
                 }
-                yield return new WaitUntil(() => ATTrackingStatusBinding.GetAuthorizationTrackingStatus() != ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED);
 
-                if (ATTrackingStatusBinding.GetAuthorizationTrackingStatus() == ATTrackingStatusBinding.AuthorizationTrackingStatus.DENIED) {
-                    PlayerPrefs.SetInt("APG", 0);
-                }
-                #endif
             }
+            yield return new WaitUntil(() => ATTrackingStatusBinding.GetAuthorizationTrackingStatus() != ATTrackingStatusBinding.AuthorizationTrackingStatus.NOT_DETERMINED);
+
+            PlayerPrefs.SetString("iOSATT", "Responded");
+
+            #endif
         
             yield return null;
-            SceneManager.LoadScene(1);
+            SceneManager.LoadScene("Singleplayer");
         }
     }   
 }

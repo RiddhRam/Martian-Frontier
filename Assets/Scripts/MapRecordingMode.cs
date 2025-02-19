@@ -13,6 +13,7 @@ public class MapRecordingMode : MonoBehaviour
     public RawImage mapCameraView;
     public Outline panelOutline;
 
+    public TextMeshProUGUI cargoValueText;
     public TextMeshProUGUI depthText;
     public TextMeshProUGUI mineText;
     public TextMeshProUGUI valueText;
@@ -37,6 +38,8 @@ public class MapRecordingMode : MonoBehaviour
     Camera thisCamera;
     Camera mainCamera;
 
+    HaulerController haulerController;
+
     void Start()
     {
         mapText.SetActive(false);
@@ -57,6 +60,14 @@ public class MapRecordingMode : MonoBehaviour
         farthestLeft = pos.x;
         farthestTop = pos.y;
         farthestDown = pos.y;
+
+        cargoValueText.transform.parent.gameObject.SetActive(true);
+
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        mineRenderer.minVeinRadius = 2;
+        mineRenderer.maxVeinRadius = 3;
+        mineRenderer.minVeinCount = 2;
+        mineRenderer.maxVeinCount = 4;
     }
 
     void Update()
@@ -112,6 +123,10 @@ public class MapRecordingMode : MonoBehaviour
         depthText.text = FormatPositionY((int) -playerVehicle.position.y -5);
         mineText.text = FormatPrice(playerState.GetBlocksMined() - originalBlocksMined);
         valueText.text = "$" + FormatPrice(GetMineValue() - originalMineValue);
+        if (haulerController) {
+            cargoValueText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
+        }
+        
     }
 
     public System.Numerics.BigInteger GetMineValue() {
@@ -200,6 +215,9 @@ public class MapRecordingMode : MonoBehaviour
         BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();
         if (boxCollider2D) {
             boxCollider2D.size = new(boxCollider2D.size.x + 2, boxCollider2D.size.y);
+            haulerController = null;
+        } else {
+            haulerController = vehicle.GetComponent<HaulerController>();
         }
     }
 }

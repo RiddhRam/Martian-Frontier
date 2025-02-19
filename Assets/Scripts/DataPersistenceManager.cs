@@ -40,10 +40,12 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
+        #if UNITY_IOS
         if (adConsent) {
             adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
             return;
         }
+        #endif
         LoadGame();
     }
 
@@ -107,7 +109,9 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void OnApplicationQuit() {
         try {
-            cloudDelegator.SaveGameDataToCloud();
+            if (cloudDelegator) {
+                cloudDelegator.SaveGameDataToCloud();
+            }
         } catch (Exception ex) {
             Debug.Log("Error when saving to cloud: " + ex);
         }
@@ -117,7 +121,9 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void OnApplicationPause() {
         try {
-            cloudDelegator.SaveGameDataToCloud();
+            if (cloudDelegator) {
+                cloudDelegator.SaveGameDataToCloud();
+            }
         } catch (Exception ex) {
             Debug.Log("Error when saving to cloud: " + ex);
         }

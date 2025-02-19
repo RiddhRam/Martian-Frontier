@@ -9163,6 +9163,8 @@ MonoBehaviour:
   - {fileID: 896528685}
   - {fileID: 559904808}
   materialPrices: 
+  analyticsDelegator: {fileID: 1743240306}
+  oreDelegation: {fileID: 295927379}
 --- !u!1 &327509439
 GameObject:
   m_ObjectHideFlags: 0
@@ -12692,8 +12694,8 @@ MonoBehaviour:
   bufferCircle: {fileID: 2038149527}
   progressBar: {fileID: 984960591}
   loadedItems: 0
-  totalItems: 12
-  cloudSaveItems: 11
+  totalItems: 11
+  cloudSaveItems: 10
 --- !u!1 &459722255
 GameObject:
   m_ObjectHideFlags: 0
@@ -46313,7 +46315,7 @@ MonoBehaviour:
   currentOresMined: 0
   minVeinRadius: 2
   maxVeinRadius: 3
-  minVeinCount: 3
+  minVeinCount: 2
   maxVeinCount: 4
 --- !u!1 &1112818198
 GameObject:
@@ -51647,8 +51649,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 70.06445}
-  m_SizeDelta: {x: -484.39087, y: 149.56665}
+  m_AnchoredPosition: {x: 0.00024414062, y: -112}
+  m_SizeDelta: {x: 781.74, y: 210}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1395894556
 MonoBehaviour:
@@ -51663,7 +51665,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0.54509807, b: 0.54509807, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -58656,7 +58658,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1779852217}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b5c573af8a54351a600572b076dceb, type: 3}
   m_Name: 
@@ -58669,6 +58671,7 @@ MonoBehaviour:
   oreDelegation: {fileID: 295927379}
   mapCameraView: {fileID: 606929137}
   panelOutline: {fileID: 2042653432}
+  cargoValueText: {fileID: 1947669186}
   depthText: {fileID: 1026780951}
   mineText: {fileID: 980698367}
   valueText: {fileID: 1393842421}
@@ -62154,7 +62157,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: New Text
+  m_text: NEW TEXT
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -62181,13 +62184,13 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70
-  m_fontSizeBase: 70
+  m_fontSize: 130
+  m_fontSizeBase: 130
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 0
+  m_fontStyle: 17
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
@@ -73156,7 +73159,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 803.1, y: -2773.3}
-  m_SizeDelta: {x: 1606.2, y: 5546.6}
+  m_SizeDelta: {x: 1606.2, y: 5800.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &5629636776458121637
 GameObject:
@@ -73913,14 +73916,16 @@ MonoBehaviour:
     Non-Personal Information\nWe collect non-personal information, including:\n\n-
     Device information (e.g., operating system, device model).\n- Gameplay statistics
     (e.g., session length, in-game progress).\n- Advertising data (e.g., ad interactions).\n\nThis
-    data is collected through third-party tools like Unity Analytics and Google AdMob.\n\n2.
-    How We Use Your Information\n\nThe information we collect is used for:\n\n- Improving
-    game performance and user experience.\n- Showing relevant ads via Google AdMob.\n-
-    Tracking gameplay trends with Unity Analytics to improve future updates.\n\nWe
-    do not sell or share your data with unauthorized third parties.\n\n3. Third-Party
-    Services\n\nMartian Frontier uses third-party tools that may collect and process
-    your data:\n\na. Unity Analytics\nUsed to analyze game performance and user behavior.
-    Learn more about Unity's privacy policy at unity.com/legal/privacy-policy.\n\nb.
+    data is collected through third-party tools like Unity Analytics, Unity Ads and
+    Google AdMob.\n\n2. How We Use Your Information\n\nThe information we collect
+    is used for:\n\n- Improving game performance and user experience.\n- Showing
+    relevant ads via Google AdMob.\n- Tracking gameplay trends with Unity Analytics
+    to improve future updates.\n\nWe do not sell or share your data with unauthorized
+    third parties.\n\n3. Third-Party Services\n\nMartian Frontier uses third-party
+    tools that may collect and process your data:\n\na. Unity Analytics\nUsed to
+    analyze game performance and user behavior. Learn more about Unity's privacy
+    policy at unity.com/legal/privacy-policy.\n\nb. Unity Ads\nUsed to serve in-game
+    ads. Learn more about Unity's privacy policy at unity.com/legal/privacy-policy.\n\nc.
     Google AdMob\nUsed to serve in-game ads. Learn more about Google\u2019s privacy
     policy on their website.\n\nThese services may collect additional data as per
     their privacy policies.\n\n4. Data Protection\n\nWe implement industry-standard

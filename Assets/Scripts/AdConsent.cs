@@ -1,48 +1,52 @@
 using UnityEngine;
 using GoogleMobileAds.Ump.Api;
-using System.Collections.Generic;
-using System.Collections;
 using UnityEngine.SceneManagement;
+using System;
 
 public class AdConsent : MonoBehaviour
 {
     public DataPersistenceManager dataPersistenceManager;
+
+    #if UNITY_IOS
+
     void Awake()
     {
         // Reset everything
-        PlayerPrefs.SetString("APG", "");
-        ConsentInformation.Reset();
+        /*PlayerPrefs.SetString("APG", "");
+        PlayerPrefs.SetString("iOSATT", "");
+        ConsentInformation.Reset();*/
 
         if (PlayerPrefs.GetString("APG") == "Allowed" || PlayerPrefs.GetString("APG") == "Not Allowed") {
-            Debug.Log(PlayerPrefs.GetString("APG"));
-            SceneManager.LoadScene("Singleplayer");
-        }
-
-        if (Application.platform == RuntimePlatform.IPhonePlayer || Application.isEditor) {
-            if (!(PlayerPrefs.GetString("iOSATT") == "Responded")) {
-                SceneManager.LoadScene("Singleplayer");
+            
+            if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                SceneManager.LoadScene("iOS ATT");
+                return;
             }
+
+            SceneManager.LoadScene("Singleplayer");
+            return;
         }
 
-        Debug.Log("No response");
+        if (PlayerPrefs.GetString("iOSATT") == "Responded") {
+            SceneManager.LoadScene("Singleplayer");
+            return;
+        }
+
     }   
 
-    public void UpdatePlayerStatus(bool newPlayerStatus) {
-
-        if (newPlayerStatus) {
-            Debug.Log("Ask!");
+    public void UpdatePlayerStatus(bool doneTutorialStatus) {
+        if (doneTutorialStatus) {
             GetAdConsent();
             return;
         }
 
-        Debug.Log("Don't ask!");
         SceneManager.LoadScene("Singleplayer");
     }
 
     public void GetAdConsent() {
         try {
             // Only uncomment when debugging user consent settings
-            var debugSettings = new ConsentDebugSettings
+            /*var debugSettings = new ConsentDebugSettings
             {
                 DebugGeography = DebugGeography.Other,
                 TestDeviceHashedIds =
@@ -56,20 +60,20 @@ public class AdConsent : MonoBehaviour
             ConsentRequestParameters request = new ConsentRequestParameters
             {
                 ConsentDebugSettings = debugSettings,
-            };
+            };*/
             
-            // Create a ConsentRequestParameters object.
-            //ConsentRequestParameters request = new();
+            // Create a ConsentRequestParameters object.\
+            ConsentRequestParameters request = new();
 
             // Check the current consent information status.
             ConsentInformation.Update(request, OnConsentInfoUpdated);
-        } catch {
+        } catch (Exception ex) {
+            Debug.LogError("Get consent error:" + ex.Message);
         }
     }
 
     void OnConsentInfoUpdated(FormError consentError)
     {
-
         try {
             if (consentError != null)
             {
@@ -89,30 +93,32 @@ public class AdConsent : MonoBehaviour
                     return;
                 }
 
-                // 0 = no consent
-                // 1 = consent
                 // Consent has been gathered.
                 if (ConsentInformation.CanRequestAds())
                 {
                     PlayerPrefs.SetString("APG", "Allowed");
-                    Debug.Log("Allowed");
-                    //FillEmptyAdSlots();
                 } else {
                     PlayerPrefs.SetString("APG", "Not Allowed");
-                    Debug.Log("Not Allowed");
                 }
 
-                if (Application.platform == RuntimePlatform.IPhonePlayer || Application.isEditor) {
-                    if (!(PlayerPrefs.GetString("iOSATT") != "Responded")) {
-                        SceneManager.LoadScene("iOS ATT");
-                        return;
-                    }
+
+                if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                    SceneManager.LoadScene("iOS ATT");
+                    return;
                 }
 
                 SceneManager.LoadScene("Singleplayer");
             });
-        } catch {
+        } catch (Exception ex) {
+            Debug.LogError("Consent info error: " + ex.Message);
         }
     }
+
+    #elif UNITY_ANDROID
+    void Awake() {
+        SceneManager.LoadScene("Singleplayer");
+    }
+
+    #endif
 
 }
