@@ -224,7 +224,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // iOS Real Ad Unit
         // ca-app-pub-5607588731152504/4737462608
 
-        // TODO: Change the real ad units to their actual code
         if (Application.platform == RuntimePlatform.Android)
         {
             if (isDebugBuild)
@@ -318,7 +317,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public void ShowRewardedAd(string type)
     {
         // If user watched an ad in the last 30 seconds or first time playing
-        if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-30)) {
+        if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-90)) {
             if (type == "Profit") {
                 RewardWithProfit();
             } else if (type == "Speed") {
@@ -344,18 +343,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         {
             rewardedAd.Show((Reward reward) =>
             {
-                lastAdShown = DateTime.Now;
-                if (type == "Profit") {
-                    RewardWithProfit();
-                } else if (type == "Speed") {
-                    RewardWithSpeed();
-                } if (type == "Vision") {
-                    RewardWithVision();
-                }
-                dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-                LoadRewardedAd("Boost");
             });
+
+            lastAdShown = DateTime.Now;
+            if (type == "Profit") {
+                RewardWithProfit();
+            } else if (type == "Speed") {
+                RewardWithSpeed();
+            } if (type == "Vision") {
+                RewardWithVision();
+            }
+            dataPersistenceManager.SaveGame();
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
@@ -426,15 +425,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // ADMOB DISABLE
         if (lobbyAd != null && lobbyAd.CanShowAd())
-        {
+        {   
             lobbyAd.Show((Reward reward) =>
             {
-                // Reward user
-                LobbyRewardSuccess(rewardAmount);
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-                LoadRewardedAd("Lobby");
             });
 
+            // Reward user
+            LobbyRewardSuccess(rewardAmount);
+            
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
             return;

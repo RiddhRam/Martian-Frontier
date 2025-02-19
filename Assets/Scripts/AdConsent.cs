@@ -19,6 +19,11 @@ public class AdConsent : MonoBehaviour
         if (PlayerPrefs.GetString("APG") == "Allowed" || PlayerPrefs.GetString("APG") == "Not Allowed") {
             
             if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                if (Application.isEditor) {
+                    SceneManager.LoadScene("Singleplayer");
+                    return;
+                }
+                
                 SceneManager.LoadScene("iOS ATT");
                 return;
             }
@@ -103,6 +108,11 @@ public class AdConsent : MonoBehaviour
 
 
                 if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                    if (Application.isEditor) {
+                        SceneManager.LoadScene("Singleplayer");
+                        return;
+                    }
+
                     SceneManager.LoadScene("iOS ATT");
                     return;
                 }
