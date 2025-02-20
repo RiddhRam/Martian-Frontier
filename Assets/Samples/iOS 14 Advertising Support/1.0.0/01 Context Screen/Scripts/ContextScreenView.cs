@@ -21,7 +21,7 @@ namespace Unity.Advertisement.IosSupport.Components
 
         public void RequestAuthorizationTracking()
         {
-#if UNITY_IOS
+#if UNITY_IPHONE || UNITY_IOS
             ATTrackingStatusBinding.RequestAuthorizationTracking();
 
             sentTrackingAuthorizationRequest?.Invoke();

@@ -25,7 +25,7 @@ namespace Unity.Advertisement.IosSupport.Samples
 
         private IEnumerator WaitForGDPRThenRequest() {
             
-            #if UNITY_IOS
+            #if UNITY_IPHONE || UNITY_IOS
             // check with iOS to see if the user has accepted or declined tracking
             var status = ATTrackingStatusBinding.GetAuthorizationTrackingStatus();
 

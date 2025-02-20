@@ -1,5 +1,5 @@
 #pragma warning disable 0618
-#if UNITY_IOS || UNITY_IPHONE
+#if UNITY_IPHONE || UNITY_IOS
 using System.IO;
 using UnityEditor.Callbacks;
 using UnityEditor;

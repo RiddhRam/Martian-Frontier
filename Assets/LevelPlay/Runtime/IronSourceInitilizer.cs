@@ -5,7 +5,7 @@ using UnityEngine;
 [Obsolete("This class will be made private in a future version.", false)]
 public class IronSourceInitilizer
 {
-#if UNITY_IOS || UNITY_ANDROID
+#if UNITY_IPHONE || UNITY_IOS || UNITY_ANDROID
     [RuntimeInitializeOnLoadMethod]
     static void Initilize()
     {
@@ -14,7 +14,7 @@ public class IronSourceInitilizer
         {
 #if UNITY_ANDROID
             string appKey = developerSettings.AndroidAppKey;
-#elif UNITY_IOS
+#elif UNITY_IPHONE || UNITY_IOS
             string appKey = developerSettings.IOSAppKey;
 #endif
             if (developerSettings.EnableIronsourceSDKInitAPI == true)

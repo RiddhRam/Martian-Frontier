@@ -7,7 +7,7 @@ public class AdConsent : MonoBehaviour
 {
     public DataPersistenceManager dataPersistenceManager;
 
-    #if UNITY_IOS
+    #if UNITY_IPHONE || UNITY_IOS
 
     void Awake()
     {

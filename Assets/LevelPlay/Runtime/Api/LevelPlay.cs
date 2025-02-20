@@ -108,7 +108,7 @@ namespace com.unity3d.mediation
         /// <param name="pause">Is the game paused</param>
         public static void SetPauseGame(bool pause)
         {
-#if UNITY_IOS && !UNITY_EDITOR
+#if (UNITY_IPHONE || UNITY_IOS) && !UNITY_EDITOR
             IosLevelPlaySdk.SetPauseGame(pause);
 #endif
             IronSource.Agent.SetPauseGame(pause);

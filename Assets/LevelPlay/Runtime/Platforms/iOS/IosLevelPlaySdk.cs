@@ -1,4 +1,4 @@
-#if UNITY_IOS
+#if UNITY_IPHONE || UNITY_IOS
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
