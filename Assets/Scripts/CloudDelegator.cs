@@ -19,6 +19,7 @@ public class CloudDelegator : MonoBehaviour
     public GameObject loginPanel, userPanel;
     public GameObject askToLogOut;
     public GameObject askToChangeName;
+    public GameObject askToDeleteAccount;
     public TMP_InputField newName;
     public GameObject forceUpdate;
 
@@ -151,6 +152,39 @@ public class CloudDelegator : MonoBehaviour
             uIDelegation.ShowError("NAME IS ALREADY TAKEN");
         }
 
+    }
+
+
+    public void AskToDeleteAccount() {
+        askToDeleteAccount.SetActive(true);
+    }
+
+    public void CancelDeleteAccount() {
+        askToDeleteAccount.SetActive(false);
+    }
+
+    public async void DeleteAccount()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable) {
+            uIDelegation.ShowError("NO INTERNET!");
+            return;
+        }
+
+        await AuthenticationService.Instance.DeleteAccountAsync();
+        askToDeleteAccount.SetActive(false);
+
+        loginPanel.SetActive(true);
+        userPanel.SetActive(false);
+        askToLogOut.SetActive(false);
+
+        uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
+        uIDelegation.RevealAll();
+
+        await AuthenticationService.Instance.SignInAnonymouslyAsync();
+
+        OnSignedIn();
+
+        dataPersistenceManager.ResetEntireGame();
     }
 
     public async Task InitSignIn() {

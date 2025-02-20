@@ -22,6 +22,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject signUpButton;
     public GameObject accountNoWifi;
     public GameObject changeNameButton;
+    public GameObject deleteAccountButton;
     public GameObject leaderboardNoWifi;
 
     public GameObject leaderboardTabButtons;
@@ -538,6 +539,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             signUpButton.SetActive(true);
             accountNoWifi.SetActive(false);
             changeNameButton.SetActive(true);
+            deleteAccountButton.SetActive(true);
             leaderboardCashPanel.SetActive(cashPanelWasOpen);
             leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
             leaderboardTabButtons.SetActive(true);
@@ -565,6 +567,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         signUpButton.SetActive(false);
         accountNoWifi.SetActive(true);
         changeNameButton.SetActive(false);
+        deleteAccountButton.SetActive(false);
         cashPanelWasOpen = leaderboardCashPanel.activeSelf;
         leaderboardCashPanel.SetActive(false);
         leaderboardVehiclesPanel.SetActive(false);

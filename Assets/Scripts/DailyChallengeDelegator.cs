@@ -253,8 +253,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                Debug.Log(oreNeededCounter);
-
                 if (selectedChallenges[i] == 2 && oreNeeded[oreNeededCounter] == key) {
                     challengeProgress[i] += quantities[key];
                     oreNeededCounter++;

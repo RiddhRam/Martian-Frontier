@@ -224,7 +224,6 @@ public class FileDataHandler
     }
 
     public async Task Save(GameData data) {
-        Debug.Log("FILE DATA: SAVING");
         string fullPath = Path.Combine(dataDirPath, dataFileName);
         string tempPath = fullPath + ".tmp";
 
@@ -247,7 +246,6 @@ public class FileDataHandler
             } else {
                 File.Move(tempPath, fullPath);
             }
-            Debug.Log("FILE DATA: SAVED");
         } 
         catch (Exception ex) {
             Debug.Log($"Error when trying to save data to file: {ex.Message}");
