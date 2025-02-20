@@ -32,6 +32,15 @@ public class AdConsent : MonoBehaviour
             return;
         }
 
+        if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+            if (Application.isEditor) {
+                SceneManager.LoadScene("Singleplayer");
+                return;
+            }
+
+            SceneManager.LoadScene("iOS ATT");
+        }
+
         if (PlayerPrefs.GetString("iOSATT") == "Responded") {
             SceneManager.LoadScene("Singleplayer");
             return;
