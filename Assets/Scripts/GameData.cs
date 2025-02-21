@@ -44,6 +44,8 @@ public class GameData
     public int tutorialScreenIndex;
     public SerializableDictionary<string, int> vehicleUpgradeLevels;
     public float[] materialProfitMultipliers;
+    public int cratesAvailable;
+    public int progressToNextCrate;
 
     public GameData() {
         this.userCash = "0";
@@ -90,5 +92,7 @@ public class GameData
         this.tutorialScreenIndex = 0;
         this.vehicleUpgradeLevels = new();
         this.materialProfitMultipliers = new float[9];
+        this.cratesAvailable = 1;
+        this.progressToNextCrate = 0;
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
-public class SupplyCrateDelegator : MonoBehaviour
+public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 {
     
     public GameObject openCratePanel;
@@ -16,6 +16,7 @@ public class SupplyCrateDelegator : MonoBehaviour
     public TextMeshProUGUI cratesAvailableText;
     public UIDelegation uIDelegation;
     public PlayerState playerState;
+    public AnalyticsDelegator analyticsDelegator;
     public Slider crateExtractionProgressBar;
     public TextMeshProUGUI crateExtractionPercentageText;
 
@@ -33,18 +34,14 @@ public class SupplyCrateDelegator : MonoBehaviour
     private BigInteger cashRewardAmount;
     private BigInteger gemRewardAmount;
 
+    public Image supplyCrateButtonIcon;
+
 
     private int cratesAvailable = 1;
-    private int progressToNextCrate = 4900;
+    private int progressToNextCrate = 0;
     private readonly int blocksNeededToDestroy = 5000;
 
     public bool adWatchedAlready = false;
-
-    public void Start()
-    {
-        UpdateCrateCount(cratesAvailable);
-        UpdateProgressToNextCrate(progressToNextCrate);
-    }
 
     public void UpdateBlocksNeededBars() {
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
@@ -80,12 +77,22 @@ public class SupplyCrateDelegator : MonoBehaviour
 
     public void UpdateCrateCount(int newCount) {
         cratesAvailable = newCount;
-        cratesAvailableText.text = GetLocalizedValue("{0} CRATES AVAILABLE", cratesAvailable);
+        UpdateCrateDisplay();
     }
 
     public void ChangeCrateCount(int amount) {
         cratesAvailable += amount;
+        UpdateCrateDisplay();
+    }
+
+    public void UpdateCrateDisplay() {
         cratesAvailableText.text = GetLocalizedValue("{0} CRATES AVAILABLE", cratesAvailable);
+
+        if (cratesAvailable > 0) {
+            supplyCrateButtonIcon.color = new(20/255f, 134/255f, 255/255f);
+        } else {
+            supplyCrateButtonIcon.color = new(255/255f, 255/255f, 255/255f);
+        }
     }
 
     public void OpenAllCrates() {
@@ -138,14 +145,26 @@ public class SupplyCrateDelegator : MonoBehaviour
 
         System.Random random = new System.Random();
 
-        cashRewardAmount = random.Next(10000, 70000);
+        cashRewardAmount = random.Next(10000, 60000);
         gemRewardAmount = random.Next(200, 800);
+
+        cashRewardAmount *= BigInteger.Pow(100, (-1 + playerState.GetHighestDrillTier()));
 
         if (openAll) {
             cashRewardAmount *= cratesAvailable;
             gemRewardAmount *= cratesAvailable;
+            try {
+                analyticsDelegator.OpenCrate(true, cratesAvailable);
+            } catch {
+            }
+
             UpdateCrateCount(0);
         } else {
+            try {
+                analyticsDelegator.OpenCrate(false, 1);
+            } catch {
+            }
+
             ChangeCrateCount(-1);
         }
 
@@ -193,4 +212,18 @@ public class SupplyCrateDelegator : MonoBehaviour
         return string.Format(entry.LocalizedValue, args);
     }
 
+    public void LoadData(GameData data)
+    {
+        this.cratesAvailable = data.cratesAvailable;
+        this.progressToNextCrate = data.progressToNextCrate;
+
+        UpdateCrateCount(cratesAvailable);
+        UpdateProgressToNextCrate(progressToNextCrate);
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.cratesAvailable = this.cratesAvailable;
+        data.progressToNextCrate = this.progressToNextCrate;
+    }
 }
