@@ -343,7 +343,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         int highestDrillTier = playerState.GetHighestDrillTier();
 
         for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
-            gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>().UpdateCashAmount(baseCashAmountForGemPurchase[i] * (BigInteger.Pow(100, (-1 + highestDrillTier ))));
+            gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>().UpdateCashAmount(baseCashAmountForGemPurchase[i] * BigInteger.Pow(100, (-1 + highestDrillTier )));
         }
 
     }

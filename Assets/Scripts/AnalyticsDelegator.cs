@@ -273,4 +273,16 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
     }
+
+    public void OpenCrate(bool openAll, int amount) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Open_Crate") {
+            {"Open_All", openAll},
+            {"Amount", amount}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 }

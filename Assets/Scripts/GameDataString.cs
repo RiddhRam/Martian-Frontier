@@ -37,6 +37,8 @@ public class GameDataString
     public string tutorialScreenIndex;
     public string vehicleUpgradeLevels;
     public string materialProfitMultipliers;
+    public string cratesAvailable;
+    public string progressToNextCrate;
 
     public GameDataString() {
         this.userCash = null;
@@ -73,5 +75,7 @@ public class GameDataString
         this.tutorialScreenIndex = null;
         this.vehicleUpgradeLevels = null;
         this.materialProfitMultipliers = null;
+        this.cratesAvailable = null;
+        this.progressToNextCrate = null;
     }
 }
