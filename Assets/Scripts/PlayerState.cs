@@ -36,6 +36,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public AnalyticsDelegator analyticsDelegator;
     public DailyChallengeDelegator dailyChallengeDelegator;
     public LeaderboardDelegator leaderboardDelegator;
+    public SupplyCrateDelegator supplyCrateDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -213,10 +214,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
         // Total 5 xp for mining an ore
         userXP += 4 * oresMined + amount;
+        supplyCrateDelegator.ChangeProgressToNextCrate(amount);
 
-        // Simulate asynchronous operation (e.g., if you're doing something async in UpdateXPDisplays())
         UpdateXPDisplays();
-        
+    
         blocksMined += amount;
     }
 

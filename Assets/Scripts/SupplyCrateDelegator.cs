@@ -11,6 +11,7 @@ public class SupplyCrateDelegator : MonoBehaviour
     public GameObject openCratePanel;
     public GameObject extractingSuppliesPanel;
     public GameObject collectRewardPanel;
+    public GameObject doubleRewardsButtons;
 
     public TextMeshProUGUI cratesAvailableText;
     public UIDelegation uIDelegation;
@@ -21,17 +22,60 @@ public class SupplyCrateDelegator : MonoBehaviour
     public TextMeshProUGUI cashReward;
     public TextMeshProUGUI gemReward;
 
+    public Slider[] blocksNeededBars;
+    public TextMeshProUGUI blocksNeededMiniBarText;
+    public TextMeshProUGUI blocksNeededMainBarText;
+
+    public AudioDelegator audioDelegator;
+    public AudioClip crateUnlockSoundEffect;
+    public AudioSource UISoundEffects;
+
     private BigInteger cashRewardAmount;
     private BigInteger gemRewardAmount;
 
 
     private int cratesAvailable = 1;
-    private int progressToNextCrate = 0;
+    private int progressToNextCrate = 4900;
     private readonly int blocksNeededToDestroy = 5000;
+
+    public bool adWatchedAlready = false;
 
     public void Start()
     {
         UpdateCrateCount(cratesAvailable);
+        UpdateProgressToNextCrate(progressToNextCrate);
+    }
+
+    public void UpdateBlocksNeededBars() {
+        int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
+
+        for (int i = 0; i != blocksNeededBars.Length; i++) {
+            blocksNeededBars[i].value = progressToNextCrate;
+        }
+
+        blocksNeededMiniBarText.text = blocksLeft.ToString();
+        blocksNeededMainBarText.text = GetLocalizedValue("{0} BLOCKS LEFT", blocksLeft);
+    }
+
+    public void UpdateProgressToNextCrate(int amount) {
+        progressToNextCrate = amount;
+        CheckIfEarnedNewCrate();
+    }
+
+    public void ChangeProgressToNextCrate(int amount) {
+        progressToNextCrate += amount;
+        CheckIfEarnedNewCrate();
+    }
+
+    public void CheckIfEarnedNewCrate() {
+        if (progressToNextCrate < blocksNeededToDestroy) {
+            UpdateBlocksNeededBars();
+            return;
+        }
+
+        ChangeCrateCount(1);
+        // Doesn't cause an infinite recursion loop because of the if statement above
+        UpdateProgressToNextCrate(0);
     }
 
     public void UpdateCrateCount(int newCount) {
@@ -49,8 +93,7 @@ public class SupplyCrateDelegator : MonoBehaviour
             uIDelegation.ShowError("NO CRATES AVAILABLE!");
             return;
         }
-        StartOpeningCrate();
-        UpdateCrateCount(0);
+        StartOpeningCrate(true);
     }
 
     public void OpenOneCrate() {
@@ -58,24 +101,24 @@ public class SupplyCrateDelegator : MonoBehaviour
             uIDelegation.ShowError("NO CRATES AVAILABLE!");
             return;
         }
-        StartOpeningCrate();
-        ChangeCrateCount(-1);
+        StartOpeningCrate(false);
     }
 
-    public void StartOpeningCrate() {
+    public void StartOpeningCrate(bool openAll) {
         openCratePanel.SetActive(false);
         extractingSuppliesPanel.SetActive(true);
 
-        StartCoroutine(CrateExtraction());
+        StartCoroutine(CrateExtraction(openAll));
     }
 
-    private IEnumerator CrateExtraction() {
-
-        float duration = 4.0f; // Duration of the increase in seconds
+    private IEnumerator CrateExtraction(bool openAll) {
+        adWatchedAlready = false;
+        
+        float duration = 5.0f; // Duration of the increase in seconds
         float elapsed = 0f;
         float extractionProgress;
 
-        //audioDelegator.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
+        audioDelegator.PlayAudio(UISoundEffects, crateUnlockSoundEffect, 1);
 
         while (elapsed < duration)
         {
@@ -95,11 +138,23 @@ public class SupplyCrateDelegator : MonoBehaviour
 
         System.Random random = new System.Random();
 
-        cashRewardAmount = random.Next(10000, 200001);
-        gemRewardAmount = random.Next(200, 1500);
+        cashRewardAmount = random.Next(10000, 70000);
+        gemRewardAmount = random.Next(200, 800);
+
+        if (openAll) {
+            cashRewardAmount *= cratesAvailable;
+            gemRewardAmount *= cratesAvailable;
+            UpdateCrateCount(0);
+        } else {
+            ChangeCrateCount(-1);
+        }
 
         cashReward.text = playerState.FormatPrice(cashRewardAmount);
         gemReward.text = playerState.FormatPrice(gemRewardAmount);
+
+        if (Application.internetReachability != NetworkReachability.NotReachable) {
+            doubleRewardsButtons.SetActive(true);
+        }
 
         extractingSuppliesPanel.SetActive(false);
         collectRewardPanel.SetActive(true);
@@ -114,6 +169,17 @@ public class SupplyCrateDelegator : MonoBehaviour
 
         collectRewardPanel.SetActive(false);
         openCratePanel.SetActive(true);
+    }
+
+    public void DoubleRewardsActivated() {
+        adWatchedAlready = true;
+        cashRewardAmount *= 2;
+        gemRewardAmount *= 2;
+
+        cashReward.text = playerState.FormatPrice(cashRewardAmount);
+        gemReward.text = playerState.FormatPrice(gemRewardAmount);
+
+        doubleRewardsButtons.SetActive(false);
     }
 
     private string GetLocalizedValue(string key, params object[] args)

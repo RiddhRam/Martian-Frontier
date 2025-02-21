@@ -24,6 +24,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject changeNameButton;
     public GameObject deleteAccountButton;
     public GameObject leaderboardNoWifi;
+    public GameObject doubleCrateRewardButton;
+    public GameObject crateRewardNoWifi;
 
     public GameObject leaderboardTabButtons;
     public GameObject leaderboardCashPanel;
@@ -32,6 +34,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private RewardedAd rewardedAd;
     private RewardedAd lobbyAd;
+    private RewardedAd crateAd;
     private int timer = 0;
     private bool internetReachable = false;
     // This needs to be seperate because user can swap vehicle while boost active
@@ -45,6 +48,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
     public RefineryController refineryController;
     public LobbyAd lobbyAdScript;
+    public SupplyCrateDelegator supplyCrateDelegator;
     private bool adsInitialized = false;
     private string adPermissionGiven;
     // After 30 seconds of user watching an ad, request a new one.
@@ -261,13 +265,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // ADMOB DISABLE
         // Clean up the old ad before loading a new one.
-        if (rewardedAd != null && type == "Boost")
-        {
+        if (rewardedAd != null && type == "Boost") {
             rewardedAd.Destroy();
             rewardedAd = null;
         } else if (lobbyAd != null && type == "Lobby") {
             lobbyAd.Destroy();
             lobbyAd = null;
+        } else if (crateAd != null && type == "Crate") {
+            crateAd.Destroy();
+            crateAd = null;
         }
 
         // send the request to load the ad.
@@ -294,15 +300,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 if (type == "Boost") {
                     rewardedAd = ad;
-                } else {
+                } else if (type == "Lobby") {
                     lobbyAd = ad;
+                } else if (type == "Crate") {
+                    crateAd = ad;
                 }
                 
-
                 if (currentCloudLoadState == cloudLoading) {   
                     cloudLoading = true;
                 }
-
             });
         } 
         // if MobileAds SDK not initialized
@@ -436,7 +442,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             LobbyRewardSuccess(rewardAmount);
             
             // Listen to user events during ad
-            RegisterEventHandlers(rewardedAd);
+            RegisterEventHandlers(lobbyAd);
             return;
         } else {
             // CustomAdScreen if no ad ready
@@ -446,12 +452,50 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LobbyRewardSuccess(string rewardAmount) {
-         playerState.AddCash(lobbyAdReward);
+        playerState.AddCash(lobbyAdReward);
         lobbyAdSuccessfullyShown = true;
         lobbyAdTimer = 0;
         lobbyAdScript.ShowRewardSuccess(rewardAmount);
         dataPersistenceManager.SaveGame();
     }
+
+    public void ShowCrateRewardedAd() {
+        try {
+            analyticsDelegator.AdWatchAttempt("Crate");
+        } catch {
+        }
+
+        if (firstTimePlaying) {
+            CrateRewardSuccess();
+            return;
+        }
+
+        // ADMOB DISABLE
+        if (crateAd != null && crateAd.CanShowAd())
+        {   
+            crateAd.Show((Reward reward) =>
+            {
+                //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
+            });
+
+            // Reward user
+            CrateRewardSuccess();
+            
+            // Listen to user events during ad
+            RegisterEventHandlers(crateAd);
+            return;
+        } else {
+            // CustomAdScreen if no ad ready
+            StartCoroutine(UseCustomAdScreen(() => CrateRewardSuccess()));
+        }
+        
+    }
+
+    private void CrateRewardSuccess() {
+        supplyCrateDelegator.DoubleRewardsActivated();
+        dataPersistenceManager.SaveGame();
+    }
+
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
 
@@ -544,6 +588,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
             leaderboardTabButtons.SetActive(true);
             leaderboardNoWifi.SetActive(false);
+            if (!supplyCrateDelegator.adWatchedAlready) {
+                doubleCrateRewardButton.SetActive(true);
+            }
+
+            crateRewardNoWifi.SetActive(false);
 
             _ = cloudDelegator.AttemptLogIn();
             
@@ -573,6 +622,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         leaderboardVehiclesPanel.SetActive(false);
         leaderboardTabButtons.SetActive(false);
         leaderboardNoWifi.SetActive(true);
+        doubleCrateRewardButton.SetActive(false);
+        crateRewardNoWifi.SetActive(true);
 
         displayStatus = false;
     }
@@ -757,6 +808,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
         if (lobbyAd == null || !lobbyAd.CanShowAd()) {
             LoadRewardedAd("Lobby");
+        }
+        if (crateAd == null || !crateAd.CanShowAd()) {
+            LoadRewardedAd("Crate");
         }
     }
 
