@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,6 +20,18 @@ public class MapRecordingMode : MonoBehaviour
     public TextMeshProUGUI depthText;
     public TextMeshProUGUI mineText;
     public TextMeshProUGUI valueText;
+
+    public Slider depthProgressSlider;
+    public TextMeshProUGUI depthProgressSliderText;
+    public int minY;
+    public int maxY;
+    public int currentTier;
+
+    public bool routeRoulette;
+    public GameObject arrowPanel;
+    public RectTransform arrow;
+    private float timer;
+    private float targetTime;
 
     [SerializeField]
     int minimumCameraSize;
@@ -61,20 +76,50 @@ public class MapRecordingMode : MonoBehaviour
         farthestTop = pos.y;
         farthestDown = pos.y;
 
-        cargoValueText.transform.parent.gameObject.SetActive(true);
-
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         mineRenderer.minVeinRadius = 2;
         mineRenderer.maxVeinRadius = 3;
-        mineRenderer.minVeinCount = 3;
-        mineRenderer.maxVeinCount = 4;
+        mineRenderer.minVeinCount = 4;
+        mineRenderer.maxVeinCount = 5;
+
+        if (routeRoulette) {
+            cargoValueText.transform.parent.gameObject.SetActive(true);
+            arrowPanel.SetActive(true);
+            RectTransform rectTransform = cargoValueText.transform.parent.GetComponent<RectTransform>();
+
+            Vector3 localPos = rectTransform.localPosition;
+            rectTransform.localPosition = new(localPos.x, 150, localPos.z);
+
+            rectTransform.offsetMin = new Vector2(-160f, rectTransform.offsetMin.y);
+            rectTransform.offsetMax = new Vector2(160f, rectTransform.offsetMax.y);
+        } else {
+            depthProgressSlider.transform.parent.gameObject.SetActive(true);
+            Time.timeScale = 0.5f;
+        }
+    }
+
+    public void SetSliderBoundaries() {
+        
+        if (playerVehicle.position.y > -155)  {
+            minY = -155;
+            maxY = -6;
+            currentTier = 1;
+        } else if (playerVehicle.position.y > -325) {
+            minY = -325;
+            maxY = -165;
+            currentTier = 2;
+        } else if (playerVehicle.position.y > -325) {
+            minY = -505;
+            maxY = -335;
+            currentTier = 3;
+        }
+
     }
 
     void Update()
     {
         Vector3 pos = playerVehicle.position;
 
-        
         if (pos.x > farthestRight)
             farthestRight = pos.x;
 
@@ -90,8 +135,34 @@ public class MapRecordingMode : MonoBehaviour
         //Zoom();
         //ClampCamera();
         
-        
-        transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y, transform.position.z);
+        if (routeRoulette) {
+            transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y - 10, transform.position.z);
+
+            timer += Time.deltaTime;
+            if (timer >= targetTime)
+            {
+                timer = 0f;
+                targetTime = Random.Range(3f, 5f);
+                float currentAngle = arrow.localEulerAngles.z;
+                float newAngle;
+
+                do
+                {
+                    newAngle = Random.Range(0f, 361f);
+                } 
+                while (Mathf.Abs(Mathf.DeltaAngle(currentAngle, newAngle)) < 10f || 
+                    Mathf.Abs(Mathf.DeltaAngle(currentAngle + 180f, newAngle)) < 10f);
+
+                arrow.localEulerAngles = new Vector3(0, 0, newAngle);
+            }
+
+            float zDifference = Mathf.DeltaAngle(arrow.rotation.eulerAngles.z, playerVehicle.transform.rotation.eulerAngles.z);
+            Debug.Log(zDifference);
+
+        } else {
+            transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y, transform.position.z);            
+        }
+
 
         UpdateText();
     }
@@ -120,12 +191,25 @@ public class MapRecordingMode : MonoBehaviour
     }
 
     public void UpdateText() {
-        depthText.text = FormatPositionY((int) -playerVehicle.position.y -5);
+        depthText.text = FormatPositionY((int) -playerVehicle.position.y - 5);
         mineText.text = FormatPrice(playerState.GetBlocksMined() - originalBlocksMined);
         valueText.text = "$" + FormatPrice(GetMineValue() - originalMineValue);
-        if (haulerController) {
+        
+        if (routeRoulette) {
             cargoValueText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
+        } else {
+            int previousTier = currentTier;
+            SetSliderBoundaries();
+            if (currentTier != previousTier) {
+                // Flipped cuz we need positive values
+                depthProgressSlider.minValue = -maxY;
+                depthProgressSlider.maxValue = -minY;
+            }
+            depthProgressSlider.value = -playerVehicle.position.y;
+            depthProgressSliderText.text = depthText.text;
         }
+
+        cargoValueText.text = valueText.text;
         
     }
 
@@ -214,10 +298,39 @@ public class MapRecordingMode : MonoBehaviour
         Transform vehicle = playerVehicle.transform.GetChild(0);
         BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();
         if (boxCollider2D) {
-            boxCollider2D.size = new(boxCollider2D.size.x + 2, boxCollider2D.size.y);
+            boxCollider2D.size = new(boxCollider2D.size.x + 5, boxCollider2D.size.y);
             haulerController = null;
         } else {
             haulerController = vehicle.GetComponent<HaulerController>();
         }
+
+        /*
+        string fullPath = Path.Combine(Application.persistentDataPath, System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss"));
+        string tempPath = fullPath + ".csv";
+
+        try {
+            // Create directory to save file in if it doesn't exist
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            string dataToStore = string.Join("\n", mineValues.Select((value, index) => $"{index},{value}"));
+
+            // Write to a temporary file first
+            using (FileStream stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 2097152, useAsync: true))
+            using (StreamWriter writer = new StreamWriter(stream)) {
+                writer.WriteAsync(dataToStore);
+            }
+
+            // Replace the original file with the temporary file
+            // If the original file exists, replace it. Otherwise, move the temp file.
+            if (File.Exists(fullPath)) {
+                File.Replace(tempPath, fullPath, null);
+            } else {
+                File.Move(tempPath, fullPath);
+            }
+        } 
+        catch (System.Exception ex) {
+            Debug.Log($"Error when trying to save data to file: {ex.Message}");
+        }
+        */
     }
 }

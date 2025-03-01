@@ -12,7 +12,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
-    public TextMeshProUGUI collectRewardMessage;
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -423,25 +422,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void RewardPlayerWithGems(int amount, string message = null) {
 
-        if (message != null) {
-            collectRewardMessage.text = GetLocalizedValue(message);
-        }
-        
         leaderboardDelegator.gemRewardsToCollect += amount;
-        leaderboardDelegator.CheckForRewards();
+        leaderboardDelegator.CheckForRewards(message);
     }
 
-    private string GetLocalizedValue(string key, params object[] args)
-    {
-        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
-
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
-
-        // Use string.Format to replace placeholders with arguments
-        return string.Format(entry.LocalizedValue, args);
+    public BigInteger GetUserGems() {
+        return userGems;
     }
-
 
     // For development only
     public void FreeMoney() {

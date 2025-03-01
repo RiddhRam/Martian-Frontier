@@ -139,6 +139,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int maxVeinRadius;
     public int minVeinCount;
     public int maxVeinCount;
+    private GameObject child;
+    private Tilemap tilemapToReturn;
+    private TileBase[] tilesBeingUsed;
 
 
     // Called before Start
@@ -243,9 +246,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             }
         }
-
-        // Remove all keys
-        materialsDelegator.uncollectedMaterials.Clear();
 
         // Create first 4 rows
         // Change to totalRows + 1 to create entire map
@@ -895,6 +895,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         obj.SetActive(true);
         materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount, profitMultiplier);
 
+        
         currentMineValue += materialPrices[materialIndex] * materialCount;
         mineValueText.text = FormatPrice(currentMineValue);
         //return obj;
@@ -925,16 +926,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void ReturnTilemapObject(GameObject obj, int yChunk, int xChunk)
     {
         // Get the Tilemap component from the GameObject
-        Tilemap tilemap = obj.GetComponent<Tilemap>();
+        tilemapToReturn = obj.GetComponent<Tilemap>();
 
-        int positionsCount = tilemap.cellBounds.size.x * tilemap.cellBounds.size.y;;
+        int positionsCount = tilemapToReturn.cellBounds.size.x * tilemapToReturn.cellBounds.size.y;;
 
         int tileIndex = 0;
         Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
         TileBase[] tilesBeingUsed = new TileBase[positionsCount];
 
         // Loop through all positions in the tilemap's bounds
-        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        foreach (var position in tilemapToReturn.cellBounds.allPositionsWithin)
         {
             tilesForReturning[tileIndex] = position;
             tilesBeingUsed[tileIndex] = null;
@@ -942,7 +943,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             tileIndex++;
         }
 
-        tilemap.SetTiles(tilesToSet, tilesBeingUsed);
+        tilemapToReturn.SetTiles(tilesToSet, tilesBeingUsed);
         mineTilemaps.Insert(0, obj);
     }
 
@@ -957,16 +958,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void ReturnBackgroundTilemapObject(GameObject obj)
     {
         // Get the Tilemap component from the GameObject
-        Tilemap tilemap = obj.GetComponent<Tilemap>();
+        tilemapToReturn = obj.GetComponent<Tilemap>();
 
-        int positionsCount = tilemap.cellBounds.size.x * tilemap.cellBounds.size.y;;
+        int positionsCount = tilemapToReturn.cellBounds.size.x * tilemapToReturn.cellBounds.size.y;;
 
         int tileIndex = 0;
         Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
         TileBase[] tilesBeingUsed = new TileBase[positionsCount];
 
         // Loop through all positions in the tilemap's bounds
-        foreach (var position in tilemap.cellBounds.allPositionsWithin)
+        foreach (var position in tilemapToReturn.cellBounds.allPositionsWithin)
         {
             tilesForReturning[tileIndex] = position;
             tilesBeingUsed[tileIndex] = null;
@@ -974,12 +975,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             tileIndex++;
         }
 
-        tilemap.SetTiles(tilesToSet, tilesBeingUsed);
+        tilemapToReturn.SetTiles(tilesToSet, tilesBeingUsed);
         mineBackgroundTilemaps.Insert(0, obj);
     }
 
     public IEnumerator ReturnAllObjectsToPool() {
-        // Return materials
+        // Return materials, TODO: FIX PERFORMANCE OPTIMIZATION HERE
         GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
         MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
 
@@ -988,17 +989,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
         }
 
-        foreach (var material in materials) {
-            ReturnMaterialObject(material.gameObject, material.materialIndex, material.id);
-        }
-
         // Reset the mine        
         int counter = 0;
+        int materialCounter = 0;
 
         // Split the mine reset work into intervals
         for (int i = 0; i < transform.childCount; i++)
         {
-            GameObject child = transform.GetChild(i).gameObject;
+            child = transform.GetChild(i).gameObject;
 
             // Skip null objects
             if (!child)
@@ -1029,7 +1027,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             
 
-                // Only delete 42 per frame
+                // Only delete 84 background tilemap, main tilemap row or random stuff per frame and also only 6 materials per frame
+                int maxMaterialCount = Mathf.Min(materialCounter + 6, materials.Length);
+                for (int j = materialCounter; j < maxMaterialCount; j++) {
+                    ReturnMaterialObject(materials[j].gameObject, materials[j].materialIndex, materials[j].id);
+                }
+
+                materialCounter += 6;
+
                 if (counter >= 84) {
                     yield return new WaitForSecondsRealtime(0.1f);
                     counter = 0;

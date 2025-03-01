@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
@@ -13,10 +14,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     public GameObject loadingScreen;
+    public Image tournamentImage;
     public bool readyToGoNext = false;
     public GameObject oreRefineryCanvas;
     private bool goToNext;
-    GameObject newScreen;
+    public GameObject newScreen;
 
     private IEnumerator DisplayTutorial()
     {
@@ -76,9 +78,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
         finishedTutorial = true;
 
-        playerState.RewardPlayerWithGems(500, "YOU FINISHED THE TUTORIAL!");
-        GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
-        analyticsDelegator.FinishTutorial();
+        try {
+            playerState.RewardPlayerWithGems(500, "YOU FINISHED THE TUTORIAL!");
+            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
+            analyticsDelegator.FinishTutorial();
+            tournamentImage.color = new(255/255f, 204/255f, 0/255f);
+        } catch {
+        }
+        
         Destroy(TutorialUIParent);
     }
 
@@ -91,7 +98,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         this.tutorialScreenIndex = data.tutorialScreenIndex;
 
         try {
-            if (data.finishedTutorial) {
+            if (this.finishedTutorial) {
                 Destroy(TutorialUIParent);
                 return;
             }
@@ -99,9 +106,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             return;
         }
 
-        StartCoroutine(DisplayTutorial());
-
         analyticsDelegator.StartTutorial();
+        StartCoroutine(DisplayTutorial());
     }
 
     public void SaveData(ref GameData data) {

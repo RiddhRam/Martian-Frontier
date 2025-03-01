@@ -14,6 +14,7 @@ public class FileDataHandler
     private string dataFileName = "";
     private bool useEncryption = false;
     private readonly string encryptionKey = "RydStud10s!TvNcD";
+    public bool gameDataValid = false;
 
     public FileDataHandler(string dataDirPath, string dataFileName, bool useEncryption) {
         this.dataDirPath = dataDirPath;
@@ -223,7 +224,7 @@ public class FileDataHandler
         return tempData;
     }
 
-    public async Task Save(GameData data) {
+    public async Task SaveAsync(GameData data) {
         string fullPath = Path.Combine(dataDirPath, dataFileName);
         string tempPath = fullPath + ".tmp";
 
@@ -233,10 +234,49 @@ public class FileDataHandler
 
             string dataToStore = CreateJson(data, useEncryption);
 
+            // Make sure game data is valid
+            if (!VerifyGameDataIntegrity(dataToStore)) {
+                return;
+            }
+
             // Write to a temporary file first
             using (FileStream stream = new FileStream(tempPath, FileMode.Create, FileAccess.Write, FileShare.None, 2097152, useAsync: true))
             using (StreamWriter writer = new StreamWriter(stream)) {
                 await writer.WriteAsync(dataToStore);
+            }
+
+            // Replace the original file with the temporary file
+            // If the original file exists, replace it. Otherwise, move the temp file.
+            if (File.Exists(fullPath)) {
+                File.Replace(tempPath, fullPath, null);
+            } else {
+                File.Move(tempPath, fullPath);
+            }
+        } 
+        catch (Exception ex) {
+            Debug.Log($"Error when trying to save data to file: {ex.Message}");
+        }
+    }
+
+    public void Save(GameData data) {
+        string fullPath = Path.Combine(dataDirPath, dataFileName);
+        string tempPath = fullPath + ".tmp";
+
+        try {
+            // Create directory to save file in if it doesn't exist
+            Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            string dataToStore = CreateJson(data, useEncryption);
+
+            // Make sure game data is valid
+            if (!VerifyGameDataIntegrity(dataToStore)) {
+                return;
+            }
+
+            // Write to a temporary file first
+            using (FileStream stream = new FileStream(tempPath, FileMode.Create))
+            using (StreamWriter writer = new StreamWriter(stream)) {
+                writer.Write(dataToStore);
             }
 
             // Replace the original file with the temporary file
@@ -405,6 +445,18 @@ public class FileDataHandler
         {
             return Encoding.UTF8.GetString(result);
         }
+    }
+
+    public bool VerifyGameDataIntegrity(string dataToStore) {
+        try {
+            ParseJson(dataToStore, useEncryption);
+            gameDataValid = true;
+        } catch {
+            gameDataValid = false;
+            return false;
+        }
+
+        return true;
     }
 
 }

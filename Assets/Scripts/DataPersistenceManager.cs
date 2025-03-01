@@ -84,7 +84,7 @@ public class DataPersistenceManager : MonoBehaviour
         }
     }
 
-    public void SaveGame() {
+    public void SaveGame(bool async = true) {
         timer = 0;
         if (dataPersistenceObjects == null) {
             return;
@@ -103,8 +103,17 @@ public class DataPersistenceManager : MonoBehaviour
             }
         }
         
-        // Save the data as a file
-        _ = dataHandler.Save(gameData);
+        if (async) {
+            // Save the data as a file
+            _ = dataHandler.SaveAsync(gameData);
+        } else {
+            dataHandler.Save(gameData);
+        }
+
+        // Make sure game data is valid
+        if (!dataHandler.gameDataValid) {
+            return;
+        }
 
         try {
             if (cloudDelegator) {
@@ -116,11 +125,11 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     private void OnApplicationQuit() {
-        SaveGame();
+        SaveGame(false);
     }
 
     private void OnApplicationPause() {
-        SaveGame();
+        SaveGame(false);
     }
 
     private List<IDataPersistence> FindAllDataPersistenceObjects() {

@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Threading.Tasks;
 using Unity.Services.Analytics;
 using Unity.Services.Core;
@@ -180,9 +181,13 @@ public class AnalyticsDelegator : MonoBehaviour
     }
 
     public void StartTutorial() {
-        if (!isInitialized) {
-            return;
-        }
+        // Do this asynchronously that way it has time to initialize
+        StartCoroutine(StartTutorialAsync());
+    }
+
+    private IEnumerator StartTutorialAsync() {
+        yield return new WaitUntil(() => isInitialized);
+
         CustomEvent myEvent = new CustomEvent("Start_Tutorial");
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();

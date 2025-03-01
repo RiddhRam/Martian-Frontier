@@ -14,12 +14,15 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
     public PlayerState playerState;
 
+    public Image tournamentImage;
+
     public GameObject cashTournamentPanel;
     public GameObject vehicleTournamentPanel;
     public GameObject cashTournamentButton;
     public GameObject vehicleTournamentButton;
 
     public GameObject collectReward;
+    public TextMeshProUGUI collectRewardMessage;
     public TextMeshProUGUI collectRewardText;
 
     public Sprite[] tierSprites;
@@ -108,11 +111,16 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         endTime = nextResetTime;
     }
 
-    public async void CheckForRewards() {
+    public async void CheckForRewards(string message = null) {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             if (gemRewardsToCollect > 0) {
                 collectRewardText.text = gemRewardsToCollect.ToString();
                 collectReward.SetActive(true);
+
+                if (message != null) {
+                    collectRewardMessage.text = GetLocalizedValue(message);
+                }
+                
             }
             return;
         }
@@ -139,15 +147,20 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         if (gemRewardsToCollect > 0) {
             collectRewardText.text = gemRewardsToCollect.ToString();
             collectReward.SetActive(true);
+            
+            if (message != null) {
+                collectRewardMessage.text = GetLocalizedValue(message);
+            }
         }
     }
 
     public void CollectLeaderboardRewards() {
-        playerState.AddGems(gemRewardsToCollect);
-        playerState.UpdateGemDisplays();
+        long gemValue = gemRewardsToCollect;
         gemRewardsToCollect = 0;
+        playerState.AddGems(gemValue);
         collectReward.SetActive(false);
         collectReward.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("CONGRATULATIONS! YOU RECEIVED SOME REWARDS!");
+        
     }
 
     public async void UpdateLeaderBoardData() {
@@ -382,6 +395,10 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         
     }
 
+    public void ChangeTournamentImage() {
+        tournamentImage.color = new(1, 1, 1);
+    }
+
     public void TogglePanel(string type) {
         if (type == "Cash") {
             vehicleTournamentPanel.SetActive(false);
@@ -401,7 +418,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             vehicleTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
         }
     }
-
 
     private string GetLocalizedValue(string key, params object[] args)
     {

@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
 using TMPro;
+using System.Threading.Tasks;
 
 public class LoadingTest
 {
@@ -28,8 +29,20 @@ public class LoadingTest
     OreDelegation oreDelegation;
     LeaderboardDelegator leaderboardDelegator;
 
-    // DELETE GAME SAVE FILE BEFORE RUNNING
+    public async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed) {
+    // Face the direction of movement
+    Vector3 direction = (targetPosition - playerVehicle.position).normalized;
+    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
+    playerVehicle.rotation = Quaternion.Euler(0, 0, angle);
 
+    while (Vector3.Distance(playerVehicle.position, targetPosition) > 0.02f) {
+        playerVehicle.position = Vector3.MoveTowards(playerVehicle.position, targetPosition, speed * Time.deltaTime);
+        // Await a delay of roughly 16 milliseconds (~1/60s)
+        await Task.Delay(16);
+    }
+}
+
+    // DELETE GAME SAVE FILE BEFORE RUNNING
     [UnityTest]
     // Might fail cuz no object found
     public IEnumerator A_LoadingScreen()
@@ -79,8 +92,26 @@ public class LoadingTest
         }
 
         // Other
-        Assert.AreEqual(GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().fileName, "ryd");
         Assert.AreEqual(GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().soundFXEnabled, true);
+
+        // Data Persistence Manager
+        DataPersistenceManager dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        Assert.AreEqual(dataPersistenceManager.fileName, "ryd");
+        Assert.AreEqual(dataPersistenceManager.cloudDelegator.name, "Cloud Delegator");
+        Assert.False(dataPersistenceManager.adConsent);
+
+        // Sound Holder
+        SoundHolder soundHolder = GameObject.Find("Sound Holder").GetComponent<SoundHolder>();
+        Assert.AreEqual(soundHolder.orePickupSoundEffect.name, "Ore Pick Up");
+
+        Assert.AreEqual(soundHolder.drillBlockSoundEffects[0].name, "Drill Block 1");
+        Assert.AreEqual(soundHolder.drillBlockSoundEffects[1].name, "Drill Block 2");
+        Assert.AreEqual(soundHolder.drillBlockSoundEffects[2].name, "Drill Block 3");
+
+        Assert.AreEqual(soundHolder.drillBlockVolumes[0], 0.05, 0.001);
+        Assert.AreEqual(soundHolder.drillBlockVolumes[1], 0.1, 0.001);
+        Assert.AreEqual(soundHolder.drillBlockVolumes[2], 0.2, 0.001);
+
 
         // Ads
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
@@ -90,14 +121,39 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.adButtons.Length, adButtonCount);
         for (int i = 0; i != adButtonCount; i++) {
             Assert.True(adDelegator.adButtons[i].activeSelf);
+            Assert.True(adDelegator.adButtons[i].name.Contains(rewardTypes[i]));
             Assert.False(adDelegator.timerTexts[i].activeSelf);
+            Assert.True(adDelegator.timerTexts[i].name.Contains(rewardTypes[i]));
             Assert.AreEqual(adDelegator.rewardTypes[i], rewardTypes[i]);
         }
+
+        Assert.AreEqual(adDelegator.noInternetIcon.name, "No Wifi Icon");
 
         Assert.AreEqual(adDelegator.movementJoystick.name, "Movement Joystick");
         Assert.AreEqual(adDelegator.tutorial.name, "Tutorial");
         Assert.AreEqual(adDelegator.customAdScreen.name, "Custom Ad Screen");
+        Assert.AreEqual(adDelegator.signupNoWifi.name, "No Wifi Icon");
+        Assert.AreEqual(adDelegator.signUpButton.name, "SIGN UP OR LOG IN");
+        Assert.AreEqual(adDelegator.accountNoWifi.name, "No Wifi Icon");
+        Assert.AreEqual(adDelegator.changeNameButton.name, "CHANGE NAME");
+        Assert.AreEqual(adDelegator.deleteAccountButton.name, "DELETE ACCOUNT");
+        Assert.AreEqual(adDelegator.leaderboardNoWifi.name, "No Internet");
+        Assert.AreEqual(adDelegator.doubleCrateRewardButton.name, "2X REWARDS");
+        Assert.AreEqual(adDelegator.crateRewardNoWifi.name, "No Internet");
+        Assert.AreEqual(adDelegator.leaderboardTabButtons.name, "Tab Buttons");
+        Assert.AreEqual(adDelegator.leaderboardCashPanel.name, "Cash Tournament");
+        Assert.AreEqual(adDelegator.leaderboardVehiclesPanel.name, "Vehicles Tournament");
+        Assert.AreEqual(adDelegator.originalSpeed, 0);
         Assert.False(adDelegator.speedBoostActive);
+        Assert.AreEqual(adDelegator.dataPersistenceManager.name, "Data Persistence Manager");
+        Assert.AreEqual(adDelegator.analyticsDelegator.name, "Analytics Delegator");
+        Assert.AreEqual(adDelegator.cloudDelegator.name, "Cloud Delegator");
+        Assert.AreEqual(adDelegator.playerState.name, "PlayerState");
+        Assert.AreEqual(adDelegator.refineryController.name, "Ore Refinery Dropoff");
+        Assert.AreEqual(adDelegator.lobbyAdScript.name, "Lobby Ad");
+        Assert.AreEqual(adDelegator.supplyCrateDelegator.name, "Supply Crates Delegator");
+        Assert.AreEqual(adDelegator.lobbyAdReward, 0);
+        Assert.AreEqual(adDelegator.lobbyAdButton.name, "Lobby Ad");
 
         // Settings
         settingsDelegator = GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>();
@@ -111,6 +167,114 @@ public class LoadingTest
         Assert.AreEqual(settingsDelegator.generalPanel.name, "General Settings");
         Assert.AreEqual(settingsDelegator.accountButton.name, "ACCOUNT");
         Assert.AreEqual(settingsDelegator.accountPanel.name, "Account Panel");
+
+        // Daily Challenge Delegator
+        DailyChallengeDelegator dailyChallengeDelegator = GameObject.Find("Daily Challenge Delegator").GetComponent<DailyChallengeDelegator>();
+
+        Assert.AreEqual(dailyChallengeDelegator.mineRenderGO.name, "Mine");
+        Assert.AreEqual(dailyChallengeDelegator.dailyTimer.name, "Daily Timer");
+        Assert.AreEqual(dailyChallengeDelegator.buttonGemIconGO.name, "Gem Icon");
+        Assert.AreEqual(dailyChallengeDelegator.challengePanel.name, "Daily Challenges Panel");
+
+        int challengeLengths = 6;
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeStatusIconsGO.Length);
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeDescriptionTexts.Length);
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.rewardTexts.Length);
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeProgressSlidersGO.Length);
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeProgressSlidersTextGO.Length);
+
+        for (int i = 0; i != challengeLengths; i++) {
+            Assert.True(dailyChallengeDelegator.challengeStatusIconsGO[i].activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeDescriptionTexts[i].activeSelf);
+            Assert.True(dailyChallengeDelegator.rewardTexts[i].activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeProgressSlidersGO[i].activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeProgressSlidersTextGO[i].activeSelf);
+        }
+
+        Assert.AreEqual(dailyChallengeDelegator.superChallengeStartButtonGO.name, "Start");
+        Assert.AreEqual(dailyChallengeDelegator.superChallengeStartButtonTextGO.name, "START");
+        Assert.AreEqual(dailyChallengeDelegator.superChallengeSliderGO.name, "Super Challenge Progress");
+        Assert.AreEqual(dailyChallengeDelegator.superChallengeTimerTextGO.name, "Super Challenge Timer");
+        
+        Assert.AreEqual(4, dailyChallengeDelegator.gemCashPurchasePanels.Length);
+
+        for (int i = 0; i != 4; i++) {
+            Assert.True(dailyChallengeDelegator.gemCashPurchasePanels[i].activeSelf);
+        }
+
+        // Daily Challenge Delegator
+        CloudDelegator cloudDelegator = GameObject.Find("Cloud Delegator").GetComponent<CloudDelegator>();
+
+        Assert.AreEqual(cloudDelegator.userNameText.name, "USERNAME");
+        Assert.AreEqual(cloudDelegator.loginPanel.name, "Log In");
+        Assert.AreEqual(cloudDelegator.userPanel.name, "Account");
+        Assert.AreEqual(cloudDelegator.askToLogOut.name, "Confirm Log Out");
+        Assert.AreEqual(cloudDelegator.askToChangeName.name, "Change Name");
+        Assert.AreEqual(cloudDelegator.newName.name, "New Name");
+        Assert.AreEqual(cloudDelegator.forceUpdate.name, "Force Update");
+        Assert.AreEqual(settingsDelegator.UIDelegation.name, "UI");
+        Assert.AreEqual(cloudDelegator.dataPersistenceManager.name, "Data Persistence Manager");
+        Assert.AreEqual(cloudDelegator.loadingScreen.name, "Loading Screen");
+        Assert.AreEqual(cloudDelegator.leaderboardDelegator.name, "Leaderboard Delegator");
+
+        // Leaderboard Delegator
+        LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
+
+        Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
+        Assert.AreEqual(leaderboardDelegator.tournamentImage.name, "Podium Icon");
+        Assert.AreEqual(leaderboardDelegator.cashTournamentPanel.name, "Cash Tournament");
+        Assert.AreEqual(leaderboardDelegator.vehicleTournamentPanel.name, "Vehicles Tournament");
+        Assert.AreEqual(leaderboardDelegator.cashTournamentButton.name, "CASH");
+        Assert.AreEqual(leaderboardDelegator.vehicleTournamentButton.name, "VEHICLES");
+        Assert.AreEqual(leaderboardDelegator.collectReward.name, "Collect Reward");
+        Assert.True(leaderboardDelegator.collectRewardMessage.name.Contains("CONGRATULATIONS"));
+        Assert.AreEqual(leaderboardDelegator.collectRewardText.name, "Reward Amount");
+
+        Assert.AreEqual(3, leaderboardDelegator.tierSprites.Length);
+        for (int i = 0; i != 3; i++) {
+            Assert.True(leaderboardDelegator.tierSprites[i]);
+        }
+
+        Assert.AreEqual(leaderboardDelegator.cashTierText.name, "Tier Name");
+        Assert.AreEqual(leaderboardDelegator.vehiclesTierText.name, "Tier Name");
+        Assert.AreEqual(leaderboardDelegator.tournamentTimer.name, "Tournament Timer");
+        Assert.AreEqual(leaderboardDelegator.cashNextTierText.name, "NEXT TIER");
+        Assert.AreEqual(leaderboardDelegator.cashLastTierText.name, "LAST TIER");
+        Assert.AreEqual(leaderboardDelegator.vehiclesNextTierText.name, "NEXT TIER");
+        Assert.AreEqual(leaderboardDelegator.vehiclesLastTierText.name, "LAST TIER");
+        Assert.AreEqual(leaderboardDelegator.cashTierImage.name, "Tier Image");
+        Assert.AreEqual(leaderboardDelegator.vehiclesTierImage.name, "Tier Image");
+        Assert.AreEqual(leaderboardDelegator.lastUpdateText.name, "Last Update Timer");
+
+        int playerDisplayLength = 10;
+
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerNameTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashScoreTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashRewardTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerScoreImages.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerScoreBars.Length);
+
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerNameTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesScoreTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesRewardTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerScoreImages.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerScoreBars.Length);
+
+        for (int i = 0; i != playerDisplayLength; i++) {
+            Assert.True(leaderboardDelegator.cashPlayerNameTextMeshes[i]);
+            Assert.True(leaderboardDelegator.cashScoreTextMeshes[i]);
+            Assert.True(leaderboardDelegator.cashRewardTextMeshes[i]);
+            Assert.True(leaderboardDelegator.cashPlayerScoreImages[i]);
+            Assert.True(leaderboardDelegator.cashPlayerScoreBars[i]);
+
+            Assert.True(leaderboardDelegator.vehiclesPlayerNameTextMeshes[i]);
+            Assert.True(leaderboardDelegator.vehiclesScoreTextMeshes[i]);
+            Assert.True(leaderboardDelegator.vehiclesRewardTextMeshes[i]);
+            Assert.True(leaderboardDelegator.vehiclesPlayerScoreImages[i]);
+            Assert.True(leaderboardDelegator.vehiclesPlayerScoreBars[i]);
+        }
+
+        Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
 
         // Refinery Controller
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
@@ -166,8 +330,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate"};
-        int primaryElementCount = 12;
+        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info"};
+        int primaryElementCount = 13;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -185,7 +349,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" , "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" , "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -399,6 +563,167 @@ public class LoadingTest
         Assert.False(uIDelegation.mapCamera.activeSelf);
         Assert.False(uIDelegation.mapCamera.GetComponent<MapRecordingMode>().enabled);
 
+        yield return null;
+    }
+
+    [UnityTest]
+    public IEnumerator D_FinishTutorial() {
+        SceneManager.LoadScene("Singleplayer");
+        yield return null;
+
+        GameObject loadingScreen = null;
+
+        try {
+            loadingScreen = GameObject.Find("Loading Screen");
+        } catch {
+        }
+
+        if (loadingScreen != null) {
+            yield return new WaitUntil(() => !loadingScreen.activeSelf);
+        }
+        
+        yield return new  WaitForSeconds(0.3f);
+
+        TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
+        GameObject tutorialUIParent = tutorialManager.TutorialUIParent;
+
+        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
+        TutorialTextBox tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
+        tutorialTextBox.readyToGoNext = true;
+        tutorialManager.readyToGoNext = true;
+        tutorialManager.TapToContinue();
+
+        yield return null;
+
+        Assert.True(tutorialManager.newScreen == null);
+        Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
+        Assert.False(tutorialUIParent.activeSelf);
+
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
+
+        Transform playerVehicle = GameObject.Find("Player Vehicle").transform;
+
+        if (playerVehicle == null)
+        {
+            Debug.LogError("Player Vehicle not found!");
+        }
+
+        Vector3 targetPosition =  new(1, -2);
+        float speed = 10f; 
+
+        // Create a Task and wait until it's completed
+        Task driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        // Handle any exceptions that might have occurred
+        if (driveTask.IsFaulted && driveTask.Exception != null) {
+            Debug.LogError($"Drive task failed: {driveTask.Exception.InnerException?.Message}");
+        }
+
+        targetPosition =  new(2, -4);
+
+        // Create a Task and wait until it's completed
+        driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        yield return null;
+
+        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
+        tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
+        tutorialTextBox.readyToGoNext = true;
+        tutorialManager.readyToGoNext = true;
+
+        GameObject bottomControls = tutorialManager.bottomControls;
+
+        Assert.True(bottomControls.activeSelf);
+        Assert.False(bottomControls.transform.GetChild(0).gameObject.activeSelf);
+        Assert.True(bottomControls.transform.GetChild(1).gameObject.activeSelf);
+        bottomControls.transform.GetChild(1).GetComponent<Button>().onClick.Invoke();
+
+        yield return null;
+        yield return null;
+
+        Assert.True(tutorialManager.openedGarage);
+        Assert.True(tutorialManager.newScreen == null);
+        Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);
+        Assert.False(tutorialUIParent.activeSelf);
+
+        Assert.True(bottomControls.transform.GetChild(0).gameObject.activeSelf);
+        Assert.False(bottomControls.transform.GetChild(1).gameObject.activeSelf);
+
+        GameObject garagePanel = GameObject.Find("Garage Panel");
+        garagePanel.transform.GetChild(3).GetComponent<Button>().onClick.Invoke();
+        yield return null;
+
+        Assert.True(GameObject.Find("Haulers Panel").activeSelf);
+
+        GameObject haulDisplay = GameObject.Find("Haul Display Panel(Clone)");
+        haulDisplay.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
+        yield return null;
+
+        Assert.False(garagePanel.activeSelf);
+
+        Assert.True(playerVehicle.GetComponent<PlayerVehicleDelegation>().playerVehicle.name == "STUBBY");
+        Assert.True(playerVehicle.GetComponent<PlayerVehicleDelegation>().vehicleType == "Hauler");
+
+        Assert.True(tutorialManager.oreRefineryCanvas.activeSelf);
+        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
+        tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
+        tutorialTextBox.readyToGoNext = true;
+        tutorialManager.readyToGoNext = true;
+        tutorialManager.TapToContinue();
+
+        yield return null;
+
+        Assert.False(tutorialManager.oreRefineryCanvas.activeSelf);
+        Assert.True(tutorialManager.newScreen == null);
+        Assert.AreEqual(3, tutorialManager.tutorialScreenIndex);
+        Assert.False(tutorialUIParent.activeSelf);
+
+        yield return null;
+
+        targetPosition =  new(1, -2);
+
+        driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        targetPosition =  new(2.5f, -4.5f);
+
+        driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        targetPosition =  new(1, -2);
+
+        driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        targetPosition =  new(0, 4);
+
+        driveTask = DriveTowards(playerVehicle, targetPosition, speed);
+        yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
+        Assert.AreEqual(500, leaderboardDelegator.gemRewardsToCollect);
+
+        GameObject rewardMessage = GameObject.Find("Collect Reward").transform.GetChild(0).gameObject;
+        rewardMessage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "YOU FINISHED THE TUTORIAL!";
+        rewardMessage.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = "500";
+        rewardMessage.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
+
+        PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
+
+        Assert.False(rewardMessage.transform.parent.gameObject.activeSelf);
+        Assert.AreEqual(new System.Numerics.BigInteger(500), playerState.GetUserGems());
+        Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
+
+        Assert.True(GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().GetGameData().finishedTutorial);
+
+    }
+
+    [UnityTest]
+    public IEnumerator E_DeployVehicles() {
+        SceneManager.LoadScene("Singleplayer");
         yield return null;
     }
 }

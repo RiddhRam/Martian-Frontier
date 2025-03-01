@@ -22,8 +22,8 @@ public class DrillerController : MonoBehaviour
     [SerializeField]
     private float profitMultiplier;
     // Every second spent atttempting to mine a higher tier block, display an error
-    private int errorCounter = 50;
-    private int lastErrorCounter = 50;
+    private int errorCounter = 400;
+    private int lastErrorCounter = 400;
     private AudioSource vehicleSoundEffects;
     private AudioClip[] drillBlockSoundEffects;
     private float[] drillBlockVolumes;
@@ -83,8 +83,8 @@ public class DrillerController : MonoBehaviour
 
     void FixedUpdate() {
        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
-        if (lastErrorCounter == errorCounter && lastErrorCounter != 500) {
-            errorCounter = 500;
+        if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
+            errorCounter = 400;
         }
         lastErrorCounter = errorCounter;
 
@@ -148,7 +148,7 @@ public class DrillerController : MonoBehaviour
                             errorCounter++;
                             
                             // Dont spam the user with errors
-                            if (errorCounter >= 1000) {
+                            if (errorCounter >= 400) {
                                 uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
                                 errorCounter = 0;
                             }

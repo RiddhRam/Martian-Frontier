@@ -100,7 +100,7 @@ public class HaulerController : MonoBehaviour
                 mineRenderer.currentMineValue -= UIDelegation.materialPrices[materialManager.materialIndex] * amountPickedUp;
                 mineRenderer.mineValueText.text = mineRenderer.FormatPrice(mineRenderer.currentMineValue);
 
-                materialsDelegator.UpdateMaterial(materialManager);
+                materialsDelegator.UpdateMaterial(materialManager, other.gameObject);
                 PickUpOre(amountPickedUp);
                 return;
             }
@@ -253,11 +253,19 @@ public class HaulerController : MonoBehaviour
     }
 
     public void UpdateMaterialProfitMultiplierIndex(int materialIndex, float newProfitMultiplier, int newCount) {
+
         float totalValue = materialCount[materialIndex] * materialProfitMultipliers[materialIndex];
 
         totalValue += newCount * newProfitMultiplier;
+        
+        float multiplier = totalValue / (materialCount[materialIndex] + newCount);
 
-        materialProfitMultipliers[materialIndex] = totalValue / (materialCount[materialIndex] + newCount);
+        // I believe this happens beacuse (materialCount[materialIndex] + newCount) may be 0 sometimes
+        if (float.IsNaN(multiplier)) {
+            multiplier = 0;
+        }
+
+        materialProfitMultipliers[materialIndex] = multiplier;
     }
 
     public System.Numerics.BigInteger GetTotalCargoValue() {
