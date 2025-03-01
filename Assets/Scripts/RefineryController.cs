@@ -188,7 +188,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // the mine set as its parent
         // This HAS to go first otherwise the mine will not reset tilemaps properly
         yield return mineRenderer.ReturnAllObjectsToPool();
-
+        
         yield return new WaitUntil(() => doneAnimation);
 
         // Initialize and uncover map

@@ -142,6 +142,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private GameObject child;
     private Tilemap tilemapToReturn;
     private TileBase[] tilesBeingUsed;
+    private bool alreadyBeingReturned = false;
 
 
     // Called before Start
@@ -291,10 +292,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         int chunkColumn = 1;
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
-
+            
             mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
 
-            mineTilemap = tilemapsDictionary[GetTilemapObject().name];
+            string name = GetTilemapObject().name;
+            mineTilemap = tilemapsDictionary[name];
             mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
             
             // i = the x coordinate of the chunk;
@@ -771,7 +773,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
         yield return StartCoroutine(ReturnAllObjectsToPool());
-
+        
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
         this.seed = data.seed;
@@ -980,6 +982,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public IEnumerator ReturnAllObjectsToPool() {
+
+        if (alreadyBeingReturned) {
+            // In case this gets called multiple times at once (happens upon reopening game while mine is resetting)
+            yield return new WaitUntil(() => !alreadyBeingReturned);
+            yield break;
+        } else {
+            alreadyBeingReturned = true;
+        }
+
         // Return materials, TODO: FIX PERFORMANCE OPTIMIZATION HERE
         GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
         MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
@@ -991,7 +1002,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Reset the mine        
         int counter = 0;
-        int materialCounter = 0;
 
         // Split the mine reset work into intervals
         for (int i = 0; i < transform.childCount; i++)
@@ -1025,16 +1035,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     Destroy(child);
                     i--;
                 }
-            
 
-                // Only delete 84 background tilemap, main tilemap row or random stuff per frame and also only 6 materials per frame
-                int maxMaterialCount = Mathf.Min(materialCounter + 6, materials.Length);
-                for (int j = materialCounter; j < maxMaterialCount; j++) {
-                    ReturnMaterialObject(materials[j].gameObject, materials[j].materialIndex, materials[j].id);
-                }
-
-                materialCounter += 6;
-
+                // Only delete 84 background tilemap, main tilemap row or random stuff per 0.1s
                 if (counter >= 84) {
                     yield return new WaitForSecondsRealtime(0.1f);
                     counter = 0;
@@ -1043,6 +1045,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
+        // Only 6 materials per 3 frames
+        for (int j = 0; j < materials.Length;) {
+            for (int i = 0; i < 6; i++, j++) {
+                if (j >= materials.Length) {
+                    break;
+                }
+                ReturnMaterialObject(materials[j].gameObject, materials[j].materialIndex, materials[j].id);
+            }
+            
+            yield return null;
+            yield return null;
+            yield return null;
+        }
+
+        alreadyBeingReturned = false;
     }
 
     public void SetVisionRadius(int newRadius) {

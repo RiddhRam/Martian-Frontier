@@ -349,7 +349,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Garage Panel", "Gem Shop Panel" , "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Gem Shop Panel" , "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -582,7 +582,7 @@ public class LoadingTest
             yield return new WaitUntil(() => !loadingScreen.activeSelf);
         }
         
-        yield return new  WaitForSeconds(0.3f);
+        yield return new WaitForSeconds(0.3f);
 
         TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
         GameObject tutorialUIParent = tutorialManager.TutorialUIParent;
@@ -596,7 +596,6 @@ public class LoadingTest
         yield return null;
 
         Assert.True(tutorialManager.newScreen == null);
-        Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
         Assert.False(tutorialUIParent.activeSelf);
 
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -621,13 +620,15 @@ public class LoadingTest
             Debug.LogError($"Drive task failed: {driveTask.Exception.InnerException?.Message}");
         }
 
-        targetPosition =  new(2, -4);
+        targetPosition = new(2, -4);
 
         // Create a Task and wait until it's completed
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
         yield return null;
+
+        Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
 
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
         tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
@@ -646,7 +647,6 @@ public class LoadingTest
 
         Assert.True(tutorialManager.openedGarage);
         Assert.True(tutorialManager.newScreen == null);
-        Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);
         Assert.False(tutorialUIParent.activeSelf);
 
         Assert.True(bottomControls.transform.GetChild(0).gameObject.activeSelf);
@@ -662,6 +662,7 @@ public class LoadingTest
         haulDisplay.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
         yield return null;
 
+        Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);
         Assert.False(garagePanel.activeSelf);
 
         Assert.True(playerVehicle.GetComponent<PlayerVehicleDelegation>().playerVehicle.name == "STUBBY");
@@ -678,22 +679,21 @@ public class LoadingTest
 
         Assert.False(tutorialManager.oreRefineryCanvas.activeSelf);
         Assert.True(tutorialManager.newScreen == null);
-        Assert.AreEqual(3, tutorialManager.tutorialScreenIndex);
         Assert.False(tutorialUIParent.activeSelf);
 
         yield return null;
 
-        targetPosition =  new(1, -2);
+        targetPosition = new(1, -2);
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
-        targetPosition =  new(2.5f, -4.5f);
+        targetPosition = new(2.5f, -4.5f);
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
-        targetPosition =  new(1, -2);
+        targetPosition = new(1, -2);
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
@@ -702,6 +702,8 @@ public class LoadingTest
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
+
+        Assert.AreEqual(4, tutorialManager.tutorialScreenIndex);
 
         LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
         Assert.AreEqual(500, leaderboardDelegator.gemRewardsToCollect);

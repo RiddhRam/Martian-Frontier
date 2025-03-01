@@ -385,7 +385,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         float randomValue = (float) random.NextDouble();
         // Show 60% of the time
-        if (randomValue < 0.4) {
+        if (randomValue < 0) {
             return;
         }
 

@@ -11,7 +11,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
     public bool openedGarage = false;
-    private bool finishedTutorial;
+    public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     public GameObject loadingScreen;
     public Image tournamentImage;
@@ -62,16 +62,16 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 newScreen = null;
             }
 
-            tutorialScreenIndex++;
-
             TutorialUIParent.SetActive(false);
-            if (tutorialScreenIndex == 1) {
+            if (tutorialScreenIndex == 0) {
                 yield return new WaitUntil(() => playerState.blocksMined >= 10);
-            } else if (tutorialScreenIndex == 2) {
+            } else if (tutorialScreenIndex == 1) {
                 yield return new WaitUntil(() => playerVehicleDelegation.vehicleType == "Hauler");
-            } else if (tutorialScreenIndex >= 3) {
+            } else if (tutorialScreenIndex >= 2) {
                 yield return new WaitUntil(() => playerState.materialsSold > 0);
             }
+            
+            tutorialScreenIndex++;
         }
 
         // Sync values
