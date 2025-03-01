@@ -34,11 +34,6 @@ public class ProfitPanelDelegator : MonoBehaviour
         profitTimerTMP = adDelegator.timerTexts[0].GetComponent<TextMeshProUGUI>();
         levelBoostTextTMP = levelBoostText.GetComponent<TextMeshProUGUI>();
         rebirthBoostTextTMP = rebirthBoostText.GetComponent<TextMeshProUGUI>();
-
-        int boostChildCount = boostPanel.transform.childCount;
-        Transform rebirthPanel = boostPanel.transform.GetChild(boostChildCount - 1);
-        int rebirthChildCount = rebirthPanel.childCount;
-        rebirthPanel.GetChild(rebirthChildCount - 1).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(rebirthPrice);
     }
 
     void FixedUpdate() {

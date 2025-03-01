@@ -12,6 +12,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
+    public GameObject lockedRebirthPanel;
+    public GameObject rebirthPanel;
+    public Image rebirthIcon;
+
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
@@ -255,6 +259,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
                 dailyChallengeDelegator.ScaleAllTiers();
             }
         }
+
+        if (highestDrillTier >= 3) {
+            lockedRebirthPanel.SetActive(false);
+            rebirthPanel.SetActive(true);
+            rebirthIcon.color = new(1, 0, 0);
+        } else {
+            lockedRebirthPanel.SetActive(true);
+            rebirthPanel.SetActive(false);
+            rebirthIcon.color = new(1, 1, 1);
+        }
     }
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
@@ -408,8 +422,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateCashDisplays();
         UpdateXPDisplays();
 
+        // DO THIS MANUALLY, DONT CALL UpdateHighestDrillTier()
         highestDrillTier = 1;
         dailyChallengeDelegator.ScaleAllTiers();
+        lockedRebirthPanel.SetActive(true);
+        rebirthPanel.SetActive(false);
+        rebirthIcon.color = new(1, 1, 1);
+
     }
    
     public int GetHighestDrillTier() {

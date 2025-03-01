@@ -61,6 +61,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private int lobbyAdTimer = 30;
     private bool firstTimePlaying = false;
     private bool lobbyAdSuccessfullyShown = false;
+    System.Random random = new();
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {
@@ -382,12 +383,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public void ShowLobbyAdButton(long rewardAmount) {
 
-        // TODO: CHANGE THIS
-        if (UnityEngine.Random.value < 0) {
+        float randomValue = (float) random.NextDouble();
+        // Show 60% of the time
+        if (randomValue < 0.4) {
             return;
         }
 
-        lobbyAdReward = (long) (rewardAmount * 1.5);
+        lobbyAdReward = (long) (rewardAmount * 1.75);
 
         lobbyAdButton.transform.GetChild(1).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(lobbyAdReward);
 
