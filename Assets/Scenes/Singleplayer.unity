@@ -59309,6 +59309,8 @@ MonoBehaviour:
   analyticsDelegator: {fileID: 1743240306}
   playerState: {fileID: 276248154}
   playerVehicleDelegation: {fileID: 1012335949}
+  garageDelegator: {fileID: 648771415}
+  refineryController: {fileID: 422203783}
   TutorialUIParent: {fileID: 1535989321296887836}
   tutorialScreens:
   - {fileID: 8594513370569750245, guid: 4bd4b9222c61c42758b99801d7cd0ca1, type: 3}
@@ -59316,6 +59318,7 @@ MonoBehaviour:
   - {fileID: 584751355190718097, guid: 26106ce9eedb44c94ad34131cce4baa2, type: 3}
   bottomControls: {fileID: 3898427207319815062}
   openedGarage: 0
+  finishedTutorial: 0
   tutorialScreenIndex: 0
   loadingScreen: {fileID: 457367999}
   tournamentImage: {fileID: 648003387}
@@ -66997,6 +67000,7 @@ MonoBehaviour:
   valueText: {fileID: 1393842421}
   depthProgressSlider: {fileID: 1441256795}
   depthProgressSliderText: {fileID: 1303490168}
+  depthIconGO: {fileID: 1779009378}
   minY: 0
   maxY: 0
   currentTier: 0
@@ -82688,7 +82692,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: 0, y: 175.19995}
+  m_AnchoredPosition: {x: 0, y: 175.2002}
   m_SizeDelta: {x: -370, y: 222.46}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &5514925212728344869

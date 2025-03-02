@@ -23,6 +23,7 @@ public class MapRecordingMode : MonoBehaviour
 
     public Slider depthProgressSlider;
     public TextMeshProUGUI depthProgressSliderText;
+    public GameObject depthIconGO;
     public int minY;
     public int maxY;
     public int currentTier;
@@ -200,16 +201,29 @@ public class MapRecordingMode : MonoBehaviour
         } else {
             int previousTier = currentTier;
             SetSliderBoundaries();
-            if (currentTier != previousTier) {
-                // Flipped cuz we need positive values
-                depthProgressSlider.minValue = -maxY;
-                depthProgressSlider.maxValue = -minY;
-            }
-            depthProgressSlider.value = -playerVehicle.position.y;
-            depthProgressSliderText.text = depthText.text;
-        }
 
-        cargoValueText.text = valueText.text;
+            if (!haulerController) {
+
+                if (currentTier != previousTier) {
+                    // Flipped cuz we need positive values
+                    depthProgressSlider.minValue = -maxY;
+                    depthProgressSlider.maxValue = -minY;
+                }
+
+                depthProgressSlider.value = -playerVehicle.position.y;
+                depthProgressSliderText.text = depthText.text;
+
+            } else {
+                depthIconGO.SetActive(false);
+                depthProgressSlider.maxValue = 8000 * Mathf.Pow(10, currentTier);
+
+                depthProgressSlider.value = (float) haulerController.GetTotalCargoValue();
+                
+                depthProgressSliderText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
+            }
+
+            cargoValueText.text = valueText.text;
+        }
         
     }
 

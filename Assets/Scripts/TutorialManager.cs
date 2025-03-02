@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public AnalyticsDelegator analyticsDelegator;
     public PlayerState playerState;
     public PlayerVehicleDelegation playerVehicleDelegation;
+    public GarageDelegator garageDelegator;
+    public RefineryController refineryController;
     public GameObject TutorialUIParent;
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
@@ -80,10 +83,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try {
             playerState.RewardPlayerWithGems(500, "YOU FINISHED THE TUTORIAL!");
-            GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().SaveGame();
             analyticsDelegator.FinishTutorial();
             tournamentImage.color = new(255/255f, 204/255f, 0/255f);
-        } catch {
+            // Switch back to first driller and reset mine
+            playerVehicleDelegation.SwitchVehicle(garageDelegator.drillers[0]);
+            refineryController.CallResetMineFromButton();
+        } catch (Exception ex) {  
+            Debug.Log(ex.Message);
         }
         
         Destroy(TutorialUIParent);
