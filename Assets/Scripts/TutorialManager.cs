@@ -68,7 +68,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             TutorialUIParent.SetActive(false);
             if (tutorialScreenIndex == 0) {
-                yield return new WaitUntil(() => uncollectedMaterialsDelegator.GetMineValue() >= 2000);
+                yield return new WaitUntil(() => uncollectedMaterialsDelegator.GetMineValue() >= 2800);
             } else if (tutorialScreenIndex == 1) {
                 yield return new WaitUntil(() => playerVehicleDelegation.vehicleType == "Hauler");
             } else if (tutorialScreenIndex >= 2) {
