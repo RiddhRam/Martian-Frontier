@@ -13,8 +13,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public GameObject collectRewardPanel;
     public GameObject doubleRewardsButtons;
 
-    public TextMeshProUGUI cratesAvailableText;
-    public TextMeshProUGUI shopCrateCount;
+    public TextMeshProUGUI[] crateDisplays;
     public UIDelegation uIDelegation;
     public PlayerState playerState;
     public AnalyticsDelegator analyticsDelegator;
@@ -87,8 +86,10 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void UpdateCrateDisplay() {
-        cratesAvailableText.text = GetLocalizedValue("{0} CRATES AVAILABLE", cratesAvailable);
-        shopCrateCount.text = cratesAvailable.ToString();
+        string cratesAvailableText = cratesAvailable.ToString();
+        for (int i = 0; i != crateDisplays.Length; i++) {
+            crateDisplays[i].text = cratesAvailableText;
+        }
 
         if (cratesAvailable > 0) {
             supplyCrateButtonIcon.color = new(20/255f, 134/255f, 255/255f);
