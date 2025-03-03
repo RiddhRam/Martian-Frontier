@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -12,7 +9,6 @@ public class MapRecordingMode : MonoBehaviour
     public GameObject videoInfo;
     public PlayerState playerState;
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
-    public OreDelegation oreDelegation;
     public RawImage mapCameraView;
     public Outline panelOutline;
 
@@ -65,7 +61,7 @@ public class MapRecordingMode : MonoBehaviour
         panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
 
         originalBlocksMined = playerState.GetBlocksMined();
-        originalMineValue = GetMineValue();
+        originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
@@ -194,7 +190,7 @@ public class MapRecordingMode : MonoBehaviour
     public void UpdateText() {
         depthText.text = FormatPositionY((int) -playerVehicle.position.y - 5);
         mineText.text = FormatPrice(playerState.GetBlocksMined() - originalBlocksMined);
-        valueText.text = "$" + FormatPrice(GetMineValue() - originalMineValue);
+        valueText.text = "$" + FormatPrice(uncollectedMaterialsDelegator.GetMineValue() - originalMineValue);
         
         if (routeRoulette) {
             cargoValueText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
@@ -225,16 +221,6 @@ public class MapRecordingMode : MonoBehaviour
             cargoValueText.text = valueText.text;
         }
         
-    }
-
-    public System.Numerics.BigInteger GetMineValue() {
-        System.Numerics.BigInteger mineValue = 0;
-
-        foreach (var kvp in uncollectedMaterialsDelegator.uncollectedMaterials) {
-            mineValue += kvp.Value.count * oreDelegation.GetMaterialPrices()[kvp.Value.materialIndex];
-        }
-
-        return mineValue;
     }
 
     private string FormatPositionY(int positionY)
@@ -307,7 +293,7 @@ public class MapRecordingMode : MonoBehaviour
         GetComponent<Camera>().targetTexture = renderTexture;
         mapCameraView.texture = renderTexture;
         originalBlocksMined = playerState.GetBlocksMined();
-        originalMineValue = GetMineValue();
+        originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
 
         Transform vehicle = playerVehicle.transform.GetChild(0);
         BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();

@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -43,12 +42,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public AnalyticsDelegator analyticsDelegator;
     public MineRenderer mineRenderer;
     public DailyChallengeDelegator dailyChallengeDelegator;
+    public TutorialManager tutorialManager;
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
     public AdDelegator adDelegator;
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
+    private bool firstTimePlaying = false;
 
     void Awake() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -131,7 +132,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             cashToAdd += (long) (savedMaterialCount[i] * materialPrices[i] * (1 + materialProfitMultipliers[i]));
         }
 
-        // Should never be less than
+        // Should never be less than 0
         if (cashToAdd <= 0) {
             return;
         }
@@ -145,6 +146,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
         analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+
+        if (firstTimePlaying && tutorialManager.finishedTutorial) {
+            analyticsDelegator.ContinuedAfterTutorial();
+            firstTimePlaying = false;
+        }
     }
 
     public void PlaySaleNoise() {
@@ -298,6 +304,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        if (!data.finishedTutorial) {
+            firstTimePlaying = true;
+        }
+
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.enabled = false;
 

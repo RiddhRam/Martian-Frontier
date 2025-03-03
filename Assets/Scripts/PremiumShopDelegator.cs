@@ -101,7 +101,7 @@ public class PremiumShopDelegator : MonoBehaviour
             return;
         }
 
-        // If crates
+        // If bundles
         bundlesPanel.SetActive(true);
         bundlesButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
         bundlesButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);

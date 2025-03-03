@@ -202,6 +202,15 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
+    public void ContinuedAfterTutorial() {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Continued_After_Tutorial");
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
     public void EnjoyingGame() {
         if (!isInitialized) {
             return;
