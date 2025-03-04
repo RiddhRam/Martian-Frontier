@@ -65,7 +65,7 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        thisCamera.orthographicSize = 22;
+        thisCamera.orthographicSize = 24;
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
