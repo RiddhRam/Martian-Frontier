@@ -2,6 +2,7 @@ using UnityEngine;
 
 public class UncollectedMaterialsDelegator : MonoBehaviour
 {
+    public OreDelegation oreDelegation;
     public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials = new();
     private MaterialManager materialManager;
 
@@ -42,5 +43,15 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
         // add the material to the dictionary
         materialToAdd.transform.SetParent(transform);
         uncollectedMaterials[materialManager.id] = materialManager.GetMaterialManagerData();
+    }
+
+    public System.Numerics.BigInteger GetMineValue() {
+        System.Numerics.BigInteger mineValue = 0;
+
+        foreach (var kvp in uncollectedMaterials) {
+            mineValue += kvp.Value.count * oreDelegation.GetMaterialPrices()[kvp.Value.materialIndex];
+        }
+
+        return mineValue;
     }
 }

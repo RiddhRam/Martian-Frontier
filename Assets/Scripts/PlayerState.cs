@@ -1,8 +1,8 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -107,6 +107,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
+    public void AddGems(int gemsToAdd) {
+
+        userGems += gemsToAdd;
+        gemsEarned += gemsToAdd;
+
+        UpdateGemDisplays();
+        dataPersistenceManager.SaveGame();
+    }
+
     // Validate again and subtract cash
     // Only call if VerifyEnoughCash was called
     // For vehicles
@@ -156,24 +165,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void SubtractGems(long amountToSubtract) {
         userGems -= amountToSubtract;
         UpdateGemDisplays();
-    }
-
-    public void PurchaseCashWithGems(GameObject gemPanel) {
-        GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
-
-        if (gemCashPurchasePanel.gemPrice > userGems) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
-            return;
-        }
-
-        userCash += gemCashPurchasePanel.cashAmount;
-        userGems -= gemCashPurchasePanel.gemPrice;
-
-        UpdateCashDisplays();
-        UpdateGemDisplays();
-        analyticsDelegator.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
-
-        dataPersistenceManager.SaveGame();
     }
 
     // Validate and add XP
@@ -460,5 +451,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         freeMoneyToAdd = (int) cashSlider.value;
 
         cashText.text = "$" + FormatPrice(freeMoneyToAdd);
+    }
+
+    internal void SubtractCash(BigInteger cashAmount)
+    {
+        throw new NotImplementedException();
     }
 }

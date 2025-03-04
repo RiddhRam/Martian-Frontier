@@ -10,6 +10,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public PlayerVehicleDelegation playerVehicleDelegation;
     public GarageDelegator garageDelegator;
     public RefineryController refineryController;
+    public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
     public GameObject TutorialUIParent;
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
@@ -67,7 +68,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             TutorialUIParent.SetActive(false);
             if (tutorialScreenIndex == 0) {
-                yield return new WaitUntil(() => playerState.blocksMined >= 10);
+                yield return new WaitUntil(() => uncollectedMaterialsDelegator.GetMineValue() >= 2800);
             } else if (tutorialScreenIndex == 1) {
                 yield return new WaitUntil(() => playerVehicleDelegation.vehicleType == "Hauler");
             } else if (tutorialScreenIndex >= 2) {

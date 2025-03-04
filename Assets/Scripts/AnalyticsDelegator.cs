@@ -202,6 +202,15 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.Flush();
     }
 
+    public void ContinuedAfterTutorial() {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Continued_After_Tutorial");
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
     public void EnjoyingGame() {
         if (!isInitialized) {
             return;
@@ -216,7 +225,7 @@ public class AnalyticsDelegator : MonoBehaviour
             return;
         }
         CustomEvent myEvent = new CustomEvent("Not_Enjoying_Game") {
-            {"Reason", reason}
+            {"HateReason", reason}
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
@@ -286,6 +295,17 @@ public class AnalyticsDelegator : MonoBehaviour
         CustomEvent myEvent = new CustomEvent("Open_Crate") {
             {"Open_All", openAll},
             {"Amount", amount}
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
+
+    public void IAPPurchase(string type) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("IAP_Purchase") {
+            {"Type", type},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
