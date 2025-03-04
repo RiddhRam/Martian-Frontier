@@ -1,15 +1,18 @@
+using System;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Purchasing;
+using UnityEngine.Purchasing.Extension;
 
-public class GemIAPPanel : MonoBehaviour
+public class GemIAPPanel : MonoBehaviour, IDetailedStoreListener
 {
+    private IStoreController storeController;
     public int gems;
-    public string price;
+    public string productId;
 
     public void Start() {
         transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(gems);
-        transform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = price;
     }
 
     private string FormatPrice(BigInteger price)
@@ -47,5 +50,42 @@ public class GemIAPPanel : MonoBehaviour
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
+    }
+
+
+    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
+    {
+        try {
+            storeController = controller;
+            transform.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "UNKNOWN";
+        } catch (Exception ex) {
+            Debug.LogError(ex.Message);
+        }
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error)
+    {
+        Debug.Log("IAP Initialization Failed: " + error);
+    }
+
+    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
+    {
+        //Debug.Log("Purchase Complete!");
+        return PurchaseProcessingResult.Complete;
+    }
+
+    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
+    {
+        Debug.Log("Purchase Failed: " + failureReason);
+    }
+
+    public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
+    {
+        Debug.Log("Purchase Failed: " + failureDescription);
+    }
+
+    public void OnInitializeFailed(InitializationFailureReason error, string message)
+    {
+        Debug.Log("IAP Initialization Failed: " + error);
     }
 }

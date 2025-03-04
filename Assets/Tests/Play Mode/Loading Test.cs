@@ -79,7 +79,7 @@ public class LoadingTest
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 5;
+        int gemDisplayCount = 7;
         Assert.AreEqual(playerState.gemDisplays.Length, gemDisplayCount);
         for (int i = 0; i != gemDisplayCount; i++) {
             Assert.True(playerState.gemDisplays[i].activeSelf);
@@ -349,7 +349,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Gem Shop Panel" , "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -365,7 +365,7 @@ public class LoadingTest
 
         Assert.AreEqual(profitPanelDelegator.oresButton.name, "ORES");
         Assert.AreEqual(profitPanelDelegator.oresPanel.name, "Ore Material Panel");
-        Assert.AreEqual(profitPanelDelegator.boostButton.name, "BOOST");
+        Assert.AreEqual(profitPanelDelegator.boostButton.name, "BOOSTS");
         Assert.AreEqual(profitPanelDelegator.boostPanel.name, "Boost Panel");
         Assert.AreEqual(profitPanelDelegator.boostText.name, "Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostText.name, "Ad Boost Text");
