@@ -77,7 +77,6 @@ public class DrillerController : MonoBehaviour
 
         boxCollider2D = GetComponent<BoxCollider2D>();
         // Get the bounds of the BoxCollider2D
-        size = boxCollider2D.bounds.size;
         rotatedOffset = boxCollider2D.offset;
     }
 
@@ -91,6 +90,7 @@ public class DrillerController : MonoBehaviour
         size = boxCollider2D.bounds.size;
 
         drillRotation = transform.rotation.eulerAngles.z;
+        
         // Convert the rotation angle to radians
         rotationZInRadians = drillRotation * Mathf.Deg2Rad;
 
@@ -102,11 +102,10 @@ public class DrillerController : MonoBehaviour
 
         // Check if the game object's collider is touching a tilemap with "Mine Tag"
         colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, drillRotation);
-
+        
         dontPlayAudio = false;
 
         foreach (Collider2D collision in colliders) {
-
             if (!collision.gameObject.CompareTag("Mine Tag")) {
                 continue;
             }

@@ -373,10 +373,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         calculatedValue = level * 0.01f;
         tolerance = 0.005f;
 
-        if ((profitMultiplier < calculatedValue - tolerance) && !loading) {
-            analyticsDelegator.LevelUp(level);
-        }
-
         // For each level, add 1% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);
 

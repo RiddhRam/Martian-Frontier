@@ -65,19 +65,13 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        thisCamera.orthographicSize = 24;
+        thisCamera.orthographicSize = 22;
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
         farthestLeft = pos.x;
         farthestTop = pos.y;
         farthestDown = pos.y;
-
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.minVeinRadius = 2;
-        mineRenderer.maxVeinRadius = 3;
-        mineRenderer.minVeinCount = 4;
-        mineRenderer.maxVeinCount = 5;
 
         if (routeRoulette) {
             cargoValueText.transform.parent.gameObject.SetActive(true);
@@ -298,7 +292,7 @@ public class MapRecordingMode : MonoBehaviour
         Transform vehicle = playerVehicle.transform.GetChild(0);
         BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();
         if (boxCollider2D) {
-            boxCollider2D.size = new(boxCollider2D.size.x + 5, boxCollider2D.size.y);
+            //boxCollider2D.size = new(boxCollider2D.size.x + 5, boxCollider2D.size.y);
             haulerController = null;
         } else {
             haulerController = vehicle.GetComponent<HaulerController>();

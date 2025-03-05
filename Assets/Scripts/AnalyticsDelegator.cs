@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Threading.Tasks;
 using Unity.Services.Analytics;
-using Unity.Services.Core;
 using UnityEngine;
 
 public class AnalyticsDelegator : MonoBehaviour
@@ -131,17 +130,6 @@ public class AnalyticsDelegator : MonoBehaviour
             {"Vehicle_Name", vehicleName},
             {"Ore_Count", oreCount},
             {"Cash_Count", cashCount}
-        };
-        AnalyticsService.Instance.RecordEvent(myEvent);
-        AnalyticsService.Instance.Flush();
-    }
-
-    public void LevelUp(int level) {
-        if (!isInitialized) {
-            return;
-        }
-        CustomEvent myEvent = new CustomEvent("Level_Up") {
-            {"userLevel", level},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();

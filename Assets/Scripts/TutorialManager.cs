@@ -96,7 +96,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         leaderboardNoticeIcon.SetActive(true);
-        premiumShopNoticeIcon.SetActive(true);
+        //premiumShopNoticeIcon.SetActive(true);
         
         Destroy(TutorialUIParent);
     }
