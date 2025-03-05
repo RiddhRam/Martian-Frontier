@@ -27,7 +27,6 @@ public class LoadingTest
     PlayerMovement playerMovement;
     MineRenderer mineRenderer;
     OreDelegation oreDelegation;
-    LeaderboardDelegator leaderboardDelegator;
 
     public async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed) {
     // Face the direction of movement
@@ -173,7 +172,6 @@ public class LoadingTest
 
         Assert.AreEqual(dailyChallengeDelegator.mineRenderGO.name, "Mine");
         Assert.AreEqual(dailyChallengeDelegator.dailyTimer.name, "Daily Timer");
-        Assert.AreEqual(dailyChallengeDelegator.buttonGemIconGO.name, "Gem Icon");
         Assert.AreEqual(dailyChallengeDelegator.challengePanel.name, "Daily Challenges Panel");
 
         int challengeLengths = 6;
@@ -184,11 +182,11 @@ public class LoadingTest
         Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeProgressSlidersTextGO.Length);
 
         for (int i = 0; i != challengeLengths; i++) {
-            Assert.True(dailyChallengeDelegator.challengeStatusIconsGO[i].activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeDescriptionTexts[i].activeSelf);
-            Assert.True(dailyChallengeDelegator.rewardTexts[i].activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeProgressSlidersGO[i].activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeProgressSlidersTextGO[i].activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeStatusIconsGO[i].gameObject.activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeDescriptionTexts[i].gameObject.activeSelf);
+            Assert.True(dailyChallengeDelegator.rewardTexts[i].gameObject.activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeProgressSlidersGO[i].gameObject.activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeProgressSlidersTextGO[i].gameObject.activeSelf);
         }
 
         Assert.AreEqual(dailyChallengeDelegator.superChallengeStartButtonGO.name, "Start");
@@ -201,6 +199,8 @@ public class LoadingTest
         for (int i = 0; i != 4; i++) {
             Assert.True(dailyChallengeDelegator.gemCashPurchasePanels[i].activeSelf);
         }
+
+        Assert.AreEqual(dailyChallengeDelegator.challengeNoticeIcon.name, "Challenge Notice Icon");
 
         // Daily Challenge Delegator
         CloudDelegator cloudDelegator = GameObject.Find("Cloud Delegator").GetComponent<CloudDelegator>();
@@ -221,7 +221,6 @@ public class LoadingTest
         LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
 
         Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
-        Assert.AreEqual(leaderboardDelegator.tournamentImage.name, "Podium Icon");
         Assert.AreEqual(leaderboardDelegator.cashTournamentPanel.name, "Cash Tournament");
         Assert.AreEqual(leaderboardDelegator.vehicleTournamentPanel.name, "Vehicles Tournament");
         Assert.AreEqual(leaderboardDelegator.cashTournamentButton.name, "CASH");
@@ -587,6 +586,10 @@ public class LoadingTest
         TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
         GameObject tutorialUIParent = tutorialManager.TutorialUIParent;
 
+        Assert.False(tutorialManager.leaderboardNoticeIcon.gameObject.activeSelf);
+        Assert.False(tutorialManager.premiumShopNoticeIcon.gameObject.activeSelf);
+        Assert.False(tutorialManager.supplyCrateDelegator.crateNoticeIcon.gameObject.activeSelf);
+
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
         TutorialTextBox tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
         tutorialTextBox.readyToGoNext = true;
@@ -718,6 +721,11 @@ public class LoadingTest
         Assert.False(rewardMessage.transform.parent.gameObject.activeSelf);
         Assert.AreEqual(new System.Numerics.BigInteger(1000), playerState.GetUserGems());
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
+        Assert.AreEqual(1, tutorialManager.supplyCrateDelegator.GetCratesAvailable());
+        Assert.True(tutorialManager.leaderboardNoticeIcon.gameObject.activeSelf);
+        Assert.True(tutorialManager.premiumShopNoticeIcon.gameObject.activeSelf);
+        Assert.True(tutorialManager.supplyCrateDelegator.crateNoticeIcon.gameObject.activeSelf);
+
 
         Assert.True(GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().GetGameData().finishedTutorial);
 

@@ -14,7 +14,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
     public PlayerState playerState;
 
-    public Image tournamentImage;
 
     public GameObject cashTournamentPanel;
     public GameObject vehicleTournamentPanel;
@@ -393,10 +392,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     // For that spot
     public void RemoveFromLeaderBoard() {
         
-    }
-
-    public void ChangeTournamentImage() {
-        tournamentImage.color = new(1, 1, 1);
     }
 
     public void TogglePanel(string type) {

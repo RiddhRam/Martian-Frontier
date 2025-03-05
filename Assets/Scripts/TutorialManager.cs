@@ -11,6 +11,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GarageDelegator garageDelegator;
     public RefineryController refineryController;
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
+    public SupplyCrateDelegator supplyCrateDelegator;
     public GameObject TutorialUIParent;
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
@@ -18,11 +19,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     public GameObject loadingScreen;
-    public Image tournamentImage;
     public bool readyToGoNext = false;
     public GameObject oreRefineryCanvas;
     private bool goToNext;
     public GameObject newScreen;
+    public GameObject leaderboardNoticeIcon;
+    public GameObject premiumShopNoticeIcon;
 
     private IEnumerator DisplayTutorial()
     {
@@ -68,7 +70,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             TutorialUIParent.SetActive(false);
             if (tutorialScreenIndex == 0) {
-                yield return new WaitUntil(() => uncollectedMaterialsDelegator.GetMineValue() >= 2800);
+                yield return new WaitUntil(() => uncollectedMaterialsDelegator.GetMineValue() >= 2200);
             } else if (tutorialScreenIndex == 1) {
                 yield return new WaitUntil(() => playerVehicleDelegation.vehicleType == "Hauler");
             } else if (tutorialScreenIndex >= 2) {
@@ -85,13 +87,16 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         try {
             playerState.RewardPlayerWithGems(1000, "YOU FINISHED THE TUTORIAL!");
             analyticsDelegator.FinishTutorial();
-            tournamentImage.color = new(255/255f, 204/255f, 0/255f);
             // Switch back to first driller and reset mine
             playerVehicleDelegation.SwitchVehicle(garageDelegator.drillers[0]);
+            supplyCrateDelegator.ChangeCrateCount(1);
             refineryController.CallResetMineFromButton();
         } catch (Exception ex) {  
             Debug.Log(ex.Message);
         }
+
+        leaderboardNoticeIcon.SetActive(true);
+        premiumShopNoticeIcon.SetActive(true);
         
         Destroy(TutorialUIParent);
     }

@@ -35,6 +35,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     private BigInteger gemRewardAmount;
 
     public Image supplyCrateButtonIcon;
+    public GameObject crateNoticeIcon;
 
 
     private int cratesAvailable = 1;
@@ -92,9 +93,9 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (cratesAvailable > 0) {
-            supplyCrateButtonIcon.color = new(20/255f, 134/255f, 255/255f);
+            crateNoticeIcon.SetActive(true);
         } else {
-            supplyCrateButtonIcon.color = new(255/255f, 255/255f, 255/255f);
+            crateNoticeIcon.SetActive(false);
         }
     }
 
@@ -148,8 +149,8 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
         System.Random random = new System.Random();
 
-        cashRewardAmount = random.Next(10000, 60000);
-        gemRewardAmount = random.Next(800, 3200);
+        cashRewardAmount = random.Next(10000, 40000);
+        gemRewardAmount = random.Next(400, 1600);
 
         cashRewardAmount *= BigInteger.Pow(100, (-1 + playerState.GetHighestDrillTier()));
 
@@ -215,6 +216,10 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         return string.Format(entry.LocalizedValue, args);
     }
 
+    public int GetCratesAvailable() {
+        return cratesAvailable;
+    }
+    
     public void LoadData(GameData data)
     {
         this.cratesAvailable = data.cratesAvailable;

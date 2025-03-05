@@ -92,7 +92,7 @@ public class GameData
         this.tutorialScreenIndex = 0;
         this.vehicleUpgradeLevels = new();
         this.materialProfitMultipliers = new float[9];
-        this.cratesAvailable = 1;
+        this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
     }
 }

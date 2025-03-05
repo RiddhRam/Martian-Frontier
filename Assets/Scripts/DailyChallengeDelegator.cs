@@ -12,7 +12,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 {
     public GameObject mineRenderGO;
     public GameObject dailyTimer;
-    public GameObject buttonGemIconGO;
     public GameObject challengePanel;
     public GameObject[] challengeStatusIconsGO;
     public GameObject[] challengeDescriptionTexts;
@@ -31,7 +30,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private MineRenderer mineRenderer;
     private PlayerState playerState;
     private readonly int[]  baseCashAmountForGemPurchase = {45_000, 100_000, 250_000, 600_000};
-    private Image buttonGemIcon;
+    public GameObject challengeNoticeIcon;
     private Image[] challengeStatusIcons = new Image[6];
     private TextMeshProUGUI[] challengeTextMeshes = new TextMeshProUGUI[6];
     private TextMeshProUGUI[] rewardTextMeshes = new TextMeshProUGUI[6];
@@ -75,7 +74,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         mineRenderer = mineRenderGO.GetComponent<MineRenderer>();
 
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
-        buttonGemIcon = buttonGemIconGO.GetComponent<Image>();
 
         for (int i = 0; i != challengeDescriptionTexts.Length; i++) {
             challengeStatusIcons[i] = challengeStatusIconsGO[i].GetComponent<Image>();
@@ -227,9 +225,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (uncollectedReward) {
-            buttonGemIcon.color = new(42/255f, 153/255f, 21/255f);
+            challengeNoticeIcon.SetActive(true);
         } else {
-            buttonGemIcon.color = new(255/255f, 255/255f, 255/255f);
+            challengeNoticeIcon.SetActive(false);
         }
 
         superChallengeSlider.maxValue = challengeValues[0];
