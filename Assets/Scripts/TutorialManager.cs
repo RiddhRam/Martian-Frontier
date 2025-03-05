@@ -83,7 +83,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         finishedTutorial = true;
 
         try {
-            playerState.RewardPlayerWithGems(500, "YOU FINISHED THE TUTORIAL!");
+            playerState.RewardPlayerWithGems(1000, "YOU FINISHED THE TUTORIAL!");
             analyticsDelegator.FinishTutorial();
             tournamentImage.color = new(255/255f, 204/255f, 0/255f);
             // Switch back to first driller and reset mine
@@ -113,7 +113,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             return;
         }
 
-        analyticsDelegator.StartTutorial();
+        if (tutorialScreenIndex == 0) {
+            analyticsDelegator.StartTutorial();
+        }
+    
         StartCoroutine(DisplayTutorial());
     }
 

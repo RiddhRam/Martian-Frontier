@@ -819,7 +819,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradeValues: 64000000000000005a00000000000000500000000000000046000000000000003c0000000000000032000000000000003200000000000000
-  upgradePrices: 1027000000000000a86100000000000050c3000000000000803801000000000048e8010000000000400d0300000000000000000000000000
+  upgradePrices: 8038010000000000400d030000000000801a06000000000000c409000000000040420f0000000000006a1800000000000000000000000000
   PlayerState: {fileID: 276248154}
   refineryController: {fileID: 422203783}
   analyticsDelegator: {fileID: 1743240306}
@@ -4644,7 +4644,7 @@ RectTransform:
   m_Father: {fileID: 300578918}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMax: {x: 1, y: 0.99551857}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -16550,7 +16550,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   upgradeValues: 7800000000000000c800000000000000400100000000000090010000000000003002000000000000f8020000000000004803000000000000e803000000000000
-  upgradePrices: 32000000000000009600000000000000f401000000000000400600000000000088130000000000001027000000000000a8610000000000000000000000000000
+  upgradePrices: 9001000000000000b004000000000000a00f0000000000000032000000000000409c000000000000803801000000000000c40900000000000000000000000000
   PlayerState: {fileID: 276248154}
   refineryController: {fileID: 422203783}
   analyticsDelegator: {fileID: 1743240306}
@@ -38906,7 +38906,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6355105594900968161, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: gemPrice
-      value: 600
+      value: 1800
       objectReference: {fileID: 0}
     - target: {fileID: 8457487914498780854, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -45488,8 +45488,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 136909624}
   m_HandleRect: {fileID: 136909623}
   m_Direction: 2
-  m_Value: 1
-  m_Size: 1
+  m_Value: 0
+  m_Size: 0.99551857
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -59786,7 +59786,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0.00083280366}
   m_SizeDelta: {x: 0, y: 1074.77}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &1216486729
@@ -61438,7 +61438,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6355105594900968161, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: gemPrice
-      value: 3000
+      value: 9000
       objectReference: {fileID: 0}
     - target: {fileID: 8457487914498780854, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -64236,7 +64236,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6355105594900968161, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: gemPrice
-      value: 1500
+      value: 4500
       objectReference: {fileID: 0}
     - target: {fileID: 8457487914498780854, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -89204,7 +89204,7 @@ MonoBehaviour:
     m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
     m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
+    m_DisabledColor: {r: 0.3207547, g: 0.3207547, b: 0.3207547, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -97626,7 +97626,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6355105594900968161, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: gemPrice
-      value: 300
+      value: 900
       objectReference: {fileID: 0}
     - target: {fileID: 8457487914498780854, guid: a2e08dd8944eb4006956bca63fe94a96, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target

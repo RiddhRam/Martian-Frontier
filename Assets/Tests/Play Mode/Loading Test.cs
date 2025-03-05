@@ -706,17 +706,17 @@ public class LoadingTest
         Assert.AreEqual(4, tutorialManager.tutorialScreenIndex);
 
         LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
-        Assert.AreEqual(500, leaderboardDelegator.gemRewardsToCollect);
+        Assert.AreEqual(1000, leaderboardDelegator.gemRewardsToCollect);
 
         GameObject rewardMessage = GameObject.Find("Collect Reward").transform.GetChild(0).gameObject;
         rewardMessage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = "YOU FINISHED THE TUTORIAL!";
-        rewardMessage.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = "500";
+        rewardMessage.transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = "1000";
         rewardMessage.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
 
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
         Assert.False(rewardMessage.transform.parent.gameObject.activeSelf);
-        Assert.AreEqual(new System.Numerics.BigInteger(500), playerState.GetUserGems());
+        Assert.AreEqual(new System.Numerics.BigInteger(1000), playerState.GetUserGems());
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
 
         Assert.True(GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().GetGameData().finishedTutorial);

@@ -62,9 +62,9 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     private readonly string[] leaderboardTiers = {"BRONZE TIER", "SILVER TIER", "GOLD TIER"};
     private readonly string[] leaderboardTiersMatching = {"Bronze", "Silver", "Gold"};
     private readonly string[][] rewardAmounts = new string[][] {
-            new string[] {"250", "200", "175", "150", "125", "100", "100", "100", "75", "75"}, 
-            new string[] {"1.5K", "1K", "800", "600", "500", "400", "400", "400", "350", "350"}, 
-            new string[] {"8K", "6K", "5K", "4k", "3k", "2.5K", "2.5K", "2.5K", "2K", "2K"}
+            new string[] {"2K", "1.6K", "1.4K", "1.2K", "1K", "800", "800", "800", "600", "600"}, 
+            new string[] {"12K", "8K", "6.4K", "5K", "4K", "3.2K", "3.2K", "3.2K", "2.8K", "2.8K"}, 
+            new string[] {"64K", "50K", "40K", "32k", "24k", "20K", "20K", "20K", "16K", "16K"}
             };
     LeaderboardScores cashLeaderboardScoresPage;
     LeaderboardScores vehicleLeaderboardScoresPage;
