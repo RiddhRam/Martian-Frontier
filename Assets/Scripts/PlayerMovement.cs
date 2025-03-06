@@ -48,8 +48,7 @@ public class PlayerMovement : MonoBehaviour
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
         // Otherwise it gets stuck at the spawn
         // Smooth camera follow
-        targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
-        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        MoveCamera();
         UpdateDepth();
 
         // Disable this if using AI Movement
@@ -123,6 +122,12 @@ public class PlayerMovement : MonoBehaviour
         } catch {
         }
 
+    }
+
+    // Smooth camera follow
+    public void MoveCamera() {
+        targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
+        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
     }
 
     public void SetSpeed(float newSpeed) {

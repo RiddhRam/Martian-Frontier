@@ -9,6 +9,8 @@ public class MapRecordingMode : MonoBehaviour
     public GameObject videoInfo;
     public PlayerState playerState;
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
+    public JoystickMovement joystickMovement;
+    public PlayerMovement playerMovement;
     public RawImage mapCameraView;
     public Outline panelOutline;
 
@@ -25,8 +27,12 @@ public class MapRecordingMode : MonoBehaviour
     public int currentTier;
 
     public bool routeRoulette;
+    public float moveSpeed;
     public GameObject arrowPanel;
+    public GameObject arrowSeperator;
     public RectTransform arrow;
+    public RectTransform currentArrow;
+    public RectTransform playerArrow;
     private float timer;
     private float targetTime;
 
@@ -58,14 +64,12 @@ public class MapRecordingMode : MonoBehaviour
         //videoInfo.SetActive(true);
         thisCamera = GetComponent<Camera>();
         mainCamera = Camera.main;
-        panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
 
         originalBlocksMined = playerState.GetBlocksMined();
         originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        thisCamera.orthographicSize = 22;
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
@@ -74,18 +78,26 @@ public class MapRecordingMode : MonoBehaviour
         farthestDown = pos.y;
 
         if (routeRoulette) {
+            thisCamera.orthographicSize = 19;
             cargoValueText.transform.parent.gameObject.SetActive(true);
             arrowPanel.SetActive(true);
+            arrowSeperator.SetActive(true);
+            currentArrow.transform.parent.gameObject.SetActive(true);
+
             RectTransform rectTransform = cargoValueText.transform.parent.GetComponent<RectTransform>();
 
             Vector3 localPos = rectTransform.localPosition;
-            rectTransform.localPosition = new(localPos.x, 150, localPos.z);
+            rectTransform.localPosition = new(localPos.x, 160, localPos.z);
 
             rectTransform.offsetMin = new Vector2(-160f, rectTransform.offsetMin.y);
             rectTransform.offsetMax = new Vector2(160f, rectTransform.offsetMax.y);
+            panelOutline.effectColor = new(0, 0, 0);
+            panelOutline.gameObject.GetComponent<Image>().color = new(0, 0, 0);
         } else {
-            depthProgressSlider.transform.parent.gameObject.SetActive(true);
             Time.timeScale = 0.5f;
+            thisCamera.orthographicSize = 21;
+            depthProgressSlider.transform.parent.gameObject.SetActive(true);
+            panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
         }
     }
 
@@ -107,7 +119,7 @@ public class MapRecordingMode : MonoBehaviour
 
     }
 
-    void Update()
+    void FixedUpdate()
     {
         Vector3 pos = playerVehicle.position;
 
@@ -127,28 +139,51 @@ public class MapRecordingMode : MonoBehaviour
         //ClampCamera();
         
         if (routeRoulette) {
+            playerVehicle.eulerAngles = arrow.eulerAngles;
+
+            float angle = (playerVehicle.eulerAngles.z + 90) * Mathf.Deg2Rad;
+            Vector2 direction = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
+
+            playerVehicle.position += moveSpeed * Time.deltaTime * (Vector3)direction;
+            
             transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y - 10, transform.position.z);
+            
+            float joystickAngle = Mathf.Atan2(joystickMovement.joystickVec.y, joystickMovement.joystickVec.x) * Mathf.Rad2Deg;
+            playerArrow.eulerAngles = new(0, 0, joystickAngle - 90);
 
             timer += Time.deltaTime;
             if (timer >= targetTime)
             {
                 timer = 0f;
-                targetTime = Random.Range(3f, 5f);
+                targetTime = Random.Range(3f, 4f);
                 float currentAngle = arrow.localEulerAngles.z;
                 float newAngle;
+                bool invalidAngle;
 
                 do
                 {
                     newAngle = Random.Range(0f, 361f);
-                } 
-                while (Mathf.Abs(Mathf.DeltaAngle(currentAngle, newAngle)) < 10f || 
-                    Mathf.Abs(Mathf.DeltaAngle(currentAngle + 180f, newAngle)) < 10f);
+                    // The sprite is offset by 90 degress CCW
+                    // Check if we need to block left or right angles
+                    bool goingLeft = newAngle > 0f && newAngle < 180f; // Angles pointing left
+                    bool goingRight = newAngle < 0f || newAngle > 180f; // Angles pointing right
+                    bool goingUp = newAngle < 90f || newAngle > 270f;
 
-                arrow.localEulerAngles = new Vector3(0, 0, newAngle);
+                    invalidAngle = Mathf.Abs(Mathf.DeltaAngle(currentAngle, newAngle)) < 90f ||
+                                        Mathf.Abs(Mathf.DeltaAngle(currentAngle + 180f, newAngle)) < 40f ||
+                                        (transform.position.x < -35f && goingLeft) ||
+                                        (transform.position.x > 35f && goingRight) || 
+                                        transform.position.y > -55 && goingUp;
+
+                } 
+                while (invalidAngle);
+
+                arrow.eulerAngles = new Vector3(0, 0, newAngle);
+                currentArrow.eulerAngles = arrow.eulerAngles;
             }
 
-            float zDifference = Mathf.DeltaAngle(arrow.rotation.eulerAngles.z, playerVehicle.transform.rotation.eulerAngles.z);
-            Debug.Log(zDifference);
+            //float zDifference = Mathf.DeltaAngle(arrow.rotation.eulerAngles.z, playerVehicle.transform.rotation.eulerAngles.z);
+            //Debug.Log(zDifference);
 
         } else {
             transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y, transform.position.z);            
@@ -187,7 +222,7 @@ public class MapRecordingMode : MonoBehaviour
         valueText.text = "$" + FormatPrice(uncollectedMaterialsDelegator.GetMineValue() - originalMineValue);
         
         if (routeRoulette) {
-            cargoValueText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
+            cargoValueText.text = valueText.text;
         } else {
             int previousTier = currentTier;
             SetSliderBoundaries();
@@ -269,8 +304,7 @@ public class MapRecordingMode : MonoBehaviour
     public void ResetCamera() {
         
         transform.position = new(0, -256, -17);
-        thisCamera.orthographicSize = 22;
-        
+
         Vector3 pos = playerVehicle.position;
 
         farthestRight = pos.x;
@@ -292,7 +326,7 @@ public class MapRecordingMode : MonoBehaviour
         Transform vehicle = playerVehicle.transform.GetChild(0);
         BoxCollider2D boxCollider2D = vehicle.GetChild(1).GetComponent<BoxCollider2D>();
         if (boxCollider2D) {
-            //boxCollider2D.size = new(boxCollider2D.size.x + 5, boxCollider2D.size.y);
+            boxCollider2D.size = new(boxCollider2D.size.x + 2, boxCollider2D.size.y);
             haulerController = null;
         } else {
             haulerController = vehicle.GetComponent<HaulerController>();

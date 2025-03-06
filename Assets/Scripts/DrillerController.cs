@@ -56,8 +56,6 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
     bool dontPlayAudio;
-    float rotationZInRadians;
-    float drillRotation;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -80,7 +78,7 @@ public class DrillerController : MonoBehaviour
         rotatedOffset = boxCollider2D.offset;
     }
 
-    void FixedUpdate() {
+    void Update() {
        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
         if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
             errorCounter = 400;
@@ -89,19 +87,11 @@ public class DrillerController : MonoBehaviour
 
         size = boxCollider2D.bounds.size;
 
-        drillRotation = transform.rotation.eulerAngles.z;
-        
-        // Convert the rotation angle to radians
-        rotationZInRadians = drillRotation * Mathf.Deg2Rad;
-
         // Calculate the corrected offset
-        Vector3 correctedOffset = new(
-            rotatedOffset.x * Mathf.Cos(rotationZInRadians) - rotatedOffset.y * Mathf.Sin(rotationZInRadians),
-            rotatedOffset.x * Mathf.Sin(rotationZInRadians) + rotatedOffset.y * Mathf.Cos(rotationZInRadians)
-        );
+        Vector3 correctedOffset = transform.rotation * rotatedOffset;
 
         // Check if the game object's collider is touching a tilemap with "Mine Tag"
-        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, drillRotation);
+        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
         
         dontPlayAudio = false;
 
