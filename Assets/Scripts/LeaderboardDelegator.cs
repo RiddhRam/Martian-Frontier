@@ -144,7 +144,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (gemRewardsToCollect > 0) {
-            collectRewardText.text = gemRewardsToCollect.ToString();
+            collectRewardText.text = FormatPrice(gemRewardsToCollect);
             collectReward.SetActive(true);
             
             if (message != null) {

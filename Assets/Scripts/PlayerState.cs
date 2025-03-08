@@ -29,7 +29,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger gemsEarned;
     private List<string> vehiclesOwned = new();
     private int[] materialPrices;
-    private bool loading = true;
     [SerializeField]
     private float rebirthProfitMultiplier;
     public RefineryController refineryController;
@@ -58,7 +57,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     BigInteger remainingXP;
     float profitMultiplier;
     float calculatedValue;
-    float tolerance;
     float xpSliderValue;
     string levelString;
 
@@ -327,7 +325,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         
         analyticsDelegator = AnalyticsDelegator.Instance;
 
-        loading = true;
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
         this.blocksMined = BigInteger.Parse(data.blocksMined);
@@ -338,7 +335,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
-        loading = false;
        
         UpdateCashDisplays();
         UpdateGemDisplays();
@@ -371,7 +367,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         profitMultiplier = refineryController.GetLevelProfitMultiplier();
         calculatedValue = level * 0.01f;
-        tolerance = 0.005f;
 
         // For each level, add 1% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);

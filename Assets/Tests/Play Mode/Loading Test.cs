@@ -630,6 +630,9 @@ public class LoadingTest
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
         yield return null;
+        yield return null;
+        yield return null;
+        yield return null;
 
         Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
 
