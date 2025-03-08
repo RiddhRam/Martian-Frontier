@@ -95,12 +95,17 @@ public class PlayerMovement : MonoBehaviour
         lastRotation = newAngle;
 
         // Front wheels logic
-        if (!frontWheels) {
-            return;
+        if (frontWheels) {
+            SteerWheel(frontWheels, tempLastRotation, newAngle);
         }
+    }
 
-        // Might fail after changing
+    private void SteerWheel(Transform frontWheels, float tempLastRotation, float newAngle) {
+
+        // Might fail after changing vehicle
         try {
+
+            Debug.Log($"Temp Last: {tempLastRotation} New Angle: {newAngle}");
             
             if (tempLastRotation - 90 > newAngle) {
                 newAngle += 360;
@@ -121,7 +126,6 @@ public class PlayerMovement : MonoBehaviour
             }
         } catch {
         }
-
     }
 
     // Smooth camera follow

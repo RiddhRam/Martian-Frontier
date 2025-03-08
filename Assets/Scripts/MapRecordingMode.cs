@@ -87,8 +87,13 @@ public class MapRecordingMode : MonoBehaviour
     public bool showRays = true;
 
     private Rigidbody2D rb;
+    public Transform frontWheels;
     private readonly int largeAngleDiff = 40;
     private readonly int miniAngleDiff = 40;
+
+    private readonly float maxBodyRotation = 30;
+    private readonly float maxChangeRotation = 20;
+    private float wheelRotation;
 
     void Start()
     {
@@ -432,14 +437,14 @@ Then go through each object the collider hits, and check if any have the tag "Mi
         float distanceRight = GetDistanceToMine(Quaternion.Euler(0, 0, -largeAngleDiff) * playerVehicle.transform.up);
         
         // Draw debug rays
-        if (showRays)
+        /*if (showRays)
         {
             Debug.DrawRay(playerVehicle.position, playerVehicle.transform.up * raycastDistance, wallAhead ? Color.blue : Color.green);
             //Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, largeAngleDiff) * playerVehicle.transform.up * raycastDistance, wallLeft ? Color.yellow : Color.green);
             //Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, -largeAngleDiff) * playerVehicle.transform.up * raycastDistance, wallRight ? Color.red : Color.green);
             Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, miniAngleDiff) * playerVehicle.transform.up * miniRaycastDistance, wallLeftMini ? Color.yellow : Color.green);
             Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, -miniAngleDiff) * playerVehicle.transform.up * miniRaycastDistance, wallRightMini ? Color.red : Color.green);
-        }
+        }*/
 
         // Calculate steering direction - positive for left, negative for right
         float steeringDirection = 0f;
@@ -449,11 +454,11 @@ Then go through each object the collider hits, and check if any have the tag "Mi
         {
             if (wallLeftMini && !wallRightMini) {
                 // Hard turn right
-                steeringDirection = -2.5f;
+                steeringDirection = -1.5f;
             } 
             else if (wallRightMini && !wallLeftMini) {
                 // Hard turn left
-                steeringDirection = 2.5f;
+                steeringDirection = 1.5f;
             }
             else
             {
@@ -469,11 +474,11 @@ Then go through each object the collider hits, and check if any have the tag "Mi
             // No wall ahead, but check if we're too close to side walls and adjust
             if (wallLeftMini && !wallRightMini) {
                 // Hard turn right
-                steeringDirection -= 0.5f;
+                steeringDirection -= 0.25f;
             } 
             else if (wallRightMini && !wallLeftMini) {
                 // Hard turn left
-                steeringDirection += 0.5f;
+                steeringDirection += 0.25f;
             } 
         }
 
@@ -508,13 +513,37 @@ Then go through each object the collider hits, and check if any have the tag "Mi
         
         // Apply the rotation based on the smoothed steering amount
         float rotationAmount = currentSteeringAmount * rotationSpeed * Time.fixedDeltaTime;
+
+        //Debug.Log($"Current: {currentSteeringAmount + rb.rotation}, Target: {targetSteeringDirection + rb.rotation}");
         rb.rotation += rotationAmount;
         
-        // Optional debug
-        Debug.Log($"Target: {targetSteeringDirection:F2}, Applied: {currentSteeringAmount:F2}");
+        SteerWheel(frontWheels, rb.rotation, targetSteeringDirection);
     }
 
-   
+    private void SteerWheel(Transform frontWheels, float tempLastRotation, float newAngle) {
+        // Might fail after changing vehicle
+        try {
+            
+            if (tempLastRotation - 90 > newAngle) {
+                newAngle += 360;
+            }
+
+            if (tempLastRotation < 0) {
+                tempLastRotation += 360;
+            }
+
+            // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
+            // Wheel rotation cannot exceed 30 degrees of the body
+            wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
+
+            // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
+            for (int i = 0; i != frontWheels.childCount; i++) {
+                frontWheels.GetChild(i).localEulerAngles = new(0, 0, wheelRotation + newAngle);
+            }
+        } catch {
+        }
+    }
+
     bool CheckForMine(Vector2 direction, bool mini)
     {
         RaycastHit2D[] hits;
@@ -536,7 +565,6 @@ Then go through each object the collider hits, and check if any have the tag "Mi
 
     void RotateVehicle(float direction)
     {
-        Debug.Log("Rotating: " + direction);
         // Apply rotation based on direction and rotation speed
         float rotationAmount = direction * rotationSpeed * Time.fixedDeltaTime;
         rb.rotation += rotationAmount;
@@ -746,8 +774,22 @@ Then go through each object the collider hits, and check if any have the tag "Mi
         if (boxCollider2D) {
             boxCollider2D.size = new(boxCollider2D.size.x + 2, boxCollider2D.size.y);
             haulerController = null;
+            frontWheels = null;
         } else {
             haulerController = vehicle.GetComponent<HaulerController>();
+
+            // SetSpeed is called when a new vehicle is placed
+            // When a new vehicle is placed we should also check if it needs animated wheels or not
+            for (int i = 0; i != vehicle.childCount; i++) {
+                if (vehicle.GetChild(i).name == "Front Wheels") {
+                    frontWheels = vehicle.GetChild(i);
+                    break;
+                }
+            }
+
+            for (int i = 0; i != frontWheels.childCount; i++) {
+                frontWheels.GetChild(i).GetComponent<PolygonCollider2D>().enabled = false;
+            }
         }
 
         /*
