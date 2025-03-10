@@ -822,7 +822,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
-        yield break;
+        GameObject.Find("NavMesh Surface").GetComponent<BuildNavMeshSurface>().InitializeMesh();
     }
 
     public void SaveData(ref GameData data) {

@@ -51,6 +51,7 @@ public class PlayerMovement : MonoBehaviour
         MoveCamera();
         UpdateDepth();
 
+        
         // Disable this if using AI Movement
         if (!joystickMovement) {
             return;
@@ -104,8 +105,6 @@ public class PlayerMovement : MonoBehaviour
 
         // Might fail after changing vehicle
         try {
-
-            Debug.Log($"Temp Last: {tempLastRotation} New Angle: {newAngle}");
             
             if (tempLastRotation - 90 > newAngle) {
                 newAngle += 360;
