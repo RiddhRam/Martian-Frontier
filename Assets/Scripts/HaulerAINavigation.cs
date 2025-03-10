@@ -3,11 +3,13 @@ using UnityEngine.AI;
 
 public class HaulerAINavigation : MonoBehaviour
 {
-    [SerializeField] Transform target;
 
     NavMeshAgent agent;
     public JoystickMovement joystickMovement;
     Vector3 direction = Vector3.zero;
+    public Vector2 target;
+    Transform frontWheels;
+    private float distance;
     
     void Start()
     {
@@ -16,25 +18,38 @@ public class HaulerAINavigation : MonoBehaviour
         agent.updatePosition = false;
         agent.updateRotation = false;
         agent.updateUpAxis = false;
+
+        Transform vehicle = transform.GetChild(0);
+
+        for (int i = 0; i != vehicle.childCount; i++) {
+            if (vehicle.GetChild(i).name == "Front Wheels") {
+                frontWheels = vehicle.GetChild(i);
+                break;
+            }
+        }
+
+        for (int i = 0; i != frontWheels.childCount; i++) {
+            frontWheels.GetChild(i).GetComponent<PolygonCollider2D>().enabled = false;
+        }
     }
 
     // Update is called once per frame
     void Update()
     {
         // Let the agent compute the path.
-        agent.SetDestination(new(4.5f, 5.4f, 0));
+        agent.SetDestination(new(target.x, target.y, 0));
 
         // Calculate the normalized direction toward the steering target.
         //Debug.Log($"{agent.steeringTarget} vs {transform.position}");
 
-        float distance = Vector3.Distance(transform.position, agent.steeringTarget);
-
-        direction = (agent.steeringTarget - transform.position).normalized;
+        distance = Vector3.Distance(transform.position, agent.steeringTarget);
         
-        if (distance < 0.1f) {
+        if (distance < 0.2f) {
             agent.nextPosition = transform.position;
         } else {
-            joystickMovement.UpdateJoystickVector(direction, 1f);
+            direction = (agent.steeringTarget - transform.position).normalized;
         }
+
+        joystickMovement.UpdateJoystickVector(direction, 1f);
     }
 }

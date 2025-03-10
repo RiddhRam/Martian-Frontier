@@ -44704,9 +44704,9 @@ MonoBehaviour:
   m_IgnoreNavMeshObstacle: 1
   m_OverrideTileSize: 0
   m_TileSize: 256
-  m_OverrideVoxelSize: 1
-  m_VoxelSize: 2
-  m_MinRegionArea: 2
+  m_OverrideVoxelSize: 0
+  m_VoxelSize: 0.34161666
+  m_MinRegionArea: 0
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
 --- !u!114 &923832564
@@ -44751,7 +44751,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.33833334
+  m_VoxelSize: 0.34161666
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
   m_HideEditorLogs: 0
@@ -54377,8 +54377,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfc41819b8cba44ec9ff62b7120357c2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
   joystickMovement: {fileID: 1828223861}
+  target: {x: 65, y: -116}
 --- !u!195 &1012335952
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -54388,7 +54388,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1012335945}
   m_Enabled: 1
   m_AgentTypeID: -1372625422
-  m_Radius: 1.5
+  m_Radius: 2.5
   m_Speed: 0
   m_Acceleration: 0
   avoidancePriority: 50
