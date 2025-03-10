@@ -19,8 +19,9 @@ public class BuildNavMeshSurface : MonoBehaviour
 
     private IEnumerator UpdateNavMeshCoroutine() {
         while (true) {
-            yield return new WaitForSeconds(30);
+            yield return new WaitForSeconds(3);
             navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
+            yield return new WaitForSeconds(27);
         }
 
     }

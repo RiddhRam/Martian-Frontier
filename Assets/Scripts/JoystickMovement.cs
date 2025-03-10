@@ -10,6 +10,7 @@ public class JoystickMovement : MonoBehaviour
     private Vector2 joystickTouchPos;
     private Vector2 joystickOriginalPos;
     private float joystickRadius;
+    PointerEventData pointerEventData;
     private Camera mainCamera;
     private RectTransform myRectTransform;
     public MapRecordingMode mapRecordingMode;
@@ -55,7 +56,7 @@ public class JoystickMovement : MonoBehaviour
             return;
         }
         
-        PointerEventData pointerEventData = baseEventData as PointerEventData;
+        pointerEventData = baseEventData as PointerEventData;
 
         Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
@@ -65,18 +66,21 @@ public class JoystickMovement : MonoBehaviour
             out localPoint
         );
 
-        //myRectTransform.anchoredPosition = pointerEventData.position / myCanvas.scaleFactor;
         Vector2 dragPos = localPoint;
-        joystickVec = (dragPos - joystickTouchPos).normalized;
+        UpdateJoystickVector((dragPos - joystickTouchPos).normalized, Vector2.Distance(dragPos, joystickTouchPos));
 
-        float joystickDist = Vector2.Distance(dragPos, joystickTouchPos);
+    }
+
+    public void UpdateJoystickVector (Vector3 normalizedVector, float distance) {
+        joystickVec = normalizedVector;
+
+        float joystickDist = distance;
 
         if (joystickDist < joystickRadius) {
             joystick.transform.localPosition = joystickTouchPos + joystickVec * joystickDist;
         } else {
             joystick.transform.localPosition = joystickTouchPos + joystickVec * joystickRadius;
         }
-
     }
 
     public void PointerUp() {

@@ -1,12 +1,13 @@
-using NavMeshPlus.Components;
 using UnityEngine;
 using UnityEngine.AI;
 
 public class HaulerAINavigation : MonoBehaviour
 {
     [SerializeField] Transform target;
-    float constantSpeed;
+
     NavMeshAgent agent;
+    public JoystickMovement joystickMovement;
+    Vector3 direction = Vector3.zero;
     
     void Start()
     {
@@ -15,8 +16,6 @@ public class HaulerAINavigation : MonoBehaviour
         agent.updatePosition = false;
         agent.updateRotation = false;
         agent.updateUpAxis = false;
-
-        constantSpeed = transform.GetChild(0).GetComponent<HaulerController>().GetPlayerSpeed();
     }
 
     // Update is called once per frame
@@ -26,20 +25,16 @@ public class HaulerAINavigation : MonoBehaviour
         agent.SetDestination(new(4.5f, 5.4f, 0));
 
         // Calculate the normalized direction toward the steering target.
-        Vector3 direction = (agent.steeringTarget - transform.position).normalized;
+        //Debug.Log($"{agent.steeringTarget} vs {transform.position}");
 
-        // Manually update the position with constant speed.
-        transform.position += direction * constantSpeed * Time.deltaTime;
+        float distance = Vector3.Distance(transform.position, agent.steeringTarget);
+
+        direction = (agent.steeringTarget - transform.position).normalized;
         
-        // Keep the agent's internal position in sync.
-        agent.nextPosition = transform.position;
-
-        // Calculate 2D rotation (only around Z axis).
-        if (direction != Vector3.zero)
-        {
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
-            Quaternion targetRotation = Quaternion.AngleAxis(angle, Vector3.forward);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, 10f * Time.deltaTime);
+        if (distance < 0.1f) {
+            agent.nextPosition = transform.position;
+        } else {
+            joystickMovement.UpdateJoystickVector(direction, 1f);
         }
     }
 }
