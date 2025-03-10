@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Threading.Tasks;
 using NavMeshPlus.Components;
 using UnityEngine;
 
@@ -7,13 +6,18 @@ using UnityEngine;
 public class BuildNavMeshSurface : MonoBehaviour
 {
     NavMeshSurface navMeshSurface;
+    public bool UpdateMeshes;
     
     // Start is called before the first frame update
     public void InitializeMesh()
     {
+        if (!UpdateMeshes || !Debug.isDebugBuild) {
+            return;
+        } 
         navMeshSurface = GetComponent<NavMeshSurface>();
         navMeshSurface.hideEditorLogs = true;
         navMeshSurface.BuildNavMesh();
+        
         StartCoroutine(UpdateNavMeshCoroutine());
     }
 

@@ -6,6 +6,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using UnityEngine.AI;
 
 public class LoadingTest
 {
@@ -436,7 +437,11 @@ public class LoadingTest
 
         playerVehicle = GameObject.Find("Player Vehicle");
         Assert.False(playerVehicle.GetComponent<AIMovement>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<HaulerAINavigation>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<NavMeshAgent>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
+        
+        Assert.False(GameObject.Find("NavMesh Surface").GetComponent<BuildNavMeshSurface>().UpdateMeshes);
 
         playerMovement = playerVehicle.GetComponent<PlayerMovement>();
         Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);

@@ -86,18 +86,10 @@ public class MapRecordingMode : MonoBehaviour
     [Header("Debug")]
     public bool showRays = true;
 
-    private Rigidbody2D rb;
     public Transform frontWheels;
-    private readonly int largeAngleDiff = 40;
-    private readonly int miniAngleDiff = 40;
-
-    private readonly float maxBodyRotation = 30;
-    private readonly float maxChangeRotation = 20;
-    private float wheelRotation;
 
     void Start()
     {
-        rb = playerVehicle.GetComponent<Rigidbody2D>();
         // If ray points aren't assigned, use the vehicle transform
         mapText.SetActive(false);
         //videoInfo.SetActive(true);
@@ -402,172 +394,9 @@ public class MapRecordingMode : MonoBehaviour
                 }
 
             }*/
-
-
-            /*In the FixedUpdate() function I need to do this (Its a 2d unity game by the way):
-
-Spawn a physics collider that extends from the center of a 2d gameobject to 2 units in front. Keep in mind the gameobject can be rotated in any direction (z axis).
-
-Then go through each object the collider hits, and check if any have the tag "Mine Tag". If it does, we need to rotate the gameobject. Spawn 2 more colliders on each side of the forward direction of the game object, say 15 degrees on each side. Check if there's room to move on either side, there is room if the collider doesnt hit any "Mine Tag" game object. Then get the gameobject to rotate there. Keep in mind: This is*/
-            if (haulerController) {
-                float angle = (playerVehicle.eulerAngles.z + 90) * Mathf.Deg2Rad;
-                Vector2 forward = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-
-                playerVehicle.position += moveSpeed * Time.deltaTime * (Vector3)forward;
-
-                NavigateThroughTunnel();
-            }
         }
 
         UpdateText();
-    }
-
-    void NavigateThroughTunnel()
-    {
-        // mini is smaller than the others, if they hit something, then we need to hard turn
-        bool wallAhead = CheckForMine(playerVehicle.transform.up, false);
-        bool wallLeft = CheckForMine(Quaternion.Euler(0, 0, largeAngleDiff) * playerVehicle.transform.up, false);
-        bool wallRight = CheckForMine(Quaternion.Euler(0, 0, -largeAngleDiff) * playerVehicle.transform.up, false);
-        bool wallLeftMini = CheckForMine(Quaternion.Euler(0, 0, miniAngleDiff) * playerVehicle.transform.up, true);
-        bool wallRightMini = CheckForMine(Quaternion.Euler(0, 0, -miniAngleDiff) * playerVehicle.transform.up, true);
-
-        // Get distances to walls for smoother steering
-        float distanceAhead = GetDistanceToMine(playerVehicle.transform.up);
-        float distanceLeft = GetDistanceToMine(Quaternion.Euler(0, 0, largeAngleDiff) * playerVehicle.transform.up);
-        float distanceRight = GetDistanceToMine(Quaternion.Euler(0, 0, -largeAngleDiff) * playerVehicle.transform.up);
-        
-        // Draw debug rays
-        /*if (showRays)
-        {
-            Debug.DrawRay(playerVehicle.position, playerVehicle.transform.up * raycastDistance, wallAhead ? Color.blue : Color.green);
-            //Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, largeAngleDiff) * playerVehicle.transform.up * raycastDistance, wallLeft ? Color.yellow : Color.green);
-            //Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, -largeAngleDiff) * playerVehicle.transform.up * raycastDistance, wallRight ? Color.red : Color.green);
-            Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, miniAngleDiff) * playerVehicle.transform.up * miniRaycastDistance, wallLeftMini ? Color.yellow : Color.green);
-            Debug.DrawRay(playerVehicle.position, Quaternion.Euler(0, 0, -miniAngleDiff) * playerVehicle.transform.up * miniRaycastDistance, wallRightMini ? Color.red : Color.green);
-        }*/
-
-        // Calculate steering direction - positive for left, negative for right
-        float steeringDirection = 0f;
-        
-        // Decision making logic
-        if (wallAhead)
-        {
-            if (wallLeftMini && !wallRightMini) {
-                // Hard turn right
-                steeringDirection = -1.5f;
-            } 
-            else if (wallRightMini && !wallLeftMini) {
-                // Hard turn left
-                steeringDirection = 1.5f;
-            }
-            else
-            {
-                // Dead end, turn around
-                steeringDirection = 2f;
-            }
-        }
-        else
-        {
-            float centeringFactor = (distanceLeft - distanceRight) / (distanceLeft + distanceRight);
-            steeringDirection = centeringFactor * 0.4f;
-
-            // No wall ahead, but check if we're too close to side walls and adjust
-            if (wallLeftMini && !wallRightMini) {
-                // Hard turn right
-                steeringDirection -= 0.25f;
-            } 
-            else if (wallRightMini && !wallLeftMini) {
-                // Hard turn left
-                steeringDirection += 0.25f;
-            } 
-        }
-
-        // Apply the calculated steering with smooth interpolation
-        ApplySmoothSteering(steeringDirection);
-    }
-
-    float GetDistanceToMine(Vector2 direction)
-    {
-        RaycastHit2D[] hits = Physics2D.RaycastAll(playerVehicle.position, direction, miniRaycastDistance);
-
-        float minDistance = raycastDistance;
-        foreach (RaycastHit2D hit in hits) {
-            if (hit.collider.CompareTag(mineTagName)) {
-                if (hit.distance < minDistance) {
-                    minDistance = hit.distance;
-                }
-            }
-        }
-        
-        return minDistance; // Return max distance if no wall found
-    }
-
-    // Variable to track current steering intensity
-    private float currentSteeringAmount = 0f;
-
-    void ApplySmoothSteering(float targetSteeringDirection)
-    {
-        // Smoothly interpolate between current steering and target steering
-        currentSteeringAmount = Mathf.Lerp(currentSteeringAmount, targetSteeringDirection, 
-                                        Time.fixedDeltaTime * 8f); // Adjust this value to control responsiveness
-        
-        // Apply the rotation based on the smoothed steering amount
-        float rotationAmount = currentSteeringAmount * rotationSpeed * Time.fixedDeltaTime;
-
-        //Debug.Log($"Current: {currentSteeringAmount + rb.rotation}, Target: {targetSteeringDirection + rb.rotation}");
-        rb.rotation += rotationAmount;
-        
-        SteerWheel(frontWheels, rb.rotation, targetSteeringDirection);
-    }
-
-    private void SteerWheel(Transform frontWheels, float tempLastRotation, float newAngle) {
-        // Might fail after changing vehicle
-        try {
-            
-            if (tempLastRotation - 90 > newAngle) {
-                newAngle += 360;
-            }
-
-            if (tempLastRotation < 0) {
-                tempLastRotation += 360;
-            }
-
-            // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
-            // Wheel rotation cannot exceed 30 degrees of the body
-            wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
-
-            // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
-            for (int i = 0; i != frontWheels.childCount; i++) {
-                frontWheels.GetChild(i).localEulerAngles = new(0, 0, wheelRotation + newAngle);
-            }
-        } catch {
-        }
-    }
-
-    bool CheckForMine(Vector2 direction, bool mini)
-    {
-        RaycastHit2D[] hits;
-
-        if (!mini) {
-            hits = Physics2D.RaycastAll(playerVehicle.position, direction, raycastDistance);
-        } else {
-            hits = Physics2D.RaycastAll(playerVehicle.position, direction, miniRaycastDistance);
-        }
-        
-        foreach (RaycastHit2D hit in hits) {
-            if (hit.collider.CompareTag(mineTagName)) {
-                return true;
-            }
-        }
-        
-        return false;
-    }
-
-    void RotateVehicle(float direction)
-    {
-        // Apply rotation based on direction and rotation speed
-        float rotationAmount = direction * rotationSpeed * Time.fixedDeltaTime;
-        rb.rotation += rotationAmount;
     }
 
     private IEnumerator RotateVehicle(Vector3 targetEulerAngles, float duration)

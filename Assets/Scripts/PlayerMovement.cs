@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
 public class PlayerMovement : MonoBehaviour
 {
     public GameObject mainCamera;
@@ -32,6 +33,9 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NavMeshAgent navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.updateUpAxis = false;
+
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
 

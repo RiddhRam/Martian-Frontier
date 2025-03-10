@@ -44705,7 +44705,7 @@ MonoBehaviour:
   m_OverrideTileSize: 0
   m_TileSize: 256
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.34161666
+  m_VoxelSize: 0.3415
   m_MinRegionArea: 0
   m_NavMeshData: {fileID: 0}
   m_BuildHeightMesh: 0
@@ -44748,10 +44748,10 @@ MonoBehaviour:
   m_DefaultArea: 0
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
+  m_OverrideTileSize: 1
+  m_TileSize: 150
   m_OverrideVoxelSize: 0
-  m_VoxelSize: 0.34161666
+  m_VoxelSize: 0.3415
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
   m_HideEditorLogs: 0
@@ -44783,6 +44783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c371952a73c4cc4841f9a86e1b0e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  UpdateMeshes: 0
 --- !u!1 &924216438
 GameObject:
   m_ObjectHideFlags: 0
@@ -54378,7 +54379,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickMovement: {fileID: 1828223861}
-  target: {x: 65, y: -116}
+  target: {x: -7.4, y: -154.6}
 --- !u!195 &1012335952
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -54386,7 +54387,7 @@ NavMeshAgent:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012335945}
-  m_Enabled: 1
+  m_Enabled: 0
   m_AgentTypeID: -1372625422
   m_Radius: 2.5
   m_Speed: 0
@@ -56793,10 +56794,10 @@ MonoBehaviour:
   oresCount: 
   playerStateScript: {fileID: 276248154}
   currentOresMined: 0
-  minVeinRadius: 2
-  maxVeinRadius: 2
-  minVeinCount: 5
-  maxVeinCount: 5
+  minVeinRadius: 1
+  maxVeinRadius: 4
+  minVeinCount: 1
+  maxVeinCount: 2
 --- !u!1 &1101142119
 GameObject:
   m_ObjectHideFlags: 0
@@ -77561,7 +77562,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1779852217}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b5c573af8a54351a600572b076dceb, type: 3}
   m_Name: 
