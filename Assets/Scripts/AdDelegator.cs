@@ -384,8 +384,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public void ShowLobbyAdButton(long rewardAmount) {
 
         float randomValue = (float) random.NextDouble();
-        // Show 60% of the time
-        if (randomValue < 0) {
+        // Show 20% of the time
+        if (randomValue < 0.8) {
             return;
         }
 
