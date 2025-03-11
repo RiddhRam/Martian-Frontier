@@ -145,6 +145,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private TileBase[] tilesBeingUsed;
     private bool alreadyBeingReturned = false;
     private bool notSinglePlayerScene = false;
+    public bool coopMineLoaded = false;
 
 
     // Called before Start
@@ -264,7 +265,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
-        DestroyTiles(initializeTiles, true);
+        DestroyTiles(initializeTiles, true, false);
         CreateGenTriggers();
         mineInitialization = 2;
         SaveGame();
@@ -389,7 +390,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         RevealTiles(tilesToReveal);
-        DestroyTiles(tilesToDestroy, true);
+        DestroyTiles(tilesToDestroy, true, false);
     }
 
     public void CreateGenTriggers() {
@@ -564,7 +565,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC) {
 
         oresMined = 0;
 
@@ -671,7 +672,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         try {
-            if (!loading) {
+            // If not loading, and is not from an NPC
+            if (!loading && !isNPC) {
                 oresMinedText.text = currentOresMined.ToString();
                 playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
                 dailyChallengeDelegator.MinedOres(quantities);
@@ -760,7 +762,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public void LoadData(GameData data) {
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(LoadCoopLocal());
             return;
         }
 
@@ -773,6 +775,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Return objects happens over several frames to reduce lag
         // Start the new coroutine and store its reference
         _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
+    }
+
+    private IEnumerator LoadCoopLocal() {
+        
+        yield return StartCoroutine(ReturnAllObjectsToPool());
+        GenerateMaterials();
+        InitializeMine();
+
+        coopMineLoaded = true;
+
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
     }
 
     private IEnumerator AsyncLoadData(GameData data) {
@@ -798,19 +811,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
 
-        // Create pools of materials before loading materials
-        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
-
-        for (int i = 0; i != materialPools.Length; i++) {
-            materialPools[i] = new Queue<GameObject>();
-            // Create the right amount of each material according to each pool size
-            for (int j = 0; j != materialPoolSizes[i]; j++) {
-                GameObject newMaterial = Instantiate(materials[i]);
-                newMaterial.SetActive(false);
-                materialPools[i].Enqueue(newMaterial);
-                newMaterial.transform.SetParent(materialsDelegator.transform);
-            }
-        }
+        GenerateMaterials();
 
         foreach (string id in savedMaterials.Keys) {
             // Copy all the saved values into the loaded material
@@ -831,6 +832,22 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         GameObject.Find("NavMesh Surface").GetComponent<BuildNavMeshSurface>().InitializeMesh();
+    }
+
+    public void GenerateMaterials() {
+        // Create pools of materials before loading materials
+        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
+
+        for (int i = 0; i != materialPools.Length; i++) {
+            materialPools[i] = new Queue<GameObject>();
+            // Create the right amount of each material according to each pool size
+            for (int j = 0; j != materialPoolSizes[i]; j++) {
+                GameObject newMaterial = Instantiate(materials[i]);
+                newMaterial.SetActive(false);
+                materialPools[i].Enqueue(newMaterial);
+                newMaterial.transform.SetParent(materialsDelegator.transform);
+            }
+        }
     }
 
     public void SaveData(ref GameData data) {

@@ -54,7 +54,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Create the new vehicle using the prefab and set it's parent to PlayerVehicle (the gameobjet of this script)
         playerVehicle.transform.localPosition = new(0, 0, 0);
 
-        currentVehicle = playerVehicle.name;
         // Remove (Clone) from the name
         playerVehicle.name = playerVehicle.name[..^7];
 
@@ -62,8 +61,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
+            currentVehicle = playerVehicle.name;
         } else {
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 270);
+            currentCoopVehicle = playerVehicle.name;
         }
 
         if (nPCManager) {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -50,6 +51,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI[] xpDisplaysText;
     private GameObject[] drillers;
     private int highestDrillTier = 1;
+
+    [SerializeField]
+    private GameObject ResetMineButton;
 
     int baseXP; 
     int increment; 
@@ -203,6 +207,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void NewBlockMined(int oresMined, int amount) {
+
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
         // Total 5 xp for mining an ore
         userXP += 4 * oresMined + amount;
@@ -335,6 +340,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            ResetMineButton.SetActive(false);
+        }
        
         UpdateCashDisplays();
         UpdateGemDisplays();

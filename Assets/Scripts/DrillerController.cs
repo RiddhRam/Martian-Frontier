@@ -136,10 +136,11 @@ public class DrillerController : MonoBehaviour
                     }
                     tileToDestroy = tilemap.GetTile(currentTilePos);
 
-                    if (!isNPC) {
-                        // Make sure the drill is capable of destroying this tile
-                        tileTier = mineRenderer.GetTileTier(tileToDestroy);
-                        if (drillTier < tileTier) {
+                    
+                    // Make sure the drill is capable of destroying this tile
+                    tileTier = mineRenderer.GetTileTier(tileToDestroy);
+                    if (drillTier < tileTier) {
+                        if (!isNPC) {
                             errorCounter++;
                             
                             // Dont spam the user with errors
@@ -148,8 +149,9 @@ public class DrillerController : MonoBehaviour
                                 errorCounter = 0;
                             }
                             dontPlayAudio = true;
-                            continue;
                         }
+                        
+                        continue;
                     }
 
 
@@ -162,7 +164,7 @@ public class DrillerController : MonoBehaviour
                 }
             }
 
-            mineRenderer.DestroyTiles(currentTilePositions, false);
+            mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
 
             if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero && !isNPC) {
                 PlayAudio();

@@ -15,6 +15,7 @@ public class NPCMovement : MonoBehaviour
     Transform frontWheels;
     public int npcIndex;
     public NPCManager nPCManager;
+    public int rebirthLevel;
 
     // Used in FixedUpdate, but declared here to reduce GC usage
     private Vector2 joystickVec;

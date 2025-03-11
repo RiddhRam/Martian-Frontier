@@ -21,6 +21,7 @@ public class LoadingScreen : MonoBehaviour
         Extras:
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
+        
         TutorialManager: LoadData() (1 total), only in singleplayer
         NPCManager: LoadData() (1 total), only in co-op local
 

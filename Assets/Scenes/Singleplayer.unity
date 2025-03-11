@@ -22103,6 +22103,7 @@ MonoBehaviour:
   cargoInfo: {fileID: 172399541}
   UI: {fileID: 319486921}
   currentVehicle: 
+  currentCoopVehicle: 
   garageDelegator: {fileID: 648771411}
   playerVehicle: {fileID: 0}
   vehicleType: Driller
@@ -22110,6 +22111,7 @@ MonoBehaviour:
   adDelegator: {fileID: 405986135}
   analyticsDelegator: {fileID: 1743240306}
   vehicleUpgradesDelegator: {fileID: 816394807}
+  nPCManager: {fileID: 0}
 --- !u!114 &1012335950
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24052,7 +24054,7 @@ Camera:
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 97
+    m_Bits: 225
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -24442,7 +24444,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 55
+    m_Bits: 191
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0

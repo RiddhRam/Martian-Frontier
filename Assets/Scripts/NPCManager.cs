@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,6 +15,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField]
     private Transform[] spawnPoints;
     private bool[] spawnPointTaken;
+    [SerializeField]
+    private Sprite[] mapIcons;
+    [SerializeField]
+    public GameObject mapIconPrefab;
 
     [SerializeField]
     private Transform playerVehicle;
@@ -25,15 +30,20 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public Vector2[] npcJoysticks;
 
+    [SerializeField]
+    private MineRenderer mineRenderer;
+
     System.Random random = new();
+    // Reused multiple times
     NPCMovement nPCMovement;
-    public int npcIndeM;
 
     public void PlacePlayer() {
         int index = random.Next(0, spawnPoints.Length);
 
         playerSpawnPoint = spawnPoints[index].position;
         spawnPointTaken[index] = true;
+
+        SetMapIcon(playerVehicle.gameObject, playerSpawnPoint);
 
         ResetPlayerPos();
     }
@@ -59,15 +69,26 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovement = npcs[npcIndex].GetComponent<NPCMovement>();
         nPCMovement.npcIndex = npcIndex;
         nPCMovement.nPCManager = this;
-
-        Instantiate(testDriller).transform.SetParent(npcs[npcIndex].transform, false);
+        nPCMovement.rebirthLevel = random.Next(0, 10);
 
         npcSpawnPoints[npcIndex] = GetSpawnPoint();
+
+        GameObject vehicle = Instantiate(testHauler);
+        vehicle.transform.SetParent(npcs[npcIndex].transform, false);
+
+        SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex]);
+
         npcs[npcIndex].transform.position = npcSpawnPoints[npcIndex];
     }
 
+    public void SetMapIcon(GameObject vehicleParent, Vector3 spawnPoint) {
+        GameObject mapIcon = Instantiate(mapIconPrefab);
+        mapIcon.transform.SetParent(vehicleParent.transform, false);
+        mapIcon.GetComponent<SpriteRenderer>().sprite = mapIcons[FindSpawnPointIndex(spawnPoint)];
+    }
+
     public void ResetNPCPos(int npcIndex) {
-        if (!spawnPointTaken[npcIndex]) {
+        if (!spawnPointTaken[npcIndex] || npcs[npcIndex] == null) {
             return;
         } 
 
@@ -91,6 +112,17 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return spawnPoint;
     }
 
+    public int FindSpawnPointIndex(Vector3 spawnPoint) {
+    
+        for (int i = 0; i != spawnPoints.Length; i++) {
+            if (spawnPoints[i].position == spawnPoint) {
+                return i;
+            }
+        }
+
+        return 0;
+    }
+
     public void LoadData(GameData data) {
         spawnPointTaken = new bool[spawnPoints.Length];
         npcs = new GameObject[spawnPoints.Length - 1];
@@ -103,6 +135,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             CreateNPC(i);
             ResetNPCPos(i);
         }
+
+        StartCoroutine(ScatterNPCs());
+    }
+
+    private IEnumerator ScatterNPCs() {
+        yield return new WaitUntil(() => mineRenderer.coopMineLoaded);
+        Debug.Log("Scattered NPCs!");
     }
 
     public void SaveData(ref GameData data) {
