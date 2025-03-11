@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1326188926679933236}
   - component: {fileID: 6911084395389405298}
   - component: {fileID: 3578492239075366267}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player Drill Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -142,7 +142,7 @@ GameObject:
   - component: {fileID: 1978609402839155700}
   - component: {fileID: 2263101798929705654}
   - component: {fileID: 5761204278133187757}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player Drill Driller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -233,6 +233,7 @@ MonoBehaviour:
   width: 4
   price: 450000000
   profitMultiplier: 0
+  isNPC: 0
 --- !u!61 &5761204278133187757
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -287,7 +288,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4210768593467607061}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: TWIN III
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -43,7 +43,7 @@ public class HaulerAINavigation : MonoBehaviour
         //Debug.Log($"{agent.steeringTarget} vs {transform.position}");
 
         distance = Vector3.Distance(transform.position, agent.steeringTarget);
-        
+
         if (distance < 0.2f) {
             agent.nextPosition = transform.position;
         } else {

@@ -39,6 +39,7 @@ public class GameDataString
     public string materialProfitMultipliers;
     public string cratesAvailable;
     public string progressToNextCrate;
+    public string currentCoopVehicle;
 
     public GameDataString() {
         this.userCash = null;
@@ -77,5 +78,6 @@ public class GameDataString
         this.materialProfitMultipliers = null;
         this.cratesAvailable = null;
         this.progressToNextCrate = null;
+        this.currentCoopVehicle = null;
     }
 }

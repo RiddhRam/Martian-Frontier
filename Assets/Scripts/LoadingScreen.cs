@@ -16,11 +16,13 @@ public class LoadingScreen : MonoBehaviour
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
         LoadData() (10 total)
-        AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, TutorialManager, VehicleUpgradesDelegator
+        AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, VehicleUpgradesDelegator
         
         Extras:
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
+        TutorialManager: LoadData() (1 total), only in singleplayer
+        NPCManager: LoadData() (1 total), only in co-op local
 
         Total as of Feb 19 2025: 12 || 11
         Last check: Feb 19 2025

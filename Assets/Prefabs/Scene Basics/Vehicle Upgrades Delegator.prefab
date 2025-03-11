@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &9001484728045833717
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3013936036547013953}
+  - component: {fileID: 8358033591698104811}
+  m_Layer: 0
+  m_Name: Vehicle Upgrades Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3013936036547013953
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9001484728045833717}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 2.8672903, y: -11.545475, z: -17.787975}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8358033591698104811
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9001484728045833717}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: df4742ca8c64b46459fe4c6e8616fd83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drillersPanel: {fileID: 0}
+  drillersContent: {fileID: 0}
+  drillerTierPanel: {fileID: 8017755604609226771, guid: da265ef959fcc4abaa8016d099c22032, type: 3}
+  drillerDisplayPanel: {fileID: 2670285284327104890, guid: 10d795a3499274c08917a480c521ff2f, type: 3}
+  haulersPanel: {fileID: 0}
+  haulersContent: {fileID: 0}
+  haulerDisplayPanel: {fileID: 5349941851309000682, guid: 8a9246172c1084a37a9a115cb4da9fd3, type: 3}
+  vehicleUpgradeLevels:
+    keys: []
+    values: 
+  playerState: {fileID: 0}
+  playerVehicleDelegation: {fileID: 0}
+  garageDelegator: {fileID: 0}
+  uIDelegation: {fileID: 0}
+  playerVehicle: {fileID: 0}
+  analyticsDelegator: {fileID: 0}

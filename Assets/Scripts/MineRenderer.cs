@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class MineRenderer : MonoBehaviour, IDataPersistence
@@ -143,6 +144,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap tilemapToReturn;
     private TileBase[] tilesBeingUsed;
     private bool alreadyBeingReturned = false;
+    private bool notSinglePlayerScene = false;
 
 
     // Called before Start
@@ -756,6 +758,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            return;
+        }
+
         // If there's already a coroutine running, stop it
         if (_loadDataCoroutine != null) {
             StopCoroutine(_loadDataCoroutine);
@@ -826,6 +834,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void SaveData(ref GameData data) {
+        if (notSinglePlayerScene) {
+            return;
+        }
+
         data.materials = materialsDelegator.uncollectedMaterials;
         data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
         data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;

@@ -1,5 +1,6 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class UpgradePanelsDelegator : MonoBehaviour
@@ -15,7 +16,17 @@ public class UpgradePanelsDelegator : MonoBehaviour
     public GameObject haulersPanel;
     public GameObject haulersContent;
     public VehicleUpgradesDelegator vehicleUpgradesDelegator;
+    public bool notSinglePlayerScene = false;
 
+    void Awake()
+    {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+            ActivatePanel("Drillers");
+            return;
+        }
+    }
+    
     public void DeactivatePanel() {
 
         if (activePanel == "Refinery") {

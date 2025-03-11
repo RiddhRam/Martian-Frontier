@@ -32,7 +32,6 @@ public class DrillerController : MonoBehaviour
     private int lastAudioUsed = -1;
     private AudioDelegator audioDelegator;
     private UIDelegation uiDelegation;
-    private OreDelegation oreDelegation;
     private BoxCollider2D boxCollider2D;
     private Vector2 size;
     Vector2 rotatedOffset;
@@ -56,26 +55,32 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
     bool dontPlayAudio;
+    public bool isNPC = false;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         ores = mineRenderer.GetOres();
+        materials = mineRenderer.oreDelegation.materials;
 
-        oreDelegation = mineRenderer.oreDelegation;
-        materials = oreDelegation.materials;
+        boxCollider2D = GetComponent<BoxCollider2D>();
+        // Get the bounds of the BoxCollider2D
+        rotatedOffset = boxCollider2D.offset;
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+
+        try {
+            joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
+        } catch {
+            isNPC = true;
+            return;
+        }
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-        joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
 
-        boxCollider2D = GetComponent<BoxCollider2D>();
-        // Get the bounds of the BoxCollider2D
-        rotatedOffset = boxCollider2D.offset;
     }
 
     void Update() {
@@ -131,6 +136,7 @@ public class DrillerController : MonoBehaviour
                     }
                     tileToDestroy = tilemap.GetTile(currentTilePos);
 
+                    if (!isNPC) {
                         // Make sure the drill is capable of destroying this tile
                         tileTier = mineRenderer.GetTileTier(tileToDestroy);
                         if (drillTier < tileTier) {
@@ -144,6 +150,8 @@ public class DrillerController : MonoBehaviour
                             dontPlayAudio = true;
                             continue;
                         }
+                    }
+
 
                     // Keep track of the closest tile
                     nearestTilePos = currentTilePos;
@@ -156,7 +164,7 @@ public class DrillerController : MonoBehaviour
 
             mineRenderer.DestroyTiles(currentTilePositions, false);
 
-            if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
+            if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero && !isNPC) {
                 PlayAudio();
             }
 

@@ -3,6 +3,7 @@ using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
@@ -36,6 +37,8 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public Image supplyCrateButtonIcon;
     public GameObject crateNoticeIcon;
+
+    public bool disableAds = false;
 
 
     private int cratesAvailable = 1;
@@ -175,7 +178,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         cashReward.text = playerState.FormatPrice(cashRewardAmount);
         gemReward.text = playerState.FormatPrice(gemRewardAmount);
 
-        if (Application.internetReachability != NetworkReachability.NotReachable) {
+        if (Application.internetReachability != NetworkReachability.NotReachable && !disableAds) {
             doubleRewardsButtons.SetActive(true);
         }
 
@@ -202,7 +205,10 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         cashReward.text = playerState.FormatPrice(cashRewardAmount);
         gemReward.text = playerState.FormatPrice(gemRewardAmount);
 
-        doubleRewardsButtons.SetActive(false);
+        if (!disableAds) {
+            doubleRewardsButtons.SetActive(false);
+        }
+        
     }
 
     private string GetLocalizedValue(string key, params object[] args)
@@ -222,6 +228,11 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     
     public void LoadData(GameData data)
     {
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            disableAds = true;
+        }
+        
         this.cratesAvailable = data.cratesAvailable;
         this.progressToNextCrate = data.progressToNextCrate;
 

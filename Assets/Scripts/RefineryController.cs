@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RefineryController : MonoBehaviour, IDataPersistence
@@ -50,6 +51,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
     private bool firstTimePlaying = false;
+    private bool notSinglePlayerScene = false;
 
     void Awake() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -311,7 +313,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.enabled = false;
 
+        this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
         this.askedForReview = data.askedForReview;
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+            return;
+        }
+
         // This will call LoadCorrectUpgrade in RefineryUpgrades
         capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity);
         efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency);
@@ -332,18 +341,22 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             resetMineCoroutine = StartCoroutine(ResetMine());
         }
 
-        this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
-
         UpdateRefineryProgressBars();
        
         doneLoading = true;
     }
 
     public void SaveData(ref GameData data) {
+        data.materialsSold = this.materialsSold.ToString();
+        data.askedForReview = this.askedForReview;
+
+        if (notSinglePlayerScene) {
+            return;
+        }
+
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
         data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
-        data.askedForReview = this.askedForReview;
     }
 
     private void SaveGame() {

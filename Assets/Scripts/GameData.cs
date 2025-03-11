@@ -46,6 +46,7 @@ public class GameData
     public float[] materialProfitMultipliers;
     public int cratesAvailable;
     public int progressToNextCrate;
+    public string currentCoopVehicle;
 
     public GameData() {
         this.userCash = "0";
@@ -94,5 +95,6 @@ public class GameData
         this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
+        this.currentCoopVehicle = "GRINDER I";
     }
 }

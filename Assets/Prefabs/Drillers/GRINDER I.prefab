@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4232359415801906799}
   - component: {fileID: 5199616695032665932}
   - component: {fileID: 223912956608615895}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player Drill Body
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -139,7 +139,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 343462828043385030}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: GRINDER I
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -175,7 +175,7 @@ GameObject:
   - component: {fileID: 8391581122746921253}
   - component: {fileID: 6419615213578852864}
   - component: {fileID: 7150747408986875578}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player Drill Driller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -266,6 +266,7 @@ MonoBehaviour:
   width: 3
   price: 0
   profitMultiplier: 0
+  isNPC: 0
 --- !u!61 &7150747408986875578
 BoxCollider2D:
   m_ObjectHideFlags: 0
