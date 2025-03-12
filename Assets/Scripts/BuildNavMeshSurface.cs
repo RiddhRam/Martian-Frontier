@@ -30,10 +30,7 @@ public class BuildNavMeshSurface : MonoBehaviour
 
             foreach (var surface in navMeshSurfaces)
             {
-
-                Debug.Log("Updating " + surface.name);
                 surface.UpdateNavMesh(surface.navMeshData);
-                Debug.Log("Updated " + surface.name);
 
                 yield return new WaitForSeconds(10);
             }

@@ -233,7 +233,7 @@ MonoBehaviour:
   m_VoxelSize: 0.5822577
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
-  m_HideEditorLogs: 0
+  m_HideEditorLogs: 1
   m_NavMeshData: {fileID: 0}
 --- !u!4 &25083028
 Transform:
@@ -525,7 +525,7 @@ MonoBehaviour:
   m_VoxelSize: 0.455
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
-  m_HideEditorLogs: 0
+  m_HideEditorLogs: 1
   m_NavMeshData: {fileID: 0}
 --- !u!4 &141608388
 Transform:
@@ -16458,7 +16458,7 @@ MonoBehaviour:
   m_VoxelSize: 0.34124997
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
-  m_HideEditorLogs: 0
+  m_HideEditorLogs: 1
   m_NavMeshData: {fileID: 0}
 --- !u!4 &923832566
 Transform:
@@ -16487,7 +16487,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f8c371952a73c4cc4841f9a86e1b0e82, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mine: {fileID: 0}
   navMeshSurfaces:
   - {fileID: 923832565}
   - {fileID: 141608387}
@@ -25134,7 +25133,7 @@ Rigidbody2D:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 264
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 0
@@ -25204,7 +25203,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 1012335945}
   m_Enabled: 0
   m_AgentTypeID: -1372625422
-  m_Radius: 2.5
+  m_Radius: 0.00001
   m_Speed: 0
   m_Acceleration: 0
   avoidancePriority: 50
@@ -29771,6 +29770,7 @@ GameObject:
   - component: {fileID: 1583343281}
   - component: {fileID: 1583343280}
   - component: {fileID: 1583343283}
+  - component: {fileID: 1583343284}
   m_Layer: 7
   m_Name: Ore Refinery
   m_TagString: Untagged
@@ -29890,6 +29890,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 7.7, y: 12.96}
   m_EdgeRadius: 0
+--- !u!114 &1583343284
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1583343277}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9809bf1345abc5648af68b3a82653f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!1 &1590678440 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5718864498388693193, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -29949,6 +29965,7 @@ GameObject:
   - component: {fileID: 1644249864}
   - component: {fileID: 1644249863}
   - component: {fileID: 1644249865}
+  - component: {fileID: 1644249866}
   m_Layer: 7
   m_Name: Mine Entrance
   m_TagString: Untagged
@@ -30068,6 +30085,22 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 6.41, y: 1.63}
   m_EdgeRadius: 0
+--- !u!114 &1644249866
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1644249860}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9809bf1345abc5648af68b3a82653f08, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_OverrideArea: 1
+  m_Area: 1
+  m_IgnoreFromBuild: 0
+  m_AffectedAgents: ffffffff
 --- !u!114 &1646472682 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 9051089117872129899, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -31383,7 +31416,7 @@ MonoBehaviour:
   m_VoxelSize: 0.5822577
   m_BuildHeightMesh: 0
   m_MinRegionArea: 0
-  m_HideEditorLogs: 0
+  m_HideEditorLogs: 1
   m_NavMeshData: {fileID: 23800000, guid: 858f261410f074c2b98c8f0286c1f4a6, type: 2}
 --- !u!4 &2058831298
 Transform:

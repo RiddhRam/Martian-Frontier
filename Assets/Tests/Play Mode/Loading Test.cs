@@ -452,7 +452,6 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.playerStateScript, playerState);
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
-        Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
@@ -538,7 +537,6 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.playerStateScript.gameObject.name, "PlayerState");
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
-        Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");

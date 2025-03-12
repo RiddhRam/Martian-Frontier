@@ -15,7 +15,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public GameObject largeFogOfWar;
     public GameObject generationTriggers;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
-    public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
@@ -74,7 +73,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
     private List<GameObject> mineTilemaps;
-    private List<GameObject> mineBackgroundTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     public PlayerState playerStateScript;
     // Precompute reusable values
@@ -106,9 +104,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     Vector3Int[] tilesToSet;
     TileBase[] tilesBeingRevealed;
     Vector3Int vectorValue;
-    GameObject mineBackgroundTilemapGameObject;
     Tilemap mineTilemap;
-    Tilemap mineBackgroundTilemap;
     SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue;
     int veinCount;
     int centerX;
@@ -161,7 +157,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
 
         mineTilemaps = new List<GameObject>();
-        mineBackgroundTilemaps = new List<GameObject>();
 
         // unplacedTilemapsTileValues will be populated as each row is created
         // These ones are done right now
@@ -178,11 +173,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 // Get the component once, then no need to do it again later
                 Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
-                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
-
-                GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
-                mineBackgroundTilemapGameObject.transform.SetParent(transform);
-                ReturnBackgroundTilemapObject(mineBackgroundTilemapGameObject);                
+                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);               
             }
         }
 
@@ -294,12 +285,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         int chunkColumn = 1;
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
-            
-            mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
-
             string name = GetTilemapObject().name;
             mineTilemap = tilemapsDictionary[name];
-            mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
             
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
@@ -319,7 +306,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     // Level 1 base tile = 0, level 2 = 4, level 3 = 8
                     unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), tileValueIndex);
                     mineTilemap.SetTile(tilePosition, unknownTile);
-                    mineBackgroundTilemap.SetTile(tilePosition, mineBackgroundRuleTile);
                 }
             }
 
@@ -679,31 +665,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
         }
-
-        /*for (int i = 0; i != destroyTilemapsToEdit.Count; i++) {
-            Debug.Log(destroyTilesForTilemaps[i].Count);
-            Debug.Log(tilesToReveal.Count);
-
-            size = destroyTilesForTilemaps[i].Count;
-
-            Vector3Int[] tilesToSet = new Vector3Int[size];
-            TileBase[] nullTiles = new TileBase[size];
-
-            // Used as the limit for the first for loop
-            // Used as index value for the second foreach loop
-            int counter = destroyTilesForTilemaps[i].Count;
-
-            for (int j = 0; j != size; j++) {
-                tilesToSet[j] = destroyTilesForTilemaps[i][j];
-            }
-
-            for (int j = 0; j != size; j++) {
-                Debug.Log($"{tilesToSet[j]}: {nullTiles[j]}");
-            }
-
-            destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
-        }*/
-
+        
         try {
             // If not loading, and is not from an NPC
             if (!loading && !isNPC) {
@@ -1011,38 +973,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineTilemaps.Insert(0, obj);
     }
 
-    public GameObject GetBackgroundTilemapObject()
-    {
-        obj = mineBackgroundTilemaps[0];
-        mineBackgroundTilemaps.RemoveAt(0);
-        
-        return obj;
-    }
-
-    public void ReturnBackgroundTilemapObject(GameObject obj)
-    {
-        // Get the Tilemap component from the GameObject
-        tilemapToReturn = obj.GetComponent<Tilemap>();
-
-        int positionsCount = tilemapToReturn.cellBounds.size.x * tilemapToReturn.cellBounds.size.y;;
-
-        int tileIndex = 0;
-        Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
-        TileBase[] tilesBeingUsed = new TileBase[positionsCount];
-
-        // Loop through all positions in the tilemap's bounds
-        foreach (var position in tilemapToReturn.cellBounds.allPositionsWithin)
-        {
-            tilesForReturning[tileIndex] = position;
-            tilesBeingUsed[tileIndex] = null;
-
-            tileIndex++;
-        }
-
-        tilemapToReturn.SetTiles(tilesToSet, tilesBeingUsed);
-        mineBackgroundTilemaps.Insert(0, obj);
-    }
-
     public IEnumerator ReturnAllObjectsToPool() {
 
         if (alreadyBeingReturned) {
@@ -1089,9 +1019,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                     ReturnTilemapObject(child, x * 25, y * -12 - 5);
 
-                } else if (childName.Contains("Background")) {
-
-                    ReturnBackgroundTilemapObject(child);
                 } else {
 
                     Destroy(child);

@@ -73,7 +73,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         npcSpawnPoints[npcIndex] = GetSpawnPoint();
 
-        GameObject vehicle = Instantiate(testHauler);
+        GameObject vehicle = Instantiate(testDriller);
         vehicle.transform.SetParent(npcs[npcIndex].transform, false);
 
         SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex]);
