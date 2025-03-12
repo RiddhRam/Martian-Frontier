@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(NavMeshSurface))]
 public class BuildNavMeshSurface : MonoBehaviour
 {
-    NavMeshSurface navMeshSurface;
+    public NavMeshSurface[] navMeshSurfaces;
     public bool UpdateMeshes;
     
     // Start is called before the first frame update
@@ -14,9 +14,12 @@ public class BuildNavMeshSurface : MonoBehaviour
         if (!UpdateMeshes || !Debug.isDebugBuild) {
             return;
         } 
-        navMeshSurface = GetComponent<NavMeshSurface>();
-        navMeshSurface.hideEditorLogs = true;
-        navMeshSurface.BuildNavMesh();
+
+        foreach (var surface in navMeshSurfaces)
+        {
+            surface.hideEditorLogs = true;
+            surface.BuildNavMesh();
+        }
         
         StartCoroutine(UpdateNavMeshCoroutine());
     }
@@ -24,8 +27,17 @@ public class BuildNavMeshSurface : MonoBehaviour
     private IEnumerator UpdateNavMeshCoroutine() {
         while (true) {
             yield return new WaitForSeconds(3);
-            navMeshSurface.UpdateNavMesh(navMeshSurface.navMeshData);
-            yield return new WaitForSeconds(27);
+
+            foreach (var surface in navMeshSurfaces)
+            {
+                Debug.Log("Updating " + surface.name);
+                surface.UpdateNavMesh(surface.navMeshData);
+                // Spread out the work
+                Debug.Log("Updated " + surface.name);
+                yield return new WaitForSeconds(10);
+            }
+
+            yield return new WaitForSeconds(10);
         }
 
     }

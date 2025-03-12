@@ -785,6 +785,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         coopMineLoaded = true;
 
+        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
         StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
     }
 
@@ -831,7 +832,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
-        GameObject.Find("NavMesh Surface").GetComponent<BuildNavMeshSurface>().InitializeMesh();
+        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
     }
 
     public void GenerateMaterials() {

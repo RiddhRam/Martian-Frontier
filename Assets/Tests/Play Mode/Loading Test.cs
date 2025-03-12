@@ -150,10 +150,7 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.cloudDelegator.name, "Cloud Delegator");
         Assert.AreEqual(adDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(adDelegator.refineryController.name, "Ore Refinery Dropoff");
-        Assert.AreEqual(adDelegator.lobbyAdScript.name, "Lobby Ad");
         Assert.AreEqual(adDelegator.supplyCrateDelegator.name, "Supply Crates Delegator");
-        Assert.AreEqual(adDelegator.lobbyAdReward, 0);
-        Assert.AreEqual(adDelegator.lobbyAdButton.name, "Lobby Ad");
 
         // Settings
         settingsDelegator = GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>();
