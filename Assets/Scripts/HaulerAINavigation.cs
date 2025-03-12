@@ -48,6 +48,11 @@ public class HaulerAINavigation : MonoBehaviour
             agent.nextPosition = transform.position;
         } else {
             direction = (agent.steeringTarget - transform.position).normalized;
+            /* 
+            Vector3 toTarget = (agent.steeringTarget - transform.position).normalized;
+            Vector3 offset = Vector3.Cross(toTarget, Vector3.forward) * 0.1f; // Adjust 0.5f for a wider gap
+            direction = (agent.steeringTarget + offset - transform.position).normalized;
+            */
         }
 
         joystickMovement.UpdateJoystickVector(direction, 1f);

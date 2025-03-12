@@ -101,6 +101,7 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
+        thisCamera.cullingMask |= (1 << LayerMask.NameToLayer("Vehicle"));
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;

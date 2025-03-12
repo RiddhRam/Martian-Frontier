@@ -608,15 +608,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Reveal new tiles
             // Search in a radius around tileToDestroy
-            for (int x = -visionRadius; x <= visionRadius; x++) {
-                // Determine the y bounds for the current x to stay within the radius
-                int yLimit = visionRadius - Mathf.Abs(x);
-
-                for (int y = -yLimit; y <= yLimit; y++) {
-                    // Get the tilemap index
-                    tilemapPos = CalculateTileMapPos(new(tileToDestroy.x + x, tileToDestroy.y + y));
-                    // Check if the tile exists in unplacedTilemapsTileValues
+            for (int x = 0; x <= visionRadius; x++)
+            {
+                int yLimit = visionRadius - x;
+                for (int y = 0; y <= yLimit; y++)
+                {
+                    // Add all 4 quadrants
                     tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y + y));
+                    tilesToReveal.Add(new(tileToDestroy.x - x, tileToDestroy.y + y));
+                    tilesToReveal.Add(new(tileToDestroy.x - x, tileToDestroy.y - y));
+                    tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y - y));
                 }
             }
             
