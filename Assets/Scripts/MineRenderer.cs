@@ -147,7 +147,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
     public bool coopMineLoaded = false;
 
-
     // Called before Start
     void Awake()
     {
@@ -523,6 +522,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         revealTilesForTilemaps.Clear();
 
         foreach (Vector2Int tileToReveal in tilesToReveal) {
+            // Get tilemap pos index from dictionary
             tilemapPos = CalculateTileMapPos(tileToReveal);
 
             unplacedTilemapsTileValueDictionary = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y];
@@ -531,19 +531,23 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 continue;
             }
 
+            // Save tilemap
             tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
 
+            // Make sure that we know this tilemap will be edited later
             if (!revealTilemapsToEdit.Contains(tilemap)) {
                 revealTilemapsToEdit.Add(tilemap);
                 revealTilesForTilemaps.Add(new());
             }
 
+            // Get index of tilemap from list
             tilemapIndex = revealTilemapsToEdit.IndexOf(tilemap);
-            // Find out what the tile is
+
+            // Find out what the tile is and set it as the z value to the vector 3
             tileValue = unplacedTilemapsTileValueDictionary[tileToReveal];
             revealTilesForTilemaps[tilemapIndex].Add(new(tileToReveal.x, tileToReveal.y, tileValue));
 
-            // Save value to revealedTilemapsTileValues
+            // Save to revealedTilemapsTileValues
             revealedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tileToReveal] = tileValue;
         }
 
@@ -562,7 +566,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             revealTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingRevealed);
         }
-        
     }
 
     public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC) {
@@ -572,6 +575,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         destroyTilemapsToEdit.Clear();
         destroyTilesForTilemaps.Clear();
         tilesToReveal.Clear();
+        revealTilemapsToEdit.Clear();
+        revealTilesForTilemaps.Clear();
 
         foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
@@ -660,17 +665,44 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Finally delete the tiles
         for (int i = 0; i != destroyTilemapsToEdit.Count; i++) {
+
+            size = destroyTilesForTilemaps[i].Count;
+
+            Vector3Int[] tilesToSet = new Vector3Int[size];
+            TileBase[] tilesBeingChanged = new TileBase[size];
+
+            // Set tiles being destroyed
+            for (int j = 0; j != size; j++) {
+                tilesToSet[j] = destroyTilesForTilemaps[i][j];
+                // Leave tilesBeingChanged[j] as null since we are destroying it
+            }
+
+            destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
+        }
+
+        /*for (int i = 0; i != destroyTilemapsToEdit.Count; i++) {
+            Debug.Log(destroyTilesForTilemaps[i].Count);
+            Debug.Log(tilesToReveal.Count);
+
             size = destroyTilesForTilemaps[i].Count;
 
             Vector3Int[] tilesToSet = new Vector3Int[size];
             TileBase[] nullTiles = new TileBase[size];
 
+            // Used as the limit for the first for loop
+            // Used as index value for the second foreach loop
+            int counter = destroyTilesForTilemaps[i].Count;
+
             for (int j = 0; j != size; j++) {
                 tilesToSet[j] = destroyTilesForTilemaps[i][j];
             }
 
+            for (int j = 0; j != size; j++) {
+                Debug.Log($"{tilesToSet[j]}: {nullTiles[j]}");
+            }
+
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
-        }
+        }*/
 
         try {
             // If not loading, and is not from an NPC
@@ -681,7 +713,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         } catch {
         }
-
 
         quantities.Clear();
 

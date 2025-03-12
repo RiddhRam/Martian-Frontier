@@ -124,7 +124,7 @@ public class DrillerController : MonoBehaviour
             }
 
             mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
-
+            
             if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero && !isNPC) {
                 PlayAudio();
             }
@@ -171,8 +171,9 @@ public class DrillerController : MonoBehaviour
     }
 
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
+
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos)) {
+        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
             return;
         }
 
