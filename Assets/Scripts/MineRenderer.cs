@@ -168,7 +168,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
                 mineTilemapGameObject.transform.SetParent(transform);
-                mineTilemapGameObject.name = "Row " + (i+1) + ", Column " + (j+1);
+                mineTilemapGameObject.name = "Column " + (i+1) + ", Row " + (j+1);
                 ReturnTilemapObject(mineTilemapGameObject, i * 25, j * -gridSize.y - 5);
 
                 // Get the component once, then no need to do it again later
@@ -1007,12 +1007,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             childName = child.name;
 
             // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
-            if ((childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) && child.activeSelf)
+            if ((childName.Contains("Row") || childName.Contains("Generation")) && child.activeSelf)
             {
                 // Repool or destroy
                 if (childName.Contains("Row")) {
                     // Define a regex to capture Y and X values
-                    var match = Regex.Match(childName, @"Row (\d+), Column (\d+)");
+                    var match = Regex.Match(childName, @"Column (\d+), Row (\d+)");
 
                     y = int.Parse(match.Groups[1].Value);
                     x = int.Parse(match.Groups[2].Value);
