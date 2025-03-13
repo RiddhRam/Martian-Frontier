@@ -609,9 +609,21 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 1015074332202866394, guid: 488c9d4bb92384ee89dcb1bfa80d97c7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     - target: {fileID: 3759712601038749159, guid: 488c9d4bb92384ee89dcb1bfa80d97c7, type: 3}
       propertyPath: m_Name
       value: Level 1 Base Drill
+      objectReference: {fileID: 0}
+    - target: {fileID: 3759712601038749159, guid: 488c9d4bb92384ee89dcb1bfa80d97c7, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4798671156272153685, guid: 488c9d4bb92384ee89dcb1bfa80d97c7, type: 3}
+      propertyPath: m_Layer
+      value: 3
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -15857,7 +15869,7 @@ GameObject:
   - component: {fileID: 923832564}
   - component: {fileID: 923832563}
   - component: {fileID: 923832567}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: NavMesh Surface Width 3
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21598,7 +21610,7 @@ GameObject:
   - component: {fileID: 1012335950}
   - component: {fileID: 1012335951}
   - component: {fileID: 1012335952}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Player Vehicle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21721,7 +21733,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   joystickMovement: {fileID: 1828223861}
-  target: {x: 47.3, y: -144.9}
+  target: {x: -17, y: -73.5}
 --- !u!195 &1012335952
 NavMeshAgent:
   m_ObjectHideFlags: 0
