@@ -15,7 +15,10 @@ public class NPCMovement : MonoBehaviour
     Transform frontWheels;
     public int npcIndex;
     public NPCManager nPCManager;
+    public NavMeshAgent agent;
     public int rebirthLevel;
+
+    public bool stopMoving;
 
     // Used in FixedUpdate, but declared here to reduce GC usage
     private Vector2 joystickVec;
@@ -26,23 +29,54 @@ public class NPCMovement : MonoBehaviour
     private readonly float maxBodyRotation = 30;
     private readonly float maxChangeRotation = 20;
     private float wheelRotation;
+    Vector2 direction;
+    System.Random random = new();
 
     // Start is called before the first frame update
     void Start()
     {
-        NavMeshAgent navMeshAgent = GetComponent<NavMeshAgent>();
-        navMeshAgent.updateUpAxis = false;
+        agent.updateUpAxis = false;
+        agent.updatePosition = false;
+        agent.updateRotation = false;
 
         rb = GetComponent<Rigidbody2D>();
     }
 
     // Update is called once per frame
-    
     void FixedUpdate()
     {
 
-        joystickVec = nPCManager.npcJoysticks[npcIndex];
+        if (Mathf.Approximately(agent.destination.y, -8f)) {
+            float randomX = (float) (random.NextDouble() * 100 - 50);
+            float randomY = (float) (random.NextDouble() * 121 - 130);;
+            Vector3 newDestination = new Vector3(randomX, randomY, agent.destination.z);
+            agent.SetDestination(newDestination);
+        }
 
+        joystickVec = direction;
+
+        float distance = Vector3.Distance(transform.position, agent.steeringTarget);
+
+        if (distance < 0.5f) {
+            agent.nextPosition = transform.position;
+        } else {
+            direction = (agent.steeringTarget - transform.position).normalized;
+        }
+
+        /*if (npcIndex == 1) {
+            Debug.Log(agent.destination.y);
+        }*/
+        
+        if (agent.remainingDistance < 0.5f) {
+            agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z));
+        }
+
+        if (!stopMoving) {
+            MoveVehicle();
+        }
+    }
+
+    public void MoveVehicle() {
         // Make sure vehicle is trying to move
         if (joystickVec.x == 0 && joystickVec.y == 0) {
             rb.velocity = Vector2.zero;

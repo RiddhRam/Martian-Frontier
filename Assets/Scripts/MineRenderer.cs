@@ -38,7 +38,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // If a tile is destroyed, it will be set to null
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
-    private  SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
+    private SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
     // Use this to get a tilemap rather than calling GetComponent each time a tilemap is being mined
     // string = tilemap gameobject name
     // public so DrillerController can easily use it
@@ -1057,6 +1057,235 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public int GetVisionRadius() {
         return visionRadius;
+    }
+
+    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation)
+    {
+        // Find all ore tiles within the search area
+        List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius);
+        
+        // If no ore tiles found, return the current position
+        if (oreTiles.Count == 0)
+            return new(0, -8);
+            
+        // Find all connected veins from the ore tiles
+        List<List<Vector2Int>> veins = FindConnectedVeins(oreTiles);
+        
+        // If no veins found, return current position
+        if (veins.Count == 0)
+            return new(0, -8);
+            
+        // Find the largest vein
+        List<Vector2Int> largestVein = FindLargestVein(veins);
+        
+        Vector2Int position = CalculateBestMiningPosition(largestVein, currentRotation);
+        // Calculate the best mining position based on the largest vein
+        return new(position.x, position.y);
+    }
+
+    private const float SEARCH_ANGLE = 60f;
+
+    private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius)
+    {
+        List<Vector2Int> oreTiles = new List<Vector2Int>();
+        
+        // Convert rotation to radians and calculate the angular range
+        float rotationRad = currentRotation * Mathf.Deg2Rad;
+        float minAngle = rotationRad - SEARCH_ANGLE * Mathf.Deg2Rad;
+        float maxAngle = rotationRad + SEARCH_ANGLE * Mathf.Deg2Rad;
+        
+        // Search all tiles within the max radius
+        for (int x = currentPosition.x - maxRadius; x <= currentPosition.x + maxRadius; x++)
+        {
+            for (int y = currentPosition.y - maxRadius; y <= currentPosition.y + maxRadius; y++)
+            {
+                if (y > -6) {
+                    continue;
+                }
+
+                Vector2Int tilePos = new Vector2Int(x, y);
+                Vector2Int relativePos = tilePos - currentPosition;
+                
+                // Calculate distance from current position
+                float distance = relativePos.magnitude;
+                
+                // Skip if outside the radius bounds
+                if (distance < minRadius || distance > maxRadius)
+                    continue;
+                
+                // Calculate angle to this tile
+                float angle = Mathf.Atan2(relativePos.y, relativePos.x);
+                
+                // Normalize angle to [0, 2π] for proper comparison
+                while (angle < 0) angle += 2 * Mathf.PI;
+                while (minAngle < 0) minAngle += 2 * Mathf.PI;
+                while (maxAngle < 0) maxAngle += 2 * Mathf.PI;
+                
+                // Handle angle wrap-around
+                bool inAngleRange;
+                if (minAngle > maxAngle) // Crossing 0/360 degrees
+                {
+                    inAngleRange = angle >= minAngle || angle <= maxAngle;
+                }
+                else
+                {
+                    inAngleRange = angle >= minAngle && angle <= maxAngle;
+                }
+                
+                // Skip if not in angular range
+                if (!inAngleRange) {
+                    continue;
+                }
+
+                Vector2Int thisTilemapPos = CalculateTileMapPos(tilePos);
+                
+                // Check if this tile has ore
+                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && value >= 1)
+                {
+                    oreTiles.Add(tilePos);
+                    //Debug.Log(tilePos);
+                }
+            }
+        }
+        
+        return oreTiles;
+    }
+
+    private List<List<Vector2Int>> FindConnectedVeins(List<Vector2Int> oreTiles)
+    {
+        List<List<Vector2Int>> veins = new List<List<Vector2Int>>();
+        HashSet<Vector2Int> visitedTiles = new HashSet<Vector2Int>();
+        
+        foreach (Vector2Int oreTile in oreTiles)
+        {
+            // Skip if this tile has already been processed
+            if (visitedTiles.Contains(oreTile))
+                continue;
+                
+            // Start a new vein
+            List<Vector2Int> currentVein = new List<Vector2Int>();
+            Queue<Vector2Int> tilesToProcess = new Queue<Vector2Int>();
+            
+            tilesToProcess.Enqueue(oreTile);
+            visitedTiles.Add(oreTile);
+            
+            // Process all connected tiles
+            while (tilesToProcess.Count > 0)
+            {
+                Vector2Int currentTile = tilesToProcess.Dequeue();
+                currentVein.Add(currentTile);
+                
+                // Check all adjacent tiles (4-way connectivity)
+                Vector2Int[] adjacentOffsets = new Vector2Int[]
+                {
+                    new Vector2Int(1, 0),
+                    new Vector2Int(-1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, -1)
+                };
+                
+                foreach (Vector2Int offset in adjacentOffsets)
+                {
+                    Vector2Int adjacentTile = currentTile + offset;
+                    
+                    // Skip if already visited
+                    if (visitedTiles.Contains(adjacentTile))
+                        continue;
+                        
+                    // Check if this adjacent tile is in our list of ore tiles
+                    if (oreTiles.Contains(adjacentTile))
+                    {
+                        tilesToProcess.Enqueue(adjacentTile);
+                        visitedTiles.Add(adjacentTile);
+                    }
+                }
+            }
+            
+            // Add this vein to our list of veins
+            veins.Add(currentVein);
+        }
+        
+        return veins;
+    }
+
+    private List<Vector2Int> FindLargestVein(List<List<Vector2Int>> veins)
+    {
+        int largestSize = 0;
+        List<Vector2Int> largestVein = new List<Vector2Int>();
+        
+        foreach (List<Vector2Int> vein in veins)
+        {
+            if (vein.Count > largestSize)
+            {
+                largestSize = vein.Count;
+                largestVein = vein;
+            }
+        }
+        
+        return largestVein;
+    }
+
+    private Vector2Int CalculateBestMiningPosition(List<Vector2Int> vein, float currentRotation)
+    {
+        // If the vein is just one tile, return it
+        if (vein.Count == 1)
+            return vein[0];
+            
+        // For a straight-line mining approach, we need to find the best orientation
+        // that intersects with as many ore tiles as possible
+        
+        // Convert rotation to a direction vector
+        float rotationRad = currentRotation * Mathf.Deg2Rad;
+        Vector2 directionVector = new Vector2(Mathf.Cos(rotationRad), Mathf.Sin(rotationRad));
+        
+        // Get the perpendicular direction (for line sweeping)
+        Vector2 perpendicularVector = new Vector2(-directionVector.y, directionVector.x);
+        
+        // Calculate all possible line paths through the vein
+        Dictionary<float, List<Vector2Int>> linePaths = new Dictionary<float, List<Vector2Int>>();
+        
+        foreach (Vector2Int oreTile in vein)
+        {
+            // Project each tile onto the perpendicular line
+            float projection = Vector2.Dot(new Vector2(oreTile.x, oreTile.y), perpendicularVector);
+            
+            // Round to nearest integer to group nearby tiles on the same line
+            float roundedProjection = Mathf.Round(projection);
+            
+            if (!linePaths.ContainsKey(roundedProjection))
+            {
+                linePaths[roundedProjection] = new List<Vector2Int>();
+            }
+            
+            linePaths[roundedProjection].Add(oreTile);
+        }
+        
+        // Find the line with the most ore tiles
+        float bestLine = 0;
+        int maxOreCount = 0;
+        
+        foreach (var path in linePaths)
+        {
+            if (path.Value.Count > maxOreCount)
+            {
+                maxOreCount = path.Value.Count;
+                bestLine = path.Key;
+            }
+        }
+        
+        // From the tiles on this best line, find the one closest to the player's direction
+        List<Vector2Int> bestLineTiles = linePaths[bestLine];
+        
+        // Calculate the center of the best line tiles
+        Vector2 center = Vector2.zero;
+        foreach (Vector2Int tile in bestLineTiles)
+        {
+            center += new Vector2(tile.x, tile.y);
+        }
+        center /= bestLineTiles.Count;
+        
+        // The best mining position is approximately at the center of the vein's best line
+        return new Vector2Int(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
     }
 
     public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
