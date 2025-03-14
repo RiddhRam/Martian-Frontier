@@ -56,7 +56,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool displayStatus = true;
     private bool firstTimePlaying = false;
     private bool disableAds = false;
-    System.Random random = new();
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {

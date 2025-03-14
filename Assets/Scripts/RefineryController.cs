@@ -142,11 +142,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier() * (1 + haulerController.GetProfitMultiplier()));
 
         // Verify that this is the right amount
-        playerState.AddCash(cashToAdd);
+        playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
-        analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+
+        if (!haulerController.CheckIfNpc()) {
+            analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+        }
 
         if (firstTimePlaying && tutorialManager.finishedTutorial) {
             analyticsDelegator.ContinuedAfterTutorial();
@@ -317,6 +320,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
+            this.refineryBattery = 1500;
+            this.initialBattery = 1500;
             return;
         }
 

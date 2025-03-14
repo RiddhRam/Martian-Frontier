@@ -1350,9 +1350,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Red Player
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -1379,7 +1377,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.95
+  m_fontSize: 1
   m_fontSizeBase: 1
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -16070,9 +16068,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Orange Player
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -16099,7 +16095,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.7
+  m_fontSize: 1
   m_fontSizeBase: 1
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -31085,9 +31081,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Blue Player
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -31114,7 +31108,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.9
+  m_fontSize: 1
   m_fontSizeBase: 1
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -31242,9 +31236,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Green Player
-
-'
+  m_text: 
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -31271,7 +31263,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 0.8
+  m_fontSize: 1
   m_fontSizeBase: 1
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -31551,13 +31543,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   npcPrefab: {fileID: 1361560756291077853, guid: 69dfcb25aefcb485d811ad3e899ec6ee, type: 3}
-  testDriller: {fileID: 8111692216480784621, guid: 7d096543f75b7468192b21e42a3f831a, type: 3}
-  testHauler: {fileID: 3216218707337459698, guid: a24b431dcde42454db3dbff0fc98b8b7, type: 3}
   spawnPoints:
   - {fileID: 1930992129}
   - {fileID: 1119917786}
   - {fileID: 1210893143}
   - {fileID: 1049924336}
+  spawnPointNameTexts:
+  - {fileID: 435189209}
+  - {fileID: 2054319361}
+  - {fileID: 2029848271}
+  - {fileID: 800869468}
   mapIcons:
   - {fileID: 21300000, guid: fe02019b918e24710803a915a0a0b30d, type: 3}
   - {fileID: 21300000, guid: 8f75a3c1e67114ba1b33b058ab7bf4af, type: 3}
@@ -31565,6 +31560,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 9be43990f99224c20825b5d93ddcb798, type: 3}
   mapIconPrefab: {fileID: 6476565235989635298, guid: fe56a05929cbd4b108f0593356622c38, type: 3}
   playerVehicle: {fileID: 1012335946}
+  nPCTimeRemaining: 
+  nPCEmptyTimer: 0
   mineRenderer: {fileID: 1093208307}
   uncollectedMaterialsDelegator: {fileID: 1262672824}
   playerState: {fileID: 276248154}

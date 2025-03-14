@@ -17,7 +17,7 @@ public class NPCMovement : MonoBehaviour
     public NPCManager nPCManager;
     public NavMeshAgent agent;
     public int rebirthLevel;
-
+    public HaulerController haulerController;
     public bool stopMoving;
 
     // Used in FixedUpdate, but declared here to reduce GC usage
@@ -31,6 +31,7 @@ public class NPCMovement : MonoBehaviour
     private float wheelRotation;
     Vector2 direction;
     System.Random random = new();
+    private float timer = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -67,13 +68,39 @@ public class NPCMovement : MonoBehaviour
             Debug.Log(agent.destination.y);
         }*/
         
-        if (agent.remainingDistance < 0.5f) {
-            agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z));
+        // If npc takes more than 20 seconds to reach destination, set a new destination
+        if (agent.remainingDistance < 0.5f || timer > 20) {
+            RequestNewPosition();
+        } else {
+            timer += Time.deltaTime;
         }
 
         if (!stopMoving) {
             MoveVehicle();
+        } else {
+            rb.velocity = Vector2.zero;
         }
+    }
+
+    public void RequestNewPosition() {
+        timer = 0;
+
+        // Get hauler position
+        if (haulerController != null) {
+            agent.SetDestination(RequestNewHaulerPosition());
+            return;
+        }
+
+        // Get driller position
+        agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z));
+    }
+
+    public Vector3 RequestNewHaulerPosition() {
+        if (haulerController.GetMaxMaterials() == haulerController.GetTotalMaterialCount()) {
+            return new(0, 3, 0);
+        }
+
+        return nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z);
     }
 
     public void MoveVehicle() {

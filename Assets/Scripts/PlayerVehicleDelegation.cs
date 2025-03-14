@@ -113,12 +113,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        this.currentCoopVehicle = data.currentCoopVehicle;
+
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-
-            this.currentCoopVehicle = data.currentCoopVehicle;
             FindVehicle(currentCoopVehicle, null, null);
-
             return;
         }
         
@@ -181,8 +180,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
 
+        data.currentCoopVehicle = this.currentCoopVehicle;
+
         if (notSinglePlayerScene) {
-            data.currentCoopVehicle = this.currentCoopVehicle;
             return;
         }
 

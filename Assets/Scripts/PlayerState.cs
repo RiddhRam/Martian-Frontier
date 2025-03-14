@@ -90,11 +90,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd) {
+    public void AddCash(long cashToAdd, bool isNPC = false) {
 
         userCash += cashToAdd;
         moneyEarned += cashToAdd;
-        leaderboardDelegator.AddCashScore(cashToAdd);
+
+        if (!isNPC) {
+            leaderboardDelegator.AddCashScore(cashToAdd);
+        }
         
         UpdateCashDisplays();
         dataPersistenceManager.SaveGame();
@@ -187,6 +190,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         return false;
     }
+    
     // For Refinery Upgrade
     public bool VerifyEnoughCash(long price) {
         savedAmountSubtract = price;
@@ -400,9 +404,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         userXP = 0;
         userCash = 0;
         vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
+        
         GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         garagePanel.GetComponent<GarageDelegator>().PlayerRebirth();
-        GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>().SwitchVehicle(newVehicle);
+        
+        PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
+        playerVehicleDelegation.SwitchVehicle(newVehicle);
+        playerVehicleDelegation.currentCoopVehicle = "GRINDER I";
+
         // Switch vehicle, then reset mine, to get rid of all materials for sure,
         // because the haulers will drop everything
         refineryController.PlayerRebirth();
@@ -428,6 +437,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public BigInteger GetBlocksMined() {
         return blocksMined;
+    }
+
+    public int GetRebirths() {
+        return (int) Mathf.Round(rebirthProfitMultiplier / 0.01f);
     }
 
     public void RewardPlayerWithGems(int amount, string message = null) {

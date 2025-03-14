@@ -25,6 +25,8 @@ public class HaulerController : MonoBehaviour
     private int concurrentFadeEvents = 0;
     // Does nothing, just for the Garage
     public int width;
+    private bool isNPC = false;
+
     [SerializeField]
     private long price;
     private UncollectedMaterialsDelegator materialsDelegator;
@@ -52,6 +54,10 @@ public class HaulerController : MonoBehaviour
         }
         if (materialProfitMultipliers == null || materialProfitMultipliers.Length != materialNames.Length) {
             materialProfitMultipliers = new float[materialNames.Length];
+        }
+
+        if (isNPC) {
+            return;
         }
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
@@ -218,12 +224,21 @@ public class HaulerController : MonoBehaviour
     public long GetPrice() {
         return price;
     }
+   
+   private void PlayAudio() {
+        if (isNPC) {
+            return;
+        }
 
-    private void PlayAudio() {
         audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.6f);
     }
 
     public void UpdateCargoUI() {
+        if (isNPC) {
+            return;
+        }
+
+
         if (cargoProgressBars[0] == null) {
             cargoProgressBars = UIDelegation.GetCargoProgressBars();
             cargoCounters = UIDelegation.GetCargoCounters();
@@ -276,5 +291,13 @@ public class HaulerController : MonoBehaviour
         }
 
         return cargoValue;
+    }
+
+    public void SetAsNPC() {
+        isNPC = true;
+    }
+
+    public bool CheckIfNpc() {
+        return isNPC;
     }
 }
