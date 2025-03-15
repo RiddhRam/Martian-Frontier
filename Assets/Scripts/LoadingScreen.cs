@@ -9,8 +9,8 @@ public class LoadingScreen : MonoBehaviour
 
     public int loadedItems = 0;
     // See comment below to see why total items is this value, change in inspector
-    public int totalItems = 12;
-    public int cloudSaveItems = 11;
+    public int totalItems;
+    public int cloudSaveItems;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
@@ -25,8 +25,9 @@ public class LoadingScreen : MonoBehaviour
         TutorialManager: LoadData() (1 total), only in singleplayer
         NPCManager: LoadData() (1 total), only in co-op local
 
-        Total as of Feb 19 2025: 12 || 11
-        Last check: Feb 19 2025
+        Total as of Mar 15 2025: 12 || 11
+        13 || 12 for coop local
+        Last check: Mar 15 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second

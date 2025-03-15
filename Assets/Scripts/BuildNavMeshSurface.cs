@@ -32,7 +32,7 @@ public class BuildNavMeshSurface : MonoBehaviour
             {
                 surface.UpdateNavMesh(surface.navMeshData);
 
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(30);
             }
         }
 
