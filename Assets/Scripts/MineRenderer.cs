@@ -47,9 +47,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
-    // Lowercase
+    // Lowercase names
     private string[] oreNames;
-    // Uppercase
+    // Uppercase names
     private string[] materialNames;
     private int[] materialPrices;
     public UncollectedMaterialsDelegator materialsDelegator;
@@ -74,6 +74,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Queue<GameObject>[] materialPools;
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
+    // Destroy these so haulers dont get stuck
+    private readonly List<Vector2Int> coopInitializeTiles = new() { new(-3, -5), new(-2, -5), new(-1, -5), new(0, -5), new(1, -5), new(2, -5), new(3, -5), new(-3, -6), new(-2, -6), new(-1, -6), new(0, -6), new(1, -6), new(2, -6), new(3, -6), new(-3, -7), new(-2, -7), new(-1, -7), new(0, -7), new(1, -7), new(2, -7), new(3, -7), new(-3, -8), new(-2, -8), new(-1, -8), new(0, -8), new(1, -8), new(2, -8), new(3, -8), new(-3, -9), new(-2, -9), new(-1, -9), new(0, -9), new(1, -9), new(2, -9), new(3, -9)};
     public PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
@@ -256,6 +258,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
         DestroyTiles(initializeTiles, true, false);
+        if (notSinglePlayerScene) {
+            // Not an npc, and is loading, but if you change it to true, false, then the surrounding tiles are not revealed
+            DestroyTiles(coopInitializeTiles, false, true);
+        }
+
         CreateGenTriggers();
         mineInitialization = 2;
         SaveGame();
@@ -774,6 +781,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private IEnumerator LoadCoopLocal() {
         
         yield return StartCoroutine(ReturnAllObjectsToPool());
+
+        this.seed = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;;
+        Random.InitState(this.seed);
+
         GenerateMaterials();
         InitializeMine();
 
@@ -1059,21 +1070,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return visionRadius;
     }
 
-    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation)
+    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation, int drillTier)
     {
         // Find all ore tiles within the search area
-        List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius);
+        List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius, drillTier);
         
-        // If no ore tiles found, return the current position
+        // If no ore tiles found
         if (oreTiles.Count == 0)
-            return new(0, -8);
+            return new(0, -6);
             
         // Find all connected veins from the ore tiles
         List<List<Vector2Int>> veins = FindConnectedVeins(oreTiles);
         
-        // If no veins found, return current position
+        // If no veins found
         if (veins.Count == 0)
-            return new(0, -8);
+            return new(0, -6);
             
         // Find the largest vein
         List<Vector2Int> largestVein = FindLargestVein(veins);
@@ -1085,7 +1096,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private const float SEARCH_ANGLE = 60f;
 
-    private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius)
+    private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius, int drillTier)
     {
         List<Vector2Int> oreTiles = new List<Vector2Int>();
         
@@ -1140,8 +1151,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 Vector2Int thisTilemapPos = CalculateTileMapPos(tilePos);
                 
                 // Check if this tile has ore
-                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && value >= 1)
+                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value))
                 {
+                    int oreTier = GetTileTier(tileValues[value]);
+                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
+                        continue;
+                    }
                     oreTiles.Add(tilePos);
                     //Debug.Log(tilePos);
                 }
@@ -1290,10 +1305,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
         return unplacedTilemapsTileValues;
-    }
-
-    public SerializableDictionary<Vector2Int, int>[,] GetRevealedTilemapsTileValues() {
-        return revealedTilemapsTileValues;
     }
 
     public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {

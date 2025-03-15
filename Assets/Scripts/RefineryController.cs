@@ -44,6 +44,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public MineRenderer mineRenderer;
     public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
+    public NPCManager nPCManager;
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
@@ -124,6 +125,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 StopCoroutine(increaseBatteryCoroutine);
             }
             resetMineCoroutine = StartCoroutine(ResetMine());
+
+            if (notSinglePlayerScene) {
+                nPCManager.ResetPlayerPos();
+                nPCManager.ResetAllNPCPos();
+            }
         }
 
         UpdateRefineryProgressBars();
@@ -144,11 +150,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // Verify that this is the right amount
         playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
         haulerController.SetMaterialCount(materialCount);
-        haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
+        haulerController.ShowFloatingText("$" + FormatPrice(cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
 
         if (!haulerController.CheckIfNpc()) {
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+        } else {
+            collision.transform.parent.GetComponent<NPCMovement>().AskIfHaulingIsNeeded();
+        }
+
+        if (tutorialManager == null) {
+            return;
         }
 
         if (firstTimePlaying && tutorialManager.finishedTutorial) {
@@ -320,8 +332,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-            this.refineryBattery = 1500;
-            this.initialBattery = 1500;
+            this.refineryBattery = 800;
+            this.initialBattery = 800;
             return;
         }
 

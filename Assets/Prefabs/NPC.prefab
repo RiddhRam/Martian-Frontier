@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 2171789672701502276}
   - component: {fileID: 4204548501517398993}
   - component: {fileID: 7098116111142927337}
+  - component: {fileID: 3514970347240824575}
   m_Layer: 3
   m_Name: NPC
   m_TagString: Untagged
@@ -77,7 +78,11 @@ MonoBehaviour:
   npcIndex: 0
   nPCManager: {fileID: 0}
   agent: {fileID: 7098116111142927337}
+  sortingGroup: {fileID: 3514970347240824575}
   rebirthLevel: 0
+  haulerController: {fileID: 0}
+  haulerIndex: 0
+  stopMoving: 0
 --- !u!195 &7098116111142927337
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -100,3 +105,15 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 2
+--- !u!210 &3514970347240824575
+SortingGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361560756291077853}
+  m_Enabled: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_SortAtRoot: 0

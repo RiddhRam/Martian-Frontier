@@ -64,4 +64,19 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
 
         return mineValue;
     }
+
+    public Vector3 GetRandomMaterialLocation() {
+        if (uncollectedMaterials.Count == 0)
+            return new(0, -6);
+
+        int randomIndex = Random.Range(0, uncollectedMaterials.Count);
+
+        foreach (var material in uncollectedMaterials.Values) {
+            if (randomIndex-- == 0)
+                return material.position;
+        }
+        
+        return new(0, -6); // Fallback, it should never reach this
+    }
+
 }

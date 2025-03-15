@@ -34,8 +34,6 @@ public class BuildNavMeshSurface : MonoBehaviour
 
                 yield return new WaitForSeconds(10);
             }
-
-            yield return new WaitForSeconds(7);
         }
 
     }

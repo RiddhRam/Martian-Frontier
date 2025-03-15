@@ -1,7 +1,7 @@
 using System;
-using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.Rendering;
 public class NPCMovement : MonoBehaviour
 {
 
@@ -16,8 +16,12 @@ public class NPCMovement : MonoBehaviour
     public int npcIndex;
     public NPCManager nPCManager;
     public NavMeshAgent agent;
+    public SortingGroup sortingGroup;
+
     public int rebirthLevel;
     public HaulerController haulerController;
+    public int haulerIndex;
+    public int drillTier;
     public bool stopMoving;
 
     // Used in FixedUpdate, but declared here to reduce GC usage
@@ -33,6 +37,9 @@ public class NPCMovement : MonoBehaviour
     System.Random random = new();
     private float timer = 0;
 
+    // Cache
+    NavMeshPath path;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,12 +53,31 @@ public class NPCMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        try {
+            agent.SetDestination(agent.destination);
+        } catch {
+        }
+        
 
-        if (Mathf.Approximately(agent.destination.y, -8f)) {
-            float randomX = (float) (random.NextDouble() * 100 - 50);
-            float randomY = (float) (random.NextDouble() * 121 - 130);;
-            Vector3 newDestination = new Vector3(randomX, randomY, agent.destination.z);
-            agent.SetDestination(newDestination);
+        // (400, 400, 0) means theres a problem with requesting new position
+        if (Math.Abs(agent.destination.y - -6) < 0.1) {
+            // If its a hauler, drop to a smaller hauler
+            if (haulerController != null) {
+                if (haulerController.GetTotalMaterialCount() > 0) {
+                    agent.SetDestination(new(0, 6));
+                    return;
+                }
+                
+                if (haulerController.width > 3) {
+                    StartCoroutine(nPCManager.SwitchToAnotherHauler(npcIndex, haulerIndex));
+                    return;
+                }
+                
+            } 
+            // If its a driller, just drill to some random spot
+            else {
+                agent.SetDestination(GetRandomPosition());
+            }
         }
 
         joystickVec = direction;
@@ -67,12 +93,22 @@ public class NPCMovement : MonoBehaviour
         /*if (npcIndex == 1) {
             Debug.Log(agent.destination.y);
         }*/
+
+        if (!agent.enabled || !agent.isOnNavMesh) {
+            return;
+        }
         
-        // If npc takes more than 20 seconds to reach destination, set a new destination
-        if (agent.remainingDistance < 0.5f || timer > 20) {
+        // If npc takes more than 10 seconds to reach destination, set a new destination
+        if (agent.remainingDistance < 0.5f) {
             RequestNewPosition();
         } else {
             timer += Time.deltaTime;
+        }
+
+        if (timer > 10) {
+            agent.enabled = false;
+            agent.enabled = true;
+            RequestNewPosition();
         }
 
         if (!stopMoving) {
@@ -80,6 +116,26 @@ public class NPCMovement : MonoBehaviour
         } else {
             rb.velocity = Vector2.zero;
         }
+    }
+
+    public Vector3 GetRandomPosition() {
+        timer = 0;
+
+        int maxY;
+        int minY;
+
+        if (drillTier == 1)  {
+            minY = -155;
+            maxY = -6;
+        } else if (drillTier == 2) {
+            minY = -325;
+            maxY = -165;
+        } else {
+            minY = -505;
+            maxY = -335;
+        }
+
+        return new((float) (random.NextDouble() * 120 - 60), (float) (random.NextDouble() * (maxY - minY) + minY), agent.destination.z);
     }
 
     public void RequestNewPosition() {
@@ -92,15 +148,35 @@ public class NPCMovement : MonoBehaviour
         }
 
         // Get driller position
-        agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z));
+        agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
     }
 
     public Vector3 RequestNewHaulerPosition() {
-        if (haulerController.GetMaxMaterials() == haulerController.GetTotalMaterialCount()) {
-            return new(0, 3, 0);
+
+        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5) {
+            return new(0, 6);
         }
 
-        return nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z);
+        // If path is null, initialize it
+        path ??= new NavMeshPath();
+
+        Vector3 newHaulerPosition;
+
+        // Check for a position for a max of 5 times. If still invalid, then the hauler is too big
+        int haulPositionCount = 0;
+        do {
+            newHaulerPosition = nPCManager.RequestNewHaulerPosition();
+
+            haulPositionCount++;
+        } 
+        while((!agent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 30);
+
+        // If invalid
+        if (haulPositionCount >= 30) {
+            newHaulerPosition = new(0, -6);
+        }
+
+        return newHaulerPosition;
     }
 
     public void MoveVehicle() {
@@ -185,6 +261,10 @@ public class NPCMovement : MonoBehaviour
             }
         }
         frontWheels = null;
+    }
+
+    public void AskIfHaulingIsNeeded() {
+        nPCManager.CheckIfHaulingNeeded(npcIndex);
     }
 
 }
