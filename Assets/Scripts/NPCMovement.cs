@@ -1,4 +1,5 @@
 using System;
+using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
@@ -17,6 +18,10 @@ public class NPCMovement : MonoBehaviour
     public NPCManager nPCManager;
     public NavMeshAgent agent;
     public SortingGroup sortingGroup;
+    public TextMeshProUGUI npcNameText;
+    public TextMeshProUGUI rebirthText;
+    public Canvas worldSpaceCanvas;
+
 
     public int rebirthLevel;
     public HaulerController haulerController;
@@ -32,6 +37,7 @@ public class NPCMovement : MonoBehaviour
     private float tempLastRotation;
     private readonly float maxBodyRotation = 30;
     private readonly float maxChangeRotation = 20;
+    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
     private float wheelRotation;
     Vector2 direction;
     System.Random random = new();
@@ -53,6 +59,19 @@ public class NPCMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        worldSpaceCanvas.transform.rotation = normalRotation;
+        float angle = transform.eulerAngles.z; // Get the Y-axis rotation
+
+        // Convert angle to radians
+        float rad = Mathf.Deg2Rad * angle;
+
+        // Calculate new position based on rotation
+        float x = Mathf.Sin(rad) * 3;
+        float y = Mathf.Cos(rad) * 4;
+
+        // Update canvas position relative to the vehicle
+        worldSpaceCanvas.transform.localPosition = new Vector3(x, y, 0);
+
         try {
             agent.SetDestination(agent.destination);
         } catch {

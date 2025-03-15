@@ -38,6 +38,8 @@ public class HaulerController : MonoBehaviour
     private GameObject[] cargoProgressBars = new GameObject[2];
     private GameObject[] cargoCounters = new GameObject[2];
 
+    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
+
     void Awake() {
         UIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -138,8 +140,6 @@ public class HaulerController : MonoBehaviour
     private IEnumerator FadeOutText(GameObject floatingText)
     {
         TextMeshPro textComponent = floatingText.GetComponent<TextMeshPro>();
-
-        Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
         textComponent.transform.rotation = normalRotation;
         textComponent.alpha = 1;

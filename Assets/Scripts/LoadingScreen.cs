@@ -19,7 +19,7 @@ public class LoadingScreen : MonoBehaviour
         AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, VehicleUpgradesDelegator
         
         Extras:
-        CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async)
+        CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async) || OnSignedIn() (1 total) when changing scenes but still logged in
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
         
         TutorialManager: LoadData() (1 total), only in singleplayer

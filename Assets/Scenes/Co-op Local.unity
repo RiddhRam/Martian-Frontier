@@ -1382,7 +1382,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 800, y: -164.83833}
+  m_AnchoredPosition: {x: 800, y: -164.83832}
   m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &343453010
@@ -29094,7 +29094,7 @@ Camera:
   m_Depth: 1
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 225
+    m_Bits: 193
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
@@ -30654,6 +30654,11 @@ MonoBehaviour:
   npcs: []
   nPCTimeRemaining: 
   nPCEmptyTimer: 0
+  spawnColours:
+  - {r: 0.9647059, g: 0.015686275, b: 0.011764706, a: 1}
+  - {r: 0.22352941, g: 1, b: 0.08235294, a: 1}
+  - {r: 0.007843138, g: 0.7490196, b: 1, a: 1}
+  - {r: 1, g: 0.6509804, b: 0.007843138, a: 1}
   mineRenderer: {fileID: 1093208307}
   uncollectedMaterialsDelegator: {fileID: 1262672824}
   playerState: {fileID: 276248154}

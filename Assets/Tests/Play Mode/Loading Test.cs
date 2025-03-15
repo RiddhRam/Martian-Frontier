@@ -327,8 +327,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info"};
-        int primaryElementCount = 13;
+        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info", "Team"};
+        int primaryElementCount = 14;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -346,7 +346,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Team", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Go To Team Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -438,7 +438,7 @@ public class LoadingTest
         Assert.False(playerVehicle.GetComponent<NavMeshAgent>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
         
-        Assert.False(GameObject.Find("NavMesh Surface").GetComponent<BuildNavMeshSurface>().UpdateMeshes);
+        Assert.False(GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().UpdateMeshes);
 
         playerMovement = playerVehicle.GetComponent<PlayerMovement>();
         Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);
@@ -552,7 +552,7 @@ public class LoadingTest
         Assert.AreEqual(new int[] {0, 4, 8}, mineRenderer.tierThresholds);
         Assert.AreEqual(new int[] {3, 3, 3}, mineRenderer.oresPerTier);
 
-        Transform generationTriggers = mineRenderer.transform.GetChild(2);
+        Transform generationTriggers = mineRenderer.transform.GetChild(3);
         for (int i = 0; i != generationTriggers.childCount; i++) {
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }

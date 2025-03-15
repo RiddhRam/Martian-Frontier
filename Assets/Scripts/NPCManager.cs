@@ -37,6 +37,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int[] nPCTimeRemaining;
     [SerializeField]
     private int nPCEmptyTimer = 0;
+    [SerializeField]
+    private Color[] spawnColours;
 
     // How many npc haulers are active
     private int haulers = 0;
@@ -89,6 +91,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     // Cache
     HaulerController haulerController;
     Coroutine liveSessionCoroutine;
+    private Camera mainCamera;
+
+    void Awake()
+    {
+        mainCamera = Camera.main;
+    }
 
     public void PlacePlayer() {
         int index = random.Next(0, spawnPoints.Length);
@@ -128,19 +136,25 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         npcs[npcIndex].name = nPCNames[npcIndex] + " " + npcIndex;
 
+        int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[npcIndex]);
         nPCMovements[npcIndex] = npcs[npcIndex].GetComponent<NPCMovement>();
         nPCMovements[npcIndex].npcIndex = npcIndex;
         nPCMovements[npcIndex].nPCManager = this;
         nPCMovements[npcIndex].rebirthLevel = seedRandom.Next(playerRebirths - 2, playerRebirths + 5);
+        nPCMovements[npcIndex].npcNameText.text = nPCNames[npcIndex];
+        nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
+        nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
 
         // Clamp to be higher than -1
         if (nPCMovements[npcIndex].rebirthLevel < 0) {
             nPCMovements[npcIndex].rebirthLevel = 0;
         }
 
+        nPCMovements[npcIndex].rebirthText.text = nPCMovements[npcIndex].rebirthLevel.ToString();
+
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
 
-        spawnPointNameTexts[FindSpawnPointIndex(npcSpawnPoints[npcIndex])].text = nPCNames[npcIndex];
+        spawnPointNameTexts[spawnIndex].text = nPCNames[npcIndex];
 
         GameObject vehicle;
 

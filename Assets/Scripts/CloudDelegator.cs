@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class CloudDelegator : MonoBehaviour
 {
@@ -32,6 +33,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
     private readonly int currentVersionNumber = 68;
+    private bool notSinglePlayerScene = false;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -39,7 +41,12 @@ public class CloudDelegator : MonoBehaviour
 
         try {
             await AttemptLogIn();
-        } catch {
+        } catch (Exception ex) {
+            Debug.Log("Couldnt log in: " + ex.Message);
+        }
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
         }
 
         IncrementLoadedItems();
@@ -56,6 +63,7 @@ public class CloudDelegator : MonoBehaviour
         // Only sign in when needed
         if (AuthenticationService.Instance.IsSignedIn)
         {
+            OnSignedIn();
             return;
         }
         
@@ -162,8 +170,7 @@ public class CloudDelegator : MonoBehaviour
         askToDeleteAccount.SetActive(false);
     }
 
-    public async void DeleteAccount()
-    {
+    public async void DeleteAccount() {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             uIDelegation.ShowError("NO INTERNET!");
             return;
@@ -253,7 +260,13 @@ public class CloudDelegator : MonoBehaviour
             userPanel.SetActive(true);
         
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
-            LoadGameDataFromCloud();
+            
+            if (notSinglePlayerScene) {
+                LoadGameDataFromCloud();
+            } else {
+                IncrementLoadedItems();
+            }
+            
         }
 
         _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
