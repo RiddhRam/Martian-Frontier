@@ -1,13 +1,13 @@
 using System.Collections;
+using System.Collections.Generic;
 using NavMeshPlus.Components;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(NavMeshSurface))]
 public class BuildNavMeshSurface : MonoBehaviour
 {
 
-    [SerializeField]
-    private MineRenderer mineRenderer;
     [SerializeField]
     private LayerMask includedLayers;
     [SerializeField]
@@ -55,13 +55,13 @@ public class BuildNavMeshSurface : MonoBehaviour
                 yield return new WaitForSeconds(10);
             }*/
 
+            
             foreach (var surface in navMeshSurfaces)
             {   
                 surface.UpdateNavMesh(surface.navMeshData);
 
-                yield return new WaitForSeconds(60);
+                yield return new WaitForSeconds(45);
             }
-
 
         }
 

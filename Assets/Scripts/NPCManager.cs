@@ -119,10 +119,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public void CreateNPC(int npcIndex, bool driller = true, bool newBot = true, int spawnSpecificIndex = -1) {
-        int number = random.Next(0, 10);
+        int number = random.Next(0, 3); // 0, 10
 
         // 10% chance of player not spawning
-        if (number < 1) {
+        if (number < 2) { // < 1
             return;
         }
 
@@ -520,11 +520,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public int Get1HaulerThreshold() {
-        return 300 + (100 * highestDrillTier);
+        return 330 + (100 * highestDrillTier);
     }
 
     public int Get2HaulerThreshold() {
-        return 400 + (100 * highestDrillTier);
+        return 430 + (100 * highestDrillTier);
     }
 
     public void RemoveNPC(int npcIndex) {
