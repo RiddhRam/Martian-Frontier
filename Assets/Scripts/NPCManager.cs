@@ -103,7 +103,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         playerSpawnPoint = spawnPoints[index].position;
         spawnPointTaken[index] = true;
-        spawnPointNameTexts[index].text = PlayerPrefs.GetString("PlayerName");
+
+        string name = PlayerPrefs.GetString("PlayerName");
+        spawnPointNameTexts[index].text = name.Substring(0, name.Length - 5);
 
         SetMapIcon(playerVehicle.gameObject, playerSpawnPoint);
 

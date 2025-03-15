@@ -339,6 +339,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dataPersistenceManager: {fileID: 244266721}
+  cloudDelegator: {fileID: 779610164}
   tutorialManager: {fileID: 0}
   lockedUntilDoneTutorial: {fileID: 0}
 --- !u!4 &37705409
@@ -33891,6 +33892,14 @@ PrefabInstance:
       propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 276248154}
+    - target: {fileID: 6715866083708428630, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: totalItems
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 6715866083708428630, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: cloudSaveItems
+      value: 12
+      objectReference: {fileID: 0}
     - target: {fileID: 6742547947715238422, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0

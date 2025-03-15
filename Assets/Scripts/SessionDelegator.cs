@@ -6,6 +6,8 @@ public class SessionDelegator : MonoBehaviour
     [SerializeField]
     private DataPersistenceManager dataPersistenceManager;
     [SerializeField]
+    private CloudDelegator cloudDelegator;
+    [SerializeField]
     private TutorialManager tutorialManager;
     [SerializeField]
     private GameObject lockedUntilDoneTutorial;
@@ -31,11 +33,13 @@ public class SessionDelegator : MonoBehaviour
 
     public void GoToTeamSession() {
         dataPersistenceManager.SaveGame();
+        cloudDelegator.TempSignOut();
         SceneManager.LoadScene("Co-op Local");
     }
 
     public void GoToSoloSession() {
         dataPersistenceManager.SaveGame();
+        cloudDelegator.TempSignOut();
         SceneManager.LoadScene("Singleplayer");
     }
 }

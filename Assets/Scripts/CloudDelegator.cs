@@ -63,7 +63,6 @@ public class CloudDelegator : MonoBehaviour
         // Only sign in when needed
         if (AuthenticationService.Instance.IsSignedIn)
         {
-            OnSignedIn();
             return;
         }
         
@@ -107,7 +106,7 @@ public class CloudDelegator : MonoBehaviour
         if (AuthenticationService.Instance.IsSignedIn)
         {
             try {
-                SaveGameDataToCloud();
+                await SaveGameDataToCloud();
             } catch {
             }
 
@@ -127,6 +126,10 @@ public class CloudDelegator : MonoBehaviour
 
             dataPersistenceManager.ResetEntireGame();
         }
+    }
+
+    public void TempSignOut() {
+        AuthenticationService.Instance.SignOut(false); // True to clear cache
     }
 
     public void AskToChangeName() {
@@ -261,12 +264,7 @@ public class CloudDelegator : MonoBehaviour
         
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
             
-            if (notSinglePlayerScene) {
-                LoadGameDataFromCloud();
-            } else {
-                IncrementLoadedItems();
-            }
-            
+            LoadGameDataFromCloud();
         }
 
         _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
@@ -278,12 +276,12 @@ public class CloudDelegator : MonoBehaviour
     private IEnumerator AutoSaveCoroutine() {
         while (true) // Run indefinitely
         {
-            SaveGameDataToCloud();
+            _ = SaveGameDataToCloud();
             yield return new WaitForSeconds(60f); // Wait for 60 seconds before saving again
         }
     }
 
-    public async void SaveGameDataToCloud() {
+    public async Task SaveGameDataToCloud() {
 
         if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
@@ -323,7 +321,12 @@ public class CloudDelegator : MonoBehaviour
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
                 loadingScreen.gameObject.SetActive(true);
                 IncrementLoadedItems();
-                dataPersistenceManager.LoadGame();
+                if (notSinglePlayerScene) {
+                    dataPersistenceManager.DirectlyWriteSave();
+                    SceneManager.LoadScene("Singleplayer");
+                } else {
+                    dataPersistenceManager.LoadGame();
+                }
             }
         }
         catch (Exception e)

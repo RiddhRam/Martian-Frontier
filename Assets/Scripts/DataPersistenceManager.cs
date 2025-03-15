@@ -124,11 +124,15 @@ public class DataPersistenceManager : MonoBehaviour
 
         try {
             if (cloudDelegator) {
-                cloudDelegator.SaveGameDataToCloud();
+                _ = cloudDelegator.SaveGameDataToCloud();
             }
         } catch (Exception ex) {
             Debug.Log("Error when saving to cloud: " + ex);
         }
+    }
+
+    public void DirectlyWriteSave() {
+        dataHandler.Save(gameData);
     }
 
     private void OnApplicationQuit() {
@@ -173,8 +177,9 @@ public class DataPersistenceManager : MonoBehaviour
         };
 
         if (notSinglePlayerScene) {
-            SaveGame();
-            SceneManager.LoadScene("Co-op Local");
+            DirectlyWriteSave();
+            SceneManager.LoadScene("Singleplayer");
+            return;
         }
 
         // initialize values to scripts that need it
