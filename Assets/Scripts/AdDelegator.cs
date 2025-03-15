@@ -26,6 +26,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject leaderboardNoWifi;
     public GameObject doubleCrateRewardButton;
     public GameObject crateRewardNoWifi;
+    public GameObject teamNoWifi;
 
     public GameObject leaderboardTabButtons;
     public GameObject leaderboardCashPanel;
@@ -170,21 +171,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     void FixedUpdate() {
 
-        if (firstTimePlaying) {
-            return;
-        }
-        
-        timer++;
-
-        if (timer < 250) {
-            return;
-        }
-        timer = 0;
-
-        if (!disableAds) {
-            FillEmptyAdSlots();
-        }
-        
         // ADMOB DISABLE
         // If no internet
         if (Application.internetReachability == NetworkReachability.NotReachable) {
@@ -201,6 +187,22 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // If there is internet
         internetReachable = true;
         ToggleDisplay();
+
+        if (firstTimePlaying) {
+            return;
+        }
+        
+        timer++;
+
+        if (timer < 250) {
+            return;
+        }
+        timer = 0;
+
+        if (!disableAds) {
+            FillEmptyAdSlots();
+        }
+    
     }
 
     // Choose the right ad unit before doing anything with ads
@@ -523,6 +525,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                     doubleCrateRewardButton.SetActive(true);
                     crateRewardNoWifi.SetActive(false);
                 }
+
+                teamNoWifi.SetActive(false);
             }
 
             _ = cloudDelegator.AttemptLogIn();
@@ -545,6 +549,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         leaderboardVehiclesPanel.SetActive(false);
         leaderboardTabButtons.SetActive(false);
         leaderboardNoWifi.SetActive(true);
+        
 
         if (!disableAds) {
             noInternetIcon.SetActive(true);
@@ -554,6 +559,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             for (int i = 0; i != adButtons.Length; i++) {
                 adButtons[i].SetActive(false);
             }
+
+            teamNoWifi.SetActive(true);
         }
 
         displayStatus = false;

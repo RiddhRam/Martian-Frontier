@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -14,6 +15,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
     public GameObject lockedRebirthPanel;
+    public GameObject lowTierTextReason;
+    public GameObject notSoloTextReason;
     public GameObject rebirthPanel;
     public Image rebirthIcon;
 
@@ -23,7 +26,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     // Use this to verify the amount of money to add or subtract across verifications
     private long savedAmountSubtract;
     private BigInteger userXP;
-    public BigInteger blocksMined;
+    private BigInteger blocksMined;
     public BigInteger materialsSold;
     private BigInteger moneyEarned;
     private BigInteger userGems;
@@ -32,14 +35,22 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private int[] materialPrices;
     [SerializeField]
     private float rebirthProfitMultiplier;
-    public RefineryController refineryController;
-    public DataPersistenceManager dataPersistenceManager;
-    public ProfitPanelDelegator profitPanelDelegator;
-    public UIDelegation uIDelegation;
-    public AnalyticsDelegator analyticsDelegator;
-    public DailyChallengeDelegator dailyChallengeDelegator;
-    public LeaderboardDelegator leaderboardDelegator;
-    public SupplyCrateDelegator supplyCrateDelegator;
+    [SerializeField]
+    private RefineryController refineryController;
+    [SerializeField]
+    private DataPersistenceManager dataPersistenceManager;
+    [SerializeField]
+    private ProfitPanelDelegator profitPanelDelegator;
+    [SerializeField]
+    private UIDelegation uIDelegation;
+    [SerializeField]
+    private AnalyticsDelegator analyticsDelegator;
+    [SerializeField]
+    private DailyChallengeDelegator dailyChallengeDelegator;
+    [SerializeField]
+    private LeaderboardDelegator leaderboardDelegator;
+    [SerializeField]
+    private SupplyCrateDelegator supplyCrateDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -51,6 +62,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI[] xpDisplaysText;
     private GameObject[] drillers;
     private int highestDrillTier = 1;
+    private bool notSinglePlayerScene;
 
     [SerializeField]
     private GameObject ResetMineButton;
@@ -259,6 +271,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
 
         if (highestDrillTier >= 3) {
+            if (notSinglePlayerScene) {
+                lowTierTextReason.SetActive(false);
+                notSoloTextReason.SetActive(true);
+                return;
+            }
             lockedRebirthPanel.SetActive(false);
             rebirthPanel.SetActive(true);
             rebirthIcon.color = new(1, 0, 0);
@@ -268,6 +285,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             rebirthIcon.color = new(1, 1, 1);
         }
     }
+    
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
         string cashText = "$" + FormatPrice(userCash);
@@ -331,6 +349,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+        }
         
         analyticsDelegator = AnalyticsDelegator.Instance;
 
@@ -453,6 +475,18 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return userGems;
     }
 
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
+
+
     // For development only
     public void FreeMoney() {
         userCash += freeMoneyToAdd;
@@ -464,10 +498,5 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         freeMoneyToAdd = (int) cashSlider.value;
 
         cashText.text = "$" + FormatPrice(freeMoneyToAdd);
-    }
-
-    internal void SubtractCash(BigInteger cashAmount)
-    {
-        throw new NotImplementedException();
     }
 }

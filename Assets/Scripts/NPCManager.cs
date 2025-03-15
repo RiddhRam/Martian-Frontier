@@ -53,6 +53,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private PlayerState playerState;
     [SerializeField]
     private GarageDelegator garageDelegator;
+    [SerializeField]
+    private GameObject lostInternetScreen;
 
     private readonly int sessionUpdateTimer = 2;
     private readonly int[] drillerTierThresholds = {5, 11, 17};
@@ -82,6 +84,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     readonly System.Random random = new();
 
     bool switchingVehicle = false;
+    bool lostInternet = false;
 
     // Cache
     HaulerController haulerController;
@@ -357,14 +360,14 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         Time.timeScale = 1;
 
-        Debug.Log("Scattered NPCs!");
+        Debug.Log("Scattered!");
 
         StartCoroutine(RunLiveManageSession());
     }
 
     private IEnumerator RunLiveManageSession() {
         while (true) {
-            if (liveSessionCoroutine == null) {
+            if (liveSessionCoroutine == null && !lostInternet) {
                 liveSessionCoroutine = StartCoroutine(LiveManageSession());
             }
 
@@ -375,6 +378,22 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private IEnumerator LiveManageSession() {
         while (true) {
             yield return new WaitForSeconds(sessionUpdateTimer);
+
+            if (Application.internetReachability == NetworkReachability.NotReachable) {
+                lostInternet = true;
+
+                for (int i = 0; i != npcCount; i++) {
+                    if (nPCMovements[i] != null) {
+                        nPCMovements[i].stopMoving = true;
+                    }
+                }
+
+                Time.timeScale = 0;
+
+                lostInternetScreen.SetActive(true);
+
+                yield break;
+            }
 
             if (uncollectedMaterialsDelegator.materialCount > Get1HaulerThreshold() && haulers < 1) {
                 yield return SwitchDrillerToHauler();
