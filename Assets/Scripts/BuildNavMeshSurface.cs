@@ -11,7 +11,7 @@ public class BuildNavMeshSurface : MonoBehaviour
     // Start is called before the first frame update
     public void InitializeMesh()
     {
-        if (!UpdateMeshes || !Debug.isDebugBuild) {
+        if (!UpdateMeshes) {
             return;
         } 
 

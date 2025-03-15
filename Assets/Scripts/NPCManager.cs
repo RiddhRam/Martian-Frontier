@@ -375,6 +375,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         yield return new WaitForSeconds(35);
 
         Time.timeScale = 1;
+        
+        try {
+             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+        } catch {
+        }
 
         Debug.Log("Scattered!");
 

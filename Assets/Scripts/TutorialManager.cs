@@ -111,6 +111,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try {
             if (this.finishedTutorial) {
+                sessionDelegator.UnlockTeam();
                 Destroy(TutorialUIParent);
                 return;
             }
