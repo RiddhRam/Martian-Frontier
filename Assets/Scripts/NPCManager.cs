@@ -119,10 +119,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public void CreateNPC(int npcIndex, bool driller = true, bool newBot = true, int spawnSpecificIndex = -1) {
-        int number = random.Next(0, 3); // 0, 10
+        int number = random.Next(0, 10);
 
         // 10% chance of player not spawning
-        if (number < 2) { // < 1
+        if (number < 1) {
             return;
         }
 

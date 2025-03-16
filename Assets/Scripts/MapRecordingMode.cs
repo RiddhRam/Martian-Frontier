@@ -88,7 +88,13 @@ public class MapRecordingMode : MonoBehaviour
 
     public Transform frontWheels;
 
-    void Start()
+    private System.Numerics.BigInteger lastCargoValue = 0;
+    private float timeSinceLast = 0;
+
+    // #4ca0d7, #ffffff
+    // #ffa500, #000000
+
+    void OnEnable()
     {
         // If ray points aren't assigned, use the vehicle transform
         mapText.SetActive(false);
@@ -101,7 +107,8 @@ public class MapRecordingMode : MonoBehaviour
 
         // Hide map icons layer
         thisCamera.cullingMask &= ~(1 << LayerMask.NameToLayer("Map Icons"));
-        thisCamera.cullingMask |= (1 << LayerMask.NameToLayer("Vehicle"));
+        thisCamera.cullingMask |= 1 << LayerMask.NameToLayer("Vehicle");
+        thisCamera.cullingMask |= 1 << LayerMask.NameToLayer("UI");
 
         Vector3 pos = playerVehicle.position;
         farthestRight = pos.x;
@@ -130,6 +137,8 @@ public class MapRecordingMode : MonoBehaviour
             depthProgressSlider.transform.parent.gameObject.SetActive(true);
             panelOutline.effectColor = new(44/255f, 44/255f, 44/255f);
         }
+
+        ResetCamera();
     }
 
     public void SetSliderBoundaries() {
@@ -305,96 +314,7 @@ public class MapRecordingMode : MonoBehaviour
 
         } 
         else {
-            
             transform.position = new(mainCamera.transform.position.x, mainCamera.transform.position.y, transform.position.z);            
-            
-            // Mining algorithm
-            /*
-            timer += Time.deltaTime;
-            if (timer >= targetTime)
-            {
-                timer = 0f;
-                targetTime = (float)(6.5f + (random.NextDouble() * (6.5f - 6f)));
-
-                if (rotateRoutine != null) {
-                    //StopCoroutine(rotateRoutine);
-                    return;
-                }
-
-                Vector2Int posInt = new Vector2Int(
-                    Mathf.RoundToInt(pos.x),
-                    Mathf.RoundToInt(pos.y)
-                );
-
-                // List to store coordinates with nonzero values.
-                List<Vector2Int> validCoords = new();
-
-                SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValueDictionary = mineRenderer.GetUnplacedTilemapsTileValues();
-                
-                int maxRadius = 9;
-                int minRadius = 4;
-
-                float currentAngle = playerVehicle.eulerAngles.z;
-                // Search an area around the player.
-                for (int x = posInt.x - maxRadius; x <= posInt.x + maxRadius; x++)
-                {
-                    for (int y = posInt.y - maxRadius; y <= posInt.y + maxRadius; y++)
-                    {
-                        Vector2Int coord = new Vector2Int(x, y);
-
-                        // Skip the inner square
-                        if (Math.Abs(x - posInt.x) <= minRadius && Math.Abs(y - posInt.y) <= minRadius)
-                            continue;
-                        if (transform.position.x < (-15f + maxRadius/2) && (x - posInt.x) < 0) {
-                            continue;
-                        } else if (transform.position.x > (15f - maxRadius/2) && (posInt.x - x) < 0) {
-                            continue;
-                        } else if (y > -30f) {
-                            continue;
-                        } 
-                        else if (!CheckIfSurrounded(coord, unplacedTilemapsTileValueDictionary)) {
-                            continue;
-                        }
-
-                        Vector2 mineDirection = new Vector2(coord.x, coord.y) - new Vector2(pos.x, pos.y);
-                        float thisAngle = (Mathf.Atan2(mineDirection.y, mineDirection.x) * Mathf.Rad2Deg) - 90;
-
-                        if (Mathf.Abs(Mathf.DeltaAngle(currentAngle, thisAngle)) < 70f || Mathf.Abs(Mathf.DeltaAngle(currentAngle + 180f, thisAngle)) < 60f) {
-                            continue;
-                        }
-
-                        Vector2Int tilemapPos = mineRenderer.CalculateTileMapPos(coord);
-
-                        try {
-                            if (unplacedTilemapsTileValueDictionary[tilemapPos.x, tilemapPos.y] != null) {
-
-                            }
-                        } catch  (Exception ex) {
-                            Debug.Log(ex.Message);
-                            continue;
-                        }
-
-                        // Check if the coordinate exists in the dictionary and has a nonzero value.
-                        if (unplacedTilemapsTileValueDictionary[tilemapPos.x, tilemapPos.y].TryGetValue(coord, out int value) && value != 0)
-                        {
-                            validCoords.Add(coord);
-                        }
-                    }
-                }
-
-                if (validCoords.Count != 0) {
-                    tileToGoTo = validCoords[random.Next(0, validCoords.Count)];
-
-                } else {
-                    tileToGoTo = new((int) playerVehicle.position.x, -600);
-                }
-
-                if (!rotating) {
-                    rotating = true;
-                    rotateRoutine = StartCoroutine(RotateVehicleToTile(tileToGoTo, (float)(3.5f + (random.NextDouble() * (3.5f - 2.5f)))));
-                }
-
-            }*/
         }
 
         UpdateText();
@@ -416,39 +336,6 @@ public class MapRecordingMode : MonoBehaviour
 
         // Ensure it ends exactly at the target rotation
         playerVehicle.rotation = targetRotation;
-        rotateRoutine = null;
-        rotating = false;
-    }
-
-    private IEnumerator RotateVehicleToTile(Vector2Int targetTile, float duration)
-    {
-        
-        Quaternion startRotation = playerVehicle.rotation;
-        Quaternion targetRotation;
-
-        float time = 0f;
-
-        while (time < duration)
-        {
-            time += Time.deltaTime;
-
-            Vector2 mineDirection = new Vector2(targetTile.x, targetTile.y) - 
-                                        new Vector2(playerVehicle.position.x, playerVehicle.position.y);
-
-            float angle = Mathf.Atan2(mineDirection.y, mineDirection.x) * Mathf.Rad2Deg;
-            if (targetTile.y == -600)
-                angle -= 90;
-
-            targetRotation = Quaternion.Euler(0, 0, angle);
-
-            float smoothFactor = smoothFactor1; // Adjust this value as needed
-
-            Debug.Log(angle);
-
-            playerVehicle.rotation = Quaternion.Slerp(playerVehicle.rotation, targetRotation, smoothFactor * Time.deltaTime);
-            yield return null; // Wait until the next frame
-        }
-
         rotateRoutine = null;
         rotating = false;
     }
@@ -518,9 +405,16 @@ public class MapRecordingMode : MonoBehaviour
                 depthIconGO.SetActive(false);
                 depthProgressSlider.maxValue = 8000 * Mathf.Pow(10, currentTier);
 
-                depthProgressSlider.value = (float) haulerController.GetTotalCargoValue();
+                depthProgressSlider.value = depthProgressSlider.maxValue;
                 
-                depthProgressSliderText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue());
+                depthProgressSliderText.text = "$" + FormatPrice(haulerController.GetTotalCargoValue() - lastCargoValue);
+
+                timeSinceLast += Time.deltaTime;
+
+                if (timeSinceLast > 12) {
+                    timeSinceLast = 0;
+                    lastCargoValue = haulerController.GetTotalCargoValue();
+                }
             }
 
             cargoValueText.text = valueText.text;

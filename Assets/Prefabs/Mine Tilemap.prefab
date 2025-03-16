@@ -13,7 +13,6 @@ GameObject:
   - component: {fileID: 6569486181552041569}
   - component: {fileID: 7597889826389740398}
   - component: {fileID: 7556188083031671426}
-  - component: {fileID: 3932279064475230378}
   m_Layer: 7
   m_Name: Mine Tilemap
   m_TagString: Mine Tag
@@ -175,29 +174,3 @@ MonoBehaviour:
   m_Area: 1
   m_IgnoreFromBuild: 0
   m_AffectedAgents: f2652faea98c17ecf46d2d58
---- !u!114 &3932279064475230378
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3638634728784657662}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 709c8d6349be44c68dff3d220992400c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_AffectedAgents: ffffffff
-  m_TileModifiers:
-  - tile: {fileID: 11400000, guid: 7b77928c428994777bc8b4b8c51472c4, type: 2}
-    overrideArea: 1
-    area: 1
-  - tile: {fileID: 11400000, guid: 66d209b30dd674276a66d146ba80bfc7, type: 2}
-    overrideArea: 1
-    area: 1
-  - tile: {fileID: 11400000, guid: 8cb0ad98557234ad8967efe88fef3d0c, type: 2}
-    overrideArea: 1
-    area: 1
-  - tile: {fileID: 11400000, guid: b08b25b5facac4e60913f5a32d60775e, type: 2}
-    overrideArea: 1
-    area: 1

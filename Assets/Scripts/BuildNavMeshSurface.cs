@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using NavMeshPlus.Components;
+using NavMeshPlus.Extensions;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -35,18 +36,24 @@ public class BuildNavMeshSurface : MonoBehaviour
     private IEnumerator UpdateNavMeshCoroutine() {
         while (true) {
             yield return new WaitForSeconds(3);
-
-            /*
-            int index = 1;
+            
+            /*int index = 1;
             foreach (var surface in navMeshSurfaces)
             {   
                 Debug.Log("Updating: " + surface.name);
 
-                List<NavMeshBuildSource> sources = new();
+                // From reading the files directly I found they did it like this, but CollectSources is private and NavMeshBuilder.CollectSources is not the same
+                using var builderState = new NavMeshBuilderState() { };
                 
-                NavMeshBuilder.CollectSources(surface.navMeshData.sourceBounds, includedLayers, NavMeshCollectGeometry.PhysicsColliders, 0, new List<NavMeshBuildMarkup>(), sources);
-                //surface.UpdateNavMesh(surface.navMeshData);
-                var async = NavMeshBuilder.UpdateNavMeshDataAsync(surface.navMeshData, NavMesh.GetSettingsByIndex(index), sources, surface.navMeshData.sourceBounds);
+                var sources = surface.CollectSources(builderState);
+
+                var sourcesBounds = new Bounds(m_Center, Abs(m_Size));
+                if (m_CollectObjects == CollectObjects.All || m_CollectObjects == CollectObjects.Children)
+                {
+                    sourcesBounds = CalculateWorldBounds(sources);
+                }
+                
+                var async = NavMeshBuilder.UpdateNavMeshDataAsync(surface.navMeshData, surface.GetBuildSettings(), sources, sourcesBounds);
 
                 yield return async;
 
@@ -55,12 +62,12 @@ public class BuildNavMeshSurface : MonoBehaviour
                 yield return new WaitForSeconds(10);
             }*/
 
-            
             foreach (var surface in navMeshSurfaces)
             {   
+
                 surface.UpdateNavMesh(surface.navMeshData);
 
-                yield return new WaitForSeconds(45);
+                yield return new WaitForSeconds(10);
             }
 
         }

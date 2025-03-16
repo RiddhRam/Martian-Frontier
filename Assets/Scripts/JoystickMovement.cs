@@ -91,9 +91,5 @@ public class JoystickMovement : MonoBehaviour
         joystickVec = Vector2.zero;
         joystick.transform.localPosition = joystickOriginalPos;
         joystickBG.transform.position = joystickOriginalPos;
-        
-        if (mapRecordingMode.isActiveAndEnabled) {
-            mapRecordingMode.ResetCamera();
-        }
     }
 }
