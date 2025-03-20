@@ -1076,15 +1076,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius, drillTier);
         
         // If no ore tiles found
-        if (oreTiles.Count == 0)
+        if (oreTiles.Count == 0) {
             return new(0, -6);
+        }
             
         // Find all connected veins from the ore tiles
         List<List<Vector2Int>> veins = FindConnectedVeins(oreTiles);
         
         // If no veins found
-        if (veins.Count == 0)
+        if (veins.Count == 0) {
+            Debug.Log("No Veins");
             return new(0, -6);
+        }
             
         // Find the largest vein
         List<Vector2Int> largestVein = FindLargestVein(veins);
@@ -1099,9 +1102,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius, int drillTier)
     {
         List<Vector2Int> oreTiles = new List<Vector2Int>();
-        
+
         // Convert rotation to radians and calculate the angular range
-        float rotationRad = currentRotation * Mathf.Deg2Rad;
+        float rotationRad = (currentRotation - 90) * Mathf.Deg2Rad;
         float minAngle = rotationRad - SEARCH_ANGLE * Mathf.Deg2Rad;
         float maxAngle = rotationRad + SEARCH_ANGLE * Mathf.Deg2Rad;
         
@@ -1110,20 +1113,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         {
             for (int y = currentPosition.y - maxRadius; y <= currentPosition.y + maxRadius; y++)
             {
+                // Map starts below this
                 if (y > -6) {
                     continue;
                 }
 
                 Vector2Int tilePos = new Vector2Int(x, y);
-                Vector2Int relativePos = tilePos - currentPosition;
+                Vector2Int relativePos = currentPosition - tilePos;
                 
                 // Calculate distance from current position
                 float distance = relativePos.magnitude;
                 
                 // Skip if outside the radius bounds
                 if (distance < minRadius || distance > maxRadius)
-                    continue;
-                
+                    continue;        
+
                 // Calculate angle to this tile
                 float angle = Mathf.Atan2(relativePos.y, relativePos.x);
                 
@@ -1142,6 +1146,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 {
                     inAngleRange = angle >= minAngle && angle <= maxAngle;
                 }
+
+                if (Mathf.DeltaAngle(angle * Mathf.Rad2Deg, currentRotation * Mathf.Rad2Deg) < 20) {
+                    inAngleRange = false;
+                }
                 
                 // Skip if not in angular range
                 if (!inAngleRange) {
@@ -1158,7 +1166,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                         continue;
                     }
                     oreTiles.Add(tilePos);
-                    //Debug.Log(tilePos);
+                    //Debug.LogFormat("Current Pos: {0}, Current Rotation: {1}, New Pos: {2}, New Rotation: {3}", currentPosition, currentRotation, tilePos, angle * Mathf.Rad2Deg);
                 }
             }
         }
@@ -1168,8 +1176,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private List<List<Vector2Int>> FindConnectedVeins(List<Vector2Int> oreTiles)
     {
-        List<List<Vector2Int>> veins = new List<List<Vector2Int>>();
-        HashSet<Vector2Int> visitedTiles = new HashSet<Vector2Int>();
+        List<List<Vector2Int>> veins = new();
+        HashSet<Vector2Int> visitedTiles = new();
         
         foreach (Vector2Int oreTile in oreTiles)
         {
@@ -1178,8 +1186,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 continue;
                 
             // Start a new vein
-            List<Vector2Int> currentVein = new List<Vector2Int>();
-            Queue<Vector2Int> tilesToProcess = new Queue<Vector2Int>();
+            List<Vector2Int> currentVein = new();
+            Queue<Vector2Int> tilesToProcess = new();
             
             tilesToProcess.Enqueue(oreTile);
             visitedTiles.Add(oreTile);
@@ -1190,7 +1198,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 Vector2Int currentTile = tilesToProcess.Dequeue();
                 currentVein.Add(currentTile);
                 
-                // Check all adjacent tiles (4-way connectivity)
+                // Check all adjacent tiles (4-way connectivity currently, no need to check diagonal)
                 Vector2Int[] adjacentOffsets = new Vector2Int[]
                 {
                     new Vector2Int(1, 0),

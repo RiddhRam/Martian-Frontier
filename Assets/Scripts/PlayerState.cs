@@ -486,6 +486,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return string.Format(entry.LocalizedValue, args);
     }
 
+    public BigInteger GetMoneyEarned() {
+        return moneyEarned;
+    }
 
     // For development only
     public void FreeMoney() {

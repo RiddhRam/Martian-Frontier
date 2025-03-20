@@ -38,11 +38,6 @@ public class PlayerMovement : MonoBehaviour
 
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
-
-        // Disable this if using AI Movement
-        if (gameObject.GetComponent<AIMovement>().isActiveAndEnabled) {
-            joystickMovement = null;
-        }
     }
 
     // Update is called once per frame

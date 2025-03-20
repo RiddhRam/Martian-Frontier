@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class UncollectedMaterialsDelegator : MonoBehaviour
@@ -5,6 +6,7 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
     public OreDelegation oreDelegation;
     public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials = new();
     private MaterialManager materialManager;
+    private System.Random random = new();
     public int materialCount;
 
     void Awake()
@@ -65,18 +67,30 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
         return mineValue;
     }
 
-    public Vector3 GetRandomMaterialLocation() {
+    public Vector3 GetRandomMaterialLocation(int tier) {
         if (uncollectedMaterials.Count == 0)
             return new(0, -6);
 
-        int randomIndex = Random.Range(0, uncollectedMaterials.Count);
+        foreach (var material in uncollectedMaterials.Values.OrderBy(x => random.Next())) {
 
-        foreach (var material in uncollectedMaterials.Values) {
-            if (randomIndex-- == 0)
-                return material.position;
+            if (ConvertIndexToTier(material.materialIndex) == 1 && tier == 3) {
+                continue;
+            }
+
+            return material.position;
         }
         
         return new(0, -6); // Fallback, it should never reach this
+    }
+
+    public int ConvertIndexToTier(int materialIndex) {
+        if (materialIndex <= 2) {
+            return 1;
+        } else if (materialIndex <= 5) {
+            return 2;
+        }
+
+        return 3;
     }
 
 }

@@ -4,6 +4,7 @@ using NavMeshPlus.Components;
 using NavMeshPlus.Extensions;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.SceneManagement;
 
 [RequireComponent(typeof(NavMeshSurface))]
 public class BuildNavMeshSurface : MonoBehaviour
@@ -16,6 +17,7 @@ public class BuildNavMeshSurface : MonoBehaviour
     
     public bool UpdateMeshes;
     private readonly Bounds bounds = new(new(-80, 0, 0), new(80, 550, 100));
+    private int timer = 60;
     
     // Start is called before the first frame update
     public void InitializeMesh()
@@ -29,13 +31,17 @@ public class BuildNavMeshSurface : MonoBehaviour
             surface.hideEditorLogs = true;
             surface.BuildNavMesh();           
         }
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
+            timer = 20;
+        }
         
         StartCoroutine(UpdateNavMeshCoroutine());
     }
 
     private IEnumerator UpdateNavMeshCoroutine() {
         while (true) {
-            yield return new WaitForSeconds(3);
+            yield return new WaitForSeconds(5);
             
             /*int index = 1;
             foreach (var surface in navMeshSurfaces)
@@ -67,7 +73,7 @@ public class BuildNavMeshSurface : MonoBehaviour
 
                 surface.UpdateNavMesh(surface.navMeshData);
 
-                yield return new WaitForSeconds(10);
+                yield return new WaitForSeconds(timer);
             }
 
         }

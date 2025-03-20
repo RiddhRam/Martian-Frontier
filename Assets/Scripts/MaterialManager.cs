@@ -21,9 +21,9 @@ public class MaterialManager : MonoBehaviour
         materialManagerData = new();
         spriteRenderer = transform.GetChild(1).GetComponent<SpriteRenderer>();
         mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
-        if (GameObject.Find("Player Vehicle").GetComponent<AIMovement>().isActiveAndEnabled) {
-            baseTimeWait *= 18;
-            extraTimeWait *= 18;
+
+        if (mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
+            baseTimeWait *= 30;
         }
     }
 

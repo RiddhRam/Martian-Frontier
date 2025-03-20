@@ -4,16 +4,20 @@ using UnityEngine.AI;
 public class HaulerAINavigation : MonoBehaviour
 {
 
-    NavMeshAgent agent;
+    public NavMeshAgent agent;
     public JoystickMovement joystickMovement;
-    Vector3 direction = Vector3.zero;
+    public NPCMovement nPCMovement;
+
+    private Vector3 direction = Vector3.zero;
     public Vector2 target;
-    Transform frontWheels;
+    private Transform frontWheels;
     private float distance;
     
-    void Start()
+    
+    void OnEnable()
     {
-        agent = GetComponent<NavMeshAgent>();
+        agent.agentTypeID =  NavMesh.GetSettingsByIndex(1).agentTypeID;
+        
         // Disable automatic updates so we can manually control movement and rotation.
         agent.updatePosition = false;
         agent.updateRotation = false;
@@ -57,4 +61,5 @@ public class HaulerAINavigation : MonoBehaviour
 
         joystickMovement.UpdateJoystickVector(direction, 1f);
     }
+
 }

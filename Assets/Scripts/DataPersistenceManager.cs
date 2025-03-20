@@ -16,8 +16,10 @@ public class DataPersistenceManager : MonoBehaviour
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
     public AdConsent adConsent;
+
+    [SerializeField]
     private float timer = 0f;
-    private float interval = 90f; // Save time interval
+    private readonly float interval = 90f; // Save time interval
 
     private bool notSinglePlayerScene = false;
 

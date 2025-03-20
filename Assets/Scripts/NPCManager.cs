@@ -37,8 +37,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int[] nPCTimeRemaining;
     [SerializeField]
     private int nPCEmptyTimer = 0;
-    [SerializeField]
-    private Color[] spawnColours;
+    private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
+    // Helps prevent race conditions with NPCMovement and LiveManageSession()
+    private bool[] transitioningVehicle;
 
     // How many npc haulers are active
     private int haulers = 0;
@@ -86,7 +87,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     readonly System.Random random = new();
 
     bool switchingVehicle = false;
-    bool lostInternet = false;
 
     // Cache
     HaulerController haulerController;
@@ -186,7 +186,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             // Indicate if changed from hauler or not
             if (npcIsHauler[npcIndex]) {
-                haulers--;
                 npcIsHauler[npcIndex] = false;
             }
 
@@ -224,9 +223,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             // Indicate if changed to hauler or not
             if (!npcIsHauler[npcIndex]) {
-                haulers++;
                 npcIsHauler[npcIndex] = true;
             }
+
+            nPCMovements[npcIndex].drillTier = highestDrillTier;
 
             haulerController = vehicle.GetComponent<HaulerController>();
 
@@ -286,11 +286,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier) {
-        return mineRenderer.FindBestMiningPosition(5, 20, new((int) pos.x, (int) pos.y), rotation, drillTier);
+        return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
     }
 
-    public Vector3 RequestNewHaulerPosition() {
-        return uncollectedMaterialsDelegator.GetRandomMaterialLocation();
+    public Vector3 RequestNewHaulerPosition(int tier) {
+        return uncollectedMaterialsDelegator.GetRandomMaterialLocation(tier);
     }
 
     public void SetMapIcon(GameObject vehicleParent, Vector3 spawnPoint) {
@@ -352,6 +352,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements = new NPCMovement[npcCount];
         nPCNames = new string[npcCount];
         nPCTimeRemaining = new int[npcCount];
+        transitioningVehicle = new bool[npcCount];
 
         navMeshAgents = new NavMeshAgent[npcCount];
 
@@ -371,8 +372,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         Time.timeScale = 5;
-        // 7 real seconds
-        yield return new WaitForSeconds(35);
+        
+        // 6 real seconds
+        yield return new WaitForSeconds(30);
 
         Time.timeScale = 1;
         
@@ -388,7 +390,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator RunLiveManageSession() {
         while (true) {
-            if (liveSessionCoroutine == null && !lostInternet) {
+
+            if (liveSessionCoroutine == null) {
                 liveSessionCoroutine = StartCoroutine(LiveManageSession());
             }
 
@@ -401,7 +404,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             yield return new WaitForSeconds(sessionUpdateTimer);
 
             if (Application.internetReachability == NetworkReachability.NotReachable) {
-                lostInternet = true;
 
                 for (int i = 0; i != npcCount; i++) {
                     if (nPCMovements[i] != null) {
@@ -414,22 +416,40 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 lostInternetScreen.SetActive(true);
 
                 yield break;
+
             }
+
+            int haulerCount = 0;
+
+            // Remove npcs if they are done playing
+            for (int i = 0; i != npcCount; i++) {
+                nPCTimeRemaining[i] -= sessionUpdateTimer;
+
+                // Object somehow disappeared
+                if (nPCTimeRemaining[i] > 0 && npcs[i] == null && !transitioningVehicle[i]) {
+                    // Remove player without destroying gameobject
+                    RemoveNPC(i, true);
+                }
+                else if (nPCTimeRemaining[i] < 0 && npcs[i] != null && !transitioningVehicle[i]) {
+                    // Remove player normally
+                    RemoveNPC(i, false);
+                }
+                    
+                if (npcIsHauler[i]) {
+                    haulerCount++;
+                }
+            }
+
+            haulers = haulerCount;
 
             if (uncollectedMaterialsDelegator.materialCount > Get1HaulerThreshold() && haulers < 1) {
                 yield return SwitchDrillerToHauler();
             } 
             else if (uncollectedMaterialsDelegator.materialCount > Get2HaulerThreshold() && haulers < 2) {
                 yield return SwitchDrillerToHauler();
-            }
-
-            // Remove npcs if they are done playing
-            for (int i = 0; i != npcCount; i++) {
-                nPCTimeRemaining[i] -= sessionUpdateTimer;
-
-                if (nPCTimeRemaining[i] < 0 && npcs[i] != null) {
-                    RemoveNPC(i);
-                }
+            } 
+            else if (uncollectedMaterialsDelegator.materialCount > Get3HaulerThreshold() && haulers < 3) {
+                yield return SwitchDrillerToHauler();
             }
 
             // Fill empty NPC spot every 1.5 mins
@@ -475,29 +495,37 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         } 
         while(npcIsHauler[npcToChange] && !activeNPC);
 
+        transitioningVehicle[npcToChange] = true;
+
         nPCMovements[npcToChange].stopMoving = true;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(3);
 
         Destroy(npcs[npcToChange]);
         CreateNPC(npcToChange, false, false);
+
+        transitioningVehicle[npcToChange] = false;
     }
 
     private IEnumerator SwitchHaulerToDriller(int npcToChange) {
 
+        transitioningVehicle[npcToChange] = true;
+
         nPCMovements[npcToChange].stopMoving = true;
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(3);
 
         Destroy(npcs[npcToChange]);
         CreateNPC(npcToChange, true, false);
+
+        transitioningVehicle[npcToChange] = false;
     }
 
     public IEnumerator SwitchToAnotherHauler(int npcIndex, int haulerIndex) {
 
-        if (switchingVehicle) {
+        if (transitioningVehicle[npcIndex]) {
             yield break;
         }
 
-        switchingVehicle = true;
+        transitioningVehicle[npcIndex] = true;
 
         int index = haulerIndex - 1;
 
@@ -507,31 +535,39 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         nPCMovements[npcIndex].stopMoving = true;
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(3);
 
         nPCMovements[npcIndex] = null;
+        
         Destroy(npcs[npcIndex]);
-
         CreateNPC(npcIndex, false, false, index);
 
-        switchingVehicle = false;
-
-        yield break;
+        transitioningVehicle[npcIndex] = false;
     }
 
     public int Get1HaulerThreshold() {
-        return 330 + (100 * highestDrillTier);
+        return 280 + (115 * highestDrillTier);
     }
 
     public int Get2HaulerThreshold() {
-        return 430 + (100 * highestDrillTier);
+        return 390 + (115 * highestDrillTier);
     }
 
-    public void RemoveNPC(int npcIndex) {
+    public int Get3HaulerThreshold() {
+        return 500 + (115 * highestDrillTier);
+    }
+
+    public void RemoveNPC(int npcIndex, bool gameObjectDestroyed) {
         int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[npcIndex]);
 
-        Destroy(npcs[npcIndex]);
+        if (!gameObjectDestroyed) {
+            Destroy(npcs[npcIndex]);
+        }
+
         npcs[npcIndex] = null;
+        
+        npcIsHauler[npcIndex] = false;
+        nPCTimeRemaining[npcIndex] = 0;
 
         spawnPointNameTexts[spawnIndex].text = "";
         spawnPointTaken[spawnIndex] = false;
@@ -544,6 +580,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public void CheckIfHaulingNeeded(int npcIndex) {
         bool needed = false;
 
+        // If greater than this, that its greater than 3 hauler threshold as well
         if (uncollectedMaterialsDelegator.materialCount > Get2HaulerThreshold()) {
             needed = true;
         } 
@@ -562,5 +599,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         StartCoroutine(SwitchHaulerToDriller(npcIndex));
+    }
+
+    public Color[] GetSpawnColors() {
+        return spawnColours;
+    }
+
+    public int GetMaterialCount() {
+        return uncollectedMaterialsDelegator.materialCount;
     }
 }

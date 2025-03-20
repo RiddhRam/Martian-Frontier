@@ -1,8 +1,10 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 public class NPCMovement : MonoBehaviour
 {
 
@@ -21,7 +23,6 @@ public class NPCMovement : MonoBehaviour
     public TextMeshProUGUI npcNameText;
     public TextMeshProUGUI rebirthText;
     public Canvas worldSpaceCanvas;
-
 
     public int rebirthLevel;
     public HaulerController haulerController;
@@ -42,6 +43,7 @@ public class NPCMovement : MonoBehaviour
     Vector2 direction;
     System.Random random = new();
     private float timer = 0;
+    private float maxTimer = 10f;
 
     // Cache
     NavMeshPath path;
@@ -54,31 +56,24 @@ public class NPCMovement : MonoBehaviour
         agent.updateRotation = false;
 
         rb = GetComponent<Rigidbody2D>();
+
+        StartCoroutine(HoldPlayerCardStill());
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
+            drillTier = 1;
+            maxTimer = 5f;
+        }
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        worldSpaceCanvas.transform.rotation = normalRotation;
-        float angle = transform.eulerAngles.z; // Get the Y-axis rotation
-
-        // Convert angle to radians
-        float rad = Mathf.Deg2Rad * angle;
-
-        // Calculate new position based on rotation
-        float x = Mathf.Sin(rad) * 3;
-        float y = Mathf.Cos(rad) * 4;
-
-        // Update canvas position relative to the vehicle
-        worldSpaceCanvas.transform.localPosition = new Vector3(x, y, 0);
-
         try {
             agent.SetDestination(agent.destination);
         } catch {
         }
-        
 
-        // (400, 400, 0) means theres a problem with requesting new position
+        // (0, -6, 0) means theres a problem with requesting new position
         if (Math.Abs(agent.destination.y - -6) < 0.1) {
             // If its a hauler, drop to a smaller hauler
             if (haulerController != null) {
@@ -124,10 +119,17 @@ public class NPCMovement : MonoBehaviour
             timer += Time.deltaTime;
         }
 
-        if (timer > 10) {
+        if (timer > maxTimer) {
+
             agent.enabled = false;
             agent.enabled = true;
-            RequestNewPosition();
+
+            if (haulerController == null) {
+                timer = 0;
+            } else {
+                RequestNewPosition();
+            }
+            
         }
 
         if (!stopMoving) {
@@ -145,7 +147,7 @@ public class NPCMovement : MonoBehaviour
 
         if (drillTier == 1)  {
             minY = -155;
-            maxY = -6;
+            maxY = -8;
         } else if (drillTier == 2) {
             minY = -325;
             maxY = -165;
@@ -153,8 +155,44 @@ public class NPCMovement : MonoBehaviour
             minY = -505;
             maxY = -335;
         }
+        
+        float facingAngle = transform.eulerAngles.z;    // in degrees
+        float halfArc = 90f;        // half of range
 
-        return new((float) (random.NextDouble() * 120 - 60), (float) (random.NextDouble() * (maxY - minY) + minY), agent.destination.z);
+        float exclusionRange = 25f; // Inner range to exclude
+
+        // Compute random angle within the arc but outside the exclusion range
+        float randomAngle;
+        if (random.NextDouble() < 0.5)
+        {
+            // Pick from lower range
+            randomAngle = 360 -(float)(random.NextDouble() * (facingAngle - exclusionRange - (facingAngle - halfArc)) + (facingAngle - halfArc));
+        }
+        else
+        {
+            // Pick from upper range
+            randomAngle = 360 -(float)(random.NextDouble() * ((facingAngle + halfArc) - (facingAngle + exclusionRange)) + (facingAngle + exclusionRange));
+        }
+
+
+        float distance = (float)(random.NextDouble() * 10 + 5);
+
+        float rad = randomAngle * Mathf.Deg2Rad;
+        Vector2 offset = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad)) * distance;
+
+        Vector3 newPos = new(transform.position.x + offset.x, transform.position.y + offset.y, agent.destination.z);
+        
+        if (newPos.x < -60 || newPos.x > 60) {
+            newPos.x *= 1;
+        }
+        if (newPos.y < minY || newPos.y > maxY) {
+            newPos.y *= -1;
+        }
+
+        newPos.x = Math.Clamp(newPos.x, -60, 60);
+        newPos.y = Math.Clamp(newPos.y, minY, maxY);
+
+        return newPos;
     }
 
     public void RequestNewPosition() {
@@ -172,7 +210,7 @@ public class NPCMovement : MonoBehaviour
 
     public Vector3 RequestNewHaulerPosition() {
 
-        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5) {
+        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5 || nPCManager.GetMaterialCount() < (100 + 50 * drillTier)) {
             return new(0, 6);
         }
 
@@ -181,17 +219,17 @@ public class NPCMovement : MonoBehaviour
 
         Vector3 newHaulerPosition;
 
-        // Check for a position for a max of 5 times. If still invalid, then the hauler is too big
+        // Check for a position for a max of 60 times. If still invalid, then the hauler is too big
         int haulPositionCount = 0;
         do {
-            newHaulerPosition = nPCManager.RequestNewHaulerPosition();
+            newHaulerPosition = nPCManager.RequestNewHaulerPosition(drillTier);
 
             haulPositionCount++;
         } 
-        while((!agent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 30);
+        while((!agent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
 
         // If invalid
-        if (haulPositionCount >= 30) {
+        if (haulPositionCount >= 60) {
             newHaulerPosition = new(0, -6);
         }
 
@@ -284,6 +322,23 @@ public class NPCMovement : MonoBehaviour
 
     public void AskIfHaulingIsNeeded() {
         nPCManager.CheckIfHaulingNeeded(npcIndex);
+    }
+
+    private IEnumerator HoldPlayerCardStill()
+    {
+
+        while (true) {
+            worldSpaceCanvas.transform.rotation = normalRotation;
+            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+
+            // Calculate new position based on rotation
+            float x = Mathf.Sin(angle) * 4.2f;
+            float y = Mathf.Cos(angle) * 4.2f;
+
+            worldSpaceCanvas.transform.localPosition = new Vector3(x, y, 0);
+
+            yield return new WaitForEndOfFrame();
+        }
     }
 
 }
