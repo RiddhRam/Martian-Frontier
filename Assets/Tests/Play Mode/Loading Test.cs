@@ -115,19 +115,7 @@ public class LoadingTest
         // Ads
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
         
-        int adButtonCount = 3;
-        string[] rewardTypes = { "Profit", "Speed", "Vision" };
-        Assert.AreEqual(adDelegator.adButtons.Length, adButtonCount);
-        for (int i = 0; i != adButtonCount; i++) {
-            Assert.True(adDelegator.adButtons[i].activeSelf);
-            Assert.True(adDelegator.adButtons[i].name.Contains(rewardTypes[i]));
-            Assert.False(adDelegator.timerTexts[i].activeSelf);
-            Assert.True(adDelegator.timerTexts[i].name.Contains(rewardTypes[i]));
-            Assert.AreEqual(adDelegator.rewardTypes[i], rewardTypes[i]);
-        }
-
-        Assert.AreEqual(adDelegator.noInternetIcon.name, "No Wifi Icon");
-
+        Assert.True(adDelegator.adButton.activeSelf);
         Assert.AreEqual(adDelegator.movementJoystick.name, "Movement Joystick");
         Assert.AreEqual(adDelegator.tutorial.name, "Tutorial");
         Assert.AreEqual(adDelegator.customAdScreen.name, "Custom Ad Screen");

@@ -21,7 +21,6 @@ public class GameDataString
     public string seed;
     public string highestRow;
     public string mineInitialization;
-    public string timerIndexes;
     public string rebirthProfitMultiplier;
     public string finishedTutorial;
     public string askedForReview;
@@ -39,6 +38,11 @@ public class GameDataString
     public string cratesAvailable;
     public string progressToNextCrate;
     public string currentCoopVehicle;
+    public string rewardAdTimer;
+    public string visionRadius;
+    public string visionBoost;
+    public string refineryProfitMultiplier;
+    public string refineryProfitMultiplierBoost;
 
     public GameDataString() {
         this.userCash = null;
@@ -59,7 +63,6 @@ public class GameDataString
         this.seed = null;
         this.highestRow = null;
         this.mineInitialization = null;
-        this.timerIndexes = null;
         this.rebirthProfitMultiplier = null;
         this.finishedTutorial = null;
         this.askedForReview = null;
@@ -77,5 +80,10 @@ public class GameDataString
         this.cratesAvailable = null;
         this.progressToNextCrate = null;
         this.currentCoopVehicle = null;
+        this.rewardAdTimer = null;
+        this.visionRadius = null;
+        this.visionBoost = null;
+        this.refineryProfitMultiplier = null;
+        this.refineryProfitMultiplierBoost = null;
     }
 }

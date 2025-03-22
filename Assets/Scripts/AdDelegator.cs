@@ -11,9 +11,10 @@ using UnityEngine.SceneManagement;
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
     private string _adUnitId = "unused";
-    public GameObject[] adButtons;
-    public GameObject noInternetIcon;
-    public GameObject[] timerTexts;
+    public GameObject adButton;
+    public TextMeshProUGUI visionText;
+    public TextMeshProUGUI profitText;
+    public TextMeshProUGUI rewardAdTimerText;
     public string[] rewardTypes;
     public GameObject movementJoystick;
     public GameObject tutorial;
@@ -40,14 +41,17 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // This needs to be seperate because user can swap vehicle while boost active
     public float originalSpeed;
     public bool speedBoostActive;
-    private bool currentlyUsingDriller = true;
-    private int[] timerIndexes = new int[3];
+
+    private int rewardAdTimer = 0;
+
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
     public CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
+    public UpgradePanelsDelegator upgradePanelsDelegator;
+
     private bool adsInitialized = false;
     private string adPermissionGiven;
     // After 30 seconds of user watching an ad, request a new one.
@@ -314,31 +318,17 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     // Show ad to user
-    public void ShowRewardedAd(string type)
+    public void ShowRewardedAd()
     {
         if (disableAds)
             return;
         // If user watched an ad in the last 30 seconds or first time playing
         if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-90)) {
-            if (type == "Profit") {
-                RewardWithProfit();
-            } else if (type == "Speed") {
-                RewardWithSpeed();
-            } else if (type == "Vision") {
-                RewardWithVision();
-            }
+            RewardBoost();
             dataPersistenceManager.SaveGame();
             return;
         }
         
-        int rewardIndex = 0;
-
-        for (int i = 0; i != rewardTypes.Length; i++) {
-            if (type == rewardTypes[i]) {
-                rewardIndex = i;
-                break;
-            }
-        }
 
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
@@ -349,13 +339,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             });
 
             lastAdShown = DateTime.Now;
-            if (type == "Profit") {
-                RewardWithProfit();
-            } else if (type == "Speed") {
-                RewardWithSpeed();
-            } if (type == "Vision") {
-                RewardWithVision();
-            }
+            RewardBoost();
             dataPersistenceManager.SaveGame();
 
             // Listen to user events during ad
@@ -364,13 +348,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // If unable to show ad, use custom screen
-        if (type == "Profit") {
-            StartCoroutine(UseCustomAdScreen(() => RewardWithProfit()));
-        } else if (type == "Speed") {
-            StartCoroutine(UseCustomAdScreen(() => RewardWithSpeed()));
-        } else if (type == "Vision") {
-            StartCoroutine(UseCustomAdScreen(() => RewardWithVision()));
-        }
+        StartCoroutine(UseCustomAdScreen(() => RewardBoost()));
+
         lastAdShown = DateTime.Now;
         dataPersistenceManager.SaveGame();
     }
@@ -514,12 +493,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             
 
             if (!disableAds) {
-                noInternetIcon.SetActive(false);
 
-                // If showing ad buttons, don't show ad opt out text
-                for (int i = 0; i != adButtons.Length; i++) {
-                    adButtons[i].SetActive(true);
-                }
+                adButton.SetActive(true);
 
                 if (!supplyCrateDelegator.adWatchedAlready) {
                     doubleCrateRewardButton.SetActive(true);
@@ -550,15 +525,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         leaderboardTabButtons.SetActive(false);
         leaderboardNoWifi.SetActive(true);
         
-
         if (!disableAds) {
-            noInternetIcon.SetActive(true);
             crateRewardNoWifi.SetActive(true);
             doubleCrateRewardButton.SetActive(false);
+            adButton.SetActive(false);
 
-            for (int i = 0; i != adButtons.Length; i++) {
-                adButtons[i].SetActive(false);
-            }
 
             teamNoWifi.SetActive(true);
         }
@@ -566,29 +537,22 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         displayStatus = false;
     }
 
-    private void RewardWithProfit(int? totalTime = 300) {
-        RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-        // Reset to 1 after 3 mins
-        refineryController.SetProfitMultiplier(2);
-        StartCoroutine(StartRewardCountdown(0, () => refineryController.SetProfitMultiplier(1), (int) totalTime));
-        LogAnalytics("Profit");
-    }
+    private void RewardBoost(int? totalTime = 240) {
 
-    private void RewardWithSpeed(int? totalTime = 300) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
-        // Reset to original value after 3 mins
         playerMovement.SetSpeed(originalSpeed * 1.5f);
-        StartCoroutine(StartSpeedCountdown((int) totalTime));
-        LogAnalytics("Speed");
-    }
 
-    private void RewardWithVision(int? totalTime = 300) {
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        // Reset to 3 after 3 mins
-        mineRenderer.SetVisionRadius(9);
-        StartCoroutine(StartRewardCountdown(2, () => mineRenderer.SetVisionRadius(3), (int) totalTime));
-        LogAnalytics("Vision");
+        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionRadius + upgradePanelsDelegator.visionBoost);
+        visionText.text =  "+" + upgradePanelsDelegator.visionBoost.ToString();
+
+        refineryController.SetProfitMultiplier(upgradePanelsDelegator.refineryProfitMultiplier * upgradePanelsDelegator.refineryProfitMultiplierBoost);
+        profitText.text = upgradePanelsDelegator.refineryProfitMultiplierBoost.ToString() + "X";
+
+        StartCoroutine(StartRewardCountdown((int) totalTime));
+
+        LogAnalytics("Profit");
     }
 
     private void LogAnalytics(string analyticToLog) {
@@ -598,62 +562,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 
-    private IEnumerator StartRewardCountdown(int rewardIndex, Action callbackFunc, int totalTime) {
-        adButtons[rewardIndex].GetComponent<Button>().interactable = false;
-        // Hide the button
-        adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(false);
-        // Show timer
-        timerTexts[rewardIndex].SetActive(true);
-        TextMeshProUGUI textComponent = timerTexts[rewardIndex].GetComponent<TextMeshProUGUI>();
+    private IEnumerator StartRewardCountdown(int totalTime) {
 
-        // Declare these outside to reduce GC usage
-        int minutes;
-        int seconds;
-        string timerText;
-
-        // Initialize the timer to 3:00 (3 minutes in seconds)
-        while (totalTime > 0) {
-            // Calculate minutes and seconds
-            minutes = totalTime / 60;
-            seconds = totalTime % 60;
-            timerText = $"{minutes}:{seconds:D2}";
-
-            // Update the timer text (assuming it's a TMP Text component)
-            textComponent.text = timerText;
-            timerIndexes[rewardIndex] = totalTime - 1;
-            // Wait for 1 second
-            yield return new WaitForSeconds(1);
-
-            // Reduce the timer
-            totalTime--;
-        }
-
-        // Reset
-        callbackFunc?.Invoke();
-        
-        textComponent.text = "0:00";
-        timerTexts[rewardIndex].SetActive(false);
-        timerIndexes[rewardIndex] = 0;
-
-        adButtons[rewardIndex].transform.GetChild(0).gameObject.SetActive(true);
-        // Don't renable the button if its the vision button and user is using something other than a driller
-        if (adButtons[rewardIndex].name.Contains("Vision") && !currentlyUsingDriller) {
-            yield break;
-        }
-        adButtons[rewardIndex].GetComponent<Button>().interactable = true;
-    }
-
-    // This needs to be seperate because user can swap vehicle while boost active
-    private IEnumerator StartSpeedCountdown(int totalTime) {
         speedBoostActive = true;
-        adButtons[1].GetComponent<Button>().interactable = false;
-        // Hide the button
-        adButtons[1].transform.GetChild(0).gameObject.SetActive(false);
-        // Show timer
-        timerTexts[1].SetActive(true);
-        TextMeshProUGUI textComponent = timerTexts[1].GetComponent<TextMeshProUGUI>();
 
-        // Declare these outside to reduce GC usage
+        adButton.SetActive(false);
+        visionText.transform.parent.parent.gameObject.SetActive(true);
+
         int minutes;
         int seconds;
         string timerText;
@@ -666,8 +581,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            textComponent.text = timerText;
-            timerIndexes[1] = totalTime - 1;
+            rewardAdTimerText.text = timerText;
+            rewardAdTimer = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -675,40 +590,21 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        textComponent.text = "0:00";
-        timerTexts[1].SetActive(false);
-        timerIndexes[1] = 0;
+        rewardAdTimerText.text = "0:00";
+        rewardAdTimer = 0;
 
-        adButtons[1].transform.GetChild(0).gameObject.SetActive(true);
-        adButtons[1].GetComponent<Button>().interactable = true;
+        adButton.SetActive(true);
+        visionText.transform.parent.parent.gameObject.SetActive(false);
+        
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionBoost);
+
+        refineryController.SetProfitMultiplier(upgradePanelsDelegator.refineryProfitMultiplier);
 
         speedBoostActive = false;
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         playerMovement.SetSpeed(originalSpeed);
-    }
-
-    public void SetUsingDriller(bool usingDriller) {
-        if (disableAds) {
-            return;
-        }
-
-        currentlyUsingDriller = usingDriller;
-        // Vision boost is useless if not using a driller, so make the button uninteractable
-        for (int i = 0; i != adButtons.Length; i++) {
-
-            // Make sure it's the vision button
-            if (!adButtons[i].name.Contains("Vision")) {
-                continue;
-            }
-
-            // If it's currently active don't do anything
-            if (timerIndexes[i] > 0) {
-                return;
-            }
-
-            adButtons[i].GetComponent<Button>().interactable = usingDriller;
-            break;
-        }
+        yield break;
     }
 
     public void LoadData(GameData data) {
@@ -718,26 +614,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        this.timerIndexes = data.timerIndexes;
-        for (int i = 0; i != timerIndexes.Length; i++) {
-            // Make sure timerIndex was greater than 0
-            if (timerIndexes[i] <= 0) {
-                continue;
-            }
+        this.rewardAdTimer = data.rewardAdTimer;
 
-            // Speed has it's own function
-            if (adButtons[i].name.Contains("Speed")) {
-                RewardWithSpeed(timerIndexes[i]);
-                continue;
-            }
-
-            // Call the appropriate function
-            if (i == 0) {
-                RewardWithProfit(timerIndexes[i]);
-                continue;
-            }
-
-            RewardWithVision(timerIndexes[i]);
+        if (rewardAdTimer > 0) {
+            // Reward
+            RewardBoost(rewardAdTimer);
         }
 
         if (!data.finishedTutorial) {
@@ -750,7 +631,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
         
-        data.timerIndexes = this.timerIndexes;
+        data.rewardAdTimer= this.rewardAdTimer;
     }
 
     private void FillEmptyAdSlots() {

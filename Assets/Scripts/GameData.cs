@@ -28,7 +28,6 @@ public class GameData
     public int seed;
     public int highestRow;
     public int mineInitialization;
-    public int[] timerIndexes;
     public float rebirthProfitMultiplier;
     public bool finishedTutorial;
     public bool askedForReview;
@@ -46,6 +45,11 @@ public class GameData
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
+    public int rewardAdTimer;
+    public int visionRadius;
+    public int visionBoost;
+    public float refineryProfitMultiplier;
+    public float refineryProfitMultiplierBoost;
 
     public GameData() {
         this.userCash = "0";
@@ -76,7 +80,6 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
-        this.timerIndexes = new int[3];
         this.rebirthProfitMultiplier = 0;
         this.finishedTutorial = false;
         this.askedForReview = false;
@@ -94,5 +97,10 @@ public class GameData
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER I";
+        this.rewardAdTimer = 0;
+        this.visionRadius = 3;
+        this.visionBoost = 3;
+        this.refineryProfitMultiplier = 1;
+        this.refineryProfitMultiplierBoost = 2;
     }
 }

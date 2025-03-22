@@ -76,8 +76,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         
         // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
         if (haulerController2) {
-            // Disable rewarded ad vision boost button
-            adDelegator.SetUsingDriller(false);
             // Display the hauler cargo button
             cargoInfo.SetActive(true);
             UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
@@ -87,10 +85,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
             vehicleType = "Hauler";
 
-           /*Debug.Log(haulerController2);
-            Debug.Log(garageDelegator);
-            Debug.Log(haulerController2.name);*/
-
             haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
             
 
@@ -98,8 +92,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             return;
         }
 
-        // Enable rewarded ad vision boost button
-        adDelegator.SetUsingDriller(true);
         // If not a hauler, hide the hauler cargo button
         cargoInfo.SetActive(false);
         UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);

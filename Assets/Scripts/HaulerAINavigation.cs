@@ -35,6 +35,8 @@ public class HaulerAINavigation : MonoBehaviour
         for (int i = 0; i != frontWheels.childCount; i++) {
             frontWheels.GetChild(i).GetComponent<PolygonCollider2D>().enabled = false;
         }
+
+        transform.GetChild(0).GetComponent<HaulerController>().IncreaseMaxMaterials();
     }
 
     // Update is called once per frame

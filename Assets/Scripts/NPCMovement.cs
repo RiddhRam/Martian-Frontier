@@ -341,4 +341,8 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
+    void OnDisable()
+    {
+        GetComponent<HaulerAINavigation>().target = new(transform.position.x, transform.position.y);
+    }
 }

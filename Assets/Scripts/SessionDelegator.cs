@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class SessionDelegator : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class SessionDelegator : MonoBehaviour
     private TutorialManager tutorialManager;
     [SerializeField]
     private GameObject lockedUntilDoneTutorial;
+    [SerializeField]
+    private GameObject loadingScreen;
 
     void Start()
     {
@@ -32,14 +35,22 @@ public class SessionDelegator : MonoBehaviour
     }
 
     public void GoToTeamSession() {
-        dataPersistenceManager.SaveGame();
-        cloudDelegator.TempSignOut();
+        loadingScreen.transform.GetChild(2).GetComponent<Slider>().value = 0;
+        loadingScreen.SetActive(true);
+        Transition();
         SceneManager.LoadScene("Co-op Local");
     }
 
     public void GoToSoloSession() {
+        loadingScreen.transform.GetChild(1).gameObject.SetActive(false);
+        loadingScreen.transform.GetChild(3).GetComponent<Slider>().value = 0;
+        loadingScreen.SetActive(true);
+        Transition();
+        SceneManager.LoadScene("Singleplayer");
+    }
+
+    public void Transition() {
         dataPersistenceManager.SaveGame();
         cloudDelegator.TempSignOut();
-        SceneManager.LoadScene("Singleplayer");
     }
 }

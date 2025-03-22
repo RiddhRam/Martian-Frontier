@@ -29,6 +29,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public bool askedForReview;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
+    [SerializeField]
     private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
     [SerializeField]

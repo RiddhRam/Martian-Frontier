@@ -16,7 +16,7 @@ public class LoadingScreen : MonoBehaviour
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
         LoadData() (10 total)
-        AdDelegator, DailyChallengeDelegator, GarageDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator
+        AdDelegator, DailyChallengeDelegator, GarageDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, UpgradePanelsDelegator
         
         Extras:
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async) || OnSignedIn() (1 total) when changing scenes but still logged in
@@ -25,9 +25,9 @@ public class LoadingScreen : MonoBehaviour
         TutorialManager: LoadData() (1 total), only in singleplayer
         NPCManager: LoadData() (1 total), only in co-op local
 
-        Total as of Mar 15 2025: 12 || 11
-        13 || 12 for coop local
-        Last check: Mar 15 2025
+        Total as of Mar 22 2025: 13 || 12
+        14 || 13 for coop local
+        Last check: Mar 22 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second

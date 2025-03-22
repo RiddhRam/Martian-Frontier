@@ -77,6 +77,8 @@ public class DataPersistenceManager : MonoBehaviour
             Debug.Log("No game data to load, creating new game");
             NewGame();
         }
+
+        Debug.Log(gameData.finishedTutorial);
         
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {

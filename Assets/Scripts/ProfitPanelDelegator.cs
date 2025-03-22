@@ -21,7 +21,6 @@ public class ProfitPanelDelegator : MonoBehaviour
     private TextMeshProUGUI boostTMP;
     private TextMeshProUGUI adBoostTMP;
     private TextMeshProUGUI adBoostTimerTMP;
-    private TextMeshProUGUI profitTimerTMP;
     private TextMeshProUGUI levelBoostTextTMP;
     private TextMeshProUGUI rebirthBoostTextTMP;
 
@@ -33,10 +32,6 @@ public class ProfitPanelDelegator : MonoBehaviour
         adBoostTimerTMP = adBoostTimer.GetComponent<TextMeshProUGUI>();
         levelBoostTextTMP = levelBoostText.GetComponent<TextMeshProUGUI>();
         rebirthBoostTextTMP = rebirthBoostText.GetComponent<TextMeshProUGUI>();
-
-        // Not assigned in co-op
-        profitTimerTMP = adDelegator.timerTexts[0].GetComponent<TextMeshProUGUI>();
-    
     }
 
     void FixedUpdate() {
@@ -51,8 +46,8 @@ public class ProfitPanelDelegator : MonoBehaviour
         boostTMP.text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
         adBoostTMP.text = refineryController.GetProfitMultiplier().ToString() + "x";
 
-        if (profitTimerTMP) {
-            string totalTime =  profitTimerTMP.text;
+        if (adDelegator.rewardAdTimerText) {
+            string totalTime =  adDelegator.rewardAdTimerText.text;
 
             if (totalTime == "0:00") {
                 adBoostTimerTMP.text = "";

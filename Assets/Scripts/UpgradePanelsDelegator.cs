@@ -3,13 +3,19 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class UpgradePanelsDelegator : MonoBehaviour
+public class UpgradePanelsDelegator : MonoBehaviour, IDataPersistence
 {
 
     private string activePanel = "Refinery";
     public GameObject refineryButton;
     public GameObject refineryPanel;
     public bool notSinglePlayerScene = false;
+    
+
+    public int visionRadius = 3;
+    public int visionBoost = 3;
+    public float refineryProfitMultiplier = 1;
+    public float refineryProfitMultiplierBoost = 2;
 
     void Awake()
     {
@@ -33,5 +39,21 @@ public class UpgradePanelsDelegator : MonoBehaviour
         refineryButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
         refineryButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
         activePanel = panelToActivate;
+    }
+
+    public void LoadData(GameData data)
+    {
+        this.visionRadius = data.visionRadius;
+        this.visionBoost = data.visionBoost;
+        this.refineryProfitMultiplier = data.refineryProfitMultiplier;
+        this.refineryProfitMultiplierBoost = data.refineryProfitMultiplierBoost;
+    }
+
+    public void SaveData(ref GameData data)
+    {
+        data.visionRadius = this.visionRadius;
+        data.visionBoost = this.visionBoost;
+        data.refineryProfitMultiplier = this.refineryProfitMultiplier;
+        data.refineryProfitMultiplierBoost = this.refineryProfitMultiplierBoost;
     }
 }

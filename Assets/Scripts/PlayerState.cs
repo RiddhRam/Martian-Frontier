@@ -32,7 +32,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userGems;
     private BigInteger gemsEarned;
     private List<string> vehiclesOwned = new();
-    private int[] materialPrices;
     [SerializeField]
     private float rebirthProfitMultiplier;
     [SerializeField]
@@ -85,9 +84,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
-        materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
         drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
-        
     }
 
     void Start() {
