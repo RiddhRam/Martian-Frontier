@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Numerics;
+using UnityEngine.SceneManagement;
 
 public class DataPersistenceManager : MonoBehaviour
 {
@@ -15,8 +16,12 @@ public class DataPersistenceManager : MonoBehaviour
     private List<IDataPersistence> dataPersistenceObjects;
     private FileDataHandler dataHandler;
     public AdConsent adConsent;
+
+    [SerializeField]
     private float timer = 0f;
-    private float interval = 90f; // Save time interval
+    private readonly float interval = 90f; // Save time interval
+
+    private bool notSinglePlayerScene = false;
 
     public static DataPersistenceManager instance {get; private set; }
 
@@ -30,6 +35,10 @@ public class DataPersistenceManager : MonoBehaviour
         // Don't encrypt when using the editor, go debugging purposes
         if (Application.isEditor) {
             useEncryption = false;
+        }
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
         }
 
     }
@@ -117,11 +126,15 @@ public class DataPersistenceManager : MonoBehaviour
 
         try {
             if (cloudDelegator) {
-                cloudDelegator.SaveGameDataToCloud();
+                _ = cloudDelegator.SaveGameDataToCloud();
             }
         } catch (Exception ex) {
             Debug.Log("Error when saving to cloud: " + ex);
         }
+    }
+
+    public void DirectlyWriteSave() {
+        dataHandler.Save(gameData);
     }
 
     private void OnApplicationQuit() {
@@ -164,6 +177,12 @@ public class DataPersistenceManager : MonoBehaviour
         {
             finishedTutorial = true
         };
+
+        if (notSinglePlayerScene) {
+            DirectlyWriteSave();
+            SceneManager.LoadScene("Singleplayer");
+            return;
+        }
 
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {

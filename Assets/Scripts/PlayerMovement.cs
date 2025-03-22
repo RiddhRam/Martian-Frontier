@@ -1,6 +1,7 @@
 using System;
 using TMPro;
 using UnityEngine;
+using UnityEngine.AI;
 public class PlayerMovement : MonoBehaviour
 {
     public GameObject mainCamera;
@@ -32,13 +33,11 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        NavMeshAgent navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.updateUpAxis = false;
+
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
-
-        // Disable this if using AI Movement
-        if (gameObject.GetComponent<AIMovement>().isActiveAndEnabled) {
-            joystickMovement = null;
-        }
     }
 
     // Update is called once per frame
@@ -51,6 +50,7 @@ public class PlayerMovement : MonoBehaviour
         MoveCamera();
         UpdateDepth();
 
+        
         // Disable this if using AI Movement
         if (!joystickMovement) {
             return;
@@ -104,8 +104,6 @@ public class PlayerMovement : MonoBehaviour
 
         // Might fail after changing vehicle
         try {
-
-            Debug.Log($"Temp Last: {tempLastRotation} New Angle: {newAngle}");
             
             if (tempLastRotation - 90 > newAngle) {
                 newAngle += 360;

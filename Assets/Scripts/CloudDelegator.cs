@@ -12,6 +12,7 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class CloudDelegator : MonoBehaviour
 {
@@ -31,7 +32,8 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 68;
+    private readonly int currentVersionNumber = 70;
+    private bool notSinglePlayerScene = false;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -39,7 +41,12 @@ public class CloudDelegator : MonoBehaviour
 
         try {
             await AttemptLogIn();
-        } catch {
+        } catch (Exception ex) {
+            Debug.Log("Couldnt log in: " + ex.Message);
+        }
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
         }
 
         IncrementLoadedItems();
@@ -99,7 +106,7 @@ public class CloudDelegator : MonoBehaviour
         if (AuthenticationService.Instance.IsSignedIn)
         {
             try {
-                SaveGameDataToCloud();
+                await SaveGameDataToCloud();
             } catch {
             }
 
@@ -121,6 +128,10 @@ public class CloudDelegator : MonoBehaviour
         }
     }
 
+    public void TempSignOut() {
+        AuthenticationService.Instance.SignOut(false); // True to clear cache
+    }
+
     public void AskToChangeName() {
         askToChangeName.SetActive(true);
     }
@@ -129,8 +140,7 @@ public class CloudDelegator : MonoBehaviour
         askToChangeName.SetActive(false);
     }
 
-    public async void ChangeName()
-    {
+    public async void ChangeName() {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             uIDelegation.ShowError("NO INTERNET!");
             return;
@@ -146,6 +156,7 @@ public class CloudDelegator : MonoBehaviour
             askToChangeName.SetActive(false);
 
             var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+            PlayerPrefs.SetString("PlayerName", name);
             playerProfile.Name = name;
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
         } catch {
@@ -153,7 +164,6 @@ public class CloudDelegator : MonoBehaviour
         }
 
     }
-
 
     public void AskToDeleteAccount() {
         askToDeleteAccount.SetActive(true);
@@ -163,8 +173,7 @@ public class CloudDelegator : MonoBehaviour
         askToDeleteAccount.SetActive(false);
     }
 
-    public async void DeleteAccount()
-    {
+    public async void DeleteAccount() {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             uIDelegation.ShowError("NO INTERNET!");
             return;
@@ -243,6 +252,7 @@ public class CloudDelegator : MonoBehaviour
         playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
 
         var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+        PlayerPrefs.SetString("PlayerName", name);
 
         playerInfo = playerProfile.playerInfo;
         playerProfile.Name = name;
@@ -253,6 +263,7 @@ public class CloudDelegator : MonoBehaviour
             userPanel.SetActive(true);
         
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
+            
             LoadGameDataFromCloud();
         }
 
@@ -262,16 +273,15 @@ public class CloudDelegator : MonoBehaviour
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
-    private IEnumerator AutoSaveCoroutine()
-    {
+    private IEnumerator AutoSaveCoroutine() {
         while (true) // Run indefinitely
         {
-            SaveGameDataToCloud();
+            _ = SaveGameDataToCloud();
             yield return new WaitForSeconds(60f); // Wait for 60 seconds before saving again
         }
     }
 
-    public async void SaveGameDataToCloud() {
+    public async Task SaveGameDataToCloud() {
 
         if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
@@ -311,7 +321,12 @@ public class CloudDelegator : MonoBehaviour
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
                 loadingScreen.gameObject.SetActive(true);
                 IncrementLoadedItems();
-                dataPersistenceManager.LoadGame();
+                if (notSinglePlayerScene) {
+                    dataPersistenceManager.DirectlyWriteSave();
+                    SceneManager.LoadScene("Singleplayer");
+                } else {
+                    dataPersistenceManager.LoadGame();
+                }
             }
         }
         catch (Exception e)
@@ -343,8 +358,7 @@ public class CloudDelegator : MonoBehaviour
     // VERSION 33 AND LOWER HAVE NO RESTRICTION BECAUSE THEY DO NOT USE THE CLOUD
     // To change current version change it above 'currentVersionNumber'
     // To change lowest version allowed, change it in Unity Cloud Dashboard -> Cloud Code -> JS Scripts -> Get_Lowest_Version_Allowed and then change the integer in the script
-    private async void GetLowestVersionAllowed()
-    {
+    private async void GetLowestVersionAllowed() {
         try
         {
             var arguments = new Dictionary<string, object>();

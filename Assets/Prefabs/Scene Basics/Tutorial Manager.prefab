@@ -1,0 +1,68 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3690998229939467229
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7029630993177739748}
+  - component: {fileID: 3555447161961909367}
+  m_Layer: 0
+  m_Name: Tutorial Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7029630993177739748
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3690998229939467229}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3555447161961909367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3690998229939467229}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa62b2002edcf4868b42fcce77cd4175, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  analyticsDelegator: {fileID: 0}
+  playerState: {fileID: 0}
+  playerVehicleDelegation: {fileID: 0}
+  garageDelegator: {fileID: 0}
+  refineryController: {fileID: 0}
+  uncollectedMaterialsDelegator: {fileID: 0}
+  supplyCrateDelegator: {fileID: 0}
+  TutorialUIParent: {fileID: 0}
+  tutorialScreens:
+  - {fileID: 8594513370569750245, guid: 4bd4b9222c61c42758b99801d7cd0ca1, type: 3}
+  - {fileID: 2233183014041873425, guid: f75ceca0b6c33406a9c278134e0494d2, type: 3}
+  - {fileID: 584751355190718097, guid: 26106ce9eedb44c94ad34131cce4baa2, type: 3}
+  bottomControls: {fileID: 0}
+  openedGarage: 0
+  finishedTutorial: 0
+  tutorialScreenIndex: 0
+  loadingScreen: {fileID: 0}
+  readyToGoNext: 0
+  oreRefineryCanvas: {fileID: 0}
+  newScreen: {fileID: 0}
+  leaderboardNoticeIcon: {fileID: 0}
+  premiumShopNoticeIcon: {fileID: 0}

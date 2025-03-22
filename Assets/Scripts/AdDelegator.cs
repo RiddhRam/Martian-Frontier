@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Ump.Api;
 using GoogleMobileAds.Mediation.UnityAds.Api;
-using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -26,6 +26,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public GameObject leaderboardNoWifi;
     public GameObject doubleCrateRewardButton;
     public GameObject crateRewardNoWifi;
+    public GameObject teamNoWifi;
 
     public GameObject leaderboardTabButtons;
     public GameObject leaderboardCashPanel;
@@ -33,7 +34,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool cashPanelWasOpen = true;
 
     private RewardedAd rewardedAd;
-    private RewardedAd lobbyAd;
     private RewardedAd crateAd;
     private int timer = 0;
     private bool internetReachable = false;
@@ -47,7 +47,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public RefineryController refineryController;
-    public LobbyAd lobbyAdScript;
     public SupplyCrateDelegator supplyCrateDelegator;
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -56,12 +55,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
-    public long lobbyAdReward = 0;
-    public GameObject lobbyAdButton;
-    private int lobbyAdTimer = 30;
     private bool firstTimePlaying = false;
-    private bool lobbyAdSuccessfullyShown = false;
-    System.Random random = new();
+    private bool disableAds = false;
 
     // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
     void Awake() {
@@ -176,6 +171,23 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     void FixedUpdate() {
 
+        // ADMOB DISABLE
+        // If no internet
+        if (Application.internetReachability == NetworkReachability.NotReachable) {
+            if (rewardedAd != null) {
+                rewardedAd.Destroy();
+                rewardedAd = null;
+            }
+            
+            internetReachable = false;
+            ToggleDisplay();
+            return;
+        } 
+
+        // If there is internet
+        internetReachable = true;
+        ToggleDisplay();
+
         if (firstTimePlaying) {
             return;
         }
@@ -187,28 +199,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
         timer = 0;
 
-        FillEmptyAdSlots();
-
-        // ADMOB DISABLE
-        // If no internet
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
-            if (rewardedAd != null) {
-                rewardedAd.Destroy();
-                rewardedAd = null;
-            }
-            if (lobbyAd != null) {
-                lobbyAd.Destroy();
-                lobbyAd = null;
-            }
-            
-            internetReachable = false;
-            ToggleDisplay();
-            return;
-        } 
-
-        // If there is internet
-        internetReachable = true;
-        ToggleDisplay();
+        if (!disableAds) {
+            FillEmptyAdSlots();
+        }
+    
     }
 
     // Choose the right ad unit before doing anything with ads
@@ -260,6 +254,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Loads the rewarded ad.
     public void LoadRewardedAd(string type)
     {
+        if (disableAds)
+            return;
+
         bool currentCloudLoadState = cloudLoading;
         // ADMOB DISABLE
         //IncrementLoadedItems();
@@ -269,9 +266,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (rewardedAd != null && type == "Boost") {
             rewardedAd.Destroy();
             rewardedAd = null;
-        } else if (lobbyAd != null && type == "Lobby") {
-            lobbyAd.Destroy();
-            lobbyAd = null;
         } else if (crateAd != null && type == "Crate") {
             crateAd.Destroy();
             crateAd = null;
@@ -301,8 +295,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 if (type == "Boost") {
                     rewardedAd = ad;
-                } else if (type == "Lobby") {
-                    lobbyAd = ad;
                 } else if (type == "Crate") {
                     crateAd = ad;
                 }
@@ -324,6 +316,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd(string type)
     {
+        if (disableAds)
+            return;
         // If user watched an ad in the last 30 seconds or first time playing
         if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-90)) {
             if (type == "Profit") {
@@ -381,87 +375,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
-    public void ShowLobbyAdButton(long rewardAmount) {
-
-        float randomValue = (float) random.NextDouble();
-        // Show 60% of the time
-        if (randomValue < 0) {
-            return;
-        }
-
-        lobbyAdReward = (long) (rewardAmount * 1.75);
-
-        lobbyAdButton.transform.GetChild(1).GetComponent<TextMeshPro>().text = "$" + playerState.FormatPrice(lobbyAdReward);
-
-        lobbyAdButton.SetActive(true);
-        lobbyAdTimer = 30;
-        StartCoroutine(LobbyAdCountdown());
-    }
-
-    private IEnumerator LobbyAdCountdown() {
-        while (lobbyAdTimer > 0) {
-            if (internetReachable == false && !firstTimePlaying) {
-                lobbyAdTimer = 0;
-                break;
-            }
-
-            yield return new WaitForSeconds(1);
-            lobbyAdTimer--;
-        }
-
-        if (lobbyAdSuccessfullyShown) {
-            yield return new WaitForSeconds(3);
-            lobbyAdSuccessfullyShown = false;
-        }
-
-        lobbyAdButton.SetActive(false);
-    }
-
-    public void ShowLobbyRewardedAd() {
-        try {
-            analyticsDelegator.AdWatchAttempt("Lobby");
-        } catch {
-        }
-
-        string rewardAmount = playerState.FormatPrice(lobbyAdReward);
-
-        if (firstTimePlaying) {
-            playerState.AddCash(lobbyAdReward);
-            LobbyRewardSuccess(rewardAmount);
-
-            return;
-        }
-
-        // ADMOB DISABLE
-        if (lobbyAd != null && lobbyAd.CanShowAd())
-        {   
-            lobbyAd.Show((Reward reward) =>
-            {
-                //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
-            });
-
-            // Reward user
-            LobbyRewardSuccess(rewardAmount);
-            
-            // Listen to user events during ad
-            RegisterEventHandlers(lobbyAd);
-            return;
-        } else {
-            // CustomAdScreen if no ad ready
-            StartCoroutine(UseCustomAdScreen(() => LobbyRewardSuccess(rewardAmount)));
-        }
-        
-    }
-
-    private void LobbyRewardSuccess(string rewardAmount) {
-        playerState.AddCash(lobbyAdReward);
-        lobbyAdSuccessfullyShown = true;
-        lobbyAdTimer = 0;
-        lobbyAdScript.ShowRewardSuccess(rewardAmount);
-        dataPersistenceManager.SaveGame();
-    }
-
     public void ShowCrateRewardedAd() {
+        if (disableAds) {
+            return;
+        }
+
         try {
             analyticsDelegator.AdWatchAttempt("Crate");
         } catch {
@@ -499,6 +417,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
+        if (disableAds) {
+            yield break;
+        }
+
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
 
         customAdScreen.SetActive(true);
@@ -580,7 +502,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Flip between showing ad buttons and Ad Opt Out text, or internet error depending on internet reachability
     private void ToggleDisplay() {
         if (internetReachable && !displayStatus) {
-            noInternetIcon.SetActive(false);
             signupNoWifi.SetActive(false);
             signUpButton.SetActive(true);
             accountNoWifi.SetActive(false);
@@ -590,18 +511,26 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
             leaderboardTabButtons.SetActive(true);
             leaderboardNoWifi.SetActive(false);
-            if (!supplyCrateDelegator.adWatchedAlready) {
-                doubleCrateRewardButton.SetActive(true);
-            }
+            
 
-            crateRewardNoWifi.SetActive(false);
+            if (!disableAds) {
+                noInternetIcon.SetActive(false);
+
+                // If showing ad buttons, don't show ad opt out text
+                for (int i = 0; i != adButtons.Length; i++) {
+                    adButtons[i].SetActive(true);
+                }
+
+                if (!supplyCrateDelegator.adWatchedAlready) {
+                    doubleCrateRewardButton.SetActive(true);
+                    crateRewardNoWifi.SetActive(false);
+                }
+
+                teamNoWifi.SetActive(false);
+            }
 
             _ = cloudDelegator.AttemptLogIn();
             
-            // If showing ad buttons, don't show ad opt out text
-            for (int i = 0; i != adButtons.Length; i++) {
-                adButtons[i].SetActive(true);
-            }
             displayStatus = true;
             return;
         }
@@ -609,11 +538,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (!displayStatus || internetReachable) {
             return;
         }
-
-        for (int i = 0; i != adButtons.Length; i++) {
-            adButtons[i].SetActive(false);
-        }
-        noInternetIcon.SetActive(true);
+        
         signupNoWifi.SetActive(true);
         signUpButton.SetActive(false);
         accountNoWifi.SetActive(true);
@@ -624,8 +549,19 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         leaderboardVehiclesPanel.SetActive(false);
         leaderboardTabButtons.SetActive(false);
         leaderboardNoWifi.SetActive(true);
-        doubleCrateRewardButton.SetActive(false);
-        crateRewardNoWifi.SetActive(true);
+        
+
+        if (!disableAds) {
+            noInternetIcon.SetActive(true);
+            crateRewardNoWifi.SetActive(true);
+            doubleCrateRewardButton.SetActive(false);
+
+            for (int i = 0; i != adButtons.Length; i++) {
+                adButtons[i].SetActive(false);
+            }
+
+            teamNoWifi.SetActive(true);
+        }
 
         displayStatus = false;
     }
@@ -752,6 +688,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void SetUsingDriller(bool usingDriller) {
+        if (disableAds) {
+            return;
+        }
+
         currentlyUsingDriller = usingDriller;
         // Vision boost is useless if not using a driller, so make the button uninteractable
         for (int i = 0; i != adButtons.Length; i++) {
@@ -772,6 +712,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            disableAds = true;
+            return;
+        }
+
         this.timerIndexes = data.timerIndexes;
         for (int i = 0; i != timerIndexes.Length; i++) {
             // Make sure timerIndex was greater than 0
@@ -800,16 +746,20 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void SaveData(ref GameData data) {
+        if (disableAds) {
+            return;
+        }
+        
         data.timerIndexes = this.timerIndexes;
     }
 
     private void FillEmptyAdSlots() {
+        if (disableAds) {
+            return;
+        }
 
         if (rewardedAd == null || !rewardedAd.CanShowAd()) {
             LoadRewardedAd("Boost");
-        }
-        if (lobbyAd == null || !lobbyAd.CanShowAd()) {
-            LoadRewardedAd("Lobby");
         }
         if (crateAd == null || !crateAd.CanShowAd()) {
             LoadRewardedAd("Crate");

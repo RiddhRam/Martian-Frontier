@@ -1,6 +1,7 @@
 using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class RefineryController : MonoBehaviour, IDataPersistence
@@ -24,13 +25,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private float refineryBattery;
     [SerializeField]
     private float initialBattery;
-    [SerializeField]
-    private float refineryInefficiency;
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
-    public GameObject efficiencyUpgrades;
     private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
     [SerializeField]
@@ -43,6 +41,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public MineRenderer mineRenderer;
     public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
+    public NPCManager nPCManager;
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
@@ -50,6 +49,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
     private bool firstTimePlaying = false;
+    private bool notSinglePlayerScene = false;
 
     void Awake() {
         materialPrices = GameObject.Find("Ore Prices").GetComponent<OreDelegation>().GetMaterialPrices();
@@ -92,7 +92,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                     break;
                 }
                 
-                refineryBattery -= refineryInefficiency;
+                refineryBattery -= 1;
                 materialCount[i]--;
                 playerState.NewMaterialSold();
                 savedMaterialCount[i]++;
@@ -122,6 +122,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 StopCoroutine(increaseBatteryCoroutine);
             }
             resetMineCoroutine = StartCoroutine(ResetMine());
+
+            if (notSinglePlayerScene) {
+                nPCManager.ResetPlayerPos();
+                nPCManager.ResetAllNPCPos();
+            }
         }
 
         UpdateRefineryProgressBars();
@@ -140,12 +145,20 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier() * (1 + haulerController.GetProfitMultiplier()));
 
         // Verify that this is the right amount
-        playerState.AddCash(cashToAdd);
-        adDelegator.ShowLobbyAdButton(cashToAdd);
+        playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
         haulerController.SetMaterialCount(materialCount);
-        haulerController.ShowFloatingText("$" + FormatPrice((long) cashToAdd));
+        haulerController.ShowFloatingText("$" + FormatPrice(cashToAdd));
         audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
-        analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+
+        if (!haulerController.CheckIfNpc()) {
+            analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
+        } else {
+            collision.transform.parent.GetComponent<NPCMovement>().AskIfHaulingIsNeeded();
+        }
+
+        if (tutorialManager == null) {
+            return;
+        }
 
         if (firstTimePlaying && tutorialManager.finishedTutorial) {
             analyticsDelegator.ContinuedAfterTutorial();
@@ -294,15 +307,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return initialBattery;
     }
 
-    public void SetEfficiency(float newValue) {
-        refineryInefficiency = newValue / 100f;
-        SaveGame();
-    }
-
-    public float GetInefficiency() {
-        return refineryInefficiency;
-    }
-
     public void LoadData(GameData data) {
         if (!data.finishedTutorial) {
             firstTimePlaying = true;
@@ -311,10 +315,18 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.enabled = false;
 
+        this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
         this.askedForReview = data.askedForReview;
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+            this.refineryBattery = 750;
+            this.initialBattery = 750;
+            return;
+        }
+
         // This will call LoadCorrectUpgrade in RefineryUpgrades
         capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity);
-        efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency);
         
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
@@ -323,7 +335,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StopCoroutine(increaseBatteryCoroutine);
         }
 
-        this.refineryInefficiency = data.refineryInefficiency / 100;
         this.initialBattery = data.refineryCapacity;
         this.refineryBattery = data.refineryBattery;
 
@@ -332,18 +343,21 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             resetMineCoroutine = StartCoroutine(ResetMine());
         }
 
-        this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
-
         UpdateRefineryProgressBars();
        
         doneLoading = true;
     }
 
     public void SaveData(ref GameData data) {
+        data.materialsSold = this.materialsSold.ToString();
+        data.askedForReview = this.askedForReview;
+
+        if (notSinglePlayerScene) {
+            return;
+        }
+
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
-        data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
-        data.askedForReview = this.askedForReview;
     }
 
     private void SaveGame() {

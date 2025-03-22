@@ -20,7 +20,6 @@ public class RefineryUpgrades : MonoBehaviour
     public TextMeshProUGUI upgradeButtonText;
     public Image upgradeButtonImage;
 
-
     public void InitializeRefinery(float newValue) {
         currentValue = newValue;
         LoadCorrectUpgrade();
@@ -53,14 +52,9 @@ public class RefineryUpgrades : MonoBehaviour
 
         UpdateDisplay(currentIndex);
 
-        if (gameObject.name == "Capacity Panel") {
-            refineryController.SetBattery(currentValue);
-            analyticsDelegator.RefineryUpgrade("Capacity", currentIndex + 1);
-            return;
-        }
-
-        refineryController.SetEfficiency(currentValue);
-        analyticsDelegator.RefineryUpgrade("Efficiency", currentIndex + 1);
+        refineryController.SetBattery(currentValue);
+        analyticsDelegator.RefineryUpgrade("Capacity", currentIndex + 1);
+        return;
     }
 
     // Only called upon when loading game
@@ -85,14 +79,8 @@ public class RefineryUpgrades : MonoBehaviour
             upgradeButton.interactable = false;
             upgradeButtonText.text = "MAX";
             upgradeButtonImage.color = new(255, 0, 0);
-            if (gameObject.name == "Efficiency Panel") {
-                upgradeValueText.text += "%";
-            }
         } else {
             upgradeValueText.text = upgradeValues[currentIndex].ToString();
-            if (gameObject.name == "Efficiency Panel") {
-                upgradeValueText.text += "%";
-            }
             upgradeButton.interactable = true;
             upgradeButtonImage.color = new(57/255f, 255, 20/255f);
             upgradeButtonText.text = FormatPrice(upgradePrices[currentIndex]);
@@ -125,17 +113,4 @@ public class RefineryUpgrades : MonoBehaviour
     public float GetUpgradeValue() {
         return currentValue;
     }
-
-    /* Upgrades now persist across rebirth so this isn't needed
-    public void ResetUpgrade() {
-        currentValue = upgradeValues[0];
-
-        if (gameObject.name == "Efficiency Panel") {
-            refineryController.SetEfficiency(currentValue);
-        } else {
-            refineryController.SetBattery(currentValue);
-        }
-        
-        LoadCorrectUpgrade();
-    }*/
 }

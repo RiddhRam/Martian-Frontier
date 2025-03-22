@@ -14,7 +14,6 @@ public class GameDataString
     public string haulerCargo;
     // Uncollected materials
     public string materials;
-    public string refineryInefficiency;
     public string refineryCapacity;
     public string refineryBattery;
     public string destroyedTilemapsTileValues;
@@ -39,6 +38,7 @@ public class GameDataString
     public string materialProfitMultipliers;
     public string cratesAvailable;
     public string progressToNextCrate;
+    public string currentCoopVehicle;
 
     public GameDataString() {
         this.userCash = null;
@@ -52,7 +52,6 @@ public class GameDataString
         this.currentVehicle = null;
         this.haulerCargo = null;
         this.materials = null;
-        this.refineryInefficiency = null;
         this.refineryCapacity = null;
         this.refineryBattery = null;
         this.destroyedTilemapsTileValues = null;
@@ -77,5 +76,6 @@ public class GameDataString
         this.materialProfitMultipliers = null;
         this.cratesAvailable = null;
         this.progressToNextCrate = null;
+        this.currentCoopVehicle = null;
     }
 }

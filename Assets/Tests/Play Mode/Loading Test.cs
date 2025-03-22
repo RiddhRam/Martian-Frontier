@@ -6,6 +6,7 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
+using UnityEngine.AI;
 
 public class LoadingTest
 {
@@ -19,7 +20,6 @@ public class LoadingTest
     PlayerVehicleDelegation playerVehicleDelegation;
     GarageDelegator garageDelegator;
     TutorialManager tutorialManager;
-    SettingsDelegator tutorialSettingsDelegator;
     GameObject loadingScreen;
     LoadingScreen loadingScreenScript;
     CustomAdScreen customAdScreen;
@@ -73,19 +73,19 @@ public class LoadingTest
         Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
 
         int cashDisplayCount = 5;
-        Assert.AreEqual(playerState.cashDisplays.Length, cashDisplayCount);
+        Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
         for (int i = 0; i != cashDisplayCount; i++) {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 7;
-        Assert.AreEqual(playerState.gemDisplays.Length, gemDisplayCount);
+        int gemDisplayCount = 6;
+        Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++) {
             Assert.True(playerState.gemDisplays[i].activeSelf);
         }
 
         int xpDisplayCount = 2;
-        Assert.AreEqual(playerState.xpDisplays.Length, xpDisplayCount);
+        Assert.AreEqual(xpDisplayCount, playerState.xpDisplays.Length);
         for (int i = 0; i != xpDisplayCount; i++) {
             Assert.True(playerState.xpDisplays[i].activeSelf);
         }
@@ -149,10 +149,7 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.cloudDelegator.name, "Cloud Delegator");
         Assert.AreEqual(adDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(adDelegator.refineryController.name, "Ore Refinery Dropoff");
-        Assert.AreEqual(adDelegator.lobbyAdScript.name, "Lobby Ad");
         Assert.AreEqual(adDelegator.supplyCrateDelegator.name, "Supply Crates Delegator");
-        Assert.AreEqual(adDelegator.lobbyAdReward, 0);
-        Assert.AreEqual(adDelegator.lobbyAdButton.name, "Lobby Ad");
 
         // Settings
         settingsDelegator = GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>();
@@ -303,10 +300,8 @@ public class LoadingTest
         Assert.AreEqual(refineryController.batteryRechargeSoundEffect.name, "Battery Recharge");
 
         Assert.AreEqual(refineryController.GetInitialBattery(), 120);
-        Assert.AreEqual(refineryController.GetInefficiency(), 1);
 
         Assert.AreEqual(refineryController.capacityUpgrades.name, "Capacity Panel");
-        Assert.AreEqual(refineryController.efficiencyUpgrades.name, "Efficiency Panel");
 
         Assert.AreEqual(refineryController.GetRebirthProfitMultiplier(), 0);
 
@@ -329,8 +324,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info"};
-        int primaryElementCount = 13;
+        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info", "Team"};
+        int primaryElementCount = 11;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -348,7 +343,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Team", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Go To Team Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -385,9 +380,9 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.haulersPanel.name, "Haulers Panel");
         Assert.AreEqual(garageDelegator.haulersContent.name, "Content");
         Assert.AreEqual(garageDelegator.haulerDisplayPanel.name, "Haul Display Panel");
-        Assert.AreEqual(garageDelegator.playerStateScript.gameObject.name, "PlayerState");
+        Assert.AreEqual(garageDelegator.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
-        Assert.AreEqual(garageDelegator.UIDelegation.name, "UI");
+        Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
 
         Color[] tierColors = { new(57/255f, 255/255f, 20/255f), new(176/255f, 38/255f, 255/255f), new(71/255f, 185/255f, 198/255f) };
         Assert.AreEqual(garageDelegator.tierColors.Length, tierColors.Length);
@@ -435,8 +430,12 @@ public class LoadingTest
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER I");
 
         playerVehicle = GameObject.Find("Player Vehicle");
-        Assert.False(playerVehicle.GetComponent<AIMovement>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<NPCMovement>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<HaulerAINavigation>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<NavMeshAgent>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
+        
+        Assert.False(GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().UpdateMeshes);
 
         playerMovement = playerVehicle.GetComponent<PlayerMovement>();
         Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);
@@ -450,7 +449,6 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.playerStateScript, playerState);
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
-        Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
@@ -536,7 +534,6 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.playerStateScript.gameObject.name, "PlayerState");
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
         Assert.AreEqual(mineRenderer.mineTilemapPrefab.name, "Mine Tilemap");
-        Assert.AreEqual(mineRenderer.mineBackgroundTilemapPrefab.name, "Mine Background Tilemap");
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
@@ -552,7 +549,7 @@ public class LoadingTest
         Assert.AreEqual(new int[] {0, 4, 8}, mineRenderer.tierThresholds);
         Assert.AreEqual(new int[] {3, 3, 3}, mineRenderer.oresPerTier);
 
-        Transform generationTriggers = mineRenderer.transform.GetChild(2);
+        Transform generationTriggers = mineRenderer.transform.GetChild(3);
         for (int i = 0; i != generationTriggers.childCount; i++) {
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }
@@ -665,7 +662,9 @@ public class LoadingTest
         Assert.True(GameObject.Find("Haulers Panel").activeSelf);
 
         GameObject haulDisplay = GameObject.Find("Haul Display Panel(Clone)");
-        haulDisplay.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
+        haulDisplay.transform.GetChild(3).GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        yield return null;
         yield return null;
 
         Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);

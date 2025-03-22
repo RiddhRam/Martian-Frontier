@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class MineRenderer : MonoBehaviour, IDataPersistence
@@ -14,7 +15,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public GameObject largeFogOfWar;
     public GameObject generationTriggers;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
-    public GameObject mineBackgroundTilemapPrefab;
     public TileBase mineBackgroundRuleTile;
     public TileBase unknownTile;
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
@@ -38,7 +38,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // If a tile is destroyed, it will be set to null
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
-    private  SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
+    private SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
     // Use this to get a tilemap rather than calling GetComponent each time a tilemap is being mined
     // string = tilemap gameobject name
     // public so DrillerController can easily use it
@@ -47,9 +47,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
-    // Lowercase
+    // Lowercase names
     private string[] oreNames;
-    // Uppercase
+    // Uppercase names
     private string[] materialNames;
     private int[] materialPrices;
     public UncollectedMaterialsDelegator materialsDelegator;
@@ -73,8 +73,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
     private Queue<GameObject>[] materialPools;
     private List<GameObject> mineTilemaps;
-    private List<GameObject> mineBackgroundTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
+    // Destroy these so haulers dont get stuck
+    private readonly List<Vector2Int> coopInitializeTiles = new() { new(-3, -5), new(-2, -5), new(-1, -5), new(0, -5), new(1, -5), new(2, -5), new(3, -5), new(-3, -6), new(-2, -6), new(-1, -6), new(0, -6), new(1, -6), new(2, -6), new(3, -6), new(-3, -7), new(-2, -7), new(-1, -7), new(0, -7), new(1, -7), new(2, -7), new(3, -7), new(-3, -8), new(-2, -8), new(-1, -8), new(0, -8), new(1, -8), new(2, -8), new(3, -8), new(-3, -9), new(-2, -9), new(-1, -9), new(0, -9), new(1, -9), new(2, -9), new(3, -9)};
     public PlayerState playerStateScript;
     // Precompute reusable values
     float invGridHeight; // Precompute inverse for division
@@ -105,9 +106,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     Vector3Int[] tilesToSet;
     TileBase[] tilesBeingRevealed;
     Vector3Int vectorValue;
-    GameObject mineBackgroundTilemapGameObject;
     Tilemap mineTilemap;
-    Tilemap mineBackgroundTilemap;
     SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue;
     int veinCount;
     int centerX;
@@ -143,7 +142,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Tilemap tilemapToReturn;
     private TileBase[] tilesBeingUsed;
     private bool alreadyBeingReturned = false;
-
+    private bool notSinglePlayerScene = false;
+    public bool coopMineLoaded = false;
 
     // Called before Start
     void Awake()
@@ -159,7 +159,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[totalColumns, totalRows];
 
         mineTilemaps = new List<GameObject>();
-        mineBackgroundTilemaps = new List<GameObject>();
 
         // unplacedTilemapsTileValues will be populated as each row is created
         // These ones are done right now
@@ -171,16 +170,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
                 mineTilemapGameObject.transform.SetParent(transform);
-                mineTilemapGameObject.name = "Row " + (i+1) + ", Column " + (j+1);
+                mineTilemapGameObject.name = "Column " + (i+1) + ", Row " + (j+1);
                 ReturnTilemapObject(mineTilemapGameObject, i * 25, j * -gridSize.y - 5);
 
                 // Get the component once, then no need to do it again later
                 Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
-                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
-
-                GameObject mineBackgroundTilemapGameObject = Instantiate(mineBackgroundTilemapPrefab);
-                mineBackgroundTilemapGameObject.transform.SetParent(transform);
-                ReturnBackgroundTilemapObject(mineBackgroundTilemapGameObject);                
+                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);               
             }
         }
 
@@ -262,7 +257,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
-        DestroyTiles(initializeTiles, true);
+        DestroyTiles(initializeTiles, true, false);
+        if (notSinglePlayerScene) {
+            // Not an npc, and is loading, but if you change it to true, false, then the surrounding tiles are not revealed
+            DestroyTiles(coopInitializeTiles, false, true);
+        }
+
         CreateGenTriggers();
         mineInitialization = 2;
         SaveGame();
@@ -292,12 +292,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         int chunkColumn = 1;
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
-            
-            mineBackgroundTilemapGameObject = GetBackgroundTilemapObject();
-
             string name = GetTilemapObject().name;
             mineTilemap = tilemapsDictionary[name];
-            mineBackgroundTilemap = mineBackgroundTilemapGameObject.GetComponent<Tilemap>();
             
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
@@ -317,7 +313,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     // Level 1 base tile = 0, level 2 = 4, level 3 = 8
                     unplacedTilemapsTileValue.Add(new(tilePosition.x, tilePosition.y), tileValueIndex);
                     mineTilemap.SetTile(tilePosition, unknownTile);
-                    mineBackgroundTilemap.SetTile(tilePosition, mineBackgroundRuleTile);
                 }
             }
 
@@ -387,7 +382,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         RevealTiles(tilesToReveal);
-        DestroyTiles(tilesToDestroy, true);
+        DestroyTiles(tilesToDestroy, true, false);
     }
 
     public void CreateGenTriggers() {
@@ -520,6 +515,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         revealTilesForTilemaps.Clear();
 
         foreach (Vector2Int tileToReveal in tilesToReveal) {
+            // Get tilemap pos index from dictionary
             tilemapPos = CalculateTileMapPos(tileToReveal);
 
             unplacedTilemapsTileValueDictionary = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y];
@@ -528,19 +524,23 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 continue;
             }
 
+            // Save tilemap
             tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
 
+            // Make sure that we know this tilemap will be edited later
             if (!revealTilemapsToEdit.Contains(tilemap)) {
                 revealTilemapsToEdit.Add(tilemap);
                 revealTilesForTilemaps.Add(new());
             }
 
+            // Get index of tilemap from list
             tilemapIndex = revealTilemapsToEdit.IndexOf(tilemap);
-            // Find out what the tile is
+
+            // Find out what the tile is and set it as the z value to the vector 3
             tileValue = unplacedTilemapsTileValueDictionary[tileToReveal];
             revealTilesForTilemaps[tilemapIndex].Add(new(tileToReveal.x, tileToReveal.y, tileValue));
 
-            // Save value to revealedTilemapsTileValues
+            // Save to revealedTilemapsTileValues
             revealedTilemapsTileValues[tilemapPos.x, tilemapPos.y][tileToReveal] = tileValue;
         }
 
@@ -559,16 +559,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             revealTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingRevealed);
         }
-        
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC) {
 
         oresMined = 0;
 
         destroyTilemapsToEdit.Clear();
         destroyTilesForTilemaps.Clear();
         tilesToReveal.Clear();
+        revealTilemapsToEdit.Clear();
+        revealTilesForTilemaps.Clear();
 
         foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
@@ -605,15 +606,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Reveal new tiles
             // Search in a radius around tileToDestroy
-            for (int x = -visionRadius; x <= visionRadius; x++) {
-                // Determine the y bounds for the current x to stay within the radius
-                int yLimit = visionRadius - Mathf.Abs(x);
-
-                for (int y = -yLimit; y <= yLimit; y++) {
-                    // Get the tilemap index
-                    tilemapPos = CalculateTileMapPos(new(tileToDestroy.x + x, tileToDestroy.y + y));
-                    // Check if the tile exists in unplacedTilemapsTileValues
+            for (int x = 0; x <= visionRadius; x++)
+            {
+                int yLimit = visionRadius - x;
+                for (int y = 0; y <= yLimit; y++)
+                {
+                    // Add all 4 quadrants
                     tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y + y));
+                    tilesToReveal.Add(new(tileToDestroy.x - x, tileToDestroy.y + y));
+                    tilesToReveal.Add(new(tileToDestroy.x - x, tileToDestroy.y - y));
+                    tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y - y));
                 }
             }
             
@@ -656,27 +658,30 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Finally delete the tiles
         for (int i = 0; i != destroyTilemapsToEdit.Count; i++) {
+
             size = destroyTilesForTilemaps[i].Count;
 
             Vector3Int[] tilesToSet = new Vector3Int[size];
-            TileBase[] nullTiles = new TileBase[size];
+            TileBase[] tilesBeingChanged = new TileBase[size];
 
+            // Set tiles being destroyed
             for (int j = 0; j != size; j++) {
                 tilesToSet[j] = destroyTilesForTilemaps[i][j];
+                // Leave tilesBeingChanged[j] as null since we are destroying it
             }
 
-            destroyTilemapsToEdit[i].SetTiles(tilesToSet, nullTiles);
+            destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
         }
-
+        
         try {
-            if (!loading) {
+            // If not loading, and is not from an NPC
+            if (!loading && !isNPC) {
                 oresMinedText.text = currentOresMined.ToString();
                 playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
                 dailyChallengeDelegator.MinedOres(quantities);
             }
         } catch {
         }
-
 
         quantities.Clear();
 
@@ -756,6 +761,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+            StartCoroutine(LoadCoopLocal());
+            return;
+        }
+
         // If there's already a coroutine running, stop it
         if (_loadDataCoroutine != null) {
             StopCoroutine(_loadDataCoroutine);
@@ -765,6 +776,22 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Return objects happens over several frames to reduce lag
         // Start the new coroutine and store its reference
         _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
+    }
+
+    private IEnumerator LoadCoopLocal() {
+        
+        yield return StartCoroutine(ReturnAllObjectsToPool());
+
+        this.seed = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;;
+        Random.InitState(this.seed);
+
+        GenerateMaterials();
+        InitializeMine();
+
+        coopMineLoaded = true;
+
+        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
+        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
     }
 
     private IEnumerator AsyncLoadData(GameData data) {
@@ -790,19 +817,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
 
-        // Create pools of materials before loading materials
-        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
-
-        for (int i = 0; i != materialPools.Length; i++) {
-            materialPools[i] = new Queue<GameObject>();
-            // Create the right amount of each material according to each pool size
-            for (int j = 0; j != materialPoolSizes[i]; j++) {
-                GameObject newMaterial = Instantiate(materials[i]);
-                newMaterial.SetActive(false);
-                materialPools[i].Enqueue(newMaterial);
-                newMaterial.transform.SetParent(materialsDelegator.transform);
-            }
-        }
+        GenerateMaterials();
 
         foreach (string id in savedMaterials.Keys) {
             // Copy all the saved values into the loaded material
@@ -822,10 +837,30 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
-        yield break;
+        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
+    }
+
+    public void GenerateMaterials() {
+        // Create pools of materials before loading materials
+        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
+
+        for (int i = 0; i != materialPools.Length; i++) {
+            materialPools[i] = new Queue<GameObject>();
+            // Create the right amount of each material according to each pool size
+            for (int j = 0; j != materialPoolSizes[i]; j++) {
+                GameObject newMaterial = Instantiate(materials[i]);
+                newMaterial.SetActive(false);
+                materialPools[i].Enqueue(newMaterial);
+                newMaterial.transform.SetParent(materialsDelegator.transform);
+            }
+        }
     }
 
     public void SaveData(ref GameData data) {
+        if (notSinglePlayerScene) {
+            return;
+        }
+
         data.materials = materialsDelegator.uncollectedMaterials;
         data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
         data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
@@ -949,38 +984,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineTilemaps.Insert(0, obj);
     }
 
-    public GameObject GetBackgroundTilemapObject()
-    {
-        obj = mineBackgroundTilemaps[0];
-        mineBackgroundTilemaps.RemoveAt(0);
-        
-        return obj;
-    }
-
-    public void ReturnBackgroundTilemapObject(GameObject obj)
-    {
-        // Get the Tilemap component from the GameObject
-        tilemapToReturn = obj.GetComponent<Tilemap>();
-
-        int positionsCount = tilemapToReturn.cellBounds.size.x * tilemapToReturn.cellBounds.size.y;;
-
-        int tileIndex = 0;
-        Vector3Int[] tilesForReturning = new Vector3Int[positionsCount];
-        TileBase[] tilesBeingUsed = new TileBase[positionsCount];
-
-        // Loop through all positions in the tilemap's bounds
-        foreach (var position in tilemapToReturn.cellBounds.allPositionsWithin)
-        {
-            tilesForReturning[tileIndex] = position;
-            tilesBeingUsed[tileIndex] = null;
-
-            tileIndex++;
-        }
-
-        tilemapToReturn.SetTiles(tilesToSet, tilesBeingUsed);
-        mineBackgroundTilemaps.Insert(0, obj);
-    }
-
     public IEnumerator ReturnAllObjectsToPool() {
 
         if (alreadyBeingReturned) {
@@ -1015,21 +1018,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             childName = child.name;
 
             // If a tilemap row, row generation trigger, or GenerationTriggers parent, or mine background tilemap
-            if ((childName.Contains("Row") || childName.Contains("Generation") || childName.Contains("Background")) && child.activeSelf)
+            if ((childName.Contains("Row") || childName.Contains("Generation")) && child.activeSelf)
             {
                 // Repool or destroy
                 if (childName.Contains("Row")) {
                     // Define a regex to capture Y and X values
-                    var match = Regex.Match(childName, @"Row (\d+), Column (\d+)");
+                    var match = Regex.Match(childName, @"Column (\d+), Row (\d+)");
 
                     y = int.Parse(match.Groups[1].Value);
                     x = int.Parse(match.Groups[2].Value);
 
                     ReturnTilemapObject(child, x * 25, y * -12 - 5);
 
-                } else if (childName.Contains("Background")) {
-
-                    ReturnBackgroundTilemapObject(child);
                 } else {
 
                     Destroy(child);
@@ -1070,12 +1070,249 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return visionRadius;
     }
 
-    public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
-        return unplacedTilemapsTileValues;
+    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation, int drillTier)
+    {
+        // Find all ore tiles within the search area
+        List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius, drillTier);
+        
+        // If no ore tiles found
+        if (oreTiles.Count == 0) {
+            return new(0, -6);
+        }
+            
+        // Find all connected veins from the ore tiles
+        List<List<Vector2Int>> veins = FindConnectedVeins(oreTiles);
+        
+        // If no veins found
+        if (veins.Count == 0) {
+            Debug.Log("No Veins");
+            return new(0, -6);
+        }
+            
+        // Find the largest vein
+        List<Vector2Int> largestVein = FindLargestVein(veins);
+        
+        Vector2Int position = CalculateBestMiningPosition(largestVein, currentRotation);
+        // Calculate the best mining position based on the largest vein
+        return new(position.x, position.y);
     }
 
-    public SerializableDictionary<Vector2Int, int>[,] GetRevealedTilemapsTileValues() {
-        return revealedTilemapsTileValues;
+    private const float SEARCH_ANGLE = 60f;
+
+    private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius, int drillTier)
+    {
+        List<Vector2Int> oreTiles = new List<Vector2Int>();
+
+        // Convert rotation to radians and calculate the angular range
+        float rotationRad = (currentRotation - 90) * Mathf.Deg2Rad;
+        float minAngle = rotationRad - SEARCH_ANGLE * Mathf.Deg2Rad;
+        float maxAngle = rotationRad + SEARCH_ANGLE * Mathf.Deg2Rad;
+        
+        // Search all tiles within the max radius
+        for (int x = currentPosition.x - maxRadius; x <= currentPosition.x + maxRadius; x++)
+        {
+            for (int y = currentPosition.y - maxRadius; y <= currentPosition.y + maxRadius; y++)
+            {
+                // Map starts below this
+                if (y > -6) {
+                    continue;
+                }
+
+                Vector2Int tilePos = new Vector2Int(x, y);
+                Vector2Int relativePos = currentPosition - tilePos;
+                
+                // Calculate distance from current position
+                float distance = relativePos.magnitude;
+                
+                // Skip if outside the radius bounds
+                if (distance < minRadius || distance > maxRadius)
+                    continue;        
+
+                // Calculate angle to this tile
+                float angle = Mathf.Atan2(relativePos.y, relativePos.x);
+                
+                // Normalize angle to [0, 2π] for proper comparison
+                while (angle < 0) angle += 2 * Mathf.PI;
+                while (minAngle < 0) minAngle += 2 * Mathf.PI;
+                while (maxAngle < 0) maxAngle += 2 * Mathf.PI;
+                
+                // Handle angle wrap-around
+                bool inAngleRange;
+                if (minAngle > maxAngle) // Crossing 0/360 degrees
+                {
+                    inAngleRange = angle >= minAngle || angle <= maxAngle;
+                }
+                else
+                {
+                    inAngleRange = angle >= minAngle && angle <= maxAngle;
+                }
+
+                if (Mathf.DeltaAngle(angle * Mathf.Rad2Deg, currentRotation * Mathf.Rad2Deg) < 20) {
+                    inAngleRange = false;
+                }
+                
+                // Skip if not in angular range
+                if (!inAngleRange) {
+                    continue;
+                }
+
+                Vector2Int thisTilemapPos = CalculateTileMapPos(tilePos);
+                
+                // Check if this tile has ore
+                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value))
+                {
+                    int oreTier = GetTileTier(tileValues[value]);
+                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
+                        continue;
+                    }
+                    oreTiles.Add(tilePos);
+                    //Debug.LogFormat("Current Pos: {0}, Current Rotation: {1}, New Pos: {2}, New Rotation: {3}", currentPosition, currentRotation, tilePos, angle * Mathf.Rad2Deg);
+                }
+            }
+        }
+        
+        return oreTiles;
+    }
+
+    private List<List<Vector2Int>> FindConnectedVeins(List<Vector2Int> oreTiles)
+    {
+        List<List<Vector2Int>> veins = new();
+        HashSet<Vector2Int> visitedTiles = new();
+        
+        foreach (Vector2Int oreTile in oreTiles)
+        {
+            // Skip if this tile has already been processed
+            if (visitedTiles.Contains(oreTile))
+                continue;
+                
+            // Start a new vein
+            List<Vector2Int> currentVein = new();
+            Queue<Vector2Int> tilesToProcess = new();
+            
+            tilesToProcess.Enqueue(oreTile);
+            visitedTiles.Add(oreTile);
+            
+            // Process all connected tiles
+            while (tilesToProcess.Count > 0)
+            {
+                Vector2Int currentTile = tilesToProcess.Dequeue();
+                currentVein.Add(currentTile);
+                
+                // Check all adjacent tiles (4-way connectivity currently, no need to check diagonal)
+                Vector2Int[] adjacentOffsets = new Vector2Int[]
+                {
+                    new Vector2Int(1, 0),
+                    new Vector2Int(-1, 0),
+                    new Vector2Int(0, 1),
+                    new Vector2Int(0, -1)
+                };
+                
+                foreach (Vector2Int offset in adjacentOffsets)
+                {
+                    Vector2Int adjacentTile = currentTile + offset;
+                    
+                    // Skip if already visited
+                    if (visitedTiles.Contains(adjacentTile))
+                        continue;
+                        
+                    // Check if this adjacent tile is in our list of ore tiles
+                    if (oreTiles.Contains(adjacentTile))
+                    {
+                        tilesToProcess.Enqueue(adjacentTile);
+                        visitedTiles.Add(adjacentTile);
+                    }
+                }
+            }
+            
+            // Add this vein to our list of veins
+            veins.Add(currentVein);
+        }
+        
+        return veins;
+    }
+
+    private List<Vector2Int> FindLargestVein(List<List<Vector2Int>> veins)
+    {
+        int largestSize = 0;
+        List<Vector2Int> largestVein = new List<Vector2Int>();
+        
+        foreach (List<Vector2Int> vein in veins)
+        {
+            if (vein.Count > largestSize)
+            {
+                largestSize = vein.Count;
+                largestVein = vein;
+            }
+        }
+        
+        return largestVein;
+    }
+
+    private Vector2Int CalculateBestMiningPosition(List<Vector2Int> vein, float currentRotation)
+    {
+        // If the vein is just one tile, return it
+        if (vein.Count == 1)
+            return vein[0];
+            
+        // For a straight-line mining approach, we need to find the best orientation
+        // that intersects with as many ore tiles as possible
+        
+        // Convert rotation to a direction vector
+        float rotationRad = currentRotation * Mathf.Deg2Rad;
+        Vector2 directionVector = new Vector2(Mathf.Cos(rotationRad), Mathf.Sin(rotationRad));
+        
+        // Get the perpendicular direction (for line sweeping)
+        Vector2 perpendicularVector = new Vector2(-directionVector.y, directionVector.x);
+        
+        // Calculate all possible line paths through the vein
+        Dictionary<float, List<Vector2Int>> linePaths = new Dictionary<float, List<Vector2Int>>();
+        
+        foreach (Vector2Int oreTile in vein)
+        {
+            // Project each tile onto the perpendicular line
+            float projection = Vector2.Dot(new Vector2(oreTile.x, oreTile.y), perpendicularVector);
+            
+            // Round to nearest integer to group nearby tiles on the same line
+            float roundedProjection = Mathf.Round(projection);
+            
+            if (!linePaths.ContainsKey(roundedProjection))
+            {
+                linePaths[roundedProjection] = new List<Vector2Int>();
+            }
+            
+            linePaths[roundedProjection].Add(oreTile);
+        }
+        
+        // Find the line with the most ore tiles
+        float bestLine = 0;
+        int maxOreCount = 0;
+        
+        foreach (var path in linePaths)
+        {
+            if (path.Value.Count > maxOreCount)
+            {
+                maxOreCount = path.Value.Count;
+                bestLine = path.Key;
+            }
+        }
+        
+        // From the tiles on this best line, find the one closest to the player's direction
+        List<Vector2Int> bestLineTiles = linePaths[bestLine];
+        
+        // Calculate the center of the best line tiles
+        Vector2 center = Vector2.zero;
+        foreach (Vector2Int tile in bestLineTiles)
+        {
+            center += new Vector2(tile.x, tile.y);
+        }
+        center /= bestLineTiles.Count;
+        
+        // The best mining position is approximately at the center of the vein's best line
+        return new Vector2Int(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
+    }
+
+    public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
+        return unplacedTilemapsTileValues;
     }
 
     public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
@@ -13,6 +15,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
     public GameObject lockedRebirthPanel;
+    public GameObject lowTierTextReason;
+    public GameObject notSoloTextReason;
     public GameObject rebirthPanel;
     public Image rebirthIcon;
 
@@ -22,7 +26,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     // Use this to verify the amount of money to add or subtract across verifications
     private long savedAmountSubtract;
     private BigInteger userXP;
-    public BigInteger blocksMined;
+    private BigInteger blocksMined;
     public BigInteger materialsSold;
     private BigInteger moneyEarned;
     private BigInteger userGems;
@@ -31,14 +35,22 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private int[] materialPrices;
     [SerializeField]
     private float rebirthProfitMultiplier;
-    public RefineryController refineryController;
-    public DataPersistenceManager dataPersistenceManager;
-    public ProfitPanelDelegator profitPanelDelegator;
-    public UIDelegation uIDelegation;
-    public AnalyticsDelegator analyticsDelegator;
-    public DailyChallengeDelegator dailyChallengeDelegator;
-    public LeaderboardDelegator leaderboardDelegator;
-    public SupplyCrateDelegator supplyCrateDelegator;
+    [SerializeField]
+    private RefineryController refineryController;
+    [SerializeField]
+    private DataPersistenceManager dataPersistenceManager;
+    [SerializeField]
+    private ProfitPanelDelegator profitPanelDelegator;
+    [SerializeField]
+    private UIDelegation uIDelegation;
+    [SerializeField]
+    private AnalyticsDelegator analyticsDelegator;
+    [SerializeField]
+    private DailyChallengeDelegator dailyChallengeDelegator;
+    [SerializeField]
+    private LeaderboardDelegator leaderboardDelegator;
+    [SerializeField]
+    private SupplyCrateDelegator supplyCrateDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -50,6 +62,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI[] xpDisplaysText;
     private GameObject[] drillers;
     private int highestDrillTier = 1;
+    private bool notSinglePlayerScene;
+
+    [SerializeField]
+    private GameObject ResetMineButton;
 
     int baseXP; 
     int increment; 
@@ -86,11 +102,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd) {
+    public void AddCash(long cashToAdd, bool isNPC = false) {
 
         userCash += cashToAdd;
         moneyEarned += cashToAdd;
-        leaderboardDelegator.AddCashScore(cashToAdd);
+
+        if (!isNPC) {
+            leaderboardDelegator.AddCashScore(cashToAdd);
+        }
         
         UpdateCashDisplays();
         dataPersistenceManager.SaveGame();
@@ -183,6 +202,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         return false;
     }
+    
     // For Refinery Upgrade
     public bool VerifyEnoughCash(long price) {
         savedAmountSubtract = price;
@@ -203,6 +223,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void NewBlockMined(int oresMined, int amount) {
+
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
         // Total 5 xp for mining an ore
         userXP += 4 * oresMined + amount;
@@ -250,6 +271,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
 
         if (highestDrillTier >= 3) {
+            if (notSinglePlayerScene) {
+                lowTierTextReason.SetActive(false);
+                notSoloTextReason.SetActive(true);
+                return;
+            }
             lockedRebirthPanel.SetActive(false);
             rebirthPanel.SetActive(true);
             rebirthIcon.color = new(1, 0, 0);
@@ -259,6 +285,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             rebirthIcon.color = new(1, 1, 1);
         }
     }
+    
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
         string cashText = "$" + FormatPrice(userCash);
@@ -322,6 +349,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            notSinglePlayerScene = true;
+        }
         
         analyticsDelegator = AnalyticsDelegator.Instance;
 
@@ -335,6 +366,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            ResetMineButton.SetActive(false);
+        }
        
         UpdateCashDisplays();
         UpdateGemDisplays();
@@ -391,9 +426,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         userXP = 0;
         userCash = 0;
         vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
+        
         GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         garagePanel.GetComponent<GarageDelegator>().PlayerRebirth();
-        GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>().SwitchVehicle(newVehicle);
+        
+        PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
+        playerVehicleDelegation.SwitchVehicle(newVehicle);
+        playerVehicleDelegation.currentCoopVehicle = "GRINDER I";
+
         // Switch vehicle, then reset mine, to get rid of all materials for sure,
         // because the haulers will drop everything
         refineryController.PlayerRebirth();
@@ -421,6 +461,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return blocksMined;
     }
 
+    public int GetRebirths() {
+        return (int) Mathf.Round(rebirthProfitMultiplier / 0.01f);
+    }
+
     public void RewardPlayerWithGems(int amount, string message = null) {
 
         leaderboardDelegator.gemRewardsToCollect += amount;
@@ -429,6 +473,21 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public BigInteger GetUserGems() {
         return userGems;
+    }
+
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        // Get the localized string using the key
+        var entry = table.GetEntry(key);
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
+
+    public BigInteger GetMoneyEarned() {
+        return moneyEarned;
     }
 
     // For development only
@@ -442,10 +501,5 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         freeMoneyToAdd = (int) cashSlider.value;
 
         cashText.text = "$" + FormatPrice(freeMoneyToAdd);
-    }
-
-    internal void SubtractCash(BigInteger cashAmount)
-    {
-        throw new NotImplementedException();
     }
 }

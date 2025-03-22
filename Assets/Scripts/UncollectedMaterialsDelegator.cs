@@ -1,3 +1,4 @@
+using System.Linq;
 using UnityEngine;
 
 public class UncollectedMaterialsDelegator : MonoBehaviour
@@ -5,10 +6,18 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
     public OreDelegation oreDelegation;
     public SerializableDictionary<string, MaterialManagerData> uncollectedMaterials = new();
     private MaterialManager materialManager;
+    private System.Random random = new();
+    public int materialCount;
+
+    void Awake()
+    {
+        materialCount = 0;   
+    }
 
     public void RemoveMaterial(string materialID)
     {
         try {
+            this.materialCount -= uncollectedMaterials[materialID].count;
             uncollectedMaterials.Remove(materialID);
         } catch {
         }
@@ -17,15 +26,17 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
     public void UpdateMaterial(MaterialManager materialManager, GameObject materialToAdd) {
         // If player has ores in a hauler, resets mine, switches to a driller, then switches to a different smaller hauler and tries to pick up all of previous haulers ores, this will fail
         try {
-            MaterialManagerData materialManagerData = materialManager.GetMaterialManagerData();
-            MaterialManagerData oldValue = uncollectedMaterials[materialManagerData.id];
+            MaterialManagerData oldValue = uncollectedMaterials[materialManager.GetMaterialManagerData().id];
+            
+            this.materialCount -= oldValue.count - materialManager.count;
+            
             oldValue.count = materialManager.count;
-
             // material type stays the same, count gets updated
             uncollectedMaterials[materialManager.id] = oldValue;
         } catch {
             try {
                 AddMaterial(materialToAdd, materialToAdd.transform.position, materialManager.materialIndex, materialManager.count, materialManager.drillProfitMultiplier);
+                this.materialCount += materialManager.count;
             } catch {
             }//108, 129, 106 + 40
         }
@@ -43,6 +54,7 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
         // add the material to the dictionary
         materialToAdd.transform.SetParent(transform);
         uncollectedMaterials[materialManager.id] = materialManager.GetMaterialManagerData();
+        this.materialCount += materialCount;
     }
 
     public System.Numerics.BigInteger GetMineValue() {
@@ -54,4 +66,31 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
 
         return mineValue;
     }
+
+    public Vector3 GetRandomMaterialLocation(int tier) {
+        if (uncollectedMaterials.Count == 0)
+            return new(0, -6);
+
+        foreach (var material in uncollectedMaterials.Values.OrderBy(x => random.Next())) {
+
+            if (ConvertIndexToTier(material.materialIndex) == 1 && tier == 3) {
+                continue;
+            }
+
+            return material.position;
+        }
+        
+        return new(0, -6); // Fallback, it should never reach this
+    }
+
+    public int ConvertIndexToTier(int materialIndex) {
+        if (materialIndex <= 2) {
+            return 1;
+        } else if (materialIndex <= 5) {
+            return 2;
+        }
+
+        return 3;
+    }
+
 }

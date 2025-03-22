@@ -5,7 +5,6 @@ using UnityEngine.Tilemaps;
 
 public class DrillerController : MonoBehaviour
 {
-    // Not actually a radius, it's a square
     private int radius;
     private TileBase[] ores;
     private GameObject[] materials;
@@ -32,7 +31,6 @@ public class DrillerController : MonoBehaviour
     private int lastAudioUsed = -1;
     private AudioDelegator audioDelegator;
     private UIDelegation uiDelegation;
-    private OreDelegation oreDelegation;
     private BoxCollider2D boxCollider2D;
     private Vector2 size;
     Vector2 rotatedOffset;
@@ -41,10 +39,7 @@ public class DrillerController : MonoBehaviour
     private Tilemap tilemap;
     private Vector3 spriteWorldPos;
     private Vector3Int spriteTilePos;
-    private Vector3Int nearestTilePos;
-    private Vector3Int currentTilePos;
     private Vector3 tileWorldPos;
-    private float distance;
     private TileBase tileToDestroy;
     private int tileTier;
     private GameObject materialToUse;
@@ -56,26 +51,32 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
     bool dontPlayAudio;
+    public bool isNPC = false;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         ores = mineRenderer.GetOres();
+        materials = mineRenderer.oreDelegation.materials;
 
-        oreDelegation = mineRenderer.oreDelegation;
-        materials = oreDelegation.materials;
+        boxCollider2D = GetComponent<BoxCollider2D>();
+        // Get the bounds of the BoxCollider2D
+        rotatedOffset = boxCollider2D.offset;
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
+
+        try {
+            joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
+        } catch {
+            isNPC = true;
+            return;
+        }
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-        joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
 
-        boxCollider2D = GetComponent<BoxCollider2D>();
-        // Get the bounds of the BoxCollider2D
-        rotatedOffset = boxCollider2D.offset;
     }
 
     void Update() {
@@ -105,58 +106,26 @@ public class DrillerController : MonoBehaviour
             spriteWorldPos = transform.position;
             spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
 
-            nearestTilePos = Vector3Int.zero;
-
             currentTilePositions.Clear();
             tileWorldPositions.Clear();
             tileBasesToDestroy.Clear();
             // Iterate over nearby tiles within the radius
-            // Not actually a radius, it's a square
-            for (int x = -radius; x <= radius; x++)
+            for (int x = 0; x <= radius; x++)
             {
-                for (int y = -radius; y <= radius; y++)
+                int yLimit = radius - x;
+                for (int y = 0; y <= yLimit; y++)
                 {
-                    currentTilePos = spriteTilePos + new Vector3Int(x, y, 0);
-
-                    // Check if the tile exists
-                    if (!tilemap.HasTile(currentTilePos)) {
-                        continue;
-                    }
-
-                    tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
-                    distance = Vector3.Distance(spriteWorldPos, tileWorldPos);
-
-                    if (distance >= radius) {
-                        continue;
-                    }
-                    tileToDestroy = tilemap.GetTile(currentTilePos);
-
-                        // Make sure the drill is capable of destroying this tile
-                        tileTier = mineRenderer.GetTileTier(tileToDestroy);
-                        if (drillTier < tileTier) {
-                            errorCounter++;
-                            
-                            // Dont spam the user with errors
-                            if (errorCounter >= 400) {
-                                uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
-                                errorCounter = 0;
-                            }
-                            dontPlayAudio = true;
-                            continue;
-                        }
-
-                    // Keep track of the closest tile
-                    nearestTilePos = currentTilePos;
-
-                    currentTilePositions.Add(new(nearestTilePos.x, nearestTilePos.y));
-                    tileWorldPositions.Add(tileWorldPos);
-                    tileBasesToDestroy.Add(tileToDestroy);
+                    // Check all 4 quadrants
+                    CheckToDestroyTile(spriteTilePos + new Vector3Int(x, y, 0));
+                    CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, y, 0));
+                    CheckToDestroyTile(spriteTilePos + new Vector3Int(x, -y, 0));
+                    CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, -y, 0));
                 }
             }
 
-            mineRenderer.DestroyTiles(currentTilePositions, false);
-
-            if (!dontPlayAudio && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
+            mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
+            
+            if (!dontPlayAudio && !isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                 PlayAudio();
             }
 
@@ -197,10 +166,41 @@ public class DrillerController : MonoBehaviour
                     mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, profitMultiplier);
                     break;
                 }
-
             }
-        
         }
+    }
+
+    public void CheckToDestroyTile(Vector3Int currentTilePos) {
+
+        // Check if the tile exists
+        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
+            return;
+        }
+
+        tileToDestroy = tilemap.GetTile(currentTilePos);
+
+        
+        // Make sure the drill is capable of destroying this tile
+        tileTier = mineRenderer.GetTileTier(tileToDestroy);
+        if (drillTier < tileTier) {
+            if (!isNPC) {
+                errorCounter++;
+                
+                // Dont spam the user with errors
+                if (errorCounter >= 400) {
+                    uiDelegation.ShowError("TIER {0} DRILL IS NEEDED!", tileTier);
+                    errorCounter = 0;
+                }
+                dontPlayAudio = true;
+            }
+            
+            return;
+        }
+
+        tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
+        currentTilePositions.Add(new(currentTilePos.x, currentTilePos.y));
+        tileWorldPositions.Add(tileWorldPos);
+        tileBasesToDestroy.Add(tileToDestroy);
     }
 
     public float GetPlayerSpeed() {

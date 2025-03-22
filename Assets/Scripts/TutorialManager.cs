@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
@@ -12,6 +11,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public RefineryController refineryController;
     public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
     public SupplyCrateDelegator supplyCrateDelegator;
+    public SessionDelegator sessionDelegator;
     public GameObject TutorialUIParent;
     public GameObject[] tutorialScreens;
     public GameObject bottomControls;
@@ -97,7 +97,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         leaderboardNoticeIcon.SetActive(true);
         //premiumShopNoticeIcon.SetActive(true);
-        
+        sessionDelegator.UnlockTeam();
         Destroy(TutorialUIParent);
     }
 
@@ -111,6 +111,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try {
             if (this.finishedTutorial) {
+                sessionDelegator.UnlockTeam();
                 Destroy(TutorialUIParent);
                 return;
             }

@@ -9,7 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 9040064359773987675}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front Wheels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 3688911548742499588}
   - component: {fileID: 3429792168204387076}
   - component: {fileID: 1111830019094496264}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front Wheels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -182,7 +182,7 @@ GameObject:
   - component: {fileID: 5258496328223124895}
   - component: {fileID: 7650428856867975077}
   - component: {fileID: 8208449824659759743}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Front Wheels
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -321,7 +321,7 @@ GameObject:
   - component: {fileID: 7268506937412991170}
   - component: {fileID: 4130937217246992067}
   - component: {fileID: 8305296595129767050}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: MARS BUGGY I
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -410,9 +410,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   materialCount: 000000000000000000000000
+  materialProfitMultipliers: []
   maxMaterials: 40
   materialEnergyUsage: 1
   playerSpeed: 10
+  profitMultiplier: 0
   width: 4
   price: 450
 --- !u!60 &8305296595129767050
@@ -498,7 +500,7 @@ GameObject:
   - component: {fileID: 3637045415268203915}
   - component: {fileID: 7309806509323089101}
   - component: {fileID: 8360433310032504994}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Amount Added
   m_TagString: Untagged
   m_Icon: {fileID: 0}

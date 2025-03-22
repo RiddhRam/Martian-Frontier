@@ -18,6 +18,7 @@ public class OreDelegation : MonoBehaviour
     private int[] oresPerTier;
     // Lowercase verion of materialNames
     private string[] oreNames;
+    private bool[] isOre;
 
     void Awake() {
         oreNames = new string[materials.Length];
@@ -28,6 +29,23 @@ public class OreDelegation : MonoBehaviour
 
     void Start() {
         oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
+
+        int tileCount = oresPerTier.Length;
+
+        for (int i = 0; i != oresPerTier.Length; i++) {
+            tileCount += oresPerTier[i];
+        }
+
+        isOre = new bool[tileCount];
+
+        int index = 1;
+        for (int i = 0; i != oresPerTier.Length; i++) {
+            for (int j = 0; j != oresPerTier[i]; j++) {
+                isOre[index] = true;
+                index++;
+            }
+            index++;
+        }
     }
 
     public void PrepareGrid() {
@@ -166,4 +184,7 @@ public class OreDelegation : MonoBehaviour
         return oreNames;
     }
 
+    public bool VerifyIfOre(int tileIndex) {
+        return isOre[tileIndex];
+    }
 }
