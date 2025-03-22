@@ -23,7 +23,7 @@ public class MaterialManager : MonoBehaviour
         mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
 
         if (mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
-            baseTimeWait *= 30;
+            baseTimeWait *= 15;
         }
     }
 

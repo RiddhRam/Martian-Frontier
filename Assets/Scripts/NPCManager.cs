@@ -86,8 +86,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     readonly System.Random random = new();
 
-    bool switchingVehicle = false;
-
     // Cache
     HaulerController haulerController;
     Coroutine liveSessionCoroutine;
@@ -371,9 +369,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             CreateNPC(i);
         }
 
-        Time.timeScale = 5;
+        Time.timeScale = 6;
         
-        // 6 real seconds
+        // 5 real seconds
         yield return new WaitForSeconds(30);
 
         Time.timeScale = 1;
@@ -452,10 +450,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 yield return SwitchDrillerToHauler();
             }
 
-            // Fill empty NPC spot every 1.5 mins
+            // Fill empty NPC spot every 1 min
             nPCEmptyTimer += sessionUpdateTimer;
 
-            if (nPCEmptyTimer > 90) {
+            if (nPCEmptyTimer > 60) {
 
                 for (int i = 0; i != npcCount; i++) {
 
@@ -491,12 +489,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             npcToChange = random.Next(0, 3);
 
             activeNPC = nPCMovements[npcToChange] != null;
-
         } 
         while(npcIsHauler[npcToChange] && !activeNPC);
 
         transitioningVehicle[npcToChange] = true;
 
+        if (nPCMovements[npcToChange] == null) {
+            yield break;
+        }
+        
         nPCMovements[npcToChange].stopMoving = true;
         yield return new WaitForSeconds(3);
 
@@ -513,6 +514,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcToChange].stopMoving = true;
         yield return new WaitForSeconds(3);
 
+        DropMaterials(npcToChange);
         Destroy(npcs[npcToChange]);
         CreateNPC(npcToChange, true, false);
 
@@ -539,6 +541,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         nPCMovements[npcIndex] = null;
         
+        DropMaterials(npcIndex);
         Destroy(npcs[npcIndex]);
         CreateNPC(npcIndex, false, false, index);
 
@@ -546,21 +549,43 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public int Get1HaulerThreshold() {
-        return 280 + (115 * highestDrillTier);
+        return 280 + (130 * highestDrillTier);
     }
 
     public int Get2HaulerThreshold() {
-        return 390 + (115 * highestDrillTier);
+        return 390 + (130 * highestDrillTier);
     }
 
     public int Get3HaulerThreshold() {
-        return 500 + (115 * highestDrillTier);
+        return 500 + (150 * highestDrillTier);
+    }
+
+    public void DropMaterials(int npcIndex) {
+
+        HaulerController haulerController = npcs[npcIndex].transform.GetChild(1).GetComponent<HaulerController>();
+
+        if (!haulerController) {
+            return;
+        }
+
+        int[] materialCount = haulerController.GetMaterialCount();
+
+        for (int i = 0; i != materialCount.Length; i++) {
+            // Should never be less than zero but just in case
+            if (materialCount[i] <= 0) {
+                continue;
+            }
+
+            mineRenderer.GetMaterialObject(i, npcs[npcIndex].transform.position, materialCount[i], haulerController.GetProfitMultiplier());
+        }
+
     }
 
     public void RemoveNPC(int npcIndex, bool gameObjectDestroyed) {
         int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[npcIndex]);
 
         if (!gameObjectDestroyed) {
+            DropMaterials(npcIndex);
             Destroy(npcs[npcIndex]);
         }
 

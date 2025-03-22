@@ -17,7 +17,7 @@ public class BuildNavMeshSurface : MonoBehaviour
     
     public bool UpdateMeshes;
     private readonly Bounds bounds = new(new(-80, 0, 0), new(80, 550, 100));
-    private int timer = 60;
+    private int timer = 45;
     
     // Start is called before the first frame update
     public void InitializeMesh()

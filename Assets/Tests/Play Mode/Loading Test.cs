@@ -20,7 +20,6 @@ public class LoadingTest
     PlayerVehicleDelegation playerVehicleDelegation;
     GarageDelegator garageDelegator;
     TutorialManager tutorialManager;
-    SettingsDelegator tutorialSettingsDelegator;
     GameObject loadingScreen;
     LoadingScreen loadingScreenScript;
     CustomAdScreen customAdScreen;
@@ -79,7 +78,7 @@ public class LoadingTest
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 5;
+        int gemDisplayCount = 6;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++) {
             Assert.True(playerState.gemDisplays[i].activeSelf);
@@ -301,10 +300,8 @@ public class LoadingTest
         Assert.AreEqual(refineryController.batteryRechargeSoundEffect.name, "Battery Recharge");
 
         Assert.AreEqual(refineryController.GetInitialBattery(), 120);
-        Assert.AreEqual(refineryController.GetInefficiency(), 1);
 
         Assert.AreEqual(refineryController.capacityUpgrades.name, "Capacity Panel");
-        Assert.AreEqual(refineryController.efficiencyUpgrades.name, "Efficiency Panel");
 
         Assert.AreEqual(refineryController.GetRebirthProfitMultiplier(), 0);
 
@@ -327,8 +324,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "Map Button", "CargoInfo", "Garage Button", "Upgrades Button", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info", "Team"};
-        int primaryElementCount = 14;
+        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info", "Team"};
+        int primaryElementCount = 11;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -383,9 +380,9 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.haulersPanel.name, "Haulers Panel");
         Assert.AreEqual(garageDelegator.haulersContent.name, "Content");
         Assert.AreEqual(garageDelegator.haulerDisplayPanel.name, "Haul Display Panel");
-        Assert.AreEqual(garageDelegator.playerStateScript.gameObject.name, "PlayerState");
+        Assert.AreEqual(garageDelegator.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
-        Assert.AreEqual(garageDelegator.UIDelegation.name, "UI");
+        Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
 
         Color[] tierColors = { new(57/255f, 255/255f, 20/255f), new(176/255f, 38/255f, 255/255f), new(71/255f, 185/255f, 198/255f) };
         Assert.AreEqual(garageDelegator.tierColors.Length, tierColors.Length);
@@ -433,7 +430,7 @@ public class LoadingTest
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER I");
 
         playerVehicle = GameObject.Find("Player Vehicle");
-        Assert.False(playerVehicle.GetComponent<AIMovement>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<NPCMovement>().isActiveAndEnabled);
         Assert.False(playerVehicle.GetComponent<HaulerAINavigation>().isActiveAndEnabled);
         Assert.False(playerVehicle.GetComponent<NavMeshAgent>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
@@ -665,7 +662,9 @@ public class LoadingTest
         Assert.True(GameObject.Find("Haulers Panel").activeSelf);
 
         GameObject haulDisplay = GameObject.Find("Haul Display Panel(Clone)");
-        haulDisplay.transform.GetChild(2).GetComponent<Button>().onClick.Invoke();
+        haulDisplay.transform.GetChild(3).GetComponent<Button>().onClick.Invoke();
+        yield return null;
+        yield return null;
         yield return null;
 
         Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);

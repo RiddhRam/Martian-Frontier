@@ -25,13 +25,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private float refineryBattery;
     [SerializeField]
     private float initialBattery;
-    [SerializeField]
-    private float refineryInefficiency;
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
     private int[] materialPrices;
     public GameObject capacityUpgrades;
-    public GameObject efficiencyUpgrades;
     private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
     [SerializeField]
@@ -95,7 +92,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                     break;
                 }
                 
-                refineryBattery -= refineryInefficiency;
+                refineryBattery -= 1;
                 materialCount[i]--;
                 playerState.NewMaterialSold();
                 savedMaterialCount[i]++;
@@ -310,15 +307,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return initialBattery;
     }
 
-    public void SetEfficiency(float newValue) {
-        refineryInefficiency = newValue / 100f;
-        SaveGame();
-    }
-
-    public float GetInefficiency() {
-        return refineryInefficiency;
-    }
-
     public void LoadData(GameData data) {
         if (!data.finishedTutorial) {
             firstTimePlaying = true;
@@ -332,14 +320,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-            this.refineryBattery = 800;
-            this.initialBattery = 800;
+            this.refineryBattery = 750;
+            this.initialBattery = 750;
             return;
         }
 
         // This will call LoadCorrectUpgrade in RefineryUpgrades
         capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity);
-        efficiencyUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryInefficiency);
         
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
@@ -348,7 +335,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StopCoroutine(increaseBatteryCoroutine);
         }
 
-        this.refineryInefficiency = data.refineryInefficiency / 100;
         this.initialBattery = data.refineryCapacity;
         this.refineryBattery = data.refineryBattery;
 
@@ -372,7 +358,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         data.refineryBattery = this.refineryBattery;
         data.refineryCapacity = this.initialBattery;
-        data.refineryInefficiency = Mathf.Round(this.refineryInefficiency * 100 * 10) / 10;
     }
 
     private void SaveGame() {

@@ -14,7 +14,6 @@ public class GameDataString
     public string haulerCargo;
     // Uncollected materials
     public string materials;
-    public string refineryInefficiency;
     public string refineryCapacity;
     public string refineryBattery;
     public string destroyedTilemapsTileValues;
@@ -53,7 +52,6 @@ public class GameDataString
         this.currentVehicle = null;
         this.haulerCargo = null;
         this.materials = null;
-        this.refineryInefficiency = null;
         this.refineryCapacity = null;
         this.refineryBattery = null;
         this.destroyedTilemapsTileValues = null;

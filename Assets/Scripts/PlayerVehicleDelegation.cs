@@ -7,7 +7,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public GameObject UI;
     public string currentVehicle;
     public string currentCoopVehicle;
-    public GameObject garageDelegator;
     public GameObject playerVehicle;
     public string vehicleType;
     private bool loading = false;
@@ -16,8 +15,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public MineRenderer mineRenderer;
     public AdDelegator adDelegator;
     public AnalyticsDelegator analyticsDelegator;
-    public VehicleUpgradesDelegator vehicleUpgradesDelegator;
     public NPCManager nPCManager;
+    public GarageDelegator garageDelegator;
     private bool notSinglePlayerScene = false;
 
     public void SwitchVehicle(GameObject newVehicle) {
@@ -85,8 +84,15 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed = haulerController2.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-            haulerController2.SetProfitMultiplier(vehicleUpgradesDelegator.GetVehicleProfitMultiplier(haulerController2.name));
+
             vehicleType = "Hauler";
+
+           /*Debug.Log(haulerController2);
+            Debug.Log(garageDelegator);
+            Debug.Log(haulerController2.name);*/
+
+            haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
+            
 
             analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
@@ -101,12 +107,12 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-        drillerController.SetProfitMultiplier(vehicleUpgradesDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
 
-        int tier = drillerController.GetDrillTier();
         vehicleType = "Driller";
-
-        analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", tier);
+        
+        drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
+       
+       analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
     public void LoadData(GameData data) {
@@ -136,11 +142,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     // ONLY USED WHEN LOADING
     public void FindVehicle(string vehicleName, int[] tempHaulerCargo, float[] tempMaterialProfitMultipliers) {
         // Iterate through all vehicles and find which vehicle it is
-        GarageDelegator garageDelegatorScript = garageDelegator.GetComponent<GarageDelegator>();
-
         // First check if user used a hauler
         // Most likely did since a user would probably leave after making some money
-        GameObject[] haulers = garageDelegatorScript.GetHaulers();
+        GameObject[] haulers = garageDelegator.GetHaulers();
         for (int i = 0; i != haulers.Length; i++) {
             if (vehicleName != haulers[i].name) {
                 continue;
@@ -160,7 +164,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
 
         // If wasn't a hauler then it's a driller
-        GameObject[] drillers = garageDelegatorScript.GetDrillers();
+        GameObject[] drillers = garageDelegator.GetDrillers();
         for (int i = 0; i != drillers.Length; i++) {
             if (vehicleName != drillers[i].name) {
                 continue;

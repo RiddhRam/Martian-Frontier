@@ -16,7 +16,7 @@ public class LoadingScreen : MonoBehaviour
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
         LoadData() (10 total)
-        AdDelegator, DailyChallengeDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, VehicleUpgradesDelegator
+        AdDelegator, DailyChallengeDelegator, GarageDelegator, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator
         
         Extras:
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async) || OnSignedIn() (1 total) when changing scenes but still logged in
