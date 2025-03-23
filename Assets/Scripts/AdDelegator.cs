@@ -597,7 +597,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         visionText.transform.parent.parent.gameObject.SetActive(false);
         
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionBoost);
+        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionRadius);
 
         refineryController.SetProfitMultiplier(upgradePanelsDelegator.refineryProfitMultiplier);
 

@@ -8974,8 +8974,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 324.57895, y: -51.5}
-  m_SizeDelta: {x: 489.1579, y: 103}
+  m_AnchoredPosition: {x: 306.6667, y: -51.5}
+  m_SizeDelta: {x: 434.716, y: 103}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &9098414636314469005
 CanvasRenderer:
@@ -9032,8 +9032,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 70
-  m_fontSizeBase: 70
+  m_fontSize: 68
+  m_fontSizeBase: 68
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -16633,7 +16633,7 @@ RectTransform:
   m_Father: {fileID: 2571370684733080106}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 0}
   m_AnchoredPosition: {x: 4.664551, y: 0}
   m_SizeDelta: {x: 19.3293, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -21540,7 +21540,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 35, y: -51.5}
+  m_AnchoredPosition: {x: 44.308685, y: -51.5}
   m_SizeDelta: {x: 70, y: 70}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4421729769515613693
@@ -27976,7 +27976,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3426874065441177811
 RectTransform:
   m_ObjectHideFlags: 0
@@ -36966,7 +36966,9 @@ MonoBehaviour:
   refineryPanel: {fileID: 5434554600950790938}
   notSinglePlayerScene: 0
   visionRadius: 3
+  visionBoost: 3
   refineryProfitMultiplier: 1
+  refineryProfitMultiplierBoost: 2
 --- !u!1 &5848281971023855488
 GameObject:
   m_ObjectHideFlags: 0
@@ -46612,8 +46614,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6249270852780863967}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.591634}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0, y: 0.5916339}
+  m_AnchorMax: {x: 1, y: 0.99999994}
   m_AnchoredPosition: {x: -22.48, y: 0}
   m_SizeDelta: {x: 64.97, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -52802,7 +52804,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7892555506006887581}
   m_HandleRect: {fileID: 7845263804773767120}
   m_Direction: 2
-  m_Value: 1
+  m_Value: 0.9999999
   m_Size: 0.40836602
   m_NumberOfSteps: 0
   m_OnValueChanged:

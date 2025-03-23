@@ -11,23 +11,24 @@ public class MaterialManager : MonoBehaviour
     public string id;
     public float drillProfitMultiplier;
     private MaterialManagerData materialManagerData;
+    [SerializeField]
     private SpriteRenderer spriteRenderer;
     private GameObject mapCamera;
+    float originalBaseTimeWait = 0.5f;
     float baseTimeWait = 0.5f;
     float extraTimeWait = 1f;
 
     void Awake() {
         GenerateGuid();
         materialManagerData = new();
-        spriteRenderer = transform.GetChild(1).GetComponent<SpriteRenderer>();
         mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
-
-        if (mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
-            baseTimeWait *= 15;
-        }
     }
 
     void OnEnable() {
+        if (mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
+            baseTimeWait = 35 * originalBaseTimeWait;
+        }
+        
         StartCoroutine(ToggleSpriteVisibility());
     }
 

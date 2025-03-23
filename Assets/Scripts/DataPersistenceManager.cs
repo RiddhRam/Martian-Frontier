@@ -78,8 +78,6 @@ public class DataPersistenceManager : MonoBehaviour
             NewGame();
         }
 
-        Debug.Log(gameData.finishedTutorial);
-        
         // initialize values to scripts that need it
         foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
             try {

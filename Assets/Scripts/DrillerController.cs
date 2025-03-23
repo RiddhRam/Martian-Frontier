@@ -97,7 +97,7 @@ public class DrillerController : MonoBehaviour
         dontPlayAudio = false;
 
         foreach (Collider2D collision in colliders) {
-            if (!collision.gameObject.CompareTag("Mine Tag")) {
+            if (!collision.CompareTag("Mine Tag")) {
                 continue;
             }
 

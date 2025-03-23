@@ -147,7 +147,7 @@ public class AIMovement : MonoBehaviour
         // Check mine progress
         int leftToDestroy = 0;
         int alreadyDestroyed = 0;
-        SerializableDictionary<Vector2Int, int>[,] unplaced = mineRenderer.GetUnplacedTilemapsTileValues();
+        SerializableDictionary<Vector2Int, int>[,] unplaced = mineRenderer.unplacedTilemapsTileValues;
         SerializableDictionary<Vector2Int, int>[,] destroyed = mineRenderer.GetDestroyedTilemapsTileValues();
 
         for (int i = 0; i != unplaced.GetLength(0); i++) {

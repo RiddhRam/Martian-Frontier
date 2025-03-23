@@ -32,7 +32,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
     // Tiles will start in unplaced, then are copied (but not removed) to revealed when revealed, then remove from unplaced and revealed and placed in destroyed when destroyed
     // destroyed and revealed are used to save the game
-    private SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValues;
+    public SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValues;
     private SerializableDictionary<Vector2Int, int>[,] revealedTilemapsTileValues;
     // This doesn't need to be a dictionary, just a list, because we already know the tile value
     // If a tile is destroyed, it will be set to null
@@ -1309,10 +1309,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // The best mining position is approximately at the center of the vein's best line
         return new Vector2Int(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
-    }
-
-    public SerializableDictionary<Vector2Int, int>[,] GetUnplacedTilemapsTileValues() {
-        return unplacedTilemapsTileValues;
     }
 
     public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {

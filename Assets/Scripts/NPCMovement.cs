@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
@@ -48,6 +49,9 @@ public class NPCMovement : MonoBehaviour
     // Cache
     NavMeshPath path;
 
+    private bool transitioning = false;
+    private int frameCounter = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -68,17 +72,21 @@ public class NPCMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (transitioning) {
+            return;
+        }
+
         try {
-            agent.SetDestination(agent.destination);
+            UpdateAgentDestination(agent.destination);
         } catch {
         }
 
         // (0, -6, 0) means theres a problem with requesting new position
-        if (Math.Abs(agent.destination.y - -6) < 0.1) {
-            // If its a hauler, drop to a smaller hauler
+        if (Math.Abs(agent.destination.y + 6) < 0.1) {
+            // If its a hauler, drop to a smaller hauler or sell ores
             if (haulerController != null) {
                 if (haulerController.GetTotalMaterialCount() > 0) {
-                    agent.SetDestination(new(0, 6));
+                    UpdateAgentDestination(new(0, 6));
                     return;
                 }
                 
@@ -86,11 +94,10 @@ public class NPCMovement : MonoBehaviour
                     StartCoroutine(nPCManager.SwitchToAnotherHauler(npcIndex, haulerIndex));
                     return;
                 }
-                
-            } 
+            }
             // If its a driller, just drill to some random spot
             else {
-                agent.SetDestination(GetRandomPosition());
+                UpdateAgentDestination(GetRandomPosition());
             }
         }
 
@@ -108,34 +115,41 @@ public class NPCMovement : MonoBehaviour
             Debug.Log(agent.destination.y);
         }*/
 
+        frameCounter++;
+
+        if (!agent.enabled && frameCounter >= 10) {
+            agent.enabled = true;
+            frameCounter = 0;
+        }
+
         if (!agent.enabled || !agent.isOnNavMesh) {
             return;
         }
         
         // If npc takes more than 10 seconds to reach destination, set a new destination
-        if (agent.remainingDistance < 0.5f) {
+        if (Vector3.Distance(transform.position, agent.destination) < 0.5f) {
             RequestNewPosition();
-        } else {
-            timer += Time.deltaTime;
         }
+
+        timer += Time.deltaTime;
 
         if (timer > maxTimer) {
 
             agent.enabled = false;
-            agent.enabled = true;
 
-            if (haulerController == null) {
-                timer = 0;
-            } else {
-                RequestNewPosition();
-            }
-            
+            timer = 0;
         }
 
         if (!stopMoving) {
             MoveVehicle();
         } else {
             rb.velocity = Vector2.zero;
+        }
+    }
+
+    public void UpdateAgentDestination(Vector3 newDestination) {
+        if (agent.enabled) {
+            agent.SetDestination(newDestination);
         }
     }
 
@@ -175,7 +189,7 @@ public class NPCMovement : MonoBehaviour
         }
 
 
-        float distance = (float)(random.NextDouble() * 10 + 5);
+        float distance = (float)(random.NextDouble() * 11 + 5);
 
         float rad = randomAngle * Mathf.Deg2Rad;
         Vector2 offset = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad)) * distance;
@@ -192,45 +206,110 @@ public class NPCMovement : MonoBehaviour
         newPos.x = Math.Clamp(newPos.x, -60, 60);
         newPos.y = Math.Clamp(newPos.y, minY, maxY);
 
+        Vector2Int tilemapPos = nPCManager.mineRenderer.CalculateTileMapPos(new((int) newPos.x, (int) newPos.y));
+
+        if (!nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(new((int) newPos.x, (int) newPos.y))) {
+
+            for (int y = maxY; y <= minY; y += 12) {
+
+                for (int x = -60; x <= 60; x += 25) {
+                    tilemapPos = nPCManager.mineRenderer.CalculateTileMapPos(new(x, y));
+
+                    if (nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].Count > 0) {
+                        Vector2Int randomValue = nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y]
+                            .ElementAt(UnityEngine.Random.Range(0, nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].Count))
+                            .Key;
+
+                        newPos = new(randomValue.x, randomValue.y);
+
+                        break;
+                    }
+                }
+            }
+        }
+
         return newPos;
     }
 
     public void RequestNewPosition() {
-        timer = 0;
 
         // Get hauler position
         if (haulerController != null) {
-            agent.SetDestination(RequestNewHaulerPosition());
+            AskIfHaulingIsNeeded();
+
+            // If hauler doesnt need to become a drill, then go to a new position
+            if (!transitioning) {
+                UpdateAgentDestination(RequestNewHaulerPosition());
+            } 
+            // Otherwise drop off materials if there are more than 10 then try again
+            else if (haulerController.GetTotalMaterialCount() > 0) {
+                UpdateAgentDestination(new(0, 6));
+                transitioning = false;
+            }
+            // Otherwise, it is going to become a driller
+            
             return;
         }
 
         // Get driller position
-        agent.SetDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
+        UpdateAgentDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
     }
 
     public Vector3 RequestNewHaulerPosition() {
 
-        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5 || nPCManager.GetMaterialCount() < (100 + 50 * drillTier)) {
+        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold()) {
             return new(0, 6);
         }
+
+        Debug.Log("new hauler pos");
 
         // If path is null, initialize it
         path ??= new NavMeshPath();
 
-        Vector3 newHaulerPosition;
+        Vector3 newHaulerPosition = new();
+
+        bool foundNearbyMaterial = false;
+        // Check if the game object's collider is touching a tilemap with "Mine Tag"
+        // Dont do this in the spawn
+        if (transform.position.y < -5) {
+            Collider2D[] colliders = Physics2D.OverlapBoxAll(transform.position, new(40, 40), 0);
+
+            foreach (Collider2D collision in colliders) {
+                if (!collision.CompareTag("Material Tag")) {
+                    continue;
+                }
+
+                newHaulerPosition = collision.transform.position;
+
+                if (!agent.enabled) {
+                    break;
+                }
+
+                if (agent.CalculatePath(newHaulerPosition, path) && path.status == NavMeshPathStatus.PathComplete) {
+                    foundNearbyMaterial = true;
+                    break;
+                }
+            }
+        }
+
+        if (foundNearbyMaterial) {
+            return newHaulerPosition;
+        }
 
         // Check for a position for a max of 60 times. If still invalid, then the hauler is too big
+        // TODO: Code dupe, fix this, its also in npc manager
         int haulPositionCount = 0;
         do {
             newHaulerPosition = nPCManager.RequestNewHaulerPosition(drillTier);
 
             haulPositionCount++;
         } 
-        while((!agent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
+        while(((agent.enabled && !agent.CalculatePath(newHaulerPosition, path)) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
 
         // If invalid
         if (haulPositionCount >= 60) {
             newHaulerPosition = new(0, -6);
+            nPCManager.drillingNeeded = true;
         }
 
         return newHaulerPosition;
@@ -321,7 +400,12 @@ public class NPCMovement : MonoBehaviour
     }
 
     public void AskIfHaulingIsNeeded() {
-        nPCManager.CheckIfHaulingNeeded(npcIndex);
+        transitioning = true;
+        bool stay = nPCManager.CheckIfHaulingNeeded(npcIndex, haulerController.GetTotalMaterialCount() > 10);
+
+        if (stay) {
+            transitioning = false;
+        }
     }
 
     private IEnumerator HoldPlayerCardStill()
@@ -343,6 +427,10 @@ public class NPCMovement : MonoBehaviour
 
     void OnDisable()
     {
-        GetComponent<HaulerAINavigation>().target = new(transform.position.x, transform.position.y);
+        try {
+            GetComponent<HaulerAINavigation>().target = new(transform.position.x, transform.position.y);
+        } catch {
+        }
+        
     }
 }
