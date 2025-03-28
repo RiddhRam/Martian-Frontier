@@ -42,7 +42,7 @@ public class NPCMovement : MonoBehaviour
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
     private float wheelRotation;
     Vector2 direction;
-    System.Random random = new();
+    readonly System.Random random = new();
     private float timer = 0;
     private float maxTimer = 10f;
 
@@ -52,9 +52,10 @@ public class NPCMovement : MonoBehaviour
     private bool transitioning = false;
     private int frameCounter = 0;
 
+    private Vector3 dest;
+
     // Start is called before the first frame update
-    void Start()
-    {
+    void Start() {
         agent.updateUpAxis = false;
         agent.updatePosition = false;
         agent.updateRotation = false;
@@ -62,16 +63,10 @@ public class NPCMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         StartCoroutine(HoldPlayerCardStill());
-
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
-            drillTier = 1;
-            maxTimer = 5f;
-        }
     }
 
     // Update is called once per frame
-    void FixedUpdate()
-    {
+    void FixedUpdate() {
         if (transitioning) {
             return;
         }
@@ -127,14 +122,13 @@ public class NPCMovement : MonoBehaviour
         }
         
         // If npc takes more than 10 seconds to reach destination, set a new destination
-        if (Vector3.Distance(transform.position, agent.destination) < 0.5f) {
+        if (Vector3.Distance(transform.position, dest) < 0.5f) {
             RequestNewPosition();
         }
 
         timer += Time.deltaTime;
 
         if (timer > maxTimer) {
-
             agent.enabled = false;
 
             timer = 0;
@@ -150,6 +144,7 @@ public class NPCMovement : MonoBehaviour
     public void UpdateAgentDestination(Vector3 newDestination) {
         if (agent.enabled) {
             agent.SetDestination(newDestination);
+            dest = newDestination;
         }
     }
 
@@ -159,7 +154,8 @@ public class NPCMovement : MonoBehaviour
         int maxY;
         int minY;
 
-        if (drillTier == 1)  {
+        // Since player speed can't be 10 naturally, since specter is disabled, then it was set for recording purposes
+        if (drillTier == 1 || playerSpeed == 10)  {
             minY = -155;
             maxY = -8;
         } else if (drillTier == 2) {
@@ -188,17 +184,13 @@ public class NPCMovement : MonoBehaviour
             randomAngle = 360 -(float)(random.NextDouble() * ((facingAngle + halfArc) - (facingAngle + exclusionRange)) + (facingAngle + exclusionRange));
         }
 
-
         float distance = (float)(random.NextDouble() * 11 + 5);
 
         float rad = randomAngle * Mathf.Deg2Rad;
         Vector2 offset = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad)) * distance;
 
         Vector3 newPos = new(transform.position.x + offset.x, transform.position.y + offset.y, agent.destination.z);
-        
-        if (newPos.x < -60 || newPos.x > 60) {
-            newPos.x *= 1;
-        }
+ 
         if (newPos.y < minY || newPos.y > maxY) {
             newPos.y *= -1;
         }
@@ -208,9 +200,14 @@ public class NPCMovement : MonoBehaviour
 
         Vector2Int tilemapPos = nPCManager.mineRenderer.CalculateTileMapPos(new((int) newPos.x, (int) newPos.y));
 
+        // If null, that tile wasn't generated yet
+        if (nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y] == null) {
+            return newPos;
+        }
+
         if (!nPCManager.mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(new((int) newPos.x, (int) newPos.y))) {
 
-            for (int y = maxY; y <= minY; y += 12) {
+            for (int y = minY; y > maxY; y -= 12) {
 
                 for (int x = -60; x <= 60; x += 25) {
                     tilemapPos = nPCManager.mineRenderer.CalculateTileMapPos(new(x, y));
@@ -235,6 +232,10 @@ public class NPCMovement : MonoBehaviour
 
         // Get hauler position
         if (haulerController != null) {
+            if (Mathf.Approximately(dest.y, 6)) {
+                return;
+            }
+
             AskIfHaulingIsNeeded();
 
             // If hauler doesnt need to become a drill, then go to a new position
@@ -260,8 +261,6 @@ public class NPCMovement : MonoBehaviour
         if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold()) {
             return new(0, 6);
         }
-
-        Debug.Log("new hauler pos");
 
         // If path is null, initialize it
         path ??= new NavMeshPath();
@@ -408,8 +407,7 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
-    private IEnumerator HoldPlayerCardStill()
-    {
+    private IEnumerator HoldPlayerCardStill() {
 
         while (true) {
             worldSpaceCanvas.transform.rotation = normalRotation;
@@ -423,14 +421,5 @@ public class NPCMovement : MonoBehaviour
 
             yield return new WaitForEndOfFrame();
         }
-    }
-
-    void OnDisable()
-    {
-        try {
-            GetComponent<HaulerAINavigation>().target = new(transform.position.x, transform.position.y);
-        } catch {
-        }
-        
     }
 }

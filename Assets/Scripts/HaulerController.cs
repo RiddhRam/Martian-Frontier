@@ -196,8 +196,8 @@ public class HaulerController : MonoBehaviour
         return maxMaterials;
     }
 
-    public void IncreaseMaxMaterials() {
-        maxMaterials = 4000;
+    public void IncreaseMaxMaterials(int amount = 4000) {
+        maxMaterials = amount;
     }
 
 

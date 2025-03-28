@@ -111,7 +111,6 @@ public class LoadingTest
         Assert.AreEqual(soundHolder.drillBlockVolumes[1], 0.1, 0.001);
         Assert.AreEqual(soundHolder.drillBlockVolumes[2], 0.2, 0.001);
 
-
         // Ads
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
         
@@ -418,12 +417,8 @@ public class LoadingTest
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER I");
 
         playerVehicle = GameObject.Find("Player Vehicle");
-        Assert.False(playerVehicle.GetComponent<NPCMovement>().isActiveAndEnabled);
-        Assert.False(playerVehicle.GetComponent<HaulerAINavigation>().isActiveAndEnabled);
-        Assert.False(playerVehicle.GetComponent<NavMeshAgent>().isActiveAndEnabled);
+        Assert.False(playerVehicle.GetComponent<RecordingMovement>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
-        
-        Assert.False(GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().UpdateMeshes);
 
         playerMovement = playerVehicle.GetComponent<PlayerMovement>();
         Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);

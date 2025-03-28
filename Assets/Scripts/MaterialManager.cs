@@ -25,11 +25,9 @@ public class MaterialManager : MonoBehaviour
     }
 
     void OnEnable() {
-        if (mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
-            baseTimeWait = 35 * originalBaseTimeWait;
-        }
-        
-        StartCoroutine(ToggleSpriteVisibility());
+        if (!mapCamera.GetComponent<MapRecordingMode>().isActiveAndEnabled) {
+            StartCoroutine(ToggleSpriteVisibility());
+        } 
     }
 
     private IEnumerator ToggleSpriteVisibility() {

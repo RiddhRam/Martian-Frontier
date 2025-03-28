@@ -836,8 +836,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             } catch {
             }
         }
-
-        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
     }
 
     public void GenerateMaterials() {

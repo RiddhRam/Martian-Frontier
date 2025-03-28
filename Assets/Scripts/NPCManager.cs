@@ -217,8 +217,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 min = drillerTierThresholds[highestDrillTier - 2];
             }
 
-            int index = seedRandom.Next(min, max);
-
+            int index;
+            
+            if (mapRecordingMode.enabled) {
+                // Gaurantee Bore I spawns
+                index = 10;
+            } else {
+                index = seedRandom.Next(min, max);
+            }
+            
             // If its a Specter, drop the index by one
             // Specters are buggy with AI Navigation, they keep getting stuck
             if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
@@ -234,10 +241,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             npcIsHauler[npcIndex] = false;
 
             // Set agent type
-            int agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
-            navMeshAgents[npcIndex].agentTypeID = agentTypeID;
+            navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
 
-            speed = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
+            if (mapRecordingMode.enabled) {
+                // Gauarantee high speed Bore
+                speed = 10;
+            } else {
+                speed = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
+            }
+            
             SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex], true);
         } 
         else { 
@@ -252,6 +264,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             }
 
             if (index < 0) {
+                index = 0;
+            }
+
+            if (mapRecordingMode.enabled) {
+                // Gaurantee stubby
                 index = 0;
             }
 
@@ -273,12 +290,16 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerController = vehicle.GetComponent<HaulerController>();
 
-            // Set agent type
             // (width - 2) gives the right agent index for haulers
-            int agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
-            navMeshAgents[npcIndex].agentTypeID = agentTypeID;
+            navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
 
-            speed = haulerController.GetPlayerSpeed();
+            if (mapRecordingMode.enabled) {
+                speed = 8;
+                haulerController.IncreaseMaxMaterials(300);
+            } else {
+                speed = haulerController.GetPlayerSpeed();
+            }
+            
             SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex], false);
         }   
 
@@ -329,6 +350,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier) {
+        if (mapRecordingMode && mapRecordingMode.enabled) {
+            // Gaurantee tier 1
+            return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, 1);
+        }
+        
         return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
     }
 
@@ -347,7 +373,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             spriteRenderer.sprite = mapIcons[FindSpawnPointIndex(spawnPoint)];
         } else {
             if (driller) {
-                spriteRenderer.sprite = drillerIcon;
+                spriteRenderer.sprite = mapIcons[FindSpawnPointIndex(spawnPoint)];
             } else {
                 spriteRenderer.sprite = haulerIcon;
             }
@@ -424,15 +450,23 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         playerRebirths = playerState.GetRebirths();
 
+        // Uncomment when recording
+        if (mapRecordingMode.enabled) {
+            npcCount = 2;
+            toggleCamera.onClick.Invoke();
+        }
+
         for (int i = 0; i != npcCount; i++) {
             CreateNPC(i);
         }
 
         Time.timeScale = 6;
         // 5 real seconds
-        //yield return new WaitForSeconds(30);
-        //Time.timeScale = 1;
-        toggleCamera.onClick.Invoke();
+        // Comment when recording
+        if (!mapRecordingMode.enabled) {
+            yield return new WaitForSeconds(30);
+            Time.timeScale = 1;
+        }
 
         try {
             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));

@@ -1,8 +1,9 @@
 using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class RecordingMovement : MonoBehaviour
 {
     public GameObject mainCamera;
     public JoystickMovement joystickMovement;
@@ -29,11 +30,28 @@ public class PlayerMovement : MonoBehaviour
     private readonly float maxChangeRotation = 20;
     private float wheelRotation;
 
+    private List<Vector2> drillMoves = new();
+    bool writeMode = false;
+    int moveCounter = 0;
+
     // Start is called before the first frame update
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
+    }
+
+    void OnEnable() {
+        SetSpeed(5);
+
+        if (transform.GetChild(0).GetComponent<HaulerController>()) {
+            writeMode = false;
+            moveCounter = 0;
+            return;
+        }
+
+        writeMode = true;
+        drillMoves.Clear();
     }
 
     // Update is called once per frame
@@ -47,6 +65,13 @@ public class PlayerMovement : MonoBehaviour
         UpdateDepth();
 
         joystickVec = joystickMovement.joystickVec;
+
+        if (writeMode) {
+            drillMoves.Add(joystickVec);
+        } else {
+            joystickVec = drillMoves[moveCounter];
+            moveCounter++;
+        }
 
         // Make sure vehicle is trying to move
         if (joystickVec.x == 0 && joystickVec.y == 0) {

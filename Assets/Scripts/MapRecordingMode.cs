@@ -194,6 +194,7 @@ public class MapRecordingMode : MonoBehaviour
         }
         
         transform.position = new(0, -91, -17);
+        //transform.position = new(0, -165, -17);
         //transform.position = new(0, -256, -17);
 
         Vector3 pos = playerVehicle.position;
@@ -230,11 +231,8 @@ public class MapRecordingMode : MonoBehaviour
         } else {
             originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
             originalCashEarned = playerState.GetMoneyEarned();
+            //GetComponent<Camera>().orthographicSize = 162;
             GetComponent<Camera>().orthographicSize = 125;
-            playerVehicle.gameObject.SetActive(false);
-
-            RefineryController refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
-            refineryController.SetRefineryBattery(refineryController.GetInitialBattery() - 300);
         }
         
         //Camera.main.orthographicSize = 30;
