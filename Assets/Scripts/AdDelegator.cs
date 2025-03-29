@@ -50,7 +50,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
-    public UpgradePanelsDelegator upgradePanelsDelegator;
+    public UpgradesDelegator upgradesDelegator;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -544,11 +544,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         playerMovement.SetSpeed(originalSpeed * 1.5f);
 
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionRadius + upgradePanelsDelegator.visionBoost);
-        visionText.text =  "+" + upgradePanelsDelegator.visionBoost.ToString();
+        mineRenderer.SetVisionRadius(upgradesDelegator.visionRadius + upgradesDelegator.visionBoost);
+        visionText.text =  "+" + upgradesDelegator.visionBoost.ToString();
 
-        refineryController.SetProfitMultiplier(upgradePanelsDelegator.refineryProfitMultiplier * upgradePanelsDelegator.refineryProfitMultiplierBoost);
-        profitText.text = upgradePanelsDelegator.refineryProfitMultiplierBoost.ToString() + "X";
+        refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier * upgradesDelegator.refineryProfitMultiplierBoost);
+        profitText.text = upgradesDelegator.refineryProfitMultiplierBoost.ToString() + "X";
 
         StartCoroutine(StartRewardCountdown((int) totalTime));
 
@@ -597,9 +597,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         visionText.transform.parent.parent.gameObject.SetActive(false);
         
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradePanelsDelegator.visionRadius);
+        mineRenderer.SetVisionRadius(upgradesDelegator.visionRadius);
 
-        refineryController.SetProfitMultiplier(upgradePanelsDelegator.refineryProfitMultiplier);
+        refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier);
 
         speedBoostActive = false;
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();

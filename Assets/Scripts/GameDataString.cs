@@ -43,6 +43,7 @@ public class GameDataString
     public string visionBoost;
     public string refineryProfitMultiplier;
     public string refineryProfitMultiplierBoost;
+    public string destroyRadius;
 
     public GameDataString() {
         this.userCash = null;
@@ -85,5 +86,6 @@ public class GameDataString
         this.visionBoost = null;
         this.refineryProfitMultiplier = null;
         this.refineryProfitMultiplierBoost = null;
+        this.destroyRadius = null;
     }
 }

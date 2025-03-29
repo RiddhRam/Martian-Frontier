@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -37,17 +38,13 @@ public class DrillerController : MonoBehaviour
 
     private Collider2D[] colliders;
     private Tilemap tilemap;
-    private Vector3 spriteWorldPos;
     private Vector3Int spriteTilePos;
-    private Vector3 tileWorldPos;
     private TileBase tileToDestroy;
-    private int tileTier;
     private GameObject materialToUse;
-    private int oldCount;
     private Collider2D[] hitColliders;
     private MaterialManager newMaterialManager;
     private int randomIndex;
-    readonly List<Vector2Int> currentTilePositions = new();
+    readonly HashSet<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
     bool dontPlayAudio;
@@ -92,7 +89,8 @@ public class DrillerController : MonoBehaviour
         Vector3 correctedOffset = transform.rotation * rotatedOffset;
 
         // Check if the game object's collider is touching a tilemap with "Mine Tag"
-        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
+        // Have to multiply size by 1.5f, because for some reason it misses tilemaps sometimes
+        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size * 1.5f, 0);
         
         dontPlayAudio = false;
 
@@ -103,8 +101,7 @@ public class DrillerController : MonoBehaviour
 
             tilemap = mineRenderer.tilemapsDictionary[collision.name];
 
-            spriteWorldPos = transform.position;
-            spriteTilePos = tilemap.WorldToCell(spriteWorldPos);
+            spriteTilePos = tilemap.WorldToCell(transform.position);
 
             currentTilePositions.Clear();
             tileWorldPositions.Clear();
@@ -123,7 +120,7 @@ public class DrillerController : MonoBehaviour
                 }
             }
 
-            mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
+            mineRenderer.DestroyTiles(currentTilePositions.ToList(), false, isNPC);
             
             if (!dontPlayAudio && !isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                 PlayAudio();
@@ -138,7 +135,7 @@ public class DrillerController : MonoBehaviour
                     materialToUse = materials[i];
 
                     // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-                    oldCount = 0;
+                    int oldCount = 0;
                     hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], radius);
 
                     foreach (var hitCollider in hitColliders)
@@ -173,15 +170,14 @@ public class DrillerController : MonoBehaviour
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
 
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
+        if (!tilemap.HasTile(currentTilePos)) {
             return;
         }
 
         tileToDestroy = tilemap.GetTile(currentTilePos);
 
-        
         // Make sure the drill is capable of destroying this tile
-        tileTier = mineRenderer.GetTileTier(tileToDestroy);
+        int tileTier = mineRenderer.GetTileTier(tileToDestroy);
         if (drillTier < tileTier) {
             if (!isNPC) {
                 errorCounter++;
@@ -197,9 +193,8 @@ public class DrillerController : MonoBehaviour
             return;
         }
 
-        tileWorldPos = tilemap.GetCellCenterWorld(currentTilePos);
         currentTilePositions.Add(new(currentTilePos.x, currentTilePos.y));
-        tileWorldPositions.Add(tileWorldPos);
+        tileWorldPositions.Add(tilemap.GetCellCenterWorld(currentTilePos));
         tileBasesToDestroy.Add(tileToDestroy);
     }
 

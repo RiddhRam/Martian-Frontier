@@ -36866,7 +36866,6 @@ GameObject:
   - component: {fileID: 8403825882893264517}
   - component: {fileID: 1597309476305794516}
   - component: {fileID: 890948775113548848}
-  - component: {fileID: 367275125760605029}
   m_Layer: 5
   m_Name: Upgrades Panel
   m_TagString: Untagged
@@ -36950,25 +36949,6 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
---- !u!114 &367275125760605029
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5841063917961681405}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da7e9d1b27a147b6be78265a9e567be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  refineryButton: {fileID: 0}
-  refineryPanel: {fileID: 5434554600950790938}
-  notSinglePlayerScene: 0
-  visionRadius: 3
-  visionBoost: 3
-  refineryProfitMultiplier: 1
-  refineryProfitMultiplierBoost: 2
 --- !u!1 &5848281971023855488
 GameObject:
   m_ObjectHideFlags: 0
@@ -56305,8 +56285,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 50
-  m_fontSizeBase: 50
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

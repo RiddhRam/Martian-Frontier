@@ -50,6 +50,7 @@ public class GameData
     public int visionBoost;
     public float refineryProfitMultiplier;
     public float refineryProfitMultiplierBoost;
+    public int destroyRadius;
 
     public GameData() {
         this.userCash = "0";
@@ -98,9 +99,10 @@ public class GameData
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER I";
         this.rewardAdTimer = 0;
-        this.visionRadius = 3;
+        this.visionRadius = 10;
         this.visionBoost = 3;
         this.refineryProfitMultiplier = 1;
         this.refineryProfitMultiplierBoost = 2;
+        this.destroyRadius = 6;
     }
 }

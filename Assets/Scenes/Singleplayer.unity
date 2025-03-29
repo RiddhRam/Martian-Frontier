@@ -16212,6 +16212,58 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c378adaa0993419099364cd7b79f62b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &657443751
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 657443753}
+  - component: {fileID: 657443754}
+  m_Layer: 0
+  m_Name: Upgrades Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &657443753
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657443751}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &657443754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 657443751}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6da7e9d1b27a147b6be78265a9e567be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerVehicle: {fileID: 1012335946}
+  mineRenderer: {fileID: 1093208307}
+  playerState: {fileID: 276248154}
+  visionRadius: 9
+  destroyRadius: 12
+  refineryProfitMultiplier: 1
+  visionBoost: 3
+  refineryProfitMultiplierBoost: 2
 --- !u!1 &659432133
 GameObject:
   m_ObjectHideFlags: 0
@@ -17523,17 +17575,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 964270103}
   m_CullTransparentMesh: 1
---- !u!114 &970943278 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 367275125760605029, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da7e9d1b27a147b6be78265a9e567be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &980698367 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 4011345963973365019, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -23159,7 +23200,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012335945}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 97b955f30704f452d80a15d44b5a67a9, type: 3}
   m_Name: 
@@ -23225,7 +23266,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1012335945}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 20060a9910e984c50b7f445a27d64f56, type: 3}
   m_Name: 
@@ -29050,7 +29091,7 @@ PrefabInstance:
     - target: {fileID: 4177515218182183158, guid: 22b530abac3664a8aa2ba580e4b4043e, type: 3}
       propertyPath: upgradePanelsDelegator
       value: 
-      objectReference: {fileID: 970943278}
+      objectReference: {fileID: 0}
     - target: {fileID: 4177515218182183158, guid: 22b530abac3664a8aa2ba580e4b4043e, type: 3}
       propertyPath: adButtons.Array.data[0]
       value: 
@@ -31823,7 +31864,8 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -51.5
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 367275125760605029, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     m_RemovedGameObjects:
     - {fileID: 6964208563127232269, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     - {fileID: 1773521936263098121, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -32481,6 +32523,7 @@ SceneRoots:
   - {fileID: 1423374345}
   - {fileID: 2233973431454865810}
   - {fileID: 2047223848}
+  - {fileID: 657443753}
   - {fileID: 1308672357}
   - {fileID: 2078999018}
   - {fileID: 165361378}
