@@ -16259,11 +16259,15 @@ MonoBehaviour:
   playerVehicle: {fileID: 1012335946}
   mineRenderer: {fileID: 1093208307}
   playerState: {fileID: 276248154}
+  explosionEffect: {fileID: 2721541819368725780, guid: b73b44a4cc58542c3ac3261b85b2c22c, type: 3}
+  defaultMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  surveyRadarColor: {r: 0, g: 1, b: 1, a: 1}
   visionRadius: 9
   destroyRadius: 12
   refineryProfitMultiplier: 1
   visionBoost: 3
   refineryProfitMultiplierBoost: 2
+  RotationSpeed: 200
 --- !u!1 &659432133
 GameObject:
   m_ObjectHideFlags: 0
@@ -31948,10 +31952,6 @@ PrefabInstance:
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: minVeinCount
       value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
-      propertyPath: visionRadius
-      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: maxVeinRadius
