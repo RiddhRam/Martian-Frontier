@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
@@ -44,7 +43,7 @@ public class DrillerController : MonoBehaviour
     private Collider2D[] hitColliders;
     private MaterialManager newMaterialManager;
     private int randomIndex;
-    readonly HashSet<Vector2Int> currentTilePositions = new();
+    readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
     bool dontPlayAudio;
@@ -89,8 +88,7 @@ public class DrillerController : MonoBehaviour
         Vector3 correctedOffset = transform.rotation * rotatedOffset;
 
         // Check if the game object's collider is touching a tilemap with "Mine Tag"
-        // Have to multiply size by 1.5f, because for some reason it misses tilemaps sometimes
-        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size * 1.5f, 0);
+        colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
         
         dontPlayAudio = false;
 
@@ -104,8 +102,6 @@ public class DrillerController : MonoBehaviour
             spriteTilePos = tilemap.WorldToCell(transform.position);
 
             currentTilePositions.Clear();
-            tileWorldPositions.Clear();
-            tileBasesToDestroy.Clear();
             // Iterate over nearby tiles within the radius
             for (int x = 0; x <= radius; x++)
             {
@@ -120,62 +116,65 @@ public class DrillerController : MonoBehaviour
                 }
             }
 
-            mineRenderer.DestroyTiles(currentTilePositions.ToList(), false, isNPC);
+            mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
             
             if (!dontPlayAudio && !isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                 PlayAudio();
             }
+        }
 
-            for (int j = 0; j != tileWorldPositions.Count; j++) {
-                for (int i = 0; i != ores.Length; i++) {
-                    if (tileBasesToDestroy[j] != ores[i]) {
+        for (int j = 0; j != tileWorldPositions.Count; j++) {
+            for (int i = 0; i != ores.Length; i++) {
+                if (tileBasesToDestroy[j] != ores[i]) {
+                    continue;
+                }
+
+                materialToUse = materials[i];
+
+                // If no neighbouring materials then this stays 0 and the new object will have a count of 1
+                int oldCount = 0;
+                hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], radius);
+
+                foreach (var hitCollider in hitColliders)
+                {      
+                    // Make sure a gameobject was hit
+                    if (hitCollider == null) {
                         continue;
                     }
-
-                    materialToUse = materials[i];
-
-                    // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-                    int oldCount = 0;
-                    hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], radius);
-
-                    foreach (var hitCollider in hitColliders)
-                    {      
-                        // Make sure a gameobject was hit
-                        if (hitCollider == null) {
-                            continue;
-                        }
-                        
-                        // Make sure they are the same materials
-                        if (hitCollider.name != materialToUse.name + "(Clone)") {
-                            continue;
-                        }
-                
-                        // If a neighbouring material was found, return to object pool,
-                        // and keep track of the count of the object
-                        // Don't set oldCount, use += in case there are more than 1;
-                        // Also don't break for the same reason
-                        newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                        oldCount += newMaterialManager.count;
-
-                        mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
+                    
+                    // Make sure they are the same materials
+                    if (hitCollider.name != materialToUse.name + "(Clone)") {
+                        continue;
                     }
+            
+                    // If a neighbouring material was found, return to object pool,
+                    // and keep track of the count of the object
+                    // Don't set oldCount, use += in case there are more than 1;
+                    // Also don't break for the same reason
+                    newMaterialManager = hitCollider.GetComponent<MaterialManager>();
+                    oldCount += newMaterialManager.count;
 
-                    mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, profitMultiplier);
-                    break;
+                    mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
                 }
+
+                mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, profitMultiplier);
+                break;
             }
         }
+
+        tileWorldPositions.Clear();
+        tileBasesToDestroy.Clear();
     }
 
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
 
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos)) {
+        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
             return;
         }
 
         tileToDestroy = tilemap.GetTile(currentTilePos);
-
+        
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
         if (drillTier < tileTier) {

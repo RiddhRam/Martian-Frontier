@@ -249,6 +249,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
                 break;
             }
         }
+
+        tileWorldPositions.Clear();
+        tileBasesToDestroy.Clear();
     }
 
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
