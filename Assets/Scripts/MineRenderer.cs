@@ -145,6 +145,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
     public bool coopMineLoaded = false;
 
+    int seedInUse;
+
     // Called before Start
     void Awake()
     {
@@ -218,13 +220,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             System.DateTime epoch = new System.DateTime(2024, 12, 8, 0, 0, 0, System.DateTimeKind.Utc);
 
             if (seed == 0) {
-                // Tutorial map, 14 gold at the surface
-                seed = 5572860;
+                // Tutorial map, limestone close to the surface
+                seed = 9752063;
             } else {
                 seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             }
             
             Random.InitState(seed);
+            seedInUse = seed;
         }
 
         // Clear all dictionaries in reveal and destroyed array
@@ -399,6 +402,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private void GenerateOreVeins(SerializableDictionary<Vector2Int, int> unplacedTilemapsTileValue, int chunkX, int chunkRow, int level)
     {
+        Random.InitState(seedInUse + chunkRow + chunkX + level);
         veinCount = Random.Range(minVeinCount, maxVeinCount);
 
         for (int v = 0; v < veinCount; v++)
@@ -784,6 +788,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         this.seed = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;;
         Random.InitState(this.seed);
+        seedInUse = this.seed;
 
         GenerateMaterials();
         InitializeMine();
@@ -805,6 +810,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
         this.seed = data.seed;
         Random.InitState(this.seed);
+        seedInUse = this.seed;
 
         // If mine is already initialized, then this is not a new game
         // This doesn't necessarily mean the player is new, just that a new mine is needed
@@ -1105,7 +1111,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no veins found
         if (veins.Count == 0) {
-            Debug.Log("No Veins");
             return new(0, -6);
         }
             

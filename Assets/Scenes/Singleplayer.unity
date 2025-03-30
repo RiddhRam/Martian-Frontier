@@ -16260,6 +16260,8 @@ MonoBehaviour:
   mineRenderer: {fileID: 1093208307}
   playerState: {fileID: 276248154}
   explosionEffect: {fileID: 2721541819368725780, guid: b73b44a4cc58542c3ac3261b85b2c22c, type: 3}
+  uIDelegation: {fileID: 319486926}
+  teleportPanel: {fileID: 1605896611}
   defaultMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   surveyRadarColor: {r: 0, g: 1, b: 1, a: 1}
   visionRadius: 9
@@ -16267,7 +16269,6 @@ MonoBehaviour:
   refineryProfitMultiplier: 1
   visionBoost: 3
   refineryProfitMultiplierBoost: 2
-  RotationSpeed: 200
 --- !u!1 &659432133
 GameObject:
   m_ObjectHideFlags: 0
@@ -24054,6 +24055,25 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 524115345530847525, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1312000346 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7610247486644422639, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1312000350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1312000346}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 337de42a8a9a94dfaaca38f659591256, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mapCamera: {fileID: 1779852219}
+  upgradesDelegator: {fileID: 657443754}
 --- !u!1 &1326043743 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2757190795230559847, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -25653,6 +25673,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3454378524169740874, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1605896611 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5517203608015988483, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1607356634 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9214158245754268033, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -26206,7 +26231,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1779852217}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 43b5c573af8a54351a600572b076dceb, type: 3}
   m_Name: 
@@ -29198,7 +29223,7 @@ PrefabInstance:
       objectReference: {fileID: 875091222}
     - target: {fileID: 27722446922752037, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 45366829991619366, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_SizeDelta.x
@@ -29502,7 +29527,7 @@ PrefabInstance:
       objectReference: {fileID: 875091222}
     - target: {fileID: 1024368947285346630, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1037860497918175246, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -29962,7 +29987,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2619185114272326035, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2638224233104399851, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Name
@@ -30854,7 +30879,7 @@ PrefabInstance:
       objectReference: {fileID: 1743240306}
     - target: {fileID: 5454416249624963485, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5516707753664722101, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31199,6 +31224,10 @@ PrefabInstance:
     - target: {fileID: 6774244804818592603, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: -83.1785
+      objectReference: {fileID: 0}
+    - target: {fileID: 6775683177272712767, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 117
       objectReference: {fileID: 0}
     - target: {fileID: 6781127705809959427, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31654,7 +31683,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8187726188735128501, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8188197188417706779, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31686,7 +31715,7 @@ PrefabInstance:
       objectReference: {fileID: 1743240306}
     - target: {fileID: 8315600981959541578, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8367019167471986500, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31886,7 +31915,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 966506816606500361, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       insertIndex: 1
       addedObject: {fileID: 964270104}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7610247486644422639, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1312000350}
   m_SourcePrefab: {fileID: 100100000, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
 --- !u!114 &5893465902896828830 stripped
 MonoBehaviour:
@@ -31947,19 +31979,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: maxVeinCount
-      value: 5
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: minVeinCount
-      value: 5
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: maxVeinRadius
-      value: 2
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: minVeinRadius
-      value: 2
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: mineValueText

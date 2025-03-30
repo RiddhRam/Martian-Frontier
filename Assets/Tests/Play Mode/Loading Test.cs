@@ -603,7 +603,7 @@ public class LoadingTest
             Debug.LogError($"Drive task failed: {driveTask.Exception.InnerException?.Message}");
         }
 
-        targetPosition = new(2, -4);
+        targetPosition = new(2.5f, -5);
 
         // Create a Task and wait until it's completed
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
@@ -676,7 +676,7 @@ public class LoadingTest
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
-        targetPosition = new(2.5f, -4.5f);
+        targetPosition = new(3.3f, -6.3f);
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
@@ -705,6 +705,7 @@ public class LoadingTest
 
         Assert.False(rewardMessage.transform.parent.gameObject.activeSelf);
         Assert.AreEqual(new System.Numerics.BigInteger(1000), playerState.GetUserGems());
+        Assert.AreEqual(new System.Numerics.BigInteger(600), playerState.GetUserCash());
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
         Assert.AreEqual(1, tutorialManager.supplyCrateDelegator.GetCratesAvailable());
         Assert.True(tutorialManager.leaderboardNoticeIcon.gameObject.activeSelf);

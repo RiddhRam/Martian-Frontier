@@ -1,12 +1,14 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 public class UIDelegation : MonoBehaviour
 {
     public GameObject mapCamera;
     public GameObject mapCameraView;
+    public GameObject teleportCameraView;
     private RenderTexture renderTexture;
     public GameObject scrollViewContent;
     public GameObject playerVehicle;
@@ -115,6 +117,7 @@ public class UIDelegation : MonoBehaviour
         // Assign the RenderTexture to the mapCamera's target texture
         mapCamera.GetComponent<Camera>().targetTexture = renderTexture;
         mapCameraView.GetComponent<RawImage>().texture = renderTexture;
+        teleportCameraView.GetComponent<RawImage>().texture = renderTexture;
     }
 
     // Used when clicking the cargo button to prepare the columns and rows of the Content in the scrollview
@@ -209,8 +212,12 @@ public class UIDelegation : MonoBehaviour
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);

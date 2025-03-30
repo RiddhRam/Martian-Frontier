@@ -227,7 +227,7 @@ public class MapRecordingMode : MonoBehaviour
 
         if (!notSingleplayerScene) {
             mineValueText.transform.parent.parent.parent.gameObject.SetActive(false);
-            Camera.main.orthographicSize = 23.5f;
+            Camera.main.orthographicSize = 26f;
         } else {
             originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
             originalCashEarned = playerState.GetMoneyEarned();

@@ -17,6 +17,10 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField]
     private GameObject explosionEffect;
     [SerializeField]
+    private UIDelegation uIDelegation;
+    [SerializeField]
+    private GameObject teleportPanel;
+    [SerializeField]
     private Material defaultMaterial;
     [SerializeField]
     private Color surveyRadarColor;
@@ -30,7 +34,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     // Survey Radar
     public int visionRadius; // Base: 10
     // Explosive Charge
-    public int destroyRadius = 5; // Base:
+    public int destroyRadius; // Base: 6
     public float refineryProfitMultiplier; // Base: 1
 
     // For ad boost
@@ -49,8 +53,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private MaterialManager newMaterialManager;
     private Collider2D[] hitColliders;
 
-    public float RotationSpeed = 200f; // Degrees per second
-
     void Start()
     {
         ores = mineRenderer.GetOres();
@@ -64,13 +66,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public void UsePower() {
 
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.blue;
-
-        Gizmos.DrawWireSphere(playerVehicle.position, destroyRadius);   
     }
 
     // Reveal surrounding ores, no rocks, just ores
@@ -107,7 +102,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         }
     }
 
-    private GameObject CreateCircle(float radius, Color circleColor)
+    private GameObject CreateCircle(float radius, Color circleColor, int positionCount)
     {
         GameObject circleObject = new GameObject("Circle");
         LineRenderer circle = circleObject.AddComponent<LineRenderer>();
@@ -123,15 +118,17 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         }
         
         circle.loop = true;
-        circle.positionCount = 100;
+        circle.positionCount = positionCount;
         circle.material = defaultMaterial;
         circle.startColor = circleColor;
         circle.endColor = circleColor;
         circle.sortingOrder = 3;
 
-        for (int i = 0; i < circle.positionCount; i++)
+        float multplier = 360f / positionCount;
+
+        for (int i = 0; i < positionCount; i++)
         {
-            float angle = i * 3.6f * Mathf.Deg2Rad; // 360f / positionCount = 3.6f
+            float angle = i * multplier * Mathf.Deg2Rad;
 
             float x = Mathf.Cos(angle) * radiusToUse;
             float y = Mathf.Sin(angle) * radiusToUse;
@@ -143,8 +140,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     private IEnumerator SurveyAnimation() {
 
-        GameObject outerCircle = CreateCircle(visionRadius, surveyRadarColor);
-        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.7f));
+        GameObject outerCircle = CreateCircle(visionRadius, surveyRadarColor, 40);
+        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 650);
 
         float angle = 180;
         GameObject scanner = new GameObject("ScannerLine");
@@ -161,7 +158,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         while (angle > -270f)
         {
-            angle -= RotationSpeed * Time.deltaTime;
+            angle -= 200f * Time.deltaTime; // 200f = degrees per second
             float rad = angle * Mathf.Deg2Rad;
             
             Vector3 end = start + new Vector3(Mathf.Cos(rad) * visionRadius, Mathf.Sin(rad) * visionRadius, 0);
@@ -276,6 +273,26 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         tileBasesToDestroy.Add(tilemap.GetTile(currentTilePos));
         tileWorldPositions.Add(tilemap.GetCellCenterWorld(currentTilePos));
     }
+
+    [ContextMenu("Show Teleporter")]
+    public void ShowTeleporter() {
+        uIDelegation.HideAll();
+        uIDelegation.ToggleCamera();
+        uIDelegation.RevealElement(teleportPanel);
+    }
+
+    public void Teleport(Vector3 newPosition) {
+        playerVehicle.position = new(newPosition.x, newPosition.y);
+
+        uIDelegation.HideElement(teleportPanel);
+        uIDelegation.RevealAll();
+        uIDelegation.ToggleCamera();
+    }
+
+    public void InvalidTeleportLocation() {
+        uIDelegation.ShowError("INVALID LOCATION!");
+    }
+
 
     public void LoadData(GameData data)
     {

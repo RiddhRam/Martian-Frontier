@@ -472,19 +472,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return userGems;
     }
 
-    private string GetLocalizedValue(string key, params object[] args)
-    {
-        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
-
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
-
-        // Use string.Format to replace placeholders with arguments
-        return string.Format(entry.LocalizedValue, args);
-    }
-
     public BigInteger GetMoneyEarned() {
         return moneyEarned;
+    }
+
+    public BigInteger GetUserCash() {
+        return userCash;
     }
 
     // For development only
