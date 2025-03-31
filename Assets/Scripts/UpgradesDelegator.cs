@@ -8,22 +8,14 @@ using UnityEngine.Tilemaps;
 public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 {
 
-    [SerializeField]
-    private Transform playerVehicle;
-    [SerializeField]
-    private MineRenderer mineRenderer;
-    [SerializeField]
-    private PlayerState playerState;
-    [SerializeField]
-    private GameObject explosionEffect;
-    [SerializeField]
-    private UIDelegation uIDelegation;
-    [SerializeField]
-    private GameObject teleportPanel;
-    [SerializeField]
-    private Material defaultMaterial;
-    [SerializeField]
-    private Color surveyRadarColor;
+    [SerializeField] private Transform playerVehicle;
+    [SerializeField] private MineRenderer mineRenderer;
+    [SerializeField] private PlayerState playerState;
+    [SerializeField] private GameObject explosionEffect;
+    [SerializeField] private UIDelegation uIDelegation;
+    [SerializeField] private GameObject teleportPanel;
+    [SerializeField] private Material defaultMaterial;
+    [SerializeField] private Color surveyRadarColor;
 
     private TileBase[] ores;
     private GameObject[] materials;
@@ -292,7 +284,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     public void InvalidTeleportLocation() {
         uIDelegation.ShowError("INVALID LOCATION!");
     }
-
 
     public void LoadData(GameData data)
     {

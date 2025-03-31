@@ -1,37 +1,46 @@
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
-public class MiniMapClickHandler : MonoBehaviour, IPointerClickHandler
+public class MiniMapClickHandler : MonoBehaviour
 {
+    [SerializeField] private RectTransform teleportDisplay;
     [SerializeField] private Camera mapCamera;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
-    RawImage displayImage;
+    [SerializeField] private RectTransform uIRectTransform;
+    [SerializeField] private RectTransform imageRectTransform;
 
-    void Start()
-    {
-        displayImage = GetComponent<RawImage>();
+    private int errorCounter = 0;
+
+    private Vector3 currentPosition;
+    private PointerEventData pointerEventData;
+
+    public void PointerDown() {
+        errorCounter = 30;
+        UpdateTeleportDisplayPosition(Input.mousePosition);
     }
 
-    // This function is called when the RawImage is clicked
-    public void OnPointerClick(PointerEventData eventData)
-    {
-        // Get the local position within the RawImage UI element
-        RectTransform rectTransform = displayImage.GetComponent<RectTransform>();
+    public void Drag(BaseEventData baseEventData) {
+        pointerEventData = baseEventData as PointerEventData;
+        UpdateTeleportDisplayPosition(pointerEventData.position);
+    }
+
+    public void UpdateTeleportDisplayPosition(Vector2 newPointerPosition) {
+
         Vector2 localPoint;
-        RectTransformUtility.ScreenPointToLocalPointInRectangle(rectTransform, eventData.position, eventData.pressEventCamera, out localPoint);
-        
-        // Convert local point to normalized coordinates (0-1 range)
-        Vector2 normalizedPoint = new Vector2(
-            (localPoint.x + rectTransform.rect.width * 0.5f) / rectTransform.rect.width,
-            (localPoint.y + rectTransform.rect.height * 0.5f) / rectTransform.rect.height
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            uIRectTransform,   // The Canvas RectTransform
+            newPointerPosition, 
+            Camera.main,   // The Camera
+            out localPoint
         );
 
-        // Convert normalized point to viewport coordinates for the secondary camera
-        // Note: RawImage might have different aspect ratio than the camera,
-        // so we may need to account for that depending on your setup
+        Vector2 normalizedPoint = new Vector2(
+            (localPoint.x + imageRectTransform.rect.width * 0.5f) / imageRectTransform.rect.width,
+            (localPoint.y + imageRectTransform.rect.height * 0.5f) / imageRectTransform.rect.height
+        );
+
         Ray ray = mapCamera.ViewportPointToRay(new Vector3(normalizedPoint.x, normalizedPoint.y, 10));
-        // If the ray doesn't hit anything, we can use a fixed distance from the camera
+
         Vector3 worldPosition = ray.GetPoint(10f); // 10 units away from camera
 
         Collider2D[] colliders = Physics2D.OverlapBoxAll(worldPosition, new(2, 2), 0);
@@ -50,10 +59,23 @@ public class MiniMapClickHandler : MonoBehaviour, IPointerClickHandler
         }
 
         if (!validSpace) {
-            upgradesDelegator.InvalidTeleportLocation();
+            errorCounter++;
+
+            if (errorCounter > 30) {
+                upgradesDelegator.InvalidTeleportLocation();
+                errorCounter = 0;
+            }
             return;
         }
-    
-        upgradesDelegator.Teleport(worldPosition);
+
+        teleportDisplay.gameObject.SetActive(true);
+        teleportDisplay.anchoredPosition = new(localPoint.x, localPoint.y + 132);
+        currentPosition = worldPosition;
+    }
+
+    // Called from confirm button
+    public void Teleport() {
+        upgradesDelegator.Teleport(currentPosition);
+        teleportDisplay.gameObject.SetActive(false);
     }
 }

@@ -20,7 +20,6 @@ public class GameData
     public int[] haulerCargo;
     // Uncollected materials
     public SerializableDictionary<string, MaterialManagerData> materials;
-    public float refineryCapacity;
     public float refineryBattery;
     // Keep track of both in user used a vision boost when destroying tiles. Reveal all tiles first, then set destroyed ones to null
     public SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
@@ -64,7 +63,6 @@ public class GameData
         this.currentVehicle = "GRINDER I";
         this.haulerCargo = new int[9];
         this.materials = new();
-        this.refineryCapacity = 120;
         this.refineryBattery = 120;
         // SEARCH FOR [42] TO FIND ALL OCCURRENCES OF THE LENGTH, THERE MAY BE MORE IN DEPTH STUFF IN MineRenderer.cs
         this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];

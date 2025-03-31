@@ -323,17 +323,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
             if (mapRecordingMode.enabled) {
-                this.refineryBattery = 1;
                 this.initialBattery = 1;
+                this.refineryBattery = 1;
             } else {
-                this.refineryBattery = 750;
                 this.initialBattery = 750;
+                this.refineryBattery = 750;
             }
             return;
         }
-
-        // This will call LoadCorrectUpgrade in RefineryUpgrades
-        capacityUpgrades.GetComponent<RefineryUpgrades>().InitializeRefinery(data.refineryCapacity);
         
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
@@ -342,8 +339,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StopCoroutine(increaseBatteryCoroutine);
         }
 
-        this.initialBattery = data.refineryCapacity;
+        this.initialBattery = 200;
         this.refineryBattery = data.refineryBattery;
+
+        if (this.refineryBattery > this.initialBattery) {
+            this.refineryBattery = this.initialBattery;
+        }
 
         // If refinery controller bar was in reset animation, then skip it and go straight to 100%
         if (data.mineInitialization == 0) {
@@ -364,7 +365,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         data.refineryBattery = this.refineryBattery;
-        data.refineryCapacity = this.initialBattery;
     }
 
     private void SaveGame() {

@@ -13,7 +13,6 @@ public class JoystickMovement : MonoBehaviour
     PointerEventData pointerEventData;
     private Camera mainCamera;
     private RectTransform myRectTransform;
-    public MapRecordingMode mapRecordingMode;
 
     // Start is called before the first frame update
     void Start()
