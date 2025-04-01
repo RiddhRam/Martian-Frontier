@@ -15,7 +15,7 @@ public class MiniMapClickHandler : MonoBehaviour
     private PointerEventData pointerEventData;
 
     public void PointerDown() {
-        errorCounter = 30;
+        errorCounter = 60;
         UpdateTeleportDisplayPosition(Input.mousePosition);
     }
 
@@ -61,7 +61,7 @@ public class MiniMapClickHandler : MonoBehaviour
         if (!validSpace) {
             errorCounter++;
 
-            if (errorCounter > 30) {
+            if (errorCounter > 60) {
                 upgradesDelegator.InvalidTeleportLocation();
                 errorCounter = 0;
             }
@@ -69,7 +69,7 @@ public class MiniMapClickHandler : MonoBehaviour
         }
 
         teleportDisplay.gameObject.SetActive(true);
-        teleportDisplay.anchoredPosition = new(localPoint.x, localPoint.y + 132);
+        teleportDisplay.anchoredPosition = new(localPoint.x, localPoint.y + 100);
         currentPosition = worldPosition;
     }
 

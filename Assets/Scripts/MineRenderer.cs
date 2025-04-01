@@ -396,7 +396,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         genTrigGameObject.name = genTrigGameObject.name.Substring(0, genTrigGameObject.name.Length - 7);
         // Set the mineGameObject variable for each row trigger
         for (int i = 0; i != genTrigGameObject.transform.childCount; i++) {
-            genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(gameObject);
+            genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(this);
         }
     }
 

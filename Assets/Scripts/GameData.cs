@@ -50,6 +50,8 @@ public class GameData
     public float refineryProfitMultiplier;
     public float refineryProfitMultiplierBoost;
     public int destroyRadius;
+    public int cooldownTimer;
+    public List<string> equippedPowers;
 
     public GameData() {
         this.userCash = "0";
@@ -97,10 +99,12 @@ public class GameData
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER I";
         this.rewardAdTimer = 0;
-        this.visionRadius = 10;
+        this.visionRadius = 15;
         this.visionBoost = 3;
         this.refineryProfitMultiplier = 1;
         this.refineryProfitMultiplierBoost = 2;
-        this.destroyRadius = 6;
+        this.destroyRadius = 15;
+        this.cooldownTimer = 0;
+        this.equippedPowers = new() { "SURVEY RADAR" };
     }
 }

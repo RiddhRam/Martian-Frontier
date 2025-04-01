@@ -1,21 +1,30 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 {
-
     [SerializeField] private Transform playerVehicle;
     [SerializeField] private MineRenderer mineRenderer;
     [SerializeField] private PlayerState playerState;
     [SerializeField] private GameObject explosionEffect;
     [SerializeField] private UIDelegation uIDelegation;
     [SerializeField] private GameObject teleportPanel;
+    [SerializeField] private Image powerIconImage;
+    [SerializeField] private Button powerButton;
+    [SerializeField] private TextMeshProUGUI powerCooldownTimer;
+    [SerializeField] private GameObject[] powerPanels;
+
     [SerializeField] private Material defaultMaterial;
     [SerializeField] private Color surveyRadarColor;
+    [SerializeField] private Sprite[] powerIcons;
+    [SerializeField] private Sprite[] powerIconsWhite;
 
     private TileBase[] ores;
     private GameObject[] materials;
@@ -44,6 +53,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     GameObject materialToUse;
     private MaterialManager newMaterialManager;
     private Collider2D[] hitColliders;
+    ExplosionController explosionController;
+
+    private List<string> equippedPowers = new();
+    private List<Powers> powers = new();
+
+    private int cooldownTimer = 0;
 
     void Start()
     {
@@ -57,12 +72,18 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void UsePower() {
+        foreach (var power in powers) {
+            if (power.Name == equippedPowers[0]) {
+                power.PowerFunction.Invoke();
+                break;
+            }
+        }
 
     }
 
     // Reveal surrounding ores, no rocks, just ores
     [ContextMenu("Survey Radar")]
-    public void SurveyRadar() {
+    private void SurveyRadar() {
         StartCoroutine(SurveyAnimation());
         tilesToReveal.Clear();
 
@@ -80,9 +101,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         }
 
         mineRenderer.RevealTiles(tilesToReveal);
+
+        StartCoroutine(StartCooldownTimer(90));
     }
 
-    public void AddTileIfOre(Vector2Int newTileToReveal) {
+    private void AddTileIfOre(Vector2Int newTileToReveal) {
         Vector2Int tilemapPos = mineRenderer.CalculateTileMapPos(newTileToReveal);
         
         if (!mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].ContainsKey(newTileToReveal)) {
@@ -133,7 +156,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private IEnumerator SurveyAnimation() {
 
         GameObject outerCircle = CreateCircle(visionRadius, surveyRadarColor, 40);
-        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 650);
+        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 1000);
 
         float angle = 180;
         GameObject scanner = new GameObject("ScannerLine");
@@ -166,7 +189,20 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     // Destroy surrounding ores
     [ContextMenu("Explosive Charge")]
-    public void ExplosiveCharge() {
+    private void ExplosiveCharge() {
+        // Set off any generation triggers first
+        // Create a new GameObject for the collider
+        GameObject colliderObject = new("GroundCollider");
+        Rigidbody2D rb = colliderObject.AddComponent<Rigidbody2D>();
+        rb.gravityScale = 0;
+        // Add BoxCollider2D to the new GameObject
+        BoxCollider2D boxCollider = colliderObject.AddComponent<BoxCollider2D>();
+        boxCollider.isTrigger = true;
+
+        boxCollider.size = new(1, destroyRadius);
+        boxCollider.transform.position = new(playerVehicle.position.x, playerVehicle.position.y - destroyRadius/2);
+        boxCollider.transform.rotation = new();
+
         // Very similar to what is used in Driller Controller
         // Have to multiply size by 2.5f, because for some reason it misses tilemaps sometimes
         Collider2D[] colliders = Physics2D.OverlapBoxAll(playerVehicle.position, new(destroyRadius * 2.5f, destroyRadius * 2.5f), 0);
@@ -174,8 +210,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         spriteTilePos = new((int) playerVehicle.position.x, (int) playerVehicle.position.y, (int) playerVehicle.position.z);
 
         // Show explosion
-        GameObject explosionEffectGO = Instantiate(explosionEffect, playerVehicle.position, new());
-        explosionEffectGO.GetComponent<ExplosionController>().SetupAndTrigger(destroyRadius);
+        explosionController.transform.position = playerVehicle.position;
+        explosionController.SetupAndTrigger(destroyRadius);
 
         foreach (Collider2D collision in colliders) {
             if (!collision.CompareTag("Mine Tag")) {
@@ -241,9 +277,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         tileWorldPositions.Clear();
         tileBasesToDestroy.Clear();
+
+        StartCoroutine(StartCooldownTimer(90));
     }
 
-    public void CheckToDestroyTile(Vector3Int currentTilePos) {
+    private void CheckToDestroyTile(Vector3Int currentTilePos) {
 
         // Check if the tile exists
         if (!tilemap.HasTile(currentTilePos)) {
@@ -267,7 +305,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     [ContextMenu("Show Teleporter")]
-    public void ShowTeleporter() {
+    private void ShowTeleporter() {
         uIDelegation.HideAll();
         uIDelegation.ToggleCamera();
         uIDelegation.RevealElement(teleportPanel);
@@ -279,10 +317,52 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         uIDelegation.HideElement(teleportPanel);
         uIDelegation.RevealAll();
         uIDelegation.ToggleCamera();
+
+        StartCoroutine(StartCooldownTimer(90));
     }
 
     public void InvalidTeleportLocation() {
         uIDelegation.ShowError("INVALID LOCATION!");
+    }
+
+    public void SwapPower(int powerIndex) {
+
+        foreach (var power in powers) {
+            power.IsEquipped = false;
+            powerPanels[power.Index].transform.GetChild(5).gameObject.SetActive(true);
+        }
+
+        powers[powerIndex].IsEquipped = true;
+        powerIconImage.sprite = powers[powerIndex].PowerIconWhite;
+        powerPanels[powerIndex].transform.GetChild(5).gameObject.SetActive(false);
+
+        equippedPowers.Clear();
+        equippedPowers.Add(powers[powerIndex].Name);
+    }
+
+    private IEnumerator StartCooldownTimer(int time) {
+        cooldownTimer = time;
+
+        int minutes;
+        int seconds;
+
+        powerIconImage.gameObject.SetActive(false);
+        powerButton.interactable = false;
+        powerCooldownTimer.gameObject.SetActive(true);
+
+        while (cooldownTimer > 0) {
+            minutes = cooldownTimer / 60;
+            seconds = cooldownTimer % 60;
+            powerCooldownTimer.text = $"{minutes}:{seconds:D2}";
+
+            yield return new WaitForSeconds(1);            
+
+            cooldownTimer--;
+        }
+
+        powerCooldownTimer.gameObject.SetActive(false);
+        powerButton.interactable = true;
+        powerIconImage.gameObject.SetActive(true);
     }
 
     public void LoadData(GameData data)
@@ -292,6 +372,27 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         this.refineryProfitMultiplier = data.refineryProfitMultiplier;
         this.refineryProfitMultiplierBoost = data.refineryProfitMultiplierBoost;
         this.destroyRadius = data.destroyRadius;
+        this.cooldownTimer = data.cooldownTimer;
+        this.equippedPowers = data.equippedPowers;
+
+        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, new int[0], powerIcons[0], powerIconsWhite[0], 0, false));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, new int[0], powerIcons[1], powerIconsWhite[1], 1, false));
+        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIcons[2], powerIconsWhite[2], 3, false));
+
+        int powerIndex = 0;
+
+        foreach (var power in powers) {
+            if (equippedPowers[0] == power.Name) {
+                powerIndex = power.Index;
+            }
+        }
+
+        SwapPower(powerIndex);
+
+        GameObject explosionEffectGO = Instantiate(explosionEffect, playerVehicle.position, new());
+        explosionController = explosionEffectGO.GetComponent<ExplosionController>();
+
+        StartCoroutine(StartCooldownTimer(cooldownTimer));
     }
 
     public void SaveData(ref GameData data)
@@ -301,5 +402,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         data.refineryProfitMultiplier = this.refineryProfitMultiplier;
         data.refineryProfitMultiplierBoost = this.refineryProfitMultiplierBoost;
         data.destroyRadius = this.destroyRadius;
+        data.cooldownTimer = this.cooldownTimer;
+        data.equippedPowers = this.equippedPowers;
     }
 }

@@ -2,19 +2,8 @@ using UnityEngine;
 
 public class GenerationTrigger : MonoBehaviour
 {
-    public GameObject mineGameObject;
-
     private MineRenderer mineRenderer;
     private bool needToGenerate = true;
-    // Start is called before the first frame update
-    void Start()
-    {
-        // If the initial load, this will not be null
-        // But if RefineryController calls it, it will be null
-        if (mineGameObject) {
-            SetMineGameObject(mineGameObject);
-        }
-    }
 
     // Upon touching a trigger
     private void OnTriggerEnter2D(Collider2D collider) {
@@ -42,8 +31,8 @@ public class GenerationTrigger : MonoBehaviour
 
     
     // Also called from RefineryController, thats why its in a public function
-    public void SetMineGameObject(GameObject mine) {
-        mineRenderer = mine.GetComponent<MineRenderer>();
+    public void SetMineGameObject(MineRenderer mine) {
+        this.mineRenderer = mine;
     }
 }
 

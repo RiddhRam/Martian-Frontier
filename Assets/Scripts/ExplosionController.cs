@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class ExplosionController : MonoBehaviour
@@ -9,6 +10,8 @@ public class ExplosionController : MonoBehaviour
     // Call this method to set scale and trigger the explosion
     public void SetupAndTrigger(float scale)
     {
+        gameObject.SetActive(true);
+        
         ParticleSystem particleSystem = GetComponent<ParticleSystem>();
         ParticleSystem.MainModule mainPS = particleSystem.main;
 
@@ -23,6 +26,12 @@ public class ExplosionController : MonoBehaviour
         }
 
         // Schedule Destruction
-        Destroy(gameObject, destroyDelay);
+        StartCoroutine(SetInactive());
+    }
+
+    private IEnumerator SetInactive() {
+        yield return new WaitForSeconds(destroyDelay);
+
+        gameObject.SetActive(false);
     }
 }

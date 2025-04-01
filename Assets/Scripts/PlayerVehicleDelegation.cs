@@ -86,8 +86,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             vehicleType = "Hauler";
 
             haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
-            
-
+        
             analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }
@@ -104,7 +103,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         
         drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
        
-       analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
+        analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
     public void LoadData(GameData data) {
