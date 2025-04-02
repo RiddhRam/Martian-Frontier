@@ -55,7 +55,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(12, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(13, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]
@@ -286,9 +286,7 @@ public class LoadingTest
         Assert.AreEqual(refineryController.oreSaleSoundEffect.name, "Ore Sale");
         Assert.AreEqual(refineryController.batteryRechargeSoundEffect.name, "Battery Recharge");
 
-        Assert.AreEqual(refineryController.GetInitialBattery(), 120);
-
-        Assert.AreEqual(refineryController.capacityUpgrades.name, "Capacity Panel");
+        Assert.AreEqual(refineryController.GetInitialBattery(), 200);
 
         Assert.AreEqual(refineryController.GetRebirthProfitMultiplier(), 0);
 
@@ -311,8 +309,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Bottom Controls", "Movement Joystick", "Rewarded Ad Buttons", "Settings", "Left Sidebar", "Supply Crate", "Mine Info", "Team"};
-        int primaryElementCount = 11;
+        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
+        int primaryElementCount = 9;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -330,7 +328,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Team", "Left Sidebar", "Settings", "Mine Info", "Rewarded Ad Buttons", "Bottom Controls", "Cheats", "Upgrades Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Go To Team Panel", "Garage Panel", "Premium Shop Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Team", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Go To Team Panel", "Premium Shop Panel", "Teleport Panel", "Settings Panel"};
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -509,8 +507,8 @@ public class LoadingTest
             }
         }
 
-        Assert.AreEqual(refineryController.GetInitialBattery(), 120);
-        Assert.AreEqual(refineryController.GetRefineryBattery(), 120);
+        Assert.AreEqual(refineryController.GetInitialBattery(), 200);
+        Assert.AreEqual(refineryController.GetRefineryBattery(), 200);
 
         // Mine Renderer
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());

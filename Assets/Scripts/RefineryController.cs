@@ -43,7 +43,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
-    public MapRecordingMode mapRecordingMode;
+
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
@@ -322,13 +322,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-            if (mapRecordingMode.enabled) {
-                this.initialBattery = 1;
-                this.refineryBattery = 1;
-            } else {
-                this.initialBattery = 750;
-                this.refineryBattery = 750;
-            }
+
+            this.initialBattery = 750;
+            this.refineryBattery = 750;
+
             return;
         }
         

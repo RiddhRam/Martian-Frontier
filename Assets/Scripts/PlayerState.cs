@@ -1,9 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Localization.Settings;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -12,6 +10,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] cashDisplays;
     public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
+    public GameObject[] rebirthDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
     public GameObject lockedRebirthPanel;
@@ -50,6 +49,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private LeaderboardDelegator leaderboardDelegator;
     [SerializeField]
     private SupplyCrateDelegator supplyCrateDelegator;
+    [SerializeField] private UpgradesDelegator upgradesDelegator;
     private int freeMoneyToAdd = 0;
     [SerializeField]
     private GameObject cashSliderGO;
@@ -370,6 +370,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
        
         UpdateCashDisplays();
         UpdateGemDisplays();
+        UpdateRebirthDisplays();
         UpdateXPDisplays();
         UpdateHighestDrillTier();
     }
@@ -426,6 +427,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         
         GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         garagePanel.GetComponent<GarageDelegator>().PlayerRebirth();
+
+        upgradesDelegator.SwapPower(0);
+        upgradesDelegator.UpdatePowerVisibility();
         
         PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
         playerVehicleDelegation.SwitchVehicle(newVehicle);
@@ -439,6 +443,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         analyticsDelegator.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
 
         UpdateCashDisplays();
+        UpdateRebirthDisplays();
         UpdateXPDisplays();
 
         // DO THIS MANUALLY, DONT CALL UpdateHighestDrillTier()
@@ -447,8 +452,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         lockedRebirthPanel.SetActive(true);
         rebirthPanel.SetActive(false);
         rebirthIcon.color = new(1, 1, 1);
-
     }
+
+    private void UpdateRebirthDisplays() {
+        string rebirthText = GetRebirths().ToString();
+
+        for (int i = 0; i != rebirthDisplays.Length; i++) {
+            rebirthDisplays[i].GetComponent<TextMeshProUGUI>().text = rebirthText;
+        }
+    }
+
    
     public int GetHighestDrillTier() {
         return highestDrillTier;

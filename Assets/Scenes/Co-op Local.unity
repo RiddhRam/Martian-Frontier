@@ -721,8 +721,8 @@ MonoBehaviour:
   m_GenerateLinks: 0
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
+  m_OverrideTileSize: 1
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.455
   m_MinRegionArea: 0
@@ -768,7 +768,7 @@ MonoBehaviour:
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
   m_OverrideTileSize: 1
-  m_TileSize: 256
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.455
   m_BuildHeightMesh: 0
@@ -1351,7 +1351,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -458.64}
+  m_AnchoredPosition: {x: 0, y: -458.64014}
   m_SizeDelta: {x: -990, y: -3258.3333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &340491651
@@ -1598,6 +1598,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb61d4ad422a4f669e1e5d7628c8ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &412657346 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 536710685109953014, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!82 &421432858 stripped
 AudioSource:
   m_CorrespondingSourceObject: {fileID: 1333223936909124060, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
@@ -1780,7 +1785,6 @@ MonoBehaviour:
   dailyChallengeDelegator: {fileID: 875091222}
   tutorialManager: {fileID: 0}
   nPCManager: {fileID: 2090593763}
-  mapRecordingMode: {fileID: 0}
   fogOfWarSprite: {fileID: 1438017628}
   adDelegator: {fileID: 405986135}
 --- !u!82 &426944011 stripped
@@ -16277,9 +16281,9 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 7764492278881389444, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &645883625 stripped
+--- !u!1 &637904653 stripped
 GameObject:
-  m_CorrespondingSourceObject: {fileID: 7600752228116806044, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_CorrespondingSourceObject: {fileID: 468209000674750500, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &647092715 stripped
@@ -17558,8 +17562,8 @@ MonoBehaviour:
   m_GenerateLinks: 0
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
+  m_OverrideTileSize: 1
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.34124997
   m_MinRegionArea: 0
@@ -17605,7 +17609,7 @@ MonoBehaviour:
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
   m_OverrideTileSize: 1
-  m_TileSize: 256
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.34124997
   m_BuildHeightMesh: 0
@@ -28430,6 +28434,26 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3122691755535876694, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1456804336 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4752645033919671627, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1456804337 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 116828640004034877, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1456804338 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2263675115539592212, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1456804339 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7998448415751083259, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1460676141 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2256362394328115494, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -28841,6 +28865,11 @@ GameObject:
 --- !u!1 &1590762265 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3454378524169740874, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1592136755 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3701623017450461442, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &1607356634 stripped
@@ -29401,11 +29430,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fb4c9c79ce3b46e0aa04a99a9b7a562, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &1698713143 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3161845110333953154, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1701604713 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7523007441364392576, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -30969,8 +30993,8 @@ MonoBehaviour:
   m_GenerateLinks: 0
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
-  m_OverrideTileSize: 0
-  m_TileSize: 256
+  m_OverrideTileSize: 1
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.5822577
   m_MinRegionArea: 0
@@ -31016,7 +31040,7 @@ MonoBehaviour:
   m_IgnoreNavMeshAgent: 1
   m_IgnoreNavMeshObstacle: 1
   m_OverrideTileSize: 1
-  m_TileSize: 150
+  m_TileSize: 128
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.5822577
   m_BuildHeightMesh: 0
@@ -31633,7 +31657,7 @@ PrefabInstance:
     - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: gemDisplays.Array.data[3]
       value: 
-      objectReference: {fileID: 1698713143}
+      objectReference: {fileID: 1456804339}
     - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: gemDisplays.Array.data[4]
       value: 
@@ -31657,11 +31681,23 @@ PrefabInstance:
     - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: cashDisplays.Array.data[3]
       value: 
-      objectReference: {fileID: 645883625}
+      objectReference: {fileID: 1456804337}
     - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: cashDisplays.Array.data[4]
       value: 
       objectReference: {fileID: 1809897252}
+    - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
+      propertyPath: rebirthDisplays.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
+      propertyPath: rebirthDisplays.Array.data[0]
+      value: 
+      objectReference: {fileID: 1456804338}
+    - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
+      propertyPath: rebirthDisplays.Array.data[1]
+      value: 
+      objectReference: {fileID: 1456804336}
     - target: {fileID: 3241712880738366164, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -32995,6 +33031,18 @@ PrefabInstance:
       propertyPath: powerPanels.Array.data[2]
       value: 
       objectReference: {fileID: 1287265311}
+    - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
+      propertyPath: powerLockedPanels.Array.data[0]
+      value: 
+      objectReference: {fileID: 637904653}
+    - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
+      propertyPath: powerLockedPanels.Array.data[1]
+      value: 
+      objectReference: {fileID: 412657346}
+    - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
+      propertyPath: powerLockedPanels.Array.data[2]
+      value: 
+      objectReference: {fileID: 1592136755}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

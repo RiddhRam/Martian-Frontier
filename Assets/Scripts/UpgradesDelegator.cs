@@ -20,6 +20,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private Button powerButton;
     [SerializeField] private TextMeshProUGUI powerCooldownTimer;
     [SerializeField] private GameObject[] powerPanels;
+    [SerializeField] private GameObject[] powerLockedPanels;
 
     [SerializeField] private Material defaultMaterial;
     [SerializeField] private Color surveyRadarColor;
@@ -365,6 +366,18 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powerIconImage.gameObject.SetActive(true);
     }
 
+    public void UpdatePowerVisibility() {
+        foreach (var power in powers) {
+            if (power.MinLevelRequired > playerState.GetRebirths()) {
+                powerPanels[power.Index].SetActive(false);
+                powerLockedPanels[power.Index].SetActive(true);
+            } else {
+                powerPanels[power.Index].SetActive(true);
+                powerLockedPanels[power.Index].SetActive(false);
+            }
+        }
+    }
+
     public void LoadData(GameData data)
     {
         this.visionRadius = data.visionRadius;
@@ -393,6 +406,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         explosionController = explosionEffectGO.GetComponent<ExplosionController>();
 
         StartCoroutine(StartCooldownTimer(cooldownTimer));
+
+        UpdatePowerVisibility();
     }
 
     public void SaveData(ref GameData data)

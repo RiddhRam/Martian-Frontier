@@ -99,11 +99,11 @@ public class GameData
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER I";
         this.rewardAdTimer = 0;
-        this.visionRadius = 15;
+        this.visionRadius = 20;
         this.visionBoost = 3;
         this.refineryProfitMultiplier = 1;
         this.refineryProfitMultiplierBoost = 2;
-        this.destroyRadius = 15;
+        this.destroyRadius = 20;
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
     }
