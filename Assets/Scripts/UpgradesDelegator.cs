@@ -22,6 +22,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private GameObject[] powerPanels;
     [SerializeField] private GameObject[] powerLockedPanels;
 
+
+    [SerializeField] private AudioDelegator audioDelegator;
+    [SerializeField] private AudioSource powerUpAudioSource;
+    [SerializeField] private AudioClip[] powerUpAudioClips;
+    [SerializeField] private float[] audioVolumes;
+
     [SerializeField] private Material defaultMaterial;
     [SerializeField] private Color surveyRadarColor;
     [SerializeField] private Sprite[] powerIcons;
@@ -102,7 +108,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         }
 
         mineRenderer.RevealTiles(tilesToReveal);
-
+        
+        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[0], audioVolumes[0]);
         StartCoroutine(StartCooldownTimer(90));
     }
 
@@ -279,6 +286,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         tileWorldPositions.Clear();
         tileBasesToDestroy.Clear();
 
+        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[1], audioVolumes[1]);
         StartCoroutine(StartCooldownTimer(90));
     }
 
@@ -319,6 +327,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         uIDelegation.RevealAll();
         uIDelegation.ToggleCamera();
 
+        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[2], audioVolumes[2]);
         StartCoroutine(StartCooldownTimer(90));
     }
 

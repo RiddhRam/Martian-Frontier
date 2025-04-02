@@ -33012,6 +33012,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1550475934}
     - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
+      propertyPath: audioDelegator
+      value: 
+      objectReference: {fileID: 178773787}
+    - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
       propertyPath: powerIconImage
       value: 
       objectReference: {fileID: 2040474007}
@@ -33019,6 +33023,10 @@ PrefabInstance:
       propertyPath: powerCooldownTimer
       value: 
       objectReference: {fileID: 2040474005}
+    - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
+      propertyPath: powerUpAudioSource
+      value: 
+      objectReference: {fileID: 7087937064856202618}
     - target: {fileID: 8174226141047515566, guid: f18fbb542106d4956a3414871fa81ae8, type: 3}
       propertyPath: powerPanels.Array.data[0]
       value: 
@@ -35903,6 +35911,11 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
+--- !u!82 &7087937064856202618 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 4474948882365101400, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
+  m_PrefabInstance: {fileID: 7087937064856202617}
+  m_PrefabAsset: {fileID: 0}
 --- !u!195 &7098116110088936298
 NavMeshAgent:
   m_ObjectHideFlags: 0

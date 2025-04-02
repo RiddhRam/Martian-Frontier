@@ -145,6 +145,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
     public bool coopMineLoaded = false;
 
+    private bool soloMineLoaded = false;
+
     int seedInUse;
 
     // Called before Start
@@ -842,6 +844,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             } catch {
             }
         }
+
+        soloMineLoaded = true;
     }
 
     public void GenerateMaterials() {
@@ -862,6 +866,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         if (notSinglePlayerScene) {
+            return;
+        }
+
+        // if mine didn't load, then its probably because player quickly opened the game, then closed it before mine loaded
+        if (!soloMineLoaded) {
             return;
         }
 
