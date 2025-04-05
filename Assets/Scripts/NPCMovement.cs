@@ -232,10 +232,6 @@ public class NPCMovement : MonoBehaviour
 
         // Get hauler position
         if (haulerController != null) {
-            if (Mathf.Approximately(dest.y, 6)) {
-                return;
-            }
-
             AskIfHaulingIsNeeded();
 
             // If hauler doesnt need to become a drill, then go to a new position
@@ -258,6 +254,7 @@ public class NPCMovement : MonoBehaviour
 
     public Vector3 RequestNewHaulerPosition() {
 
+        // Threshold; potent
         if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold()) {
             return new(0, 6);
         }

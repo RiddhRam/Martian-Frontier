@@ -104,7 +104,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         materialsSold += preSale - haulerController.GetTotalMaterialCount();
         dailyChallengeDelegator.SoldOres(preSale - haulerController.GetTotalMaterialCount());
 
-        if (materialsSold >= 200 && !askedForReview && doneLoading) {
+        if (materialsSold >= 20 && !askedForReview && doneLoading) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
         } else if (askedForReview) {

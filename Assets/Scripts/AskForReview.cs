@@ -9,7 +9,7 @@ public class AskForReview : MonoBehaviour
 {
     public int responseTracker = 0;
     public GameObject safeArea;
-    public GameObject[] secondScreens;
+    public GameObject feedbackScreen;
     private Transform safeAreaTransform;
     private string screenType;
 
@@ -20,25 +20,21 @@ public class AskForReview : MonoBehaviour
 
     public void PositiveResponse() {
 
-        if (responseTracker == 0) {
-            Destroy(safeAreaTransform.GetChild(0).gameObject);
-            GameObject newScreen = Instantiate(secondScreens[0]);
-            newScreen.transform.GetComponent<AskForReviewDelegator>().askForReview = gameObject;
-            newScreen.transform.SetParent(safeAreaTransform, false);
-            screenType = "Public Review";
+        // They click yes
 
-            responseTracker++;
-        } else if (responseTracker == 1) {
+        // If this is the first response ask for a public review
+        if (responseTracker == 0) {
+            GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().EnjoyingGame();
+            StartCoroutine(RequestForReviews());
+        } 
+        // Otherwise, send feedback
+        else if (responseTracker == 1) {
             
             if (screenType == "Private Feedback") {
                 string reason = safeAreaTransform.GetChild(0).GetChild(2).GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text;
                 GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().NotEnjoyingGame(reason);
                 Destroy(gameObject);
-            } else if (screenType == "Public Review") {
-                StartCoroutine(RequestForReviews());
-                GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().EnjoyingGame();
             }
-            
         }
     }
 
@@ -46,7 +42,7 @@ public class AskForReview : MonoBehaviour
 
         if (responseTracker == 0) {
             Destroy(safeAreaTransform.GetChild(0).gameObject);
-            GameObject newScreen = Instantiate(secondScreens[1]);
+            GameObject newScreen = Instantiate(feedbackScreen);
             newScreen.transform.GetComponent<AskForReviewDelegator>().askForReview = gameObject;
             newScreen.transform.SetParent(safeAreaTransform, false);
             screenType = "Private Feedback";
@@ -59,7 +55,6 @@ public class AskForReview : MonoBehaviour
     }
 
     private IEnumerator RequestForReviews() {
-
         #if UNITY_ANDROID
             ReviewManager _reviewManager = new();
             PlayReviewInfo _playReviewInfo;

@@ -65,7 +65,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private List<string> equippedPowers = new();
     private List<Powers> powers = new();
 
-    private int cooldownTimer = 0;
+    [SerializeField] private int cooldownTimer = 0;
 
     void Start()
     {
@@ -211,6 +211,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         boxCollider.transform.position = new(playerVehicle.position.x, playerVehicle.position.y - destroyRadius/2);
         boxCollider.transform.rotation = new();
 
+        StartCoroutine(DestroyGroundCollider(colliderObject));
+
         // Very similar to what is used in Driller Controller
         // Have to multiply size by 2.5f, because for some reason it misses tilemaps sometimes
         Collider2D[] colliders = Physics2D.OverlapBoxAll(playerVehicle.position, new(destroyRadius * 2.5f, destroyRadius * 2.5f), 0);
@@ -288,6 +290,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[1], audioVolumes[1]);
         StartCoroutine(StartCooldownTimer(90));
+    }
+
+    private IEnumerator DestroyGroundCollider(GameObject colliderGameObject) {
+        yield return new WaitForSeconds(4);
+
+        Destroy(colliderGameObject);
     }
 
     private void CheckToDestroyTile(Vector3Int currentTilePos) {

@@ -716,6 +716,16 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public bool CheckIfHaulingNeeded(int npcIndex, bool hasCargo = false) {
 
+        if (uncollectedMaterialsDelegator.materialCount < Get1HaulerThreshold()) {
+            // -1 means it wasn't called from a npc
+            if (npcIndex != -1 && !hasCargo) {
+                StartCoroutine(SwitchHaulerToDriller(npcIndex));
+                return false;
+            } else if (hasCargo) {
+                return true;
+            }
+        }
+
         // return false = become a drill
         // return true = keep hauling
         Vector3 newHaulerPosition;
