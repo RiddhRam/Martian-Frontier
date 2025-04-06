@@ -205,10 +205,10 @@ public class LoadingTest
         LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
 
         Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
-        Assert.AreEqual(leaderboardDelegator.cashTournamentPanel.name, "Cash Tournament");
-        Assert.AreEqual(leaderboardDelegator.vehicleTournamentPanel.name, "Vehicles Tournament");
-        Assert.AreEqual(leaderboardDelegator.cashTournamentButton.name, "CASH");
-        Assert.AreEqual(leaderboardDelegator.vehicleTournamentButton.name, "VEHICLES");
+        Assert.AreEqual(leaderboardDelegator.oreTournamentPanel.name, "Ore Tournament");
+        Assert.AreEqual(leaderboardDelegator.rebirthTournamentPanel.name, "Rebirths Tournament");
+        Assert.AreEqual(leaderboardDelegator.oreTournamentButton.name, "ORE");
+        Assert.AreEqual(leaderboardDelegator.rebirthTournamentButton.name, "REBIRTHS");
         Assert.AreEqual(leaderboardDelegator.collectReward.name, "Collect Reward");
         Assert.True(leaderboardDelegator.collectRewardMessage.name.Contains("CONGRATULATIONS"));
         Assert.AreEqual(leaderboardDelegator.collectRewardText.name, "Reward Amount");
@@ -218,43 +218,43 @@ public class LoadingTest
             Assert.True(leaderboardDelegator.tierSprites[i]);
         }
 
-        Assert.AreEqual(leaderboardDelegator.cashTierText.name, "Tier Name");
-        Assert.AreEqual(leaderboardDelegator.vehiclesTierText.name, "Tier Name");
+        Assert.AreEqual(leaderboardDelegator.oreTierText.name, "Tier Name");
+        Assert.AreEqual(leaderboardDelegator.rebirthsTierText.name, "Tier Name");
         Assert.AreEqual(leaderboardDelegator.tournamentTimer.name, "Tournament Timer");
-        Assert.AreEqual(leaderboardDelegator.cashNextTierText.name, "NEXT TIER");
-        Assert.AreEqual(leaderboardDelegator.cashLastTierText.name, "LAST TIER");
-        Assert.AreEqual(leaderboardDelegator.vehiclesNextTierText.name, "NEXT TIER");
-        Assert.AreEqual(leaderboardDelegator.vehiclesLastTierText.name, "LAST TIER");
-        Assert.AreEqual(leaderboardDelegator.cashTierImage.name, "Tier Image");
-        Assert.AreEqual(leaderboardDelegator.vehiclesTierImage.name, "Tier Image");
+        Assert.AreEqual(leaderboardDelegator.oreNextTierText.name, "NEXT TIER");
+        Assert.AreEqual(leaderboardDelegator.oreLastTierText.name, "LAST TIER");
+        Assert.AreEqual(leaderboardDelegator.rebirthsNextTierText.name, "NEXT TIER");
+        Assert.AreEqual(leaderboardDelegator.rebirthsLastTierText.name, "LAST TIER");
+        Assert.AreEqual(leaderboardDelegator.oreTierImage.name, "Tier Image");
+        Assert.AreEqual(leaderboardDelegator.rebirthsTierImage.name, "Tier Image");
         Assert.AreEqual(leaderboardDelegator.lastUpdateText.name, "Last Update Timer");
 
         int playerDisplayLength = 10;
 
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerNameTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashScoreTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashRewardTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerScoreImages.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.cashPlayerScoreBars.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerNameTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.oreScoreTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.oreRewardTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreImages.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreBars.Length);
 
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerNameTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesScoreTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesRewardTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerScoreImages.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.vehiclesPlayerScoreBars.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerNameTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsScoreTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsRewardTextMeshes.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerScoreImages.Length);
+        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerScoreBars.Length);
 
         for (int i = 0; i != playerDisplayLength; i++) {
-            Assert.True(leaderboardDelegator.cashPlayerNameTextMeshes[i]);
-            Assert.True(leaderboardDelegator.cashScoreTextMeshes[i]);
-            Assert.True(leaderboardDelegator.cashRewardTextMeshes[i]);
-            Assert.True(leaderboardDelegator.cashPlayerScoreImages[i]);
-            Assert.True(leaderboardDelegator.cashPlayerScoreBars[i]);
+            Assert.True(leaderboardDelegator.orePlayerNameTextMeshes[i]);
+            Assert.True(leaderboardDelegator.oreScoreTextMeshes[i]);
+            Assert.True(leaderboardDelegator.oreRewardTextMeshes[i]);
+            Assert.True(leaderboardDelegator.orePlayerScoreImages[i]);
+            Assert.True(leaderboardDelegator.orePlayerScoreBars[i]);
 
-            Assert.True(leaderboardDelegator.vehiclesPlayerNameTextMeshes[i]);
-            Assert.True(leaderboardDelegator.vehiclesScoreTextMeshes[i]);
-            Assert.True(leaderboardDelegator.vehiclesRewardTextMeshes[i]);
-            Assert.True(leaderboardDelegator.vehiclesPlayerScoreImages[i]);
-            Assert.True(leaderboardDelegator.vehiclesPlayerScoreBars[i]);
+            Assert.True(leaderboardDelegator.rebirthsPlayerNameTextMeshes[i]);
+            Assert.True(leaderboardDelegator.rebirthsScoreTextMeshes[i]);
+            Assert.True(leaderboardDelegator.rebirthsRewardTextMeshes[i]);
+            Assert.True(leaderboardDelegator.rebirthsPlayerScoreImages[i]);
+            Assert.True(leaderboardDelegator.rebirthsPlayerScoreBars[i]);
         }
 
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);

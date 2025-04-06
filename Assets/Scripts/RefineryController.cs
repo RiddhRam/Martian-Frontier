@@ -96,15 +96,16 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 
                 refineryBattery -= 1;
                 materialCount[i]--;
-                playerState.NewMaterialSold();
                 savedMaterialCount[i]++;
             }
         }
 
-        materialsSold += preSale - haulerController.GetTotalMaterialCount();
-        dailyChallengeDelegator.SoldOres(preSale - haulerController.GetTotalMaterialCount());
+        int change = preSale - haulerController.GetTotalMaterialCount();
+        materialsSold += change;
+        dailyChallengeDelegator.SoldOres(change);
+        playerState.NewMaterialsSold(change, haulerController.CheckIfNpc());
 
-        if (materialsSold >= 20 && !askedForReview && doneLoading) {
+        if (materialsSold >= 200 && !askedForReview && doneLoading) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
         } else if (askedForReview) {

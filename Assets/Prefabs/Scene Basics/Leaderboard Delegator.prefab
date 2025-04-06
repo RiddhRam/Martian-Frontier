@@ -45,10 +45,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerState: {fileID: 0}
-  cashTournamentPanel: {fileID: 0}
-  vehicleTournamentPanel: {fileID: 0}
-  cashTournamentButton: {fileID: 0}
-  vehicleTournamentButton: {fileID: 0}
+  oreTournamentPanel: {fileID: 0}
+  rebirthTournamentPanel: {fileID: 0}
+  oreTournamentButton: {fileID: 0}
+  rebirthTournamentButton: {fileID: 0}
   collectReward: {fileID: 0}
   collectRewardMessage: {fileID: 0}
   collectRewardText: {fileID: 0}
@@ -56,17 +56,17 @@ MonoBehaviour:
   - {fileID: 21300000, guid: ca6776832e46744a1898637134188f13, type: 3}
   - {fileID: 21300000, guid: 14ead08ad5af54b94b99fbc37291a03a, type: 3}
   - {fileID: 21300000, guid: 8c00bf93903b14fb8ae5cab3d429d0ca, type: 3}
-  cashTierText: {fileID: 0}
-  vehiclesTierText: {fileID: 0}
+  oreTierText: {fileID: 0}
+  rebirthsTierText: {fileID: 0}
   tournamentTimer: {fileID: 0}
-  cashNextTierText: {fileID: 0}
-  cashLastTierText: {fileID: 0}
-  vehiclesNextTierText: {fileID: 0}
-  vehiclesLastTierText: {fileID: 0}
-  cashTierImage: {fileID: 0}
-  vehiclesTierImage: {fileID: 0}
+  oreNextTierText: {fileID: 0}
+  oreLastTierText: {fileID: 0}
+  rebirthsNextTierText: {fileID: 0}
+  rebirthsLastTierText: {fileID: 0}
+  oreTierImage: {fileID: 0}
+  rebirthsTierImage: {fileID: 0}
   lastUpdateText: {fileID: 0}
-  cashPlayerNameTextMeshes:
+  orePlayerNameTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -77,7 +77,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cashScoreTextMeshes:
+  oreScoreTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -88,7 +88,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cashRewardTextMeshes:
+  oreRewardTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -99,7 +99,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cashPlayerScoreImages:
+  orePlayerScoreImages:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -110,7 +110,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  cashPlayerScoreBars:
+  orePlayerScoreBars:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -121,7 +121,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  vehiclesPlayerNameTextMeshes:
+  rebirthsPlayerNameTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -132,7 +132,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  vehiclesScoreTextMeshes:
+  rebirthsScoreTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -143,7 +143,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  vehiclesRewardTextMeshes:
+  rebirthsRewardTextMeshes:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -154,7 +154,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  vehiclesPlayerScoreImages:
+  rebirthsPlayerScoreImages:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
@@ -165,7 +165,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  vehiclesPlayerScoreBars:
+  rebirthsPlayerScoreBars:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}

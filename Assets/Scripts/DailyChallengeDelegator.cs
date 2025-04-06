@@ -301,7 +301,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        playerState.AddGems(rewardAmounts[challengeIndex]);
+        playerState.AddGems((long) rewardAmounts[challengeIndex]);
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
