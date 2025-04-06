@@ -25,6 +25,13 @@ public class DataPersistenceManager : MonoBehaviour
 
     public static DataPersistenceManager instance {get; private set; }
 
+    // If this is false, then don't save the game
+    // Helps improve game data integrity
+    //
+    // Player might open game by accident then quickly close, which triggers an early save
+    // The early save will use the default game data values rather than from their game data file
+    private bool gameLoaded = false;
+
     private void Awake() {
 
         if (instance != null) {
@@ -91,11 +98,14 @@ public class DataPersistenceManager : MonoBehaviour
             } catch {
             }
         }
+
+        gameLoaded = true;
     }
 
     public void SaveGame(bool async = true) {
         timer = 0;
-        if (dataPersistenceObjects == null) {
+
+        if (dataPersistenceObjects == null || !gameLoaded) {
             return;
         }
 
