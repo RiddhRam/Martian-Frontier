@@ -281,8 +281,8 @@ public class LoadingTest
             Assert.AreEqual(refineryController.refineryProgressSliders[i].transform.parent.gameObject.activeSelf, refineryActiveValues[i]);
         }
 
-        Assert.AreEqual(refineryController.vehicleSoundEffects.name, "Vehicle Sound Effects");
         Assert.AreEqual(refineryController.UISoundEffects.name, "UI Sound Effects");
+        Assert.AreEqual(refineryController.oreSoundEffects.name, "Ore Sound Effects");
         Assert.AreEqual(refineryController.oreSaleSoundEffect.name, "Ore Sale");
         Assert.AreEqual(refineryController.batteryRechargeSoundEffect.name, "Battery Recharge");
 

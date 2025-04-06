@@ -1748,8 +1748,8 @@ MonoBehaviour:
   - {fileID: 1157386730}
   playerState: {fileID: 276248154}
   askForReviewScreen: {fileID: 6042496262643239731}
-  vehicleSoundEffects: {fileID: 426944011}
   UISoundEffects: {fileID: 421432858}
+  oreSoundEffects: {fileID: 1683262029}
   oreSaleSoundEffect: {fileID: 8300000, guid: 0601ccdfa1d5d4344900cec0fae6948b, type: 3}
   batteryRechargeSoundEffect: {fileID: 8300000, guid: 7d69859287f164be9a709616decd34f8, type: 3}
   refineryBattery: 120
@@ -1769,11 +1769,6 @@ MonoBehaviour:
   nPCManager: {fileID: 0}
   fogOfWarSprite: {fileID: 1438017628}
   adDelegator: {fileID: 405986135}
---- !u!82 &426944011 stripped
-AudioSource:
-  m_CorrespondingSourceObject: {fileID: 3729938236079401387, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
-  m_PrefabInstance: {fileID: 7087937064856202617}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &429137496 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5772992307627469528, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -26159,6 +26154,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1672383073}
   m_CullTransparentMesh: 1
+--- !u!82 &1683262029 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 8217252800697248520, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
+  m_PrefabInstance: {fileID: 7087937064856202617}
+  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1689939320 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7771664001922847919, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}

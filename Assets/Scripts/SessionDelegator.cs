@@ -14,9 +14,12 @@ public class SessionDelegator : MonoBehaviour
     private GameObject lockedUntilDoneTutorial;
     [SerializeField]
     private GameObject loadingScreen;
+    private AnalyticsDelegator analyticsDelegator;
 
     void Start()
     {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+
         if (!tutorialManager) {
             return;
         }
@@ -37,6 +40,9 @@ public class SessionDelegator : MonoBehaviour
     public void GoToTeamSession() {
         loadingScreen.transform.GetChild(2).GetComponent<Slider>().value = 0;
         loadingScreen.SetActive(true);
+
+        analyticsDelegator.SwitchSession("Team");
+
         Transition();
         SceneManager.LoadScene("Co-op Local");
     }
@@ -45,6 +51,9 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.transform.GetChild(1).gameObject.SetActive(false);
         loadingScreen.transform.GetChild(3).GetComponent<Slider>().value = 0;
         loadingScreen.SetActive(true);
+        
+        analyticsDelegator.SwitchSession("Solo");
+
         Transition();
         SceneManager.LoadScene("Singleplayer");
     }

@@ -16,8 +16,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject[] refineryProgressSlidersText;
     public PlayerState playerState;
     public GameObject askForReviewScreen;
-    public AudioSource vehicleSoundEffects;
+
     public AudioSource UISoundEffects;
+    public AudioSource oreSoundEffects;
     public AudioClip oreSaleSoundEffect;
     public AudioClip batteryRechargeSoundEffect;
 
@@ -151,7 +152,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice(cashToAdd));
-        audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
+        PlaySaleNoise();
 
         if (!haulerController.CheckIfNpc()) {
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
@@ -170,7 +171,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void PlaySaleNoise() {
-        audioDelegator.PlayAudio(vehicleSoundEffects, oreSaleSoundEffect, 0.4f);
+        audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     public void CallResetMineFromButton() {
