@@ -47,28 +47,34 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
 
     public void PurchaseGemProduct(string productId)
     {
-        // Check if store is initialized
-        if (storeController != null)
+        Debug.Log($"Attempting to purchase: {productId}");
+        
+        if (storeController == null)
         {
-            // Find the product by its ID
-            Product product = storeController.products.WithID(productId);
-
-            if (product != null && product.availableToPurchase)
-            {
-                // Initiate the purchase process
-                storeController.InitiatePurchase(product);
-                Debug.Log("Initiated purchase for product: " + productId);
-            }
-            else
-            {
-                // If the product is not available, show error
-                Debug.LogError("Product is not available for purchase or not initialized.");
-            }
+            Debug.LogError("Store controller is null! Trying to reinitialize...");
+            // Consider re-initializing here
+            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+            // Re-add your products
+            UnityPurchasing.Initialize(this, builder);
+            return;
         }
-        else
+        
+        Product product = storeController.products.WithID(productId);
+        
+        if (product == null)
         {
-            Debug.LogError("Store controller is not initialized.");
+            Debug.LogError($"Product not found in store: {productId}");
+            return;
         }
+        
+        if (!product.availableToPurchase)
+        {
+            Debug.LogError($"Product not available for purchase: {productId}");
+            return;
+        }
+        
+        Debug.Log($"Initiating purchase for: {productId}");
+        storeController.InitiatePurchase(product);
     }
 
     public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
@@ -111,8 +117,14 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
             if (gemIAPPanels[i].productId == productId) {
                 // Grant gem rewards based on the panel's configuration
                 int gemReward = gemIAPPanels[i].gems;
-                playerState.AddGems(gemReward);
-                Debug.Log("Added " + gemReward + " gems to player");
+                if (productId.Contains("crates")) {
+                    supplyCrateDelegator.ChangeCrateCount(gemReward);
+                    Debug.Log("Added " + gemReward + " crates from bundle");
+                } else {
+                    playerState.AddGems(gemReward);
+                    Debug.Log("Added " + gemReward + " gems to player");
+                }
+                
                 
                 // Log analytics
                 analyticsDelegator.IAPPurchase(productId);
@@ -132,6 +144,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
                 
                 // Add gems if the bundle includes them
                 if (bundle.gems > 0) {
+                    // Crates use the same logic
                     playerState.AddGems(bundle.gems);
                     Debug.Log("Added " + bundle.gems + " gems from bundle");
                 }
@@ -139,7 +152,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
                 // Add cash if the bundle includes it
                 if (bundle.crates > 0) {
                     supplyCrateDelegator.ChangeCrateCount(bundle.crates);
-                    Debug.Log("Added " + bundle.crates + " cash from bundle");
+                    Debug.Log("Added " + bundle.crates + " crates from bundle");
                 }
                 
                 // Add any other rewards that might be in your bundle
