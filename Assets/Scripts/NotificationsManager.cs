@@ -86,7 +86,7 @@ public class NotificationsManager : MonoBehaviour
         #endif
 
         #if UNITY_IOS
-        /*var calendarTrigger = new iOSNotificationCalendarTrigger
+        var calendarTrigger = new iOSNotificationCalendarTrigger
         {
             Year = fireTime.Year,
             Month = fireTime.Month,
@@ -95,13 +95,13 @@ public class NotificationsManager : MonoBehaviour
             Minute = fireTime.Minute,
             Second = fireTime.Second,
             Repeats = false
-        };*/
+        };
 
-        var timeTrigger = new iOSNotificationTimeIntervalTrigger()
+        /*var timeTrigger = new iOSNotificationTimeIntervalTrigger()
         {
             TimeInterval = TimeSpan.FromSeconds(30),
             Repeats = false
-        };
+        };*/
 
         var notification = new iOSNotification()
         {
@@ -112,7 +112,7 @@ public class NotificationsManager : MonoBehaviour
             ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
             CategoryIdentifier = "reward_category",
             ThreadIdentifier = "reward_thread",
-            Trigger = timeTrigger,
+            Trigger = calendarTrigger,
         };
 
         iOSNotificationCenter.ScheduleNotification(notification);
@@ -123,7 +123,7 @@ public class NotificationsManager : MonoBehaviour
     {
         // Tournament resets at 12 PM UTC every 2 days since epoch
         DateTime now = DateTime.UtcNow;
-        DateTime lastReset = new DateTime(1970, 1, 2, 0, 41, 30, DateTimeKind.Utc);
+        DateTime lastReset = new DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc);
         while (lastReset <= now)
         {
             lastReset = lastReset.AddDays(2);
