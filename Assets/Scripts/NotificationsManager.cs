@@ -86,9 +86,20 @@ public class NotificationsManager : MonoBehaviour
         #endif
 
         #if UNITY_IOS
+        /*var calendarTrigger = new iOSNotificationCalendarTrigger
+        {
+            Year = fireTime.Year,
+            Month = fireTime.Month,
+            Day = fireTime.Day,
+            Hour = fireTime.Hour,
+            Minute = fireTime.Minute,
+            Second = fireTime.Second,
+            Repeats = false
+        };*/
+
         var timeTrigger = new iOSNotificationTimeIntervalTrigger()
         {
-            TimeInterval = TimeSpan.FromDays(2),
+            TimeInterval = TimeSpan.FromSeconds(30),
             Repeats = false
         };
 
