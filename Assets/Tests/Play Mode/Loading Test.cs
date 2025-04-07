@@ -124,11 +124,11 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.changeNameButton.name, "CHANGE NAME");
         Assert.AreEqual(adDelegator.deleteAccountButton.name, "DELETE ACCOUNT");
         Assert.AreEqual(adDelegator.leaderboardNoWifi.name, "No Internet");
-        Assert.AreEqual(adDelegator.doubleCrateRewardButton.name, "2X REWARDS");
+        Assert.AreEqual(adDelegator.doubleCrateRewardButton.name, "Double Rewards");
         Assert.AreEqual(adDelegator.crateRewardNoWifi.name, "No Internet");
         Assert.AreEqual(adDelegator.leaderboardTabButtons.name, "Tab Buttons");
-        Assert.AreEqual(adDelegator.leaderboardCashPanel.name, "Cash Tournament");
-        Assert.AreEqual(adDelegator.leaderboardVehiclesPanel.name, "Vehicles Tournament");
+        Assert.AreEqual(adDelegator.leaderboardCashPanel.name, "Ore Tournament");
+        Assert.AreEqual(adDelegator.leaderboardVehiclesPanel.name, "Rebirths Tournament");
         Assert.AreEqual(adDelegator.originalSpeed, 0);
         Assert.False(adDelegator.speedBoostActive);
         Assert.AreEqual(adDelegator.dataPersistenceManager.name, "Data Persistence Manager");
@@ -207,7 +207,7 @@ public class LoadingTest
         Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(leaderboardDelegator.oreTournamentPanel.name, "Ore Tournament");
         Assert.AreEqual(leaderboardDelegator.rebirthTournamentPanel.name, "Rebirths Tournament");
-        Assert.AreEqual(leaderboardDelegator.oreTournamentButton.name, "ORE");
+        Assert.AreEqual(leaderboardDelegator.oreTournamentButton.name, "ORES");
         Assert.AreEqual(leaderboardDelegator.rebirthTournamentButton.name, "REBIRTHS");
         Assert.AreEqual(leaderboardDelegator.collectReward.name, "Collect Reward");
         Assert.True(leaderboardDelegator.collectRewardMessage.name.Contains("CONGRATULATIONS"));

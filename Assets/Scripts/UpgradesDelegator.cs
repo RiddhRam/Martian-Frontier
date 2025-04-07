@@ -422,7 +422,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             }
         }
 
-        SwapPower(powerIndex);
+        try {
+            SwapPower(powerIndex);
+        } catch {
+        }
+        
 
         GameObject explosionEffectGO = Instantiate(explosionEffect, playerVehicle.position, new());
         explosionController = explosionEffectGO.GetComponent<ExplosionController>();

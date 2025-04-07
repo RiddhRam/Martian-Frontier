@@ -123,7 +123,7 @@ public class NotificationsManager : MonoBehaviour
     {
         // Tournament resets at 12 PM UTC every 2 days since epoch
         DateTime now = DateTime.UtcNow;
-        DateTime lastReset = new DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc);
+        DateTime lastReset = new DateTime(1970, 1, 2, 3, 31, 30, DateTimeKind.Utc);
         while (lastReset <= now)
         {
             lastReset = lastReset.AddDays(2);

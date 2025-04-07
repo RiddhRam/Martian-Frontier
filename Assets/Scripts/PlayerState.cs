@@ -117,6 +117,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
+    public void AddGems(int gemsToAdd) {
+        Debug.Log("Adding");
+        
+        userGems += gemsToAdd;
+        gemsEarned += gemsToAdd;
+
+        UpdateGemDisplays();
+        dataPersistenceManager.SaveGame();
+    }
+
     // Validate again and subtract cash
     // Only call if VerifyEnoughCash was called
     // For vehicles
