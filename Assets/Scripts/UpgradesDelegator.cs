@@ -36,6 +36,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private TileBase[] ores;
     private GameObject[] materials;
     private OreDelegation oreDelegation;
+    private AnalyticsDelegator analyticsDelegator;
     
     bool notSinglePlayerScene = false;
     
@@ -72,6 +73,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
         materials = oreDelegation.materials;
+        analyticsDelegator = AnalyticsDelegator.Instance;
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
@@ -82,6 +84,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         foreach (var power in powers) {
             if (power.Name == equippedPowers[0]) {
                 power.PowerFunction.Invoke();
+                analyticsDelegator.UsePower(power.Name);
                 break;
             }
         }
@@ -356,6 +359,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         equippedPowers.Clear();
         equippedPowers.Add(powers[powerIndex].Name);
+
+        analyticsDelegator.EquipPower(powers[powerIndex].Name);
     }
 
     private IEnumerator StartCooldownTimer(int time) {
@@ -417,7 +422,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             }
         }
 
-        SwapPower(powerIndex);
+        try {
+            SwapPower(powerIndex);
+        } catch {
+        }
+        
 
         GameObject explosionEffectGO = Instantiate(explosionEffect, playerVehicle.position, new());
         explosionController = explosionEffectGO.GetComponent<ExplosionController>();

@@ -123,8 +123,24 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         "Gl4c14l", "Xpl01t3r", "M3ch@fl@re", "N1ghtSh4d3", "D3m0n1cX", "Puls4r99", 
         "C0sm0tr0n", "D4t@M1n3r", "T3kn0M4ncer", "X-t3rmin8r", "Crypt0X", "F1r3w@llX",  
         "Bl1tzkr13g", "Str4t0bl@st", "C3l3st14lX", "Ph0t0nDr1ft", "T0rment0r", "V0r@x",  
-        "Ex0G3n", "Lun@rM3ch", "D3struct0rX", "H@voc99", "M0n0l1thX"
-
+        "Ex0G3n", "Lun@rM3ch", "D3struct0rX", "H@voc99", "M0n0l1thX", "Solara", "Nebulite", 
+        "Quantara", "Eclipseon", "Marsforge", "Orbitron",  "Fizzcrank",
+        "Gravion", "Celestior", "Voidcore", "Exohelm", "Starforge", "Zenithal",
+        "Planetrak", "Lunaris", "Orbex", "Pulsanova", "Aerion", "Astrogon", 
+        "Thrustar", "Galaxior", "Scrapline", "Steeljaw", "Rustclank", "Coregrind", 
+        "Drillbit", "Rockmaw", "Depthcrawler", "Ironbore", "Gritforge", "Shaftwalker", 
+        "Coremauler", "Deepgrip", "Tremorbot", "Crustpiercer", "Burrower", "Gunkrake", 
+        "Tunneljaw", "Maghammer", "Coregnaw", "Crushunit", "Codeburn", "SyntaxX", 
+        "Bytevoid", "Hackbit", "Packetstorm", "Glitchphase", "Compilr", "Databurn", 
+        "Cryptron", "0vercrank", "Err0rUnit", "Ramcore", "Debugga", "Fragloop", 
+        "S3gm3ntX", "Nullwave", "Cr4shdr1ll", "M4lfunct", "Bitm4sk", "C0d3Wr3ck", 
+        "M1n3R4g3", "Dr1ftX99", "Cl4wB0t", "R0ck3tM1n3", "N0D3cr4ck", "T3rr4Dr1ll", 
+        "R3kt0r", "S1l1c0nX", "V01dR1pp3r", "D34dB00t", "Gr1mF1nn", "Sh4d0wC0r3", 
+        "Sp1nDr1ll", "R4v3nM3ch", "M1n3fl@re", "C@rb0nCr@wl", "Xc@v8Roid", "D3pthC0de", 
+        "Pl@sm@Gr1nd", "T1nkrX", "Thudbrick", "Vantabot", "Blortok", "Greeblor", 
+        "Hexnut", "Plink99", "Drubbler", "Torqueleech", "Yttrion", "Ogranik", 
+        "Drossel", "Splinewalker", "Bronzorb", "Nokturne", "Frakspur", "Grundlebot", 
+        "Screevix", "Dustwhirl", "Squirmatron"
     };
 
     readonly System.Random random = new();

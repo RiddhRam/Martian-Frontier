@@ -14,40 +14,39 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
     public PlayerState playerState;
 
-
-    public GameObject cashTournamentPanel;
-    public GameObject vehicleTournamentPanel;
-    public GameObject cashTournamentButton;
-    public GameObject vehicleTournamentButton;
+    public GameObject oreTournamentPanel;
+    public GameObject rebirthTournamentPanel;
+    public GameObject oreTournamentButton;
+    public GameObject rebirthTournamentButton;
 
     public GameObject collectReward;
     public TextMeshProUGUI collectRewardMessage;
     public TextMeshProUGUI collectRewardText;
 
     public Sprite[] tierSprites;
-    public TextMeshProUGUI cashTierText;
-    public TextMeshProUGUI vehiclesTierText;
+    public TextMeshProUGUI oreTierText;
+    public TextMeshProUGUI rebirthsTierText;
     public TextMeshProUGUI tournamentTimer;
-    public TextMeshProUGUI cashNextTierText;
-    public TextMeshProUGUI cashLastTierText;
-    public TextMeshProUGUI vehiclesNextTierText;
-    public TextMeshProUGUI vehiclesLastTierText;
+    public TextMeshProUGUI oreNextTierText;
+    public TextMeshProUGUI oreLastTierText;
+    public TextMeshProUGUI rebirthsNextTierText;
+    public TextMeshProUGUI rebirthsLastTierText;
 
-    public Image cashTierImage;
-    public Image vehiclesTierImage;
+    public Image oreTierImage;
+    public Image rebirthsTierImage;
     public TextMeshProUGUI lastUpdateText;
 
-    public TextMeshProUGUI[] cashPlayerNameTextMeshes;
-    public TextMeshProUGUI[] cashScoreTextMeshes;
-    public TextMeshProUGUI[] cashRewardTextMeshes;
-    public Image[] cashPlayerScoreImages;
-    public GameObject[] cashPlayerScoreBars;
+    public TextMeshProUGUI[] orePlayerNameTextMeshes;
+    public TextMeshProUGUI[] oreScoreTextMeshes;
+    public TextMeshProUGUI[] oreRewardTextMeshes;
+    public Image[] orePlayerScoreImages;
+    public GameObject[] orePlayerScoreBars;
 
-    public TextMeshProUGUI[] vehiclesPlayerNameTextMeshes;
-    public TextMeshProUGUI[] vehiclesScoreTextMeshes;
-    public TextMeshProUGUI[] vehiclesRewardTextMeshes;
-    public Image[] vehiclesPlayerScoreImages;
-    public GameObject[] vehiclesPlayerScoreBars;
+    public TextMeshProUGUI[] rebirthsPlayerNameTextMeshes;
+    public TextMeshProUGUI[] rebirthsScoreTextMeshes;
+    public TextMeshProUGUI[] rebirthsRewardTextMeshes;
+    public Image[] rebirthsPlayerScoreImages;
+    public GameObject[] rebirthsPlayerScoreBars;
 
     private DateTime endTime;
     private TimeSpan timeRemaining;
@@ -56,8 +55,8 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     private int lastUpdateTimer = 0;
     public long gemRewardsToCollect = 0;
 
-    private readonly string cashLeaderboardID = "Cash";
-    private readonly string vehiclesLeaderboardID = "Vehicles";
+    private readonly string oreLeaderboardID = "Ores";
+    private readonly string rebirthLeaderboardID = "Rebirths";
     private readonly string[] leaderboardTiers = {"BRONZE TIER", "SILVER TIER", "GOLD TIER"};
     private readonly string[] leaderboardTiersMatching = {"Bronze", "Silver", "Gold"};
     private readonly string[][] rewardAmounts = new string[][] {
@@ -65,8 +64,8 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             new string[] {"12K", "8K", "6.4K", "5K", "4K", "3.2K", "3.2K", "3.2K", "2.8K", "2.8K"}, 
             new string[] {"64K", "50K", "40K", "32k", "24k", "20K", "20K", "20K", "16K", "16K"}
             };
-    LeaderboardScores cashLeaderboardScoresPage;
-    LeaderboardScores vehicleLeaderboardScoresPage;
+    LeaderboardScores oreLeaderboardScoresPage;
+    LeaderboardScores rebirthLeaderboardScoresPage;
 
     private void OnEnable()
     {
@@ -168,34 +167,34 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         }
 
         try {
-            cashLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
-                                                cashLeaderboardID,
+            oreLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
+                                                oreLeaderboardID,
                                                 new GetPlayerRangeOptions{ RangeLimit = 11 }
                                             );
 
             int playerTier = 0;
-            int results = cashLeaderboardScoresPage.Results.Count;
+            int results = oreLeaderboardScoresPage.Results.Count;
 
             for (int i = 0; i != 10; i++) {
-                cashPlayerScoreBars[i].SetActive(false);
+                orePlayerScoreBars[i].SetActive(false);
             }
 
             for (int i = 0; i != results; i++) {
-                if (cashLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    switch (cashLeaderboardScoresPage.Results[i].Tier) {
+                if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
+                    switch (oreLeaderboardScoresPage.Results[i].Tier) {
                         case "Bronze":
-                            cashTierImage.sprite = tierSprites[0];
-                            cashTierText.text = GetLocalizedValue(leaderboardTiers[0]);
+                            oreTierImage.sprite = tierSprites[0];
+                            oreTierText.text = GetLocalizedValue(leaderboardTiers[0]);
                             break;
                         case "Silver":
                             playerTier = 1;
-                            cashTierImage.sprite = tierSprites[1];
-                            cashTierText.text = GetLocalizedValue(leaderboardTiers[1]);
+                            oreTierImage.sprite = tierSprites[1];
+                            oreTierText.text = GetLocalizedValue(leaderboardTiers[1]);
                             break;
                         case "Gold":
                             playerTier = 2;
-                            cashTierImage.sprite = tierSprites[2];
-                            cashTierText.text = GetLocalizedValue(leaderboardTiers[2]);
+                            oreTierImage.sprite = tierSprites[2];
+                            oreTierText.text = GetLocalizedValue(leaderboardTiers[2]);
                             break;
                     }
                     break;
@@ -207,15 +206,15 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             int playerBarCounter = 0;
             for (int i = 0; i != results; i++) {
 
-                if (cashLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
-                    if (cashLeaderboardScoresPage.Results[i].Tier == "Gold") {
+                if (oreLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
+                    if (oreLeaderboardScoresPage.Results[i].Tier == "Gold") {
                         firstPlayerIndex = i;
-                    } else if (cashLeaderboardScoresPage.Results[i].Tier == "Bronze") {
+                    } else if (oreLeaderboardScoresPage.Results[i].Tier == "Bronze") {
 
                         if (lastPlayerIndex == 0) {
                             lastPlayerIndex = i;
                         } 
-                    } else if (cashLeaderboardScoresPage.Results[i].Tier == "Silver") {
+                    } else if (oreLeaderboardScoresPage.Results[i].Tier == "Silver") {
                         if (leaderboardTiersMatching[playerTier] == "Gold") {
                             if (lastPlayerIndex == 0) {
                                 lastPlayerIndex = i;
@@ -227,63 +226,63 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                cashPlayerScoreBars[playerBarCounter].SetActive(true);
+                orePlayerScoreBars[playerBarCounter].SetActive(true);
 
-                cashPlayerNameTextMeshes[playerBarCounter].text = cashLeaderboardScoresPage.Results[i].PlayerName.Substring(0, cashLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                cashScoreTextMeshes[playerBarCounter].text = $"${FormatPrice(cashLeaderboardScoresPage.Results[i].Score)}";
+                orePlayerNameTextMeshes[playerBarCounter].text = oreLeaderboardScoresPage.Results[i].PlayerName.Substring(0, oreLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
+                oreScoreTextMeshes[playerBarCounter].text = FormatPrice(oreLeaderboardScoresPage.Results[i].Score);
 
-                if (cashLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    cashPlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
+                if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
+                    orePlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
                 } else {
-                    cashPlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
+                    orePlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
                 }
 
-                cashRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
+                oreRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
 
                 playerBarCounter++;
             }
 
             if (lastPlayerIndex != 0) {
-                cashLastTierText.text = GetLocalizedValue("LAST TIER: {0}", $"${FormatPrice(cashLeaderboardScoresPage.Results[lastPlayerIndex].Score)}");
-                cashLastTierText.gameObject.SetActive(true);
+                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score));
+                oreLastTierText.gameObject.SetActive(true);
             } else {
-                cashLastTierText.gameObject.SetActive(false);
+                oreLastTierText.gameObject.SetActive(false);
             }
             if (firstPlayerIndex != 0) {
-                cashNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", $"${FormatPrice(cashLeaderboardScoresPage.Results[firstPlayerIndex].Score)}");
-                cashNextTierText.gameObject.SetActive(true);
+                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score));
+                oreNextTierText.gameObject.SetActive(true);
             } else {
-                cashNextTierText.gameObject.SetActive(false);
+                oreNextTierText.gameObject.SetActive(false);
             }
 
-            vehicleLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
-                                                vehiclesLeaderboardID,
+            rebirthLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
+                                                rebirthLeaderboardID,
                                                 new GetPlayerRangeOptions{ RangeLimit = 10 }
                                             );
 
             for (int i = 0; i != 10; i++) {
-                vehiclesPlayerScoreBars[i].SetActive(false);
+                rebirthsPlayerScoreBars[i].SetActive(false);
             }
                                             
             playerTier = 0;
-            results = vehicleLeaderboardScoresPage.Results.Count;
+            results = rebirthLeaderboardScoresPage.Results.Count;
 
             for (int i = 0; i != results; i++) {
-                if (vehicleLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    switch (vehicleLeaderboardScoresPage.Results[i].Tier) {
+                if (rebirthLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
+                    switch (rebirthLeaderboardScoresPage.Results[i].Tier) {
                         case "Bronze":
-                            vehiclesTierImage.sprite = tierSprites[0];
-                            vehiclesTierText.text = GetLocalizedValue(leaderboardTiers[0]);
+                            rebirthsTierImage.sprite = tierSprites[0];
+                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[0]);
                             break;
                         case "Silver":
                             playerTier = 1;
-                            vehiclesTierImage.sprite = tierSprites[1];
-                            vehiclesTierText.text = GetLocalizedValue(leaderboardTiers[1]);
+                            rebirthsTierImage.sprite = tierSprites[1];
+                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[1]);
                             break;
                         case "Gold":
                             playerTier = 2;
-                            vehiclesTierImage.sprite = tierSprites[2];
-                            vehiclesTierText.text = GetLocalizedValue(leaderboardTiers[2]);
+                            rebirthsTierImage.sprite = tierSprites[2];
+                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[2]);
                             break;
                     }
                     break;
@@ -296,15 +295,15 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
             for (int i = 0; i != results; i++) {
 
-                if (vehicleLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
-                    if (vehicleLeaderboardScoresPage.Results[i].Tier == "Gold") {
+                if (rebirthLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
+                    if (rebirthLeaderboardScoresPage.Results[i].Tier == "Gold") {
                         firstPlayerIndex = i;
-                    } else if (vehicleLeaderboardScoresPage.Results[i].Tier == "Bronze") {
+                    } else if (rebirthLeaderboardScoresPage.Results[i].Tier == "Bronze") {
 
                         if (lastPlayerIndex == 0) {
                             lastPlayerIndex = i;
                         } 
-                    } else if (vehicleLeaderboardScoresPage.Results[i].Tier == "Silver") {
+                    } else if (rebirthLeaderboardScoresPage.Results[i].Tier == "Silver") {
                         if (leaderboardTiersMatching[playerTier] == "Gold") {
                             if (lastPlayerIndex == 0) {
                                 lastPlayerIndex = i;
@@ -316,45 +315,45 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                vehiclesPlayerScoreBars[playerBarCounter].SetActive(true);
+                rebirthsPlayerScoreBars[playerBarCounter].SetActive(true);
 
-                vehiclesPlayerNameTextMeshes[playerBarCounter].text = vehicleLeaderboardScoresPage.Results[i].PlayerName.Substring(0, vehicleLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                vehiclesScoreTextMeshes[playerBarCounter].text = FormatPrice(vehicleLeaderboardScoresPage.Results[i].Score);
+                rebirthsPlayerNameTextMeshes[playerBarCounter].text = rebirthLeaderboardScoresPage.Results[i].PlayerName.Substring(0, rebirthLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
+                rebirthsScoreTextMeshes[playerBarCounter].text = FormatPrice(rebirthLeaderboardScoresPage.Results[i].Score);
 
-                if (vehicleLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    vehiclesPlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
+                if (rebirthLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
+                    rebirthsPlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
                 } else {
-                    vehiclesPlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
+                    rebirthsPlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
                 }
 
-                vehiclesRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
+                rebirthsRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
 
                 playerBarCounter++;
             }
 
             if (lastPlayerIndex != 0) {
-                vehiclesLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(vehicleLeaderboardScoresPage.Results[lastPlayerIndex].Score));
-                vehiclesLastTierText.gameObject.SetActive(true);
+                rebirthsLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(rebirthLeaderboardScoresPage.Results[lastPlayerIndex].Score));
+                rebirthsLastTierText.gameObject.SetActive(true);
             } else {
-                vehiclesLastTierText.gameObject.SetActive(false);
+                rebirthsLastTierText.gameObject.SetActive(false);
             }
             if (firstPlayerIndex != 0) {
-                vehiclesNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(vehicleLeaderboardScoresPage.Results[firstPlayerIndex].Score));
-                vehiclesNextTierText.gameObject.SetActive(true);
+                rebirthsNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(rebirthLeaderboardScoresPage.Results[firstPlayerIndex].Score));
+                rebirthsNextTierText.gameObject.SetActive(true);
             } else {
-                vehiclesNextTierText.gameObject.SetActive(false);
+                rebirthsNextTierText.gameObject.SetActive(false);
             }
 
             lastUpdateTimer = 0;
         } catch (Exception ex) {
             // In case no score submitted
             try {
-                await LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, 0);
+                await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
             } catch {
             }
 
             try {
-                await LeaderboardsService.Instance.AddPlayerScoreAsync(vehiclesLeaderboardID, 0);
+                await LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, 0);
             } catch {
             }
             Debug.Log(ex);
@@ -364,27 +363,27 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public async Task InitializeLeaderboard(PlayerProfile newPlayerProfile) {
         playerProfile = newPlayerProfile;
 
-        await LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, 0);
+        await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
 
-        await LeaderboardsService.Instance.AddPlayerScoreAsync(vehiclesLeaderboardID, 0);
+        await LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, 0);
 
         UpdateLeaderBoardData();
     }
 
-    public void AddCashScore(double amount) {
+    public void AddOreScore(double amount) {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             return;
         }
 
-        LeaderboardsService.Instance.AddPlayerScoreAsync(cashLeaderboardID, amount);
+        LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, amount);
     }
 
-    public void AddVehicleScore(int amount) {
+    public void AddRebirthScore(int amount) {
         if (Application.internetReachability == NetworkReachability.NotReachable) {
             return;
         }
 
-        LeaderboardsService.Instance.AddPlayerScoreAsync(vehiclesLeaderboardID, amount);
+        LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, amount);
     }
 
     // TODO: If an anonymous player creates an account, their old account stays in the leaderboard and their new account
@@ -395,22 +394,22 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void TogglePanel(string type) {
-        if (type == "Cash") {
-            vehicleTournamentPanel.SetActive(false);
-            vehicleTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-            vehicleTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+        if (type == "Ore") {
+            rebirthTournamentPanel.SetActive(false);
+            rebirthTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
+            rebirthTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
 
-            cashTournamentPanel.SetActive(true);
-            cashTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-            cashTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+            oreTournamentPanel.SetActive(true);
+            oreTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+            oreTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
         } else {
-            cashTournamentPanel.SetActive(false);
-            cashTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-            cashTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
+            oreTournamentPanel.SetActive(false);
+            oreTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
+            oreTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
 
-            vehicleTournamentPanel.SetActive(true);
-            vehicleTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-            vehicleTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
+            rebirthTournamentPanel.SetActive(true);
+            rebirthTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
+            rebirthTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
         }
     }
 

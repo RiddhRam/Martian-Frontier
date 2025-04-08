@@ -145,7 +145,6 @@ GameObject:
   - component: {fileID: 669738159324382320}
   - component: {fileID: 5035052057920571328}
   - component: {fileID: 3168223668367042025}
-  - component: {fileID: 3993799805829351529}
   - component: {fileID: 9172976295201745082}
   m_Layer: 0
   m_Name: Bundle IAP Panel
@@ -214,34 +213,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 0.4
---- !u!114 &3993799805829351529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1674393957110380265}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b79b5624d944058bd39aad2b90fb275, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  productId: 
-  buttonType: 0
-  consumePurchase: 1
-  onTransactionsRestored:
-    m_PersistentCalls:
-      m_Calls: []
-  onPurchaseComplete:
-    m_PersistentCalls:
-      m_Calls: []
-  onPurchaseFailed:
-    m_PersistentCalls:
-      m_Calls: []
-  onProductFetched:
-    m_PersistentCalls:
-      m_Calls: []
-  button: {fileID: 124314896344809518}
 --- !u!114 &9172976295201745082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -378,7 +349,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5223765819716107915}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: PremiumShopDelegator, Scripts
+        m_MethodName: PurchaseGemProduct
+        m_Mode: 5
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &7526664924656884605
 MonoBehaviour:
   m_ObjectHideFlags: 0

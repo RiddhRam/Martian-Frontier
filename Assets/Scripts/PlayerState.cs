@@ -103,10 +103,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         userCash += cashToAdd;
         moneyEarned += cashToAdd;
-
-        if (!isNPC) {
-            leaderboardDelegator.AddCashScore(cashToAdd);
-        }
         
         UpdateCashDisplays();
         dataPersistenceManager.SaveGame();
@@ -122,7 +118,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void AddGems(int gemsToAdd) {
-
+        Debug.Log("Adding");
+        
         userGems += gemsToAdd;
         gemsEarned += gemsToAdd;
 
@@ -158,7 +155,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
-            leaderboardDelegator.AddVehicleScore(1);
             UpdateHighestDrillTier();
             dataPersistenceManager.SaveGame();
             analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
@@ -231,8 +227,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         blocksMined += amount;
     }
 
-    public void NewMaterialSold() {
+    public void NewMaterialsSold(int amount, bool isNPC) {
         materialsSold++;
+
+        if (!isNPC) {
+            leaderboardDelegator.AddOreScore(amount);
+        }
     }
 
     private void UpdateSubtractedAmount(GameObject objectBeingPurchased) {
@@ -440,6 +440,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         refineryController.PlayerRebirth();
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
         dataPersistenceManager.SaveGame();
+
+        leaderboardDelegator.AddRebirthScore(1);
+        
         analyticsDelegator.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
 
         UpdateCashDisplays();

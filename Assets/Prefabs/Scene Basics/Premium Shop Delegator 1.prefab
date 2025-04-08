@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 398574007907567192}
   - component: {fileID: 8865408925163300750}
+  - component: {fileID: 6404292153192011031}
   m_Layer: 0
   m_Name: Premium Shop Delegator 1
   m_TagString: Untagged
@@ -47,6 +48,7 @@ MonoBehaviour:
   playerState: {fileID: 0}
   uIDelegation: {fileID: 0}
   analyticsDelegator: {fileID: 0}
+  supplyCrateDelegator: {fileID: 0}
   gemIAPPanels:
   - {fileID: 0}
   - {fileID: 0}
@@ -74,3 +76,30 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  thankYouScreen: {fileID: 0}
+--- !u!114 &6404292153192011031
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3184942976090833575}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f7dd963c1a8b427b96975fa211478a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  consumePurchase: 1
+  dontDestroyOnLoad: 1
+  onProductsFetched:
+    m_PersistentCalls:
+      m_Calls: []
+  onPurchaseComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  onPurchaseFailed:
+    m_PersistentCalls:
+      m_Calls: []
+  onPurchaseDetailedFailedEvent:
+    m_PersistentCalls:
+      m_Calls: []
