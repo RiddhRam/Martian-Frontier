@@ -462,7 +462,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
     }
 
-   
     public int GetHighestDrillTier() {
         return highestDrillTier;
     }

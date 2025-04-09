@@ -1,6 +1,7 @@
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 public class TutorialTextBox : MonoBehaviour
 {
@@ -18,14 +19,19 @@ public class TutorialTextBox : MonoBehaviour
         StartCoroutine(TypeMessage());
     }
 
-    private string GetLocalizedValue(string key)
+    private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
-        
-        return entry.LocalizedValue;
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
     }
 
     private System.Collections.IEnumerator TypeMessage()

@@ -8,23 +8,31 @@ public class Powers
     public string Description;
     public int Index;
     public int[] Prices;
-    public Sprite PowerIcon;
     public Sprite PowerIconWhite;
     public int MinLevelRequired;
-    public bool IsEquipped { get; set; }
+    public bool IsEquipped;
+    public bool IsPassive;
+    public string MainValueKey;
+    public float Level0Value;
+    public float UpgradeValue;
 
     public Powers(Action powerFunction, string name, string description,
-                  int index, int[] prices, Sprite powerIcon, Sprite powerIconWhite, int minLevelRequired, bool isEquipped)
+                  int index, int[] prices, Sprite powerIconWhite, int minLevelRequired, 
+                  bool isEquipped, bool isPassive, string mainValueKey, float level0Value,
+                  float upgradeValue)
     {
         PowerFunction = powerFunction;
         Name = name;
         Description = description;
         Index = index;
         Prices = prices;
-        PowerIcon = powerIcon;
         PowerIconWhite = powerIconWhite;
         MinLevelRequired = minLevelRequired;
         IsEquipped = isEquipped;
+        IsPassive = isPassive;
+        MainValueKey = mainValueKey;
+        Level0Value = level0Value;
+        UpgradeValue = upgradeValue;
     }
 
     public void ActivatePower()

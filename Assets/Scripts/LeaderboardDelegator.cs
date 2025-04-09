@@ -8,6 +8,7 @@ using Unity.Services.Leaderboards;
 using Unity.Services.Leaderboards.Models;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
@@ -418,8 +419,12 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);

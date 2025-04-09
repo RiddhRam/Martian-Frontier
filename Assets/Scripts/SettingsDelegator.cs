@@ -21,6 +21,7 @@ public class SettingsDelegator : MonoBehaviour
     private bool musicEnabled;
     private bool soundFXEnabled;
     private AnalyticsDelegator analyticsDelegator;
+    [SerializeField] private UpgradesDelegator upgradesDelegator;
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
@@ -137,6 +138,8 @@ public class SettingsDelegator : MonoBehaviour
 
         // Set the language
         LocalizationSettings.SelectedLocale = selectedLocale;
+        upgradesDelegator.UpdateAllPowerPanels();
+        
         if (!analyticsDelegator) {
             analyticsDelegator = AnalyticsDelegator.Instance;
         }
