@@ -75,6 +75,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
         materials = oreDelegation.materials;
+        
+        analyticsDelegator = AnalyticsDelegator.Instance;
     }
     // Increase Vision
     public int visionBoost;
@@ -83,6 +85,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         foreach (var power in powers) {
             if (power.Name == equippedPowers[0]) {
                 power.ActivatePower();
+                analyticsDelegator.UsePower(power.Name);
                 break;
             }
         }
@@ -431,7 +434,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         equippedPowers.Clear();
         equippedPowers.Add(powers[powerIndex].Name);
 
-        analyticsDelegator.EquipPower(powers[powerIndex].Name);
+        try {
+            analyticsDelegator.EquipPower(powers[powerIndex].Name);
+        } catch {
+
+        }
+        
     }
 
     private IEnumerator StartCooldownTimer(int time) {
