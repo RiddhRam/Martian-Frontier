@@ -8,12 +8,14 @@ using Unity.Notifications.iOS;
 
 using UnityEngine;
 using System;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 public class NotificationsManager : MonoBehaviour
 {
     private const string ScheduledTimeKey = "TournamentNotificationTime";
-    private const string tournamentResetTitle = "Tournament Reset!";
-    private const string tournamentResetText = "Come collect your rewards and join the next round!";
+    private const string tournamentResetTitle = "Tournaments just reset!";
+    private const string tournamentResetText = "Come claim your free rewards!";
     private const string channelId = "tournament_channel";
 
     void Start()
@@ -29,13 +31,20 @@ public class NotificationsManager : MonoBehaviour
         {
             Id = channelId,
             Name = "Tournament Alerts",
-            Importance = Importance.Default,
+            Importance = Importance.High,
             Description = "Get notified when tournaments reset.",
         };
         AndroidNotificationCenter.RegisterNotificationChannel(channel);
+
+        string requestNotifs = "";
+
+        try {
+            requestNotifs = PlayerPrefs.GetString("AskNotif");
+        } catch {
+        }
         
         // Request notification permission explicitly for Android
-        if (ShouldRequestNotificationPermission())
+        if (ShouldRequestNotificationPermission() && requestNotifs != "No")
         {
             RequestNotificationPermission();
         }
@@ -51,7 +60,13 @@ public class NotificationsManager : MonoBehaviour
             if (Mathf.Abs((float)(nextTournamentTime - previouslyScheduled).TotalMinutes) < 1f)
             {
                 Debug.Log("Notification already scheduled for: " + previouslyScheduled);
-                return;
+                // Instead of returning, cancel all notifications first
+                #if UNITY_ANDROID
+                AndroidNotificationCenter.CancelAllNotifications();
+                #elif UNITY_IOS
+                iOSNotificationCenter.RemoveAllDeliveredNotifications();
+                iOSNotificationCenter.RemoveAllScheduledNotifications();
+                #endif
             }
         }
 
@@ -73,8 +88,8 @@ public class NotificationsManager : MonoBehaviour
 
         var notification = new AndroidNotification
         {
-            Title = tournamentResetTitle,
-            Text = tournamentResetText,
+            Title = GetLocalizedValue(tournamentResetTitle),
+            Text = GetLocalizedValue(tournamentResetText),
             SmallIcon = "notification_small",
             LargeIcon = "notification_large",
             FireTime = fireTime,
@@ -106,8 +121,8 @@ public class NotificationsManager : MonoBehaviour
         var notification = new iOSNotification()
         {
             Identifier = "tournament_reward",
-            Title = tournamentResetTitle,
-            Body = tournamentResetText,
+            Title = GetLocalizedValue(tournamentResetTitle),
+            Body = GetLocalizedValue(tournamentResetText),
             ShowInForeground = true,
             ForegroundPresentationOption = (PresentationOption.Alert | PresentationOption.Sound),
             CategoryIdentifier = "reward_category",
@@ -145,6 +160,7 @@ public class NotificationsManager : MonoBehaviour
 
     public static void RequestNotificationPermission()
     {
+        PlayerPrefs.SetString("AskNotif", "No");
         using (var unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer"))
         {
             AndroidJavaObject activity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -156,4 +172,19 @@ public class NotificationsManager : MonoBehaviour
         }
     }
     #endif
+
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
 }
