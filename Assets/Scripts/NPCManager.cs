@@ -74,6 +74,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField]
     private Button toggleCamera;
 
+    private bool waitingInLobby = false;
+
     private readonly int sessionUpdateTimer = 4;
     private readonly int[] drillerTierThresholds = {5, 11, 17};
     private readonly int[] haulerThresholds = {9, 13, 19};
@@ -529,6 +531,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 }
             }
 
+            yield return new WaitUntil(() => !waitingInLobby);
+
             haulers = haulerCount;
 
             if (uncollectedMaterialsDelegator.materialCount > Get1HaulerThreshold() && haulers < 1 && !drillingNeeded) {
@@ -576,6 +580,20 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             highestDrillTier = playerState.GetHighestDrillTier();
         }
     }
+
+    public Vector3 GetRandomSpawnPosition(bool isHauler) {
+
+        if (isHauler && random.NextDouble() < 0.33) {
+            // In front of entrance
+            return new(0, -2);
+        }
+        
+        float x = (float) random.NextDouble() * (13 - 2) + 2;
+        float y = (float) random.NextDouble() * (19 - -1) + -1;
+
+        return new(x, y);
+    }
+
 
     private IEnumerator SwitchDrillerToHauler() {
 
@@ -658,6 +676,18 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         transitioningVehicle[npcIndex] = false;
     }
 
+    public IEnumerator WaitInLobby() {
+        waitingInLobby = true;
+        if (mineRenderer.mineInitialization == 0) {
+            for (int i = 0; i != npcCount; i++) {
+                nPCMovements[i].UpdateAgentDestination(GetRandomSpawnPosition(npcIsHauler[i]));
+                Debug.Log(nPCMovements[i].agent.destination);
+            } 
+        }
+        yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
+        waitingInLobby = false;
+    }
+
     public int Get1HaulerThreshold() {
         return 320 + (130 * highestDrillTier);
     }
@@ -689,7 +719,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             mineRenderer.GetMaterialObject(i, npcs[npcIndex].transform.position, materialCount[i], haulerController.GetProfitMultiplier());
         }
-
     }
 
     public void RemoveNPC(int npcIndex, bool gameObjectDestroyed) {

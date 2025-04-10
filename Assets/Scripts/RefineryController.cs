@@ -185,6 +185,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private IEnumerator ResetMine() {
         mineRenderer.mineInitialization = 0;
 
+        if (nPCManager) {
+            StartCoroutine(nPCManager.WaitInLobby());
+        }
+
         // Disable drop offs while resetting
         gameObjectBoxCollider2D.isTrigger = false;
 
