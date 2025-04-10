@@ -48,7 +48,7 @@ public class NPCMovement : MonoBehaviour
     // Cache
     NavMeshPath path;
 
-    private bool transitioning = false;
+    public bool transitioning = false;
     private int frameCounter = 0;
 
     private Vector3 dest;
@@ -140,12 +140,39 @@ public class NPCMovement : MonoBehaviour
         if (agent.enabled) {
             agent.SetDestination(newDestination);
             dest = newDestination;
-
-            if (npcIndex == 1 && agent.destination.y > -3) {
-                Debug.Log("1: " + agent.destination);
-                Debug.Log("Distance: " + Vector3.Distance(agent.destination, transform.position));
-            }
         }
+    }
+
+    public IEnumerator WaitInSpawnPosition(Vector3 newDestination) {
+        transitioning = true;
+
+        yield return null;
+
+        transitioning = true;
+
+        if (!agent.enabled) {
+            agent.enabled = true;
+        }
+
+        agent.SetDestination(newDestination);
+        dest = newDestination;
+
+        agent.enabled = false;
+        agent.enabled = true;
+
+        while (Vector3.Distance(transform.position, dest) > 0.5f) {
+            joystickVec = (dest - transform.position).normalized;
+
+            MoveVehicle();
+
+            yield return null;
+        }
+        rb.velocity = Vector2.zero;
+
+        yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
+        yield return new WaitForSeconds((float) random.NextDouble() * 4);
+
+        transitioning = false;
     }
 
     public Vector3 GetRandomPosition() {

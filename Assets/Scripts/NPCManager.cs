@@ -599,7 +599,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public Vector3 GetRandomSpawnPosition(bool isHauler) {
 
-        if (isHauler && random.NextDouble() < 0.33) {
+        if (!isHauler && random.NextDouble() < 0.66) {
             // In front of entrance
             return new(0, -2);
         }
@@ -695,8 +695,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         waitingInLobby = true;
         if (mineRenderer.mineInitialization == 0) {
             for (int i = 0; i != npcCount; i++) {
-                nPCMovements[i].UpdateAgentDestination(GetRandomSpawnPosition(npcIsHauler[i]));
-                Debug.Log(nPCMovements[i].agent.destination);
+                StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition(npcIsHauler[i])));
             } 
         }
         yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);

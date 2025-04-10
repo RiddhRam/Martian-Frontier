@@ -57,7 +57,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public long gemRewardsToCollect = 0;
 
     private readonly string oreLeaderboardID = "Ores";
-    private readonly string rebirthLeaderboardID = "Rebirths";
+    private readonly string rebirthLeaderboardID = "Test";
     private readonly string[] leaderboardTiers = {"BRONZE TIER", "SILVER TIER", "GOLD TIER"};
     private readonly string[] leaderboardTiersMatching = {"Bronze", "Silver", "Gold"};
     private readonly string[][] rewardAmounts = new string[][] {
