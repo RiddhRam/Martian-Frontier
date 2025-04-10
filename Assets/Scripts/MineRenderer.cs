@@ -68,6 +68,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
     public DailyChallengeDelegator dailyChallengeDelegator;
+    public UpgradesDelegator upgradesDelegator;
     private Dictionary<string, int> quantities = new();
     public int[] oresCount;
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
@@ -612,9 +613,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Reveal new tiles
             // Search in a radius around tileToDestroy
-            for (int x = 0; x <= visionRadius; x++)
+            for (int x = 0; x <= visionRadius + upgradesDelegator.visionBoost - 3; x++)
             {
-                int yLimit = visionRadius - x;
+                int yLimit = visionRadius - x + upgradesDelegator.visionBoost - 3;
                 for (int y = 0; y <= yLimit; y++)
                 {
                     // Add all 4 quadrants
@@ -643,22 +644,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
 
             currentOresMined++;
-            if (oreMined) {
-                oresMined++;
-                int adjustment = 0;
 
-                for (int i = 0; i != tierThresholds.Length; i++) {
-                    if (identifiedTile > tierThresholds[i]) {
-                        adjustment++;
-                    }
-                }
+            if (!oreMined) {
+                continue;
+            }
 
-                if (!quantities.ContainsKey(materialNames[identifiedTile - adjustment])) {
-                    quantities[materialNames[identifiedTile - adjustment]] = 1;
-                } else {
-                    
-                    quantities[materialNames[identifiedTile - adjustment]]++;
+            oresMined++;
+            int adjustment = 0;
+
+            for (int i = 0; i != tierThresholds.Length; i++) {
+                if (identifiedTile > tierThresholds[i]) {
+                    adjustment++;
                 }
+            }
+
+            if (!quantities.ContainsKey(materialNames[identifiedTile - adjustment])) {
+                quantities[materialNames[identifiedTile - adjustment]] = 1;
+            } else {
+                
+                quantities[materialNames[identifiedTile - adjustment]]++;
             }
         }
 
@@ -967,7 +971,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         obj.SetActive(true);
         materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount, profitMultiplier);
 
-        
         currentMineValue += materialPrices[materialIndex] * materialCount;
         mineValueText.text = FormatPrice(currentMineValue);
         //return obj;

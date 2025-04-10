@@ -3,6 +3,7 @@ using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -18,6 +19,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public UIDelegation uIDelegation;
     public PlayerState playerState;
     public AnalyticsDelegator analyticsDelegator;
+    public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
     public TextMeshProUGUI crateExtractionPercentageText;
 
@@ -152,8 +154,8 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
         System.Random random = new System.Random();
 
-        cashRewardAmount = random.Next(10000, 20000);
-        gemRewardAmount = random.Next(400, 900);
+        cashRewardAmount = (int) (random.Next(10000, 30000) * (1 + upgradesDelegator.crateMultiplier));
+        gemRewardAmount = (int) (random.Next(600, 1800) * (1 + upgradesDelegator.crateMultiplier));
 
         cashRewardAmount *= BigInteger.Pow(100, (-1 + playerState.GetHighestDrillTier()));
 
@@ -215,8 +217,12 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);

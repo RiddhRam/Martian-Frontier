@@ -2,6 +2,7 @@ using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
 using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 
 public class GarageDelegator : MonoBehaviour, IDataPersistence
 {
@@ -404,12 +405,16 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
         GeneratePanel("Haulers");
     }
 
-    public string GetLocalizedValue(string key, params object[] args)
+    private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        // Get the localized string using the key
-        var entry = table.GetEntry(key);
+        StringTableEntry entry = table.GetEntry(key);;
+
+        // If no translation, just return the key
+        if (entry == null) {
+            return string.Format(key, args);
+        }
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);

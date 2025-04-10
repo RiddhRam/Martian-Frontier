@@ -38,13 +38,9 @@ public class GameDataString
     public string progressToNextCrate;
     public string currentCoopVehicle;
     public string rewardAdTimer;
-    public string visionRadius;
-    public string visionBoost;
-    public string refineryProfitMultiplier;
-    public string refineryProfitMultiplierBoost;
-    public string destroyRadius;
     public string cooldownTimer;
     public string equippedPowers;
+    public string powerUpgradeLevels;
 
     public GameDataString() {
         this.userCash = null;
@@ -82,12 +78,8 @@ public class GameDataString
         this.progressToNextCrate = null;
         this.currentCoopVehicle = null;
         this.rewardAdTimer = null;
-        this.visionRadius = null;
-        this.visionBoost = null;
-        this.refineryProfitMultiplier = null;
-        this.refineryProfitMultiplierBoost = null;
-        this.destroyRadius = null;
         this.cooldownTimer = null;
         this.equippedPowers = null;
+        this.powerUpgradeLevels = null;
     }
 }

@@ -29,7 +29,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
     private int[] materialPrices;
-    public GameObject capacityUpgrades;
     [SerializeField]
     private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
@@ -44,6 +43,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
+    public UpgradesDelegator upgradesDelegator;
 
     private bool doneLoading = false;
     bool doneAnimation;
@@ -186,6 +186,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     private IEnumerator ResetMine() {
         mineRenderer.mineInitialization = 0;
+
+        if (nPCManager) {
+            StartCoroutine(nPCManager.WaitInLobby());
+        }
 
         // Disable drop offs while resetting
         gameObjectBoxCollider2D.isTrigger = false;
@@ -433,9 +437,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return rebirthProfitMultiplier;
     }
 
+    public float GetProfitBoostMultiplier() {
+        return upgradesDelegator.profitMultiplier;
+    }
+
     public float GetTotalProfitMultiplier() {
         // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier;
+        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier + upgradesDelegator.profitMultiplier;
 
         return Mathf.Round(multiplier * 100f) / 100f;
     }

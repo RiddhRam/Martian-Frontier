@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.Rendering;
-using UnityEngine.SceneManagement;
 public class NPCMovement : MonoBehaviour
 {
 
@@ -106,10 +105,6 @@ public class NPCMovement : MonoBehaviour
             direction = (agent.steeringTarget - transform.position).normalized;
         }
 
-        /*if (npcIndex == 1) {
-            Debug.Log(agent.destination.y);
-        }*/
-
         frameCounter++;
 
         if (!agent.enabled && frameCounter >= 10) {
@@ -145,6 +140,11 @@ public class NPCMovement : MonoBehaviour
         if (agent.enabled) {
             agent.SetDestination(newDestination);
             dest = newDestination;
+
+            if (npcIndex == 1 && agent.destination.y > -3) {
+                Debug.Log("1: " + agent.destination);
+                Debug.Log("Distance: " + Vector3.Distance(agent.destination, transform.position));
+            }
         }
     }
 

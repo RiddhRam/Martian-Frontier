@@ -33,6 +33,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         if (haulerController1) {
             int[] materialCount = haulerController1.GetMaterialCount();
+            float[] materialProfitMultipliers = haulerController1.GetMaterialProfitMultipliers();
 
             for (int i = 0; i != materialCount.Length; i++) {
                 // Should never be less than zero but just in case
@@ -40,7 +41,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i], haulerController1.GetProfitMultiplier());
+                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i], materialProfitMultipliers[i]);
             }
         }
 

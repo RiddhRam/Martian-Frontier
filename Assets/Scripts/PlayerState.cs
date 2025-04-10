@@ -38,8 +38,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField]
     private DataPersistenceManager dataPersistenceManager;
     [SerializeField]
-    private ProfitPanelDelegator profitPanelDelegator;
-    [SerializeField]
     private UIDelegation uIDelegation;
     [SerializeField]
     private AnalyticsDelegator analyticsDelegator;
@@ -74,6 +72,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     float calculatedValue;
     float xpSliderValue;
     string levelString;
+    private long rebirthPrice = 15_000_000_000;
 
     void Awake() {
         xpDisplaysSliders = new Slider[xpDisplays.Length];
@@ -413,7 +412,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void Rebirth() {
-        long rebirthPrice = profitPanelDelegator.GetRebirthPrice();
         if (!VerifyEnoughCash(rebirthPrice)) {
             uIDelegation.ShowError("NOT ENOUGH CASH!");
             return;
