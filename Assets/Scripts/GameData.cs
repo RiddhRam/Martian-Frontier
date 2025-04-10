@@ -45,11 +45,6 @@ public class GameData
     public int progressToNextCrate;
     public string currentCoopVehicle;
     public int rewardAdTimer;
-    public int visionRadius;
-    public int visionBoost;
-    public float refineryProfitMultiplier;
-    public float refineryProfitMultiplierBoost;
-    public int destroyRadius;
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
@@ -100,11 +95,6 @@ public class GameData
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER I";
         this.rewardAdTimer = 0;
-        this.visionRadius = 20;
-        this.visionBoost = 3;
-        this.refineryProfitMultiplier = 1;
-        this.refineryProfitMultiplierBoost = 2;
-        this.destroyRadius = 20;
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();

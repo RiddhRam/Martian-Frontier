@@ -38,7 +38,7 @@ public class UncollectedMaterialsDelegator : MonoBehaviour
                 AddMaterial(materialToAdd, materialToAdd.transform.position, materialManager.materialIndex, materialManager.count, materialManager.drillProfitMultiplier);
                 this.materialCount += materialManager.count;
             } catch {
-            }//108, 129, 106 + 40
+            }
         }
     
     }

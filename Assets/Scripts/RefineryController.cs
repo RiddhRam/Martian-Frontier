@@ -28,7 +28,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
     private int[] materialPrices;
-    public GameObject capacityUpgrades;
     [SerializeField]
     private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
@@ -43,6 +42,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
+    public UpgradesDelegator upgradesDelegator;
 
     private bool doneLoading = false;
     bool doneAnimation;
@@ -104,7 +104,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         materialsSold += preSale - haulerController.GetTotalMaterialCount();
         dailyChallengeDelegator.SoldOres(preSale - haulerController.GetTotalMaterialCount());
 
-        if (materialsSold >= 20 && !askedForReview && doneLoading) {
+        if (materialsSold >= 200 && !askedForReview && doneLoading) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
         } else if (askedForReview) {
@@ -431,9 +431,13 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return rebirthProfitMultiplier;
     }
 
+    public float GetProfitBoostMultiplier() {
+        return upgradesDelegator.profitMultiplier;
+    }
+
     public float GetTotalProfitMultiplier() {
         // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier;
+        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier + upgradesDelegator.profitMultiplier;
 
         return Mathf.Round(multiplier * 100f) / 100f;
     }

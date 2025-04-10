@@ -604,7 +604,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         mineRenderer.SetVisionRadius(upgradesDelegator.visionRadius);
 
-        refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier);
+        refineryController.SetProfitMultiplier(1);
 
         speedBoostActive = false;
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();

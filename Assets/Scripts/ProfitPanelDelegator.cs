@@ -10,28 +10,19 @@ public class ProfitPanelDelegator : MonoBehaviour
     public GameObject boostPanel;
     private RefineryController refineryController;
     private AdDelegator adDelegator;
-    public GameObject boostText;
-    public GameObject adBoostText;
-    public GameObject adBoostTimer;
-    public GameObject levelBoostText;
-    public GameObject rebirthBoostText;
+    public TextMeshProUGUI boostText;
+    public TextMeshProUGUI adBoostText;
+    public TextMeshProUGUI adBoostTimer;
+    public TextMeshProUGUI levelBoostText;
+    public TextMeshProUGUI rebirthBoostText;
+    public TextMeshProUGUI profitBoostText;
     private string activePanel = "Ores";
     private long rebirthPrice = 15_000_000_000;
     private int timer = 50;
-    private TextMeshProUGUI boostTMP;
-    private TextMeshProUGUI adBoostTMP;
-    private TextMeshProUGUI adBoostTimerTMP;
-    private TextMeshProUGUI levelBoostTextTMP;
-    private TextMeshProUGUI rebirthBoostTextTMP;
 
     void Start() {
         refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
-        boostTMP = boostText.GetComponent<TextMeshProUGUI>();
-        adBoostTMP = adBoostText.GetComponent<TextMeshProUGUI>();
-        adBoostTimerTMP = adBoostTimer.GetComponent<TextMeshProUGUI>();
-        levelBoostTextTMP = levelBoostText.GetComponent<TextMeshProUGUI>();
-        rebirthBoostTextTMP = rebirthBoostText.GetComponent<TextMeshProUGUI>();
     }
 
     void FixedUpdate() {
@@ -43,22 +34,22 @@ public class ProfitPanelDelegator : MonoBehaviour
         }
         timer = 0;
 
-        boostTMP.text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
-        adBoostTMP.text = refineryController.GetProfitMultiplier().ToString() + "x";
+        boostText.text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
+        adBoostText.text = refineryController.GetProfitMultiplier().ToString() + "x";
 
         if (adDelegator.rewardAdTimerText) {
             string totalTime =  adDelegator.rewardAdTimerText.text;
 
             if (totalTime == "0:00") {
-                adBoostTimerTMP.text = "";
+                adBoostTimer.text = "";
             } else {
-                adBoostTimerTMP.text = totalTime;
+                adBoostTimer.text = totalTime;
             }
         }
 
-
-        levelBoostTextTMP.text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
-        rebirthBoostTextTMP.text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
+        levelBoostText.text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
+        rebirthBoostText.text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
+        profitBoostText.text = refineryController.GetProfitBoostMultiplier().ToString() + "x";
     }
 
     public void DeactivatePanel() {
@@ -91,27 +82,5 @@ public class ProfitPanelDelegator : MonoBehaviour
         boostButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
         boostButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
         activePanel = "Boost";
-    }
-
-    // The FormatPrice in PlayerState is slightly different
-    private string FormatPrice(long price)
-    {
-        if (price >= 1_000_000_000) {
-            return (price / 1_000_000_000f).ToString("0.#") + "B"; // For billions
-        }
-        else if (price >= 1_000_000)
-        {
-            return (price / 1_000_000f).ToString("0.#") + "M"; // For millions
-        }
-        else if (price >= 1_000)
-        {
-            return (price / 1_000f).ToString("0.#") + "K"; // For thousands
-        }
-
-        return price.ToString(); // For smaller numbers
-    }
-
-    public long GetRebirthPrice() {
-        return rebirthPrice;
     }
 }

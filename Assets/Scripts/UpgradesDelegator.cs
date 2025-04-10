@@ -36,18 +36,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private TileBase[] ores;
     private GameObject[] materials;
     private OreDelegation oreDelegation;
-    
-    bool notSinglePlayerScene = false;
-    
-    // Survey Radar
-    public int visionRadius; // Base: 10
-    // Explosive Charge
-    public int destroyRadius; // Base: 6
-    public float refineryProfitMultiplier; // Base: 1
-
-    // For ad boost
-    public int visionBoost; // Base: 3
-    public float refineryProfitMultiplierBoost; // Base: 2
 
     readonly HashSet<Vector2Int> tilesToDestroy = new();
     readonly HashSet<Vector2Int> tilesToReveal = new();
@@ -67,7 +55,19 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     [SerializeField] private int cooldownTimer = 0;
     [SerializeField] private SerializableDictionary<string, int> powerUpgradeLevels;
-    private int cooldown = 90;
+
+    // Survey Radar
+    public int visionRadius;
+    // Explosive Charge
+    public int destroyRadius;
+    // Reduce Cooldown
+    public int cooldown = 90;
+    // Increase Rewards
+    public float crateMultiplier;
+    // Increase Profits
+    public float profitMultiplier;
+    // Increase Vision
+    public int visionBoost;
 
     private int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
 
@@ -76,16 +76,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
         materials = oreDelegation.materials;
-
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
-            notSinglePlayerScene = true;
-        }
     }
 
     public void UsePower() {
         foreach (var power in powers) {
             if (power.Name == equippedPowers[0]) {
-                power.PowerFunction.Invoke();
+                power.ActivatePower();
                 break;
             }
         }
@@ -367,23 +363,41 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powerUpgradeLevels[powerName] = powerLevel + 1;
         SetUpgradePriceAndLevel(powerIndex);
 
-        Debug.Log("Upgrading");
+        powers[powerIndex].UpdatePower();
+    }
+
+    public void UpdateRadar() {
+        Powers power = powers[0];
+        visionRadius = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
+    }
+
+    public void UpdateExplosive() {
+        Powers power = powers[1];
+        destroyRadius = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
     }
 
     public void UpdateCooldown() {
+        Powers power = powers[3];
 
+        cooldown = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
+        if (cooldownTimer > cooldown) {
+            cooldownTimer = cooldown;
+        }
     }
 
     public void UpdateRewardBoost() {
-
+        Powers power = powers[4];
+        crateMultiplier = power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name);
     }
 
     public void UpdateProfitBoost() {
-
+        Powers power = powers[5];
+        profitMultiplier = power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name);
     }
 
     public void UpdateVisionBoost() {
-
+        Powers power = powers[6];
+        visionBoost = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
     }
 
     public int GetPowerLevel(string powerName) {
@@ -476,33 +490,27 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        this.visionRadius = data.visionRadius;
-        this.visionBoost = data.visionBoost;
-        this.refineryProfitMultiplier = data.refineryProfitMultiplier;
-        this.refineryProfitMultiplierBoost = data.refineryProfitMultiplierBoost;
-        this.destroyRadius = data.destroyRadius;
         this.cooldownTimer = data.cooldownTimer;
         this.equippedPowers = data.equippedPowers;
         this.powerUpgradeLevels = data.powerUpgradeLevels;
 
-        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 10, 1));
-        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 1, false, false, "{0} BLOCKS", 10, 1));
-        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, upgradeGemPrices, powerIconsWhite[2], 3, false, false, "", 0, 0));
-        powers.Add(new(() => UpdateCooldown(), "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 5, false, true, "{0} SECONDS", 90, -1));
-        powers.Add(new(() => UpdateRewardBoost(), "INCREASE REWARDS", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 7, false, true, "{0}X", 1, 0.05f));
-        powers.Add(new(() => UpdateProfitBoost(), "INCREASE PROFITS", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 9, false, true, "{0}X", 1, 0.05f));
-        powers.Add(new(() => UpdateVisionBoost(), "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 11, false, true, "{0} BLOCKS", 3, 1));
+        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 1, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
+        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 3, false, false, "", 0, 0, () => {}));
+        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 5, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
+        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 7, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
+        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 9, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
+        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 11, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
 
         int powerIndex = 0;
 
         foreach (var power in powers) {
             if (equippedPowers[0] == power.Name) {
                 powerIndex = power.Index;
-            } else if (power.IsPassive) {
-                power.ActivatePower();
             }
 
             SetUpgradePriceAndLevel(power.Index);
+            power.UpdatePower();
         }
 
         UpdateAllPowerPanels();
@@ -519,11 +527,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data)
     {
-        data.visionRadius = this.visionRadius;
-        data.visionBoost = this.visionBoost;
-        data.refineryProfitMultiplier = this.refineryProfitMultiplier;
-        data.refineryProfitMultiplierBoost = this.refineryProfitMultiplierBoost;
-        data.destroyRadius = this.destroyRadius;
         data.cooldownTimer = this.cooldownTimer;
         data.equippedPowers = this.equippedPowers;
         data.powerUpgradeLevels = this.powerUpgradeLevels;
