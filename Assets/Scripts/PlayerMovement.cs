@@ -40,6 +40,12 @@ public class PlayerMovement : MonoBehaviour
     
     void FixedUpdate()
     {
+        float y = transform.position.y;
+        float x = transform.position.x;
+        if (y > 18 || y < -515 || x > 79 || x < -79) {
+            transform.position = new(4.5f, 5.4f, 0);
+        }
+
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
         // Otherwise it gets stuck at the spawn
         // Smooth camera follow
