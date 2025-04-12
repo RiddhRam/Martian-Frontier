@@ -323,7 +323,7 @@ public class CloudDelegator : MonoBehaviour
                 IncrementLoadedItems();
                 if (notSinglePlayerScene) {
                     dataPersistenceManager.DirectlyWriteSave();
-                    SceneManager.LoadScene("Singleplayer");
+                    SceneManager.LoadScene("Loading Screen");
                 } else {
                     dataPersistenceManager.LoadGame();
                 }

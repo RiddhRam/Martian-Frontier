@@ -31,10 +31,6 @@ public class BuildNavMeshSurface : MonoBehaviour
             surface.hideEditorLogs = true;
             surface.BuildNavMesh();           
         }
-
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
-            timer = 20;
-        }
         
         StartCoroutine(UpdateNavMeshCoroutine());
     }

@@ -55,7 +55,7 @@ public class SessionDelegator : MonoBehaviour
         analyticsDelegator.SwitchSession("Solo");
 
         Transition();
-        SceneManager.LoadScene("Singleplayer");
+        SceneManager.LoadScene("Loading Screen");
     }
 
     public void Transition() {

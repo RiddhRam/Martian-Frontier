@@ -18,7 +18,7 @@ public class AdConsent : MonoBehaviour
             
             if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                 if (Application.isEditor) {
-                    SceneManager.LoadScene("Singleplayer");
+                    SceneManager.LoadScene("Loading Screen");
                     return;
                 }
                 
@@ -26,13 +26,13 @@ public class AdConsent : MonoBehaviour
                 return;
             }
 
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Loading Screen");
             return;
         }
 
         if (PlayerPrefs.GetString("iOSATT") != "Responded") {
             if (Application.isEditor) {
-                SceneManager.LoadScene("Singleplayer");
+                SceneManager.LoadScene("Loading Screen");
                 return;
             }
 
@@ -40,7 +40,7 @@ public class AdConsent : MonoBehaviour
         }
 
         if (PlayerPrefs.GetString("iOSATT") == "Responded") {
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Loading Screen");
             return;
         }
 
@@ -52,7 +52,7 @@ public class AdConsent : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("Singleplayer");
+        SceneManager.LoadScene("Loading Screen");
     }
 
     public void GetAdConsent() {
@@ -116,7 +116,7 @@ public class AdConsent : MonoBehaviour
 
                 if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                     if (Application.isEditor) {
-                        SceneManager.LoadScene("Singleplayer");
+                        SceneManager.LoadScene("Loading Screen");
                         return;
                     }
 
@@ -124,7 +124,7 @@ public class AdConsent : MonoBehaviour
                     return;
                 }
 
-                SceneManager.LoadScene("Singleplayer");
+                SceneManager.LoadScene("Loading Screen");
             });
         } catch (Exception ex) {
             Debug.LogError("Consent info error: " + ex.Message);
@@ -133,7 +133,7 @@ public class AdConsent : MonoBehaviour
 
     #elif UNITY_ANDROID
     void Awake() {
-        SceneManager.LoadScene("Singleplayer");
+        SceneManager.LoadScene("Loading Screen");
     }
 
     #endif

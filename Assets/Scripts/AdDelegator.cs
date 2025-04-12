@@ -98,6 +98,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             adsInitialized = true;
             FillEmptyAdSlots();
         });
+
+        GetAdConsent();
     }
 
     // Called from loading screen
