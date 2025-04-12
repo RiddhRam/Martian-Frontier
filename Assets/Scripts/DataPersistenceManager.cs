@@ -190,7 +190,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         if (notSinglePlayerScene) {
             DirectlyWriteSave();
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Loading Screen");
             return;
         }
 

@@ -29,17 +29,48 @@ public class LoadingTest
     OreDelegation oreDelegation;
 
     public async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed) {
-    // Face the direction of movement
-    Vector3 direction = (targetPosition - playerVehicle.position).normalized;
-    float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
-    playerVehicle.rotation = Quaternion.Euler(0, 0, angle);
+        // Face the direction of movement
+        Vector3 direction = (targetPosition - playerVehicle.position).normalized;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
+        playerVehicle.rotation = Quaternion.Euler(0, 0, angle);
 
-    while (Vector3.Distance(playerVehicle.position, targetPosition) > 0.02f) {
-        playerVehicle.position = Vector3.MoveTowards(playerVehicle.position, targetPosition, speed * Time.deltaTime);
-        // Await a delay of roughly 16 milliseconds (~1/60s)
-        await Task.Delay(16);
+        while (Vector3.Distance(playerVehicle.position, targetPosition) > 0.02f) {
+            playerVehicle.position = Vector3.MoveTowards(playerVehicle.position, targetPosition, speed * Time.deltaTime);
+            // Await a delay of roughly 16 milliseconds (~1/60s)
+            await Task.Delay(16);
+        }
     }
-}
+
+    [UnityTest]
+    public IEnumerator TestPlaceHolderScreen() {
+        // Load the Loading Screen scene
+        AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Loading Screen");
+        
+        // Wait for the scene to finish loading
+        yield return new WaitUntil(() => asyncLoad.isDone);
+        
+        // Start a timer
+        float timeout = 5.0f;
+        float timer = 0.0f;
+        bool loadedSingleplayer = false;
+        
+        // Wait until either Singleplayer scene is loaded or timeout occurs
+        while (timer < timeout)
+        {
+            // Check if the active scene is Singleplayer
+            if (SceneManager.GetActiveScene().name == "Singleplayer")
+            {
+                loadedSingleplayer = true;
+                break;
+            }
+            
+            timer += Time.deltaTime;
+            yield return null;
+        }
+        
+        // Assert that Singleplayer was loaded within the timeout period
+        Assert.IsTrue(loadedSingleplayer, "Failed to load Singleplayer scene within " + timeout + " seconds");
+    }
 
     // DELETE GAME SAVE FILE BEFORE RUNNING
     [UnityTest]

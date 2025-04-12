@@ -802,7 +802,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         coopMineLoaded = true;
 
         GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
-        StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+        try {
+            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+        } catch {
+        }
     }
 
     private IEnumerator AsyncLoadData(GameData data) {

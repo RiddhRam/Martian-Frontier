@@ -52,7 +52,7 @@ namespace Unity.Advertisement.IosSupport.Samples
             #endif
         
             yield return null;
-            SceneManager.LoadScene("Singleplayer");
+            SceneManager.LoadScene("Loading Screen");
         }
     }   
 }

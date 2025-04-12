@@ -32,7 +32,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 84;
+    private readonly int currentVersionNumber = 87;
     private bool notSinglePlayerScene = false;
 
     async void Awake() {
@@ -323,7 +323,7 @@ public class CloudDelegator : MonoBehaviour
                 IncrementLoadedItems();
                 if (notSinglePlayerScene) {
                     dataPersistenceManager.DirectlyWriteSave();
-                    SceneManager.LoadScene("Singleplayer");
+                    SceneManager.LoadScene("Loading Screen");
                 } else {
                     dataPersistenceManager.LoadGame();
                 }

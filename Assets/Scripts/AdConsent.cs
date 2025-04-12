@@ -1,3 +1,5 @@
+using System;
+using GoogleMobileAds.Ump.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -9,41 +11,45 @@ public class AdConsent : MonoBehaviour
 
     void Awake()
     {
-        // Reset everything
-        /*PlayerPrefs.SetString("APG", "");
-        PlayerPrefs.SetString("iOSATT", "");
-        ConsentInformation.Reset();*/
+        try {
+            // Reset everything
+            /*PlayerPrefs.SetString("APG", "");
+            PlayerPrefs.SetString("iOSATT", "");
+            ConsentInformation.Reset();*/
 
-        if (PlayerPrefs.GetString("APG") == "Allowed" || PlayerPrefs.GetString("APG") == "Not Allowed") {
-            
-            if (PlayerPrefs.GetString("iOSATT") != "Responded") {
-                if (Application.isEditor) {
-                    SceneManager.LoadScene("Singleplayer");
+            if (PlayerPrefs.GetString("APG") == "Allowed" || PlayerPrefs.GetString("APG") == "Not Allowed") {
+                
+                if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                    if (Application.isEditor) {
+                        SceneManager.LoadScene("Loading Screen");
+                        return;
+                    }
+                    
+                    SceneManager.LoadScene("iOS ATT");
                     return;
                 }
-                
+
+                SceneManager.LoadScene("Loading Screen");
+                return;
+            }
+
+            if (PlayerPrefs.GetString("iOSATT") != "Responded") {
+                if (Application.isEditor) {
+                    SceneManager.LoadScene("Loading Screen");
+                    return;
+                }
+
                 SceneManager.LoadScene("iOS ATT");
+            }
+
+            if (PlayerPrefs.GetString("iOSATT") == "Responded") {
+                SceneManager.LoadScene("Loading Screen");
                 return;
             }
 
-            SceneManager.LoadScene("Singleplayer");
-            return;
+        } catch {
+            SceneManager.LoadScene("Loading Screen");
         }
-
-        if (PlayerPrefs.GetString("iOSATT") != "Responded") {
-            if (Application.isEditor) {
-                SceneManager.LoadScene("Singleplayer");
-                return;
-            }
-
-            SceneManager.LoadScene("iOS ATT");
-        }
-
-        if (PlayerPrefs.GetString("iOSATT") == "Responded") {
-            SceneManager.LoadScene("Singleplayer");
-            return;
-        }
-
     }   
 
     public void UpdatePlayerStatus(bool doneTutorialStatus) {
@@ -52,7 +58,7 @@ public class AdConsent : MonoBehaviour
             return;
         }
 
-        SceneManager.LoadScene("Singleplayer");
+        SceneManager.LoadScene("Loading Screen");
     }
 
     public void GetAdConsent() {
@@ -81,6 +87,7 @@ public class AdConsent : MonoBehaviour
             ConsentInformation.Update(request, OnConsentInfoUpdated);
         } catch (Exception ex) {
             Debug.LogError("Get consent error:" + ex.Message);
+            SceneManager.LoadScene("Loading Screen");
         }
     }
 
@@ -116,7 +123,7 @@ public class AdConsent : MonoBehaviour
 
                 if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                     if (Application.isEditor) {
-                        SceneManager.LoadScene("Singleplayer");
+                        SceneManager.LoadScene("Loading Screen");
                         return;
                     }
 
@@ -124,16 +131,17 @@ public class AdConsent : MonoBehaviour
                     return;
                 }
 
-                SceneManager.LoadScene("Singleplayer");
+                SceneManager.LoadScene("Loading Screen");
             });
         } catch (Exception ex) {
             Debug.LogError("Consent info error: " + ex.Message);
+            SceneManager.LoadScene("Loading Screen");
         }
     }
 
     #elif UNITY_ANDROID
     void Awake() {
-        SceneManager.LoadScene("Singleplayer");
+        SceneManager.LoadScene("Loading Screen");
     }
 
     #endif
