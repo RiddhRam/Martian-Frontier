@@ -1,7 +1,5 @@
 using UnityEngine;
-using GoogleMobileAds.Ump.Api;
 using UnityEngine.SceneManagement;
-using System;
 
 public class AdConsent : MonoBehaviour
 {
