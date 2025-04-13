@@ -3,8 +3,8 @@
 # min_api: 22
 # common_typos_disable
 # {"id":"com.android.tools.r8.mapping","version":"2.1"}
-# pg_map_id: c1057f0
-# pg_map_hash: SHA-256 c1057f00ca3697cee0005a2ebe093d7f04bcc55e14818683524cb29795c05ead
+# pg_map_id: 1373f2a
+# pg_map_hash: SHA-256 1373f2a5331b07db45570198a327e44e37662956ff644371f63abc07c20d678a
 _COROUTINE.ArtificialStackFrames -> _COROUTINE.ArtificialStackFrames:
 # {"id":"sourceFile","fileName":"CoroutineDebugging.kt"}
     21:21:void <init>() -> <init>
@@ -83259,6 +83259,43 @@ com.unity.purchasing.common.UnityPurchasing -> com.unity.purchasing.common.Unity
     54:58:org.json.JSONObject SerialiseProduct(com.unity.purchasing.common.ProductDescription) -> SerialiseProduct
     45:50:java.lang.String SerialiseProducts(java.util.List) -> SerialiseProducts
     36:41:java.lang.String SerialisePurchaseFailure(com.unity.purchasing.common.PurchaseFailureDescription) -> SerialisePurchaseFailure
+com.unity.services.pushnotifications.android.BuildConfig -> com.unity.services.pushnotifications.android.BuildConfig:
+    6:6:void <init>() -> <init>
+com.unity.services.pushnotifications.android.NotificationChannelWrapper -> com.unity.services.pushnotifications.android.NotificationChannelWrapper:
+# {"id":"sourceFile","fileName":"UnityPushNotifications.java"}
+    305:305:void <init>() -> <init>
+com.unity.services.pushnotifications.android.R$styleable -> com.unity.services.pushnotifications.android.R$styleable:
+    0:0:void <clinit>() -> <clinit>
+com.unity.services.pushnotifications.android.UnityFirebaseMessagingService -> com.unity.services.pushnotifications.android.UnityFirebaseMessagingService:
+    21:21:void <init>() -> <init>
+    48:50:void SendPushNotification(com.google.firebase.messaging.RemoteMessage) -> SendPushNotification
+    54:67:boolean isSenderIdValid(java.lang.String) -> isSenderIdValid
+    27:44:void onMessageReceived(com.google.firebase.messaging.RemoteMessage) -> onMessageReceived
+    79:79:void onNewToken(java.lang.String) -> onNewToken
+com.unity.services.pushnotifications.android.UnityPushNotifications -> com.unity.services.pushnotifications.android.UnityPushNotifications:
+    0:0:void <clinit>() -> <clinit>
+    44:55:void <init>() -> <init>
+    41:41:com.unity.services.pushnotifications.android.UnityPushNotificationsCallback access$000(com.unity.services.pushnotifications.android.UnityPushNotifications) -> access$000
+    192:218:android.app.Notification buildNotification(android.app.Notification$Builder,java.util.Map) -> buildNotification
+    128:159:android.app.Notification$Builder createNotificationBuilder(java.lang.String) -> createNotificationBuilder
+    238:241:java.lang.Object getIconForUri(java.lang.String) -> getIconForUri
+    257:279:com.unity.services.pushnotifications.android.NotificationChannelWrapper getNotificationChannel(java.lang.String) -> getNotificationChannel
+    253:253:android.app.NotificationManager getNotificationManager() -> getNotificationManager
+    249:249:java.lang.String getSharedPrefsNameByChannelId(java.lang.String) -> getSharedPrefsNameByChannelId
+    67:72:com.unity.services.pushnotifications.android.UnityPushNotifications getUnityPushNotificationImpl(android.content.Context) -> getUnityPushNotificationImpl
+    60:62:void initialize(android.app.Activity,com.unity.services.pushnotifications.android.UnityPushNotificationsCallback) -> initialize
+    223:227:android.graphics.Bitmap loadBitmap(java.lang.String) -> loadBitmap
+    290:296:com.unity.services.pushnotifications.android.NotificationChannelWrapper notificationChannelToWrapper(java.lang.Object) -> notificationChannelToWrapper
+    233:234:void notify(int,android.app.Notification) -> notify
+    76:91:void registerForPushNotifications(java.lang.String,java.lang.String,java.lang.String,java.lang.String) -> registerForPushNotifications
+    167:188:void registerNotificationChannel(java.lang.String,java.lang.String,int) -> registerNotificationChannel
+    109:122:void sendPushNotification(com.google.firebase.messaging.RemoteMessage,java.lang.String) -> sendPushNotification
+com.unity.services.pushnotifications.android.UnityPushNotifications$1 -> com.unity.services.pushnotifications.android.UnityPushNotifications$1:
+    91:91:void <init>(com.unity.services.pushnotifications.android.UnityPushNotifications) -> <init>
+    94:103:void onComplete(com.google.android.gms.tasks.Task) -> onComplete
+com.unity.services.pushnotifications.android.UnityPushNotificationsUtilities -> com.unity.services.pushnotifications.android.UnityPushNotificationsUtilities:
+    6:6:void <init>() -> <init>
+    13:17:int findResourceIdInContextByName(android.content.Context,java.lang.String) -> findResourceIdInContextByName
 com.unity3d.JavaPluginPreloader -> com.unity3d.JavaPluginPreloader:
     4:4:void <clinit>() -> <clinit>
     9:15:void loadJavaClass(java.lang.String) -> loadJavaClass
