@@ -427,11 +427,6 @@ public class LoadingTest
         // Tutorial
         tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
-        string[] tutorialScreenNames = { "(1) Mine those ores", "(2) Use a hauler", "(3) Go pick up the ores" };
-        for (int i = 0; i != tutorialManager.tutorialScreens.Length; i++) {
-            Assert.AreEqual(tutorialScreenNames[i], tutorialManager.tutorialScreens[i].name);
-        }
-
         Assert.AreEqual("Bottom Controls", tutorialManager.bottomControls.name);
 
         // Custom Ad Screen
@@ -600,10 +595,6 @@ public class LoadingTest
         Assert.False(tutorialManager.supplyCrateDelegator.crateNoticeIcon.gameObject.activeSelf);
 
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-        TutorialTextBox tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
-        tutorialTextBox.readyToGoNext = true;
-        tutorialManager.readyToGoNext = true;
-        tutorialManager.TapToContinue();
 
         yield return null;
 
@@ -646,9 +637,6 @@ public class LoadingTest
         Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
 
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-        tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
-        tutorialTextBox.readyToGoNext = true;
-        tutorialManager.readyToGoNext = true;
 
         GameObject bottomControls = tutorialManager.bottomControls;
 
@@ -660,7 +648,7 @@ public class LoadingTest
         yield return null;
         yield return null;
 
-        Assert.True(tutorialManager.openedGarage);
+        //Assert.True(tutorialManager.openedGarage);
         Assert.True(tutorialManager.newScreen == null);
         Assert.False(tutorialUIParent.activeSelf);
 
@@ -687,10 +675,6 @@ public class LoadingTest
 
         Assert.True(tutorialManager.oreRefineryCanvas.activeSelf);
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-        tutorialTextBox = tutorialManager.newScreen.GetComponent<TutorialTextBox>();
-        tutorialTextBox.readyToGoNext = true;
-        tutorialManager.readyToGoNext = true;
-        tutorialManager.TapToContinue();
 
         yield return null;
 

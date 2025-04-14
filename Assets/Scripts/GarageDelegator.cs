@@ -3,6 +3,7 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
+using System.Collections;
 
 public class GarageDelegator : MonoBehaviour, IDataPersistence
 {
@@ -20,7 +21,9 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
     public GameObject[] haulers;
     public Sprite[] haulersImages;
     public Color[] tierColors;
-    private string activePanel = "Drillers";
+    public string activePanel = "Drillers";
+
+    public bool openedGarage = false;
 
     public PlayerState playerState;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -29,8 +32,14 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
 
     public SerializableDictionary<string, int> vehicleUpgradeLevels;
     private readonly int[] upgradeGemPrices = new int[] {20, 40, 80, 150, 240, 360, 490, 660, 840, 1000, 1300, 1500, 1800, 2100, 2400, 2800, 3200, 3600, 4000, 4400, 4900, 5400, 5900, 6400, 7000, 7600, 8200, 8800, 9500, 10200, 10900, 11600, 12400, 13100, 13900, 14700, 15600, 16500, 17400, 18300, 19200, 20200, 21200, 22200, 23200, 24300, 25300, 26400, 27600, 28700, 29900, 31100, 32300, 33600, 34800, 36100, 37400, 38800, 40100, 41500, 42900, 44400, 45800, 47300, 48800, 50300, 51900, 53500, 55100, 56700, 58300, 60000, 61700, 63400, 65200, 66900, 68700, 70500, 72400, 74200, 76100, 78000, 79900, 81900, 83900, 85900, 87900, 89900, 92000, 94100, 96200, 98400, 101000, 103000, 105000, 107000, 109000, 112000, 114000, 116000, 119000, 121000, 123000, 126000, 128000, 131000, 133000, 136000, 138000, 141000, 144000, 146000, 149000, 151000, 154000, 157000, 160000, 162000, 165000, 168000, 171000, 174000, 176000, 179000, 182000, 185000, 188000, 191000, 194000, 197000, 200000, 203000, 206000, 210000, 213000, 216000, 219000, 222000, 226000, 229000, 232000, 235000, 239000, 242000, 246000, 249000, 252000, 256000, 259000, 263000, 266000, 270000, 274000, 277000, 281000, 284000, 288000, 292000, 296000, 299000, 303000, 307000, 311000, 314000, 318000, 322000, 326000, 330000, 334000, 338000, 342000, 346000, 350000, 354000, 358000, 362000, 367000, 371000, 375000, 379000, 383000, 388000, 392000, 396000, 401000, 405000, 409000, 414000, 418000, 423000, 427000, 432000, 436000, 441000, 445000, 450000, 454000, 459000, 464000, 468000};
+    public Image stubbyImage;
+    public bool blockPanelSwitching;
 
     public void DeactivatePanel() {
+        if (blockPanelSwitching) {
+            return;
+        }
+
         // If drillers
         if (activePanel == "Drillers") {
             drillersPanel.SetActive(false);
@@ -57,6 +66,8 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void GeneratePanel(string panelToActivate) {
+        // Just for tutorial usage
+        openedGarage = true;
         
         // If drillers
         if (panelToActivate == "Drillers") {
@@ -247,6 +258,10 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
             Button upgradeButton = panelTransform.GetChild(4).GetComponent<Button>();
             // Add an OnClick listener to the button and pass in the prefab of the vehicle
             upgradeButton.onClick.AddListener(() => OnUpgradeButtonClick(haulers[index].name, panelTransform.GetChild(4), levelText, profitText));
+
+            if (i == 0) {
+                stubbyImage = panelTransform.GetChild(3).GetComponent<Image>();
+            }
         }
 
         Canvas.ForceUpdateCanvases();
@@ -260,6 +275,34 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
         RectTransform haulersContentRect = haulersContent.GetComponent<RectTransform>();
         haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 2450 * haulerRows + 40 * (haulerRows - 1));
         haulersContent.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
+    }
+
+    public IEnumerator FlashDeployButton() {
+
+        Color originalColor = stubbyImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        float duration = 0.5f; // time to go from original to dark and back
+        float t = 0f;
+        bool goingDarker = true;
+
+        while (true)
+        {
+            t += Time.deltaTime / duration;
+
+            if (goingDarker)
+                stubbyImage.color = Color.Lerp(originalColor, darkColor, t);
+            else
+                stubbyImage.color = Color.Lerp(darkColor, originalColor, t);
+
+            if (t >= 1f)
+            {
+                t = 0f;
+                goingDarker = !goingDarker;
+            }
+
+            yield return null;
+        }
     }
 
     public void OnUpgradeButtonClick (string vehicleName, Transform upgradeButton, TextMeshProUGUI level, TextMeshProUGUI profit) {
@@ -309,6 +352,11 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ActivatePanel(string panel) {
+        if (blockPanelSwitching) {
+            uIDelegation.ShowError("FINISH THE TUTORIAL FIRST");
+            return;
+        }
+
         // If a panel was specified use that, otherwise use the activePanel
         string panelToActivate = panel.Length != 0 ? panel : activePanel;
 

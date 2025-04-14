@@ -11,7 +11,14 @@ public class DestroyMaterial : MonoBehaviour
     private int indexToDestroy;
     private GameObject previouslySelectedMaterial;
 
+    public bool preventDestruction = false;
+
     public void DestroyMaterialFunc() {
+        if (preventDestruction) {
+            GameObject.Find("UI").GetComponent<UIDelegation>().ShowError("FINISH THE TUTORIAL FIRST");
+            return;
+        }
+
         // Get the first child of player vehicle which should be a hauler so it must have hauler controller script
         // Access the private int[] materialCount and change its material count at the index by the amount specified
         HaulerController haulerController = playerVehicle.transform.GetChild(0).GetComponent<HaulerController>();
