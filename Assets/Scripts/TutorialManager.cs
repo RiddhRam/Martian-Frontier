@@ -33,6 +33,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         while (tutorialScreenIndex <= tutorialScreens.Length)
         {
+            analyticsDelegator.TutorialStep(tutorialScreenIndex);
+            
             TutorialUIParent.SetActive(true);
             if (tutorialScreenIndex < 3) {
                 readyToGoNext = false;
@@ -76,7 +78,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } else if (tutorialScreenIndex >= 2) {
                 yield return new WaitUntil(() => playerState.materialsSold > 0);
             }
-            
             tutorialScreenIndex++;
         }
 

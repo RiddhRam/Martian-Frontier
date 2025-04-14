@@ -331,4 +331,15 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
     }
+
+    public void TutorialStep(int tutorialIndex) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Tutorial_Step") {
+            {"Index", tutorialIndex},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+    }
 }

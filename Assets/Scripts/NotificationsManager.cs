@@ -1,6 +1,6 @@
 using System;
 using System.Threading.Tasks;
-using Unity.Services.PushNotifications;
+//using Unity.Services.PushNotifications;
 using UnityEngine;
 
 #if UNITY_ANDROID
@@ -26,7 +26,7 @@ public class NotificationsManager : MonoBehaviour {
 
         // Wait for initialization in Cloud Delegator
         await Task.Delay(5000);
-
+        /*
         try
         {
             string pushToken = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
@@ -39,7 +39,7 @@ public class NotificationsManager : MonoBehaviour {
         catch (Exception e)
         {
             Debug.Log("Failed to retrieve a push notification token: " + e.Message);
-        }
+        }*/
     }
 
     #if UNITY_ANDROID
