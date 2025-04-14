@@ -273,7 +273,7 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
 
         // Resize the scroll view content height to fit the rows (top padding + cell height * rows + vertical spacing between cell rows * (rows - 1))
         RectTransform haulersContentRect = haulersContent.GetComponent<RectTransform>();
-        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 2450 * haulerRows + 40 * (haulerRows - 1));
+        haulersContentRect.sizeDelta = new Vector2(haulersContentRect.sizeDelta.x, 50 + 2500 * haulerRows + 40 * (haulerRows - 1));
         haulersContent.GetComponent<RectTransform>().sizeDelta = new (0, haulersContentRect.sizeDelta.y);
     }
 
