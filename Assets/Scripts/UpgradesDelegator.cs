@@ -165,15 +165,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator SurveyAnimation() {
-        // Create the outer circle
+
         GameObject outerCircle = CreateCircle(visionRadius, surveyRadarColor, 40);
+        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 1000);
 
-        // Define the starting angle and store the player's vehicle position
-        float startAngle = 180;
-        float currentAngle = startAngle;
-        Vector3 center = playerVehicle.position;
-
-        // Create the scanner line (for the sweeping line effect)
+        float angle = 180;
         GameObject scanner = new GameObject("ScannerLine");
         LineRenderer scannerLine = scanner.AddComponent<LineRenderer>();
         scannerLine.startWidth = 1f;
@@ -184,60 +180,22 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         scannerLine.positionCount = 2;
         scannerLine.sortingOrder = 3;
 
-        // Create an arc object to draw the scanned path which moves while the scanner line sweeps
-        GameObject arcObject = new GameObject("ScannerArc");
-        LineRenderer arcRenderer = arcObject.AddComponent<LineRenderer>();
+        Vector3 start = playerVehicle.position;
+        scannerLine.SetPosition(0, start);
 
-        arcRenderer.startWidth = visionRadius;
-        arcRenderer.endWidth = visionRadius;
-        arcRenderer.material = defaultMaterial;
-        arcRenderer.startColor = new Color(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f);
-        arcRenderer.endColor = new Color(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f);
-        arcRenderer.sortingOrder = 3;
-        // Disable loop because we want a partial arc, not a closed circle
-        arcRenderer.loop = false;
-
-        // Set the number of segments for a smooth arc
-        int segments = 200;
-
-        scannerLine.SetPosition(0, center);
-        arcRenderer.positionCount = segments + 1;
-        float startInterpAngle = startAngle - 90;
-
-        float radiusToUse = visionRadius / 2;
-        float invSegments = 1f / segments;
-
-        // Sweep
-        while (currentAngle > -270f) {
-            // Decrement the angle over time
-            currentAngle -= 200f * Time.deltaTime;
-            float rad = currentAngle * Mathf.Deg2Rad;
-            Vector3 endPos = center + new Vector3(Mathf.Cos(rad) * visionRadius, Mathf.Sin(rad) * visionRadius, 0);
-
-            // Update the scanner line positions (from the center to the current end position)
-            scannerLine.SetPosition(1, endPos);
-
-            // Calculate and update the arc positions
-            for (int j = 0; j <= segments; j++) {
-                // Interpolate between the starting angle and the current angle
-                float t = j * invSegments;  
-                float angle = Mathf.Lerp(startInterpAngle, currentAngle, t);
-                float angleRad = angle * Mathf.Deg2Rad;
-                Vector3 pos = center + new Vector3(Mathf.Cos(angleRad) * radiusToUse,
-                                                    Mathf.Sin(angleRad) * radiusToUse,
-                                                    0);
-                arcRenderer.SetPosition(j, pos);
-            }
-
-            if (currentAngle < 90) {
-                yield return null;
-            }
+        while (angle > -270f)
+        {
+            angle -= 200f * Time.deltaTime; // 200f = degrees per second
+            float rad = angle * Mathf.Deg2Rad;
+            
+            Vector3 end = start + new Vector3(Mathf.Cos(rad) * visionRadius, Mathf.Sin(rad) * visionRadius, 0);
+            scannerLine.SetPosition(1, end);
+            yield return null;
         }
-
-        // Clean up the objects when done
+        
         Destroy(scanner);
         Destroy(outerCircle);
-        Destroy(arcObject);
+        Destroy(innerCircle);
     }
 
     // Destroy surrounding ores
