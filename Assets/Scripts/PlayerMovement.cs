@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public GameObject mainCamera;
     public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
+    public bool stopMoving;
 
     [SerializeField]
     private float playerSpeed = 5f;
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
     }
@@ -55,7 +57,7 @@ public class PlayerMovement : MonoBehaviour
         joystickVec = joystickMovement.joystickVec;
 
         // Make sure vehicle is trying to move
-        if (joystickVec.x == 0 && joystickVec.y == 0) {
+        if (stopMoving || (joystickVec.x == 0 && joystickVec.y == 0)) {
             rb.velocity = Vector2.zero;
             return;
         }

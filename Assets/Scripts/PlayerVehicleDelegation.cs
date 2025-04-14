@@ -19,7 +19,16 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public GarageDelegator garageDelegator;
     private bool notSinglePlayerScene = false;
 
+    // For tutorial
+    public bool blockSwitching = false;
+    public HaulerController haulerController3;
+
     public void SwitchVehicle(GameObject newVehicle) {
+
+        if (blockSwitching) {
+            UI.GetComponent<UIDelegation>().ShowError("FINISH THE TUTORIAL FIRST");
+            return;
+        }
 
         GameObject oldVehicle = transform.GetChild(0).gameObject;
 
@@ -87,7 +96,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             vehicleType = "Hauler";
 
             haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
-        
+            haulerController3 = haulerController2;
+
             analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
             return;
         }

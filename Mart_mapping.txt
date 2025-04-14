@@ -3,8 +3,8 @@
 # min_api: 22
 # common_typos_disable
 # {"id":"com.android.tools.r8.mapping","version":"2.1"}
-# pg_map_id: 12c1769
-# pg_map_hash: SHA-256 12c1769e37bfd074b89b44a3bb0335242f58077d23b3d542e89ca1e00d5a9da5
+# pg_map_id: d829499
+# pg_map_hash: SHA-256 d8294996b45524d5faf5858a94a52440340abffdcb43104eaf8e8ab44cebe22e
 _COROUTINE.ArtificialStackFrames -> _COROUTINE.ArtificialStackFrames:
 # {"id":"sourceFile","fileName":"CoroutineDebugging.kt"}
     21:21:void <init>() -> <init>
@@ -21194,6 +21194,10 @@ com.google.android.gms.common.internal.RootTelemetryConfiguration -> com.google.
     0:0:boolean getMethodTimingTelemetryEnabled() -> getMethodTimingTelemetryEnabled
     0:0:int getVersion() -> getVersion
     1:12:void writeToParcel(android.os.Parcel,int) -> writeToParcel
+com.google.android.gms.common.internal.StringResourceValueReader -> com.google.android.gms.common.internal.StringResourceValueReader:
+# {"id":"sourceFile","fileName":"com.google.android.gms:play-services-basement@@18.3.0"}
+    1:4:void <init>(android.content.Context) -> <init>
+    1:2:java.lang.String getString(java.lang.String) -> getString
 com.google.android.gms.common.internal.TelemetryData -> com.google.android.gms.common.internal.TelemetryData:
 # {"id":"sourceFile","fileName":"com.google.android.gms:play-services-base@@18.3.0"}
     0:0:void <clinit>() -> <clinit>
@@ -59015,6 +59019,8 @@ com.google.firebase.FirebaseApp -> com.google.firebase.FirebaseApp:
     502:505:java.lang.String getPersistenceKey() -> getPersistenceKey
     154:154:int hashCode() -> hashCode
     574:584:void initializeAllApis() -> initializeAllApis
+    239:253:com.google.firebase.FirebaseApp initializeApp(android.content.Context) -> initializeApp
+    267:267:com.google.firebase.FirebaseApp initializeApp(android.content.Context,com.google.firebase.FirebaseOptions) -> initializeApp
     283:303:com.google.firebase.FirebaseApp initializeApp(android.content.Context,com.google.firebase.FirebaseOptions,java.lang.String) -> initializeApp
     373:374:boolean isDataCollectionDefaultEnabled() -> isDataCollectionDefaultEnabled
     446:446:boolean isDefaultApp() -> isDefaultApp
@@ -59103,22 +59109,15 @@ com.google.firebase.FirebaseException -> com.google.firebase.FirebaseException:
     1:1:void <init>() -> <init>
     2:2:void <init>(java.lang.String) -> <init>
 com.google.firebase.FirebaseOptions -> com.google.firebase.FirebaseOptions:
-    30:30:void <init>(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,com.google.firebase.FirebaseOptions$1) -> <init>
     138:146:void <init>(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String) -> <init>
     227:237:boolean equals(java.lang.Object) -> equals
+    156:168:com.google.firebase.FirebaseOptions fromResource(android.content.Context) -> fromResource
     177:177:java.lang.String getApiKey() -> getApiKey
     183:183:java.lang.String getApplicationId() -> getApplicationId
     210:210:java.lang.String getGcmSenderId() -> getGcmSenderId
     222:222:java.lang.String getProjectId() -> getProjectId
     242:242:int hashCode() -> hashCode
     248:255:java.lang.String toString() -> toString
-com.google.firebase.FirebaseOptions$Builder -> com.google.firebase.FirebaseOptions$Builder:
-    61:61:void <init>() -> <init>
-    126:126:com.google.firebase.FirebaseOptions build() -> build
-    81:81:com.google.firebase.FirebaseOptions$Builder setApiKey(java.lang.String) -> setApiKey
-    87:87:com.google.firebase.FirebaseOptions$Builder setApplicationId(java.lang.String) -> setApplicationId
-    108:108:com.google.firebase.FirebaseOptions$Builder setGcmSenderId(java.lang.String) -> setGcmSenderId
-    120:120:com.google.firebase.FirebaseOptions$Builder setProjectId(java.lang.String) -> setProjectId
 com.google.firebase.analytics.connector.AnalyticsConnector -> com.google.firebase.analytics.connector.AnalyticsConnector:
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-measurement-connector@@19.0.0"}
 com.google.firebase.components.AbstractComponentContainer -> com.google.firebase.components.AbstractComponentContainer:
@@ -59974,9 +59973,6 @@ com.google.firebase.messaging.CommonNotificationBuilder$DisplayNotificationInfo 
 com.google.firebase.messaging.Constants -> com.google.firebase.messaging.Constants:
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
     1:1:void <clinit>() -> <clinit>
-com.google.firebase.messaging.Constants$MessagePayloadKeys -> com.google.firebase.messaging.Constants$MessagePayloadKeys:
-# {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
-    1:11:androidx.collection.ArrayMap extractDeveloperDefinedPayload(android.os.Bundle) -> extractDeveloperDefinedPayload
 com.google.firebase.messaging.DisplayNotification -> com.google.firebase.messaging.DisplayNotification:
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
     0:0:void <init>(android.content.Context,com.google.firebase.messaging.NotificationParams,java.util.concurrent.Executor) -> <init>
@@ -60087,7 +60083,6 @@ com.google.firebase.messaging.FirebaseMessaging -> com.google.firebase.messaging
     0:0:android.content.Context getApplicationContext() -> getApplicationContext
     2:3:com.google.firebase.messaging.FirebaseMessaging getInstance(com.google.firebase.FirebaseApp) -> getInstance
     1:2:java.lang.String getSubtype() -> getSubtype
-    1:4:com.google.android.gms.tasks.Task getToken() -> getToken
     1:1:com.google.firebase.messaging.Store$Token getTokenWithoutTriggeringSync() -> getTokenWithoutTriggeringSync
     0:0:com.google.android.datatransport.TransportFactory getTransportFactory() -> getTransportFactory
     1:6:void invokeOnTokenRefresh(java.lang.String) -> invokeOnTokenRefresh
@@ -60095,7 +60090,6 @@ com.google.firebase.messaging.FirebaseMessaging -> com.google.firebase.messaging
     1:1:boolean isGmsCorePresent() -> isGmsCorePresent
     1:1:com.google.android.gms.tasks.Task lambda$blockingGetToken$8$FirebaseMessaging(com.google.android.gms.tasks.Task) -> lambda$blockingGetToken$8$FirebaseMessaging
     1:1:com.google.android.gms.tasks.Task lambda$blockingGetToken$9$FirebaseMessaging(java.lang.String,com.google.android.gms.tasks.Task) -> lambda$blockingGetToken$9$FirebaseMessaging
-    1:2:void lambda$getToken$2$FirebaseMessaging(com.google.android.gms.tasks.TaskCompletionSource) -> lambda$getToken$2$FirebaseMessaging
     1:2:void lambda$new$0$FirebaseMessaging() -> lambda$new$0$FirebaseMessaging
     1:2:void lambda$new$1$FirebaseMessaging(com.google.firebase.messaging.TopicsSubscriber) -> lambda$new$1$FirebaseMessaging
     0:0:void setSyncScheduledOrRunning(boolean) -> setSyncScheduledOrRunning
@@ -60114,10 +60108,6 @@ com.google.firebase.messaging.FirebaseMessaging$$Lambda$2 -> com.google.firebase
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
     0:0:void <init>(com.google.firebase.messaging.FirebaseMessaging) -> <init>
     0:0:void onSuccess(java.lang.Object) -> onSuccess
-com.google.firebase.messaging.FirebaseMessaging$$Lambda$3 -> com.google.firebase.messaging.FirebaseMessaging$$Lambda$3:
-# {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
-    0:0:void <init>(com.google.firebase.messaging.FirebaseMessaging,com.google.android.gms.tasks.TaskCompletionSource) -> <init>
-    0:0:void run() -> run
 com.google.firebase.messaging.FirebaseMessaging$$Lambda$8 -> com.google.firebase.messaging.FirebaseMessaging$$Lambda$8:
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
     0:0:void <init>(com.google.firebase.messaging.FirebaseMessaging,java.lang.String) -> <init>
@@ -60276,8 +60266,6 @@ com.google.firebase.messaging.RemoteMessage -> com.google.firebase.messaging.Rem
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
     0:0:void <clinit>() -> <clinit>
     1:1:void <init>(android.os.Bundle) -> <init>
-    1:1:java.util.Map getData() -> getData
-    1:1:java.lang.String getFrom() -> getFrom
     1:1:void writeToParcel(android.os.Parcel,int) -> writeToParcel
 com.google.firebase.messaging.RemoteMessageCreator -> com.google.firebase.messaging.RemoteMessageCreator:
 # {"id":"sourceFile","fileName":"com.google.firebase:firebase-messaging@@22.0.0"}
@@ -60591,6 +60579,16 @@ com.google.firebase.platforminfo.LibraryVersionComponent$$ExternalSyntheticLambd
       # {"id":"com.android.tools.r8.synthesized"}
     0:0:java.lang.Object com.google.firebase.platforminfo.LibraryVersionComponent$$InternalSyntheticLambda$4$a9b5885f4574b0a4757b9b296afacdff5493e0128ea8df4e723ff83ce3b5edc5$0.create(com.google.firebase.components.ComponentContainer) -> create
       # {"id":"com.android.tools.r8.synthesized"}
+com.google.firebase.provider.FirebaseInitProvider -> com.google.firebase.provider.FirebaseInitProvider:
+    32:32:void <init>() -> <init>
+    44:45:void attachInfo(android.content.Context,android.content.pm.ProviderInfo) -> attachInfo
+    64:66:void checkContentProviderAuthority(android.content.pm.ProviderInfo) -> checkContentProviderAuthority
+    0:0:int delete(android.net.Uri,java.lang.String,java.lang.String[]) -> delete
+    0:0:java.lang.String getType(android.net.Uri) -> getType
+    0:0:android.net.Uri insert(android.net.Uri,android.content.ContentValues) -> insert
+    51:54:boolean onCreate() -> onCreate
+    0:0:android.database.Cursor query(android.net.Uri,java.lang.String[],java.lang.String,java.lang.String[],java.lang.String) -> query
+    0:0:int update(android.net.Uri,android.content.ContentValues,java.lang.String,java.lang.String[]) -> update
 com.google.protobuf.AbstractMessageLite -> com.google.protobuf.AbstractMessageLite:
     49:53:void <init>() -> <init>
     142:142:void addAll(java.lang.Iterable,java.util.Collection) -> addAll
@@ -85120,43 +85118,6 @@ com.unity.purchasing.common.UnityPurchasing -> com.unity.purchasing.common.Unity
     54:58:org.json.JSONObject SerialiseProduct(com.unity.purchasing.common.ProductDescription) -> SerialiseProduct
     45:50:java.lang.String SerialiseProducts(java.util.List) -> SerialiseProducts
     36:41:java.lang.String SerialisePurchaseFailure(com.unity.purchasing.common.PurchaseFailureDescription) -> SerialisePurchaseFailure
-com.unity.services.pushnotifications.android.BuildConfig -> com.unity.services.pushnotifications.android.BuildConfig:
-    6:6:void <init>() -> <init>
-com.unity.services.pushnotifications.android.NotificationChannelWrapper -> com.unity.services.pushnotifications.android.NotificationChannelWrapper:
-# {"id":"sourceFile","fileName":"UnityPushNotifications.java"}
-    305:305:void <init>() -> <init>
-com.unity.services.pushnotifications.android.R$styleable -> com.unity.services.pushnotifications.android.R$styleable:
-    0:0:void <clinit>() -> <clinit>
-com.unity.services.pushnotifications.android.UnityFirebaseMessagingService -> com.unity.services.pushnotifications.android.UnityFirebaseMessagingService:
-    21:21:void <init>() -> <init>
-    48:50:void SendPushNotification(com.google.firebase.messaging.RemoteMessage) -> SendPushNotification
-    54:67:boolean isSenderIdValid(java.lang.String) -> isSenderIdValid
-    27:44:void onMessageReceived(com.google.firebase.messaging.RemoteMessage) -> onMessageReceived
-    79:79:void onNewToken(java.lang.String) -> onNewToken
-com.unity.services.pushnotifications.android.UnityPushNotifications -> com.unity.services.pushnotifications.android.UnityPushNotifications:
-    0:0:void <clinit>() -> <clinit>
-    44:55:void <init>() -> <init>
-    41:41:com.unity.services.pushnotifications.android.UnityPushNotificationsCallback access$000(com.unity.services.pushnotifications.android.UnityPushNotifications) -> access$000
-    192:218:android.app.Notification buildNotification(android.app.Notification$Builder,java.util.Map) -> buildNotification
-    128:159:android.app.Notification$Builder createNotificationBuilder(java.lang.String) -> createNotificationBuilder
-    238:241:java.lang.Object getIconForUri(java.lang.String) -> getIconForUri
-    257:279:com.unity.services.pushnotifications.android.NotificationChannelWrapper getNotificationChannel(java.lang.String) -> getNotificationChannel
-    253:253:android.app.NotificationManager getNotificationManager() -> getNotificationManager
-    249:249:java.lang.String getSharedPrefsNameByChannelId(java.lang.String) -> getSharedPrefsNameByChannelId
-    67:72:com.unity.services.pushnotifications.android.UnityPushNotifications getUnityPushNotificationImpl(android.content.Context) -> getUnityPushNotificationImpl
-    60:62:void initialize(android.app.Activity,com.unity.services.pushnotifications.android.UnityPushNotificationsCallback) -> initialize
-    223:227:android.graphics.Bitmap loadBitmap(java.lang.String) -> loadBitmap
-    290:296:com.unity.services.pushnotifications.android.NotificationChannelWrapper notificationChannelToWrapper(java.lang.Object) -> notificationChannelToWrapper
-    233:234:void notify(int,android.app.Notification) -> notify
-    76:91:void registerForPushNotifications(java.lang.String,java.lang.String,java.lang.String,java.lang.String) -> registerForPushNotifications
-    167:188:void registerNotificationChannel(java.lang.String,java.lang.String,int) -> registerNotificationChannel
-    109:122:void sendPushNotification(com.google.firebase.messaging.RemoteMessage,java.lang.String) -> sendPushNotification
-com.unity.services.pushnotifications.android.UnityPushNotifications$1 -> com.unity.services.pushnotifications.android.UnityPushNotifications$1:
-    91:91:void <init>(com.unity.services.pushnotifications.android.UnityPushNotifications) -> <init>
-    94:103:void onComplete(com.google.android.gms.tasks.Task) -> onComplete
-com.unity.services.pushnotifications.android.UnityPushNotificationsUtilities -> com.unity.services.pushnotifications.android.UnityPushNotificationsUtilities:
-    6:6:void <init>() -> <init>
-    13:17:int findResourceIdInContextByName(android.content.Context,java.lang.String) -> findResourceIdInContextByName
 com.unity3d.JavaPluginPreloader -> com.unity3d.JavaPluginPreloader:
     4:4:void <clinit>() -> <clinit>
     9:15:void loadJavaClass(java.lang.String) -> loadJavaClass
