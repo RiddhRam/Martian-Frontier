@@ -205,9 +205,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try {
             playerState.RewardPlayerWithGems(1000, "YOU FINISHED THE TUTORIAL!");
-            analyticsDelegator.FinishTutorial();
-            // Switch back to first driller and reset mine
             supplyCrateDelegator.ChangeCrateCount(1);
+            
+            // Switch back to first driller and reset mine
+            playerVehicleDelegation.SwitchVehicle(garageDelegator.drillers[0]);
+            refineryController.CallResetMineFromButton();
+
+            analyticsDelegator.FinishTutorial();
         } catch (Exception ex) {  
             Debug.Log(ex.Message);
         }

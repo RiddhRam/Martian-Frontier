@@ -32,7 +32,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 89;
+    private readonly int currentVersionNumber = 90;
     private bool notSinglePlayerScene = false;
 
     async void Awake() {
