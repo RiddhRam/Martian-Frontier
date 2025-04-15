@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Unity.Services.Analytics;
+using Unity.Services.Core;
 using Unity.Services.PushNotifications;
 using UnityEngine;
 
@@ -25,20 +28,31 @@ public class NotificationsManager : MonoBehaviour {
         #endif
 
         // Wait for initialization in Cloud Delegator
-        await Task.Delay(5000);
+        await UnityServices.InitializeAsync();
         
         try
         {
-            /*string pushToken = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
+            PushNotificationsService.Instance.OnRemoteNotificationReceived += PushNotificationRecieved;
 
-            PushNotificationsService.Instance.OnRemoteNotificationReceived += notificationData =>
-            {
-                Debug.Log("Received a notification!");
-            };*/
+            AnalyticsService.Instance.StartDataCollection();
+
+            // Make sure to set the required settings in Project Settings before testing
+            string token = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
+            Debug.Log($"The push notification token is {token}");
+            
         }
         catch (Exception e)
         {
             Debug.Log("Failed to retrieve a push notification token: " + e.Message);
+        }
+    }
+
+    void PushNotificationRecieved(Dictionary<string, object> notificationData)
+    {
+        Debug.Log("Notification received!");
+        foreach (KeyValuePair<string, object> item in notificationData)
+        {
+            Debug.Log($"Notification data item: {item.Key} - {item.Value}");
         }
     }
 
