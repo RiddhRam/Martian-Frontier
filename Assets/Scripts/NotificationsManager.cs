@@ -29,12 +29,12 @@ public class NotificationsManager : MonoBehaviour {
         
         try
         {
-            string pushToken = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
+            /*string pushToken = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
 
             PushNotificationsService.Instance.OnRemoteNotificationReceived += notificationData =>
             {
                 Debug.Log("Received a notification!");
-            };
+            };*/
         }
         catch (Exception e)
         {
