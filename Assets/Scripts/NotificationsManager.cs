@@ -32,13 +32,13 @@ public class NotificationsManager : MonoBehaviour {
         
         try
         {
-            PushNotificationsService.Instance.OnRemoteNotificationReceived += PushNotificationRecieved;
+            //PushNotificationsService.Instance.OnRemoteNotificationReceived += PushNotificationRecieved;
 
-            AnalyticsService.Instance.StartDataCollection();
+            //AnalyticsService.Instance.StartDataCollection();
 
             // Make sure to set the required settings in Project Settings before testing
-            string token = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
-            Debug.Log($"The push notification token is {token}");
+            //string token = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
+            //Debug.Log($"The push notification token is {token}");
             
         }
         catch (Exception e)

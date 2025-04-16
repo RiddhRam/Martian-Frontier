@@ -159,7 +159,6 @@ public class SettingsDelegator : MonoBehaviour
         {
             string languageShortCode = locale.Identifier.Code;
             string languageName = GetLanguageFullName(languageShortCode);
-            Debug.Log(languageShortCode + ": " + languageName);
             options.Add(languageName);
         }
 

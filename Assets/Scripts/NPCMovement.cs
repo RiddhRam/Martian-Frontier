@@ -360,15 +360,9 @@ public class NPCMovement : MonoBehaviour
 
         // Smoothly rotate towards the target angle over time (0.3 second)
         currentAngle = transform.eulerAngles.z;
-        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
-
-        // This checks if the user is trying to go straight forward or reverse, if neither then rotate
-        if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
-            // Apply the new rotation
-            transform.rotation = Quaternion.Euler(0, 0, newAngle);
-        } else {
-            transform.rotation = Quaternion.Euler(0, 0, targetAngle);
-        }
+        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, 8f * Time.deltaTime); // 8f = sharpness, higher is snappier
+        
+        transform.rotation = Quaternion.Euler(0, 0, newAngle);
 
         // Save this value in case it's needed for front wheels
         tempLastRotation = lastRotation;

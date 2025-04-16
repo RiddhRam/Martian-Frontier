@@ -695,7 +695,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         waitingInLobby = true;
         if (mineRenderer.mineInitialization == 0) {
             for (int i = 0; i != npcCount; i++) {
-                StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition(npcIsHauler[i])));
+                if (nPCMovements[i] != null) {
+                    StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition(npcIsHauler[i])));
+                }
             } 
         }
         yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
