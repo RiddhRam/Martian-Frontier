@@ -38,8 +38,7 @@ public class PlayerMovement : MonoBehaviour
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
     }
 
-    // Update is called once per frame
-    
+    // 50 times a second
     void FixedUpdate()
     {
         float y = transform.position.y;
