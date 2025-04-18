@@ -31380,6 +31380,7 @@ MonoBehaviour:
   garageDelegator: {fileID: 648771415}
   lostInternetScreen: {fileID: 1038000233}
   testAgent: {fileID: 7098116110088936298}
+  testTilemapAStar: {fileID: 7098116110088936299}
   mapRecordingMode: {fileID: 1779852221}
   toggleCamera: {fileID: 905818946}
 --- !u!4 &2090593764
@@ -31815,6 +31816,7 @@ GameObject:
   - component: {fileID: 3804941662676678700}
   - component: {fileID: 2171789671746405319}
   - component: {fileID: 7098116110088936298}
+  - component: {fileID: 7098116110088936299}
   m_Layer: 3
   m_Name: Test Agent
   m_TagString: Untagged
@@ -37042,6 +37044,21 @@ NavMeshAgent:
   m_BaseOffset: 0
   m_WalkableMask: 4294967295
   m_ObstacleAvoidanceType: 2
+--- !u!114 &7098116110088936299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361560755264366174}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4494c5c3d294a4e4ab41b54a530dd5e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Waypoints: []
+  PathFound: 0
+  nPCMovement: {fileID: 0}
 --- !u!1 &7179677849170224689 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3606986377072591324, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}

@@ -43,6 +43,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int[] nPCTimeRemaining;
     [SerializeField]
     private int nPCEmptyTimer = 0;
+    private int haulerCheckTimer = 0;
     private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
     // Helps prevent race conditions with NPCMovement and LiveManageSession()
     private bool[] transitioningVehicle;
@@ -70,13 +71,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField]
     private NavMeshAgent testAgent;
     [SerializeField]
+    private TilemapAStar testTilemapAStar;
+    [SerializeField]
     private MapRecordingMode mapRecordingMode;
     [SerializeField]
     private Button toggleCamera;
 
     private bool waitingInLobby = false;
 
-    private readonly int sessionUpdateTimer = 4;
+    private readonly int sessionUpdateTimer = 5;
     private readonly int[] drillerTierThresholds = {5, 11, 17};
     private readonly int[] haulerThresholds = {9, 13, 19};
     private readonly string[] botNames = {
@@ -309,7 +312,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             haulerController = vehicle.GetComponent<HaulerController>();
 
             // (width - 2) gives the right agent index for haulers
-            navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
+            navMeshAgents[npcIndex].enabled = false;
+            //navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
 
             if (mapRecordingMode.enabled) {
                 speed = 8;
@@ -480,7 +484,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         Time.timeScale = 6;
         // 5 real seconds
-        // Comment when recording
         if (!mapRecordingMode.enabled) {
             yield return new WaitForSeconds(30);
             Time.timeScale = 1;
@@ -591,7 +594,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 nPCEmptyTimer = 0;
             }
 
-            CheckIfHaulingNeeded(-1);
+            haulerCheckTimer += sessionUpdateTimer;
+
+            if (haulerCheckTimer > 30) {
+                haulerCheckTimer = 0;
+                CheckIfHaulingNeeded(-1);
+            }
 
             highestDrillTier = playerState.GetHighestDrillTier();
         }
@@ -761,7 +769,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public bool CheckIfHaulingNeeded(int npcIndex, bool hasCargo = false) {
+        Debug.Log("Checking");
 
+        testTilemapAStar.mineRenderer = mineRenderer;
+        
         if (uncollectedMaterialsDelegator.materialCount < Get1HaulerThreshold()) {
             // -1 means it wasn't called from a npc
             if (npcIndex != -1 && !hasCargo) {
@@ -782,10 +793,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         do {
             newHaulerPosition = RequestNewHaulerPosition(highestDrillTier);
+            testTilemapAStar.GeneratePath(new(11, 0, 0), newHaulerPosition, 3);
 
             haulPositionCount++;
         } 
-        while((!testAgent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
+        while(!testTilemapAStar.PathFound && haulPositionCount < 60);
+
+        Debug.Log(newHaulerPosition);
 
         if (haulPositionCount >= 60 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
             drillingNeeded = true;

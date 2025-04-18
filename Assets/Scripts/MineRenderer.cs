@@ -44,7 +44,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // public so DrillerController can easily use it
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
     // Array of the tilemap Game objects
-    private Tilemap[,] tilemaps;
+    public Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
     // Lowercase names
