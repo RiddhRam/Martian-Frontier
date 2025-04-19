@@ -422,12 +422,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         userXP = 0;
         userCash = 0;
         vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
-        
-        GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
-        garagePanel.GetComponent<GarageDelegator>().PlayerRebirth();
 
         upgradesDelegator.SwapPower(0);
         upgradesDelegator.UpdatePowerVisibility();
+
+        GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         
         PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
         playerVehicleDelegation.SwitchVehicle(newVehicle);

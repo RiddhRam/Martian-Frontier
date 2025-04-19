@@ -41,7 +41,7 @@ public class NPCMovement : MonoBehaviour
     Vector2 direction;
     readonly System.Random random = new();
     private float timer = 0;
-    private float maxTimer = 10f;
+    private readonly float maxTimer = 20f;
 
     // Cache
     NavMeshPath path;
@@ -67,6 +67,8 @@ public class NPCMovement : MonoBehaviour
             return;
         }
 
+        timer += Time.deltaTime;
+
         if (!haulerController) {
 
             try {
@@ -82,17 +84,17 @@ public class NPCMovement : MonoBehaviour
                 direction = (agent.steeringTarget - transform.position).normalized;
             }
 
-            // If npc is close then choose a new spot
-            if (Vector3.Distance(transform.position, dest) < 0.5f) {
+            // If npc is close or timer reached then choose a new spot
+            if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer) {
                 RequestNewPosition();
             }
 
         } else {
             
-            if (tilemapAStar.Waypoints.Count != 0) {
+            if (tilemapAStar.Waypoints.Count != 0 && maxTimer > timer) {
                 float distance = Vector3.Distance(transform.position, tilemapAStar.Waypoints[0]);
 
-                if (distance < 0.5f) {
+                if (distance < 2f) {
                     tilemapAStar.Waypoints.RemoveAt(0);
                 } else {
                     direction = (tilemapAStar.Waypoints[0] - transform.position).normalized;
@@ -125,8 +127,6 @@ public class NPCMovement : MonoBehaviour
 
         joystickVec = direction;
 
-        timer += Time.deltaTime;
-
         if (!stopMoving) {
             MoveVehicle();
         } else {
@@ -151,18 +151,16 @@ public class NPCMovement : MonoBehaviour
         
         UpdateAgentDestination(newDestination);
 
-
         while (Vector3.Distance(transform.position, dest) > 0.5f) {
             joystickVec = (dest - transform.position).normalized;
-
             MoveVehicle();
-
             yield return null;
         }
         rb.velocity = Vector2.zero;
 
         yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
-        yield return new WaitForSeconds((float) random.NextDouble() * 4);
+        RequestNewPosition();
+        yield return new WaitForSeconds((float) random.NextDouble() * 3);
 
         transitioning = false;
     }
@@ -248,18 +246,21 @@ public class NPCMovement : MonoBehaviour
     }
 
     public void RequestNewPosition() {
+        timer = 0;
 
         // Get hauler position
         if (haulerController != null) {
-            AskIfHaulingIsNeeded();
+            StartCoroutine(AskIfHaulingIsNeeded());
 
-            // If hauler doesnt need to become a drill, then go to a new position
+            // If hauler doesnt need to become a drill, or isnt waiting in spawn, then go to a new position
             if (!transitioning) {
                 UpdateAgentDestination(RequestNewHaulerPosition());
+                tilemapAStar.GeneratePath(transform.position, dest, 3);
             } 
             // Otherwise drop off materials if there are more than 10 then try again
             else if (haulerController.GetTotalMaterialCount() > 0) {
                 UpdateAgentDestination(new(0, 6));
+                tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
                 transitioning = false;
             }
             // Otherwise, it is going to become a driller
@@ -296,9 +297,10 @@ public class NPCMovement : MonoBehaviour
 
                 newHaulerPosition = collision.transform.position;
 
-                tilemapAStar.GeneratePath(transform.position, newHaulerPosition);
+                tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
 
                 if (tilemapAStar.PathFound) {
+                    UpdateAgentDestination(newHaulerPosition);
                     foundNearbyMaterial = true;
                     break;
                 }
@@ -324,6 +326,8 @@ public class NPCMovement : MonoBehaviour
         if (haulPositionCount >= 60) {
             newHaulerPosition = new(0, -6);
             nPCManager.drillingNeeded = true;
+        } else {
+            UpdateAgentDestination(newHaulerPosition);
         }
 
         return newHaulerPosition;
@@ -402,19 +406,37 @@ public class NPCMovement : MonoBehaviour
         for (int i = 0; i != vehicle.childCount; i++) {
             if (vehicle.GetChild(i).name == "Front Wheels") {
                 frontWheels = vehicle.GetChild(i);
+
+                for (int j = 0; j != frontWheels.childCount; j++) {
+                    frontWheels.GetChild(j).GetComponent<BoxCollider2D>().enabled = false;
+                }
                 return;
             }
         }
         frontWheels = null;
+
+        
     }
 
-    public void AskIfHaulingIsNeeded() {
+    public IEnumerator AskIfHaulingIsNeeded() {
         transitioning = true;
         bool stay = nPCManager.CheckIfHaulingNeeded(npcIndex, haulerController.GetTotalMaterialCount() > 10);
 
         if (stay) {
             transitioning = false;
+            yield break;
         }
+
+        // If transitioning to a driller, keep going to final destination
+        while (Vector3.Distance(transform.position, dest) > 0.5f) {
+            MoveVehicle();
+            joystickVec = (dest - transform.position).normalized;
+            yield return null;
+        }
+
+        // Then stop moving and wait
+        stopMoving = true;
+        rb.velocity = Vector2.zero;
     }
 
     private IEnumerator HoldPlayerCardStill() {

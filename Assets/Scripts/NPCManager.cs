@@ -69,8 +69,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField]
     private GameObject lostInternetScreen;
     [SerializeField]
-    private NavMeshAgent testAgent;
-    [SerializeField]
     private TilemapAStar testTilemapAStar;
     [SerializeField]
     private MapRecordingMode mapRecordingMode;
@@ -154,7 +152,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     HaulerController haulerController;
     Coroutine liveSessionCoroutine;
     private Camera mainCamera;
-    private NavMeshPath path;
 
     void Awake()
     {
@@ -248,7 +245,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             }
             
             // If its a Specter, drop the index by one
-            // Specters are buggy with AI Navigation, they keep getting stuck
             if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
                 index--;
             }
@@ -293,8 +289,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 index = 0;
             }
 
-            // Helions are too large, too buggy, also there's no nav mesh surface for them
-            if (garageDelegator.haulers[index].name.Contains("HELION")) {
+            // Helions and turbo tankers are too largeare too large
+            if (garageDelegator.haulers[index].name.Contains("HELION") || garageDelegator.haulers[index].name.Contains("TURBO TANKER")) {
                 index--;
             }
 
@@ -311,9 +307,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerController = vehicle.GetComponent<HaulerController>();
 
-            // (width - 2) gives the right agent index for haulers
             navMeshAgents[npcIndex].enabled = false;
-            //navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
 
             if (mapRecordingMode.enabled) {
                 speed = 8;
@@ -596,7 +590,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerCheckTimer += sessionUpdateTimer;
 
-            if (haulerCheckTimer > 30) {
+            if (haulerCheckTimer > 60) {
                 haulerCheckTimer = 0;
                 CheckIfHaulingNeeded(-1);
             }
@@ -713,15 +707,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public int Get1HaulerThreshold() {
-        return 320 + (130 * highestDrillTier);
+        return 250 + (110 * highestDrillTier);
     }
 
     public int Get2HaulerThreshold() {
-        return 390 + (130 * highestDrillTier);
+        return 350 + (110 * highestDrillTier);
     }
 
     public int Get3HaulerThreshold() {
-        return 500 + (150 * highestDrillTier);
+        return 450 + (110 * highestDrillTier);
     }
 
     public void DropMaterials(int npcIndex) {
@@ -769,7 +763,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public bool CheckIfHaulingNeeded(int npcIndex, bool hasCargo = false) {
-        Debug.Log("Checking");
 
         testTilemapAStar.mineRenderer = mineRenderer;
         
@@ -788,18 +781,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         Vector3 newHaulerPosition;
         int haulPositionCount = 0;
 
-        // If path is null, initialize it
-        path ??= new NavMeshPath();
-
         do {
             newHaulerPosition = RequestNewHaulerPosition(highestDrillTier);
-            testTilemapAStar.GeneratePath(new(11, 0, 0), newHaulerPosition, 3);
+            testTilemapAStar.GeneratePath(new(12, -1, 0), newHaulerPosition, 3);
 
             haulPositionCount++;
         } 
         while(!testTilemapAStar.PathFound && haulPositionCount < 60);
-
-        Debug.Log(newHaulerPosition);
 
         if (haulPositionCount >= 60 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
             drillingNeeded = true;

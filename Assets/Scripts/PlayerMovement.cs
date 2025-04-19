@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
     {
         float y = transform.position.y;
         float x = transform.position.x;
-        if (y > 18 || y < -515 || x > 79 || x < -79) {
+        if (y > 21 || y < -515 || x > 79 || x < -79) {
             transform.position = new(4.5f, 5.4f, 0);
         }
 

@@ -157,7 +157,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (!haulerController.CheckIfNpc()) {
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         } else {
-            collision.transform.parent.GetComponent<NPCMovement>().AskIfHaulingIsNeeded();
+            StartCoroutine(collision.transform.parent.GetComponent<NPCMovement>().AskIfHaulingIsNeeded());
         }
 
         if (tutorialManager == null) {

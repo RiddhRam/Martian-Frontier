@@ -25,6 +25,8 @@ public class TilemapAStar : MonoBehaviour
 
     Color randomColor = Color.red;
 
+    private readonly int MaxNodesToExpand = 20000;
+
     void Start()
     {
         randomColor = Random.ColorHSV();
@@ -40,7 +42,7 @@ public class TilemapAStar : MonoBehaviour
     };
 
     /// <summary>Attempts to build a path from <paramref name="startWorld"/> to <paramref name="endWorld"/>.</summary>
-    public void GeneratePath(Vector3 startWorld, Vector3 endWorld, int width = 1)
+    public void GeneratePath(Vector3 startWorld, Vector3 endWorld, int width = 1, bool mandatory = false)
     {
         if (!mineRenderer) {
             mineRenderer = nPCMovement.nPCManager.mineRenderer;
@@ -54,6 +56,7 @@ public class TilemapAStar : MonoBehaviour
 
         Waypoints.Clear();
         PathFound = false;
+
         open.Clear();
         closed.Clear();
         nodePool.Clear();
@@ -74,17 +77,22 @@ public class TilemapAStar : MonoBehaviour
         open.Add(startNode);
         nodePool[start] = startNode;
 
+        int expanded = 0;
+
         while (open.Count > 0)
         {
             Node current = open.RemoveFirst();
             closed.Add(current.pos);
 
+            // Mandatory means that this path MUST be found. Usually when the hauler needs to go back up to the top
+            if (++expanded >= MaxNodesToExpand && !mandatory) {
+                generating = false;
+                return;
+            }
+
             if (current.pos == goal)
             {
                 Reconstruct(current);
-
-                // Remove all points in the spawn
-                Waypoints.RemoveAll(wp => wp.y > -3);
 
                 PathFound = true;
                 generating = false;
@@ -123,22 +131,19 @@ public class TilemapAStar : MonoBehaviour
     private void Reconstruct(Node goalNode)
     {
         Waypoints.Clear();
-        for (Node cur = goalNode; cur != null; cur = cur.parent)
+
+        int index = 0;
+        for (Node cur = goalNode; cur != null; cur = cur.parent, index++)
         {
-            Vector2Int mp = mineRenderer.CalculateTileMapPos(new(cur.pos.x, cur.pos.y));
-            Waypoints.Add(mineRenderer.tilemaps[mp.x, mp.y].GetCellCenterWorld(cur.pos));
+            // Only add first, last and every 6th point
+            if (index % 3 == 0 || cur.parent == null || cur == goalNode)
+            {
+                Vector2Int mp = mineRenderer.CalculateTileMapPos(new(cur.pos.x, cur.pos.y));
+                Waypoints.Add(mineRenderer.tilemaps[mp.x, mp.y].GetCellCenterWorld(cur.pos));
+            }
         }
+
         Waypoints.Reverse();
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = randomColor;
-
-        foreach (Vector3 waypoint in Waypoints)
-        {
-            Gizmos.DrawSphere(waypoint, 1);
-        }
     }
 
     private static int Heuristic(Vector3Int a, Vector3Int b)
@@ -152,12 +157,32 @@ public class TilemapAStar : MonoBehaviour
             {
                 Vector3Int check = new Vector3Int(cell.x + x, cell.y + y, cell.z);
                 Vector2Int mp = mineRenderer.CalculateTileMapPos(new(check.x, check.y));
-                if (!mineRenderer.tilemaps[mp.x, mp.y]) {
-                    return false;
-                }
 
-                if (mineRenderer.tilemaps[mp.x, mp.y].HasTile(check)) return false;
-            }
+                // 1: Don't go outside of the range (74, -74). 2: Don't go out of spawn. 3: Only pass through the entrance. 4: Only check tilemaps that exist
+                if (!mineRenderer.tilemaps[mp.x, mp.y])          // no tilemap loaded here
+                    return false;
+
+                Vector3 world = mineRenderer.tilemaps[mp.x, mp.y]
+                                .GetCellCenterWorld(check);
+
+                /* ---------- 1. narrow cave entrance (y –4 … –2, x ±3.5) ---------- */
+                if (world.y <= -2f && world.y >= -4f &&
+                    (world.x < -3.5f || world.x > 3.5f))
+                    return false;
+
+                /* ---------- 2. spawn area (y > –5, x ±18) ---------- */
+                if (world.y > -5f &&
+                    (world.x < -18f || world.x > 18f))
+                    return false;
+
+                /* ---------- 3. global mine bounds (x ±74) ---------- */
+                if (world.x < -74f || world.x > 74f)
+                    return false;
+
+                /* ---------- 4. solid‑tile test ---------- */
+                if (mineRenderer.tilemaps[mp.x, mp.y].HasTile(check))
+                    return false;
+                    }
         return true;
     }
 

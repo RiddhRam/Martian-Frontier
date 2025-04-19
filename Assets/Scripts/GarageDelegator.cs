@@ -443,16 +443,6 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
         return haulers;
     }
 
-    public void PlayerRebirth() {
-        activePanel = "Haulers";
-        DeactivatePanel();
-        activePanel = "Drillers";
-        DeactivatePanel();
-
-        GeneratePanel("Drillers");
-        GeneratePanel("Haulers");
-    }
-
     private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
