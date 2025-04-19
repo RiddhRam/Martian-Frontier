@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Unity.Services.Analytics;
 using Unity.Services.Core;
 using Unity.Services.PushNotifications;
@@ -32,12 +31,12 @@ public class NotificationsManager : MonoBehaviour {
         
         try
         {
-            //PushNotificationsService.Instance.OnRemoteNotificationReceived += PushNotificationRecieved;
+            PushNotificationsService.Instance.OnRemoteNotificationReceived += PushNotificationRecieved;
 
-            //AnalyticsService.Instance.StartDataCollection();
+            AnalyticsService.Instance.StartDataCollection();
 
             // Make sure to set the required settings in Project Settings before testing
-            //string token = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
+            string token = await PushNotificationsService.Instance.RegisterForPushNotificationsAsync();
             //Debug.Log($"The push notification token is {token}");
             
         }
@@ -49,11 +48,11 @@ public class NotificationsManager : MonoBehaviour {
 
     void PushNotificationRecieved(Dictionary<string, object> notificationData)
     {
-        Debug.Log("Notification received!");
+        /*Debug.Log("Notification received!");
         foreach (KeyValuePair<string, object> item in notificationData)
         {
             Debug.Log($"Notification data item: {item.Key} - {item.Value}");
-        }
+        }*/
     }
 
     #if UNITY_ANDROID
