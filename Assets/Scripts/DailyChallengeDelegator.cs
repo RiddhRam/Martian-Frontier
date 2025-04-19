@@ -46,7 +46,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     // Used to check index
     private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "MINE {0} ORES", "MINE {0} ORES OF {1}", "BUY {0} DRILLERS", "BUY {0} HAULERS", "SELL {0} ORES"};
     // This one is not related to challenge types, just order of challenges display
-    private int[] difficulty = {8, 1, 2, 5, 3, 1};
+    private int[] difficulty = {8, 1, 2, 5, 3, 3};
     private int baseGemReward = 180;
     // Related to the above challenge types
     private int[] baseGoalAmount = {5, 150, 80, 1, 2, 80};
@@ -181,7 +181,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         rewardAmounts[0] *= 2;
         // COMPLETE ALL DAILY CHALLENGES
         selectedChallenges[5] = 0;
-        rewardAmounts[5] = 10;
         challengeValues[5] = 5;
 
         UpdateDisplay();
