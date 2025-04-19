@@ -68,8 +68,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private GarageDelegator garageDelegator;
     [SerializeField]
     private GameObject lostInternetScreen;
-    [SerializeField]
-    private TilemapAStar testTilemapAStar;
+    public TilemapAStar testTilemapAStar;
     [SerializeField]
     private MapRecordingMode mapRecordingMode;
     [SerializeField]
@@ -590,7 +589,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerCheckTimer += sessionUpdateTimer;
 
-            if (haulerCheckTimer > 90) {
+            if (haulerCheckTimer > 60) {
                 CheckIfHaulingNeeded(-1);
             }
 
@@ -703,6 +702,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 }
             } 
         }
+
+        testTilemapAStar.walkableTiles.Clear();
+
         yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
         waitingInLobby = false;
     }

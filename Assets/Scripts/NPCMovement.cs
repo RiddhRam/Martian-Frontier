@@ -56,6 +56,8 @@ public class NPCMovement : MonoBehaviour
         agent.updatePosition = false;
         agent.updateRotation = false;
 
+        tilemapAStar.mineRenderer = nPCManager.mineRenderer;
+
         rb = GetComponent<Rigidbody2D>();
 
         StartCoroutine(HoldPlayerCardStill());
@@ -151,7 +153,7 @@ public class NPCMovement : MonoBehaviour
         
         UpdateAgentDestination(newDestination);
 
-        while (Vector3.Distance(transform.position, dest) > 0.5f) {
+        while (Vector3.Distance(transform.position, dest) > 1f) {
             joystickVec = (dest - transform.position).normalized;
             MoveVehicle();
             yield return null;

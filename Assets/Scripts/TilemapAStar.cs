@@ -1,6 +1,5 @@
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 /// <summary>
 /// Mobile‑friendly A* path‑finder for Unity Tilemaps.
@@ -9,6 +8,9 @@ using UnityEngine.Tilemaps;
 /// </summary>
 public class TilemapAStar : MonoBehaviour
 {
+    [SerializeField]
+    private bool isMainTilemapAStar = false;
+    
     [Header("Outputs")]
     public List<Vector3> Waypoints = new List<Vector3>();
     public bool PathFound = false;
@@ -16,15 +18,26 @@ public class TilemapAStar : MonoBehaviour
 
     public bool generating = false;
 
+    public NPCManager nPCManager;
     public MineRenderer mineRenderer;
 
     /* ---------- reusable scratch data ---------- */
-    private readonly BinaryHeap<Node> open = new BinaryHeap<Node>(128);
-    private readonly HashSet<Vector3Int> closed = new HashSet<Vector3Int>();
-    private readonly Dictionary<Vector3Int, Node> nodePool = new Dictionary<Vector3Int, Node>();
+    private readonly BinaryHeap<Node> open = new(128);
+    private readonly HashSet<Vector3Int> closed = new();
+    private readonly Dictionary<Vector3Int, Node> nodePool = new();
+    public readonly HashSet<Vector3Int> walkableTiles = new();
 
     private readonly int MaxNodesToExpand = 15000;
 
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+
+        foreach (Vector3 wp in Waypoints) {
+            Gizmos.DrawSphere(wp, 0.5f);
+        }
+    }
 
     /* ---------- const data ---------- */
     private static readonly Vector3Int[] Dir4 =
@@ -36,10 +49,11 @@ public class TilemapAStar : MonoBehaviour
     };
 
     /// <summary>Attempts to build a path from <paramref name="startWorld"/> to <paramref name="endWorld"/>.</summary>
-    public void GeneratePath(Vector3 startWorld, Vector3 endWorld, int width = 1, bool mandatory = false)
+    public void GeneratePath(Vector3 startWorld, Vector3 endWorld, int width = 3, bool mandatory = false)
     {
-        if (!mineRenderer) {
-            mineRenderer = nPCMovement.nPCManager.mineRenderer;
+        if (!nPCManager) {
+            nPCManager = nPCMovement.nPCManager;
+            mineRenderer = nPCManager.mineRenderer;
         }
 
         if (generating) {
@@ -128,7 +142,7 @@ public class TilemapAStar : MonoBehaviour
         int index = 0;
         for (Node cur = goalNode; cur != null; cur = cur.parent, index++)
         {
-            // Only add first, last and every 3rd point
+            // Only add first, last and every 6th point
             if (index % 3 == 0 || cur.parent == null || cur == goalNode)
             {
                 Vector2Int mp = mineRenderer.CalculateTileMapPos(new(cur.pos.x, cur.pos.y));
@@ -144,6 +158,15 @@ public class TilemapAStar : MonoBehaviour
 
     private bool IsWalkable(Vector3Int cell, int width)
     {
+        if (!isMainTilemapAStar) {
+            if (nPCManager.testTilemapAStar.walkableTiles.Contains(cell))
+                return true;
+        } else {
+            if (walkableTiles.Contains(cell))
+                return true;
+        }
+            
+
         int half = width / 2;
         for (int x = -half; x <= half; x++)
             for (int y = -half; y <= half; y++)
@@ -151,31 +174,38 @@ public class TilemapAStar : MonoBehaviour
                 Vector3Int check = new Vector3Int(cell.x + x, cell.y + y, cell.z);
                 Vector2Int mp = mineRenderer.CalculateTileMapPos(new(check.x, check.y));
 
-                // 1: Don't go outside of the range (74, -74). 2: Don't go out of spawn. 3: Only pass through the entrance. 4: Only check tilemaps that exist
-                if (!mineRenderer.tilemaps[mp.x, mp.y])          // no tilemap loaded here
+                //  Only check tilemaps that exist
+                if (!mineRenderer.tilemaps[mp.x, mp.y])
                     return false;
 
-                Vector3 world = mineRenderer.tilemaps[mp.x, mp.y]
-                                .GetCellCenterWorld(check);
+                Vector3 world = new(check.x + 0.5f, check.y + 0.5f);
 
-                /* ---------- 1. narrow cave entrance (y –4 … –2, x ±3.5) ---------- */
+                // Don't go where there is a tile
+                if (mineRenderer.unplacedTilemapsTileValues[mp.x, mp.y].ContainsKey(new(check.x, check.y))) {
+                    return false;
+                }
+
+                // Don't go outside of the range (74, -74)
+                if (world.x < -74f || world.x > 74f)
+                    return false;
+
+                // Only pass through the entrance 
                 if (world.y <= -2f && world.y >= -4f &&
                     (world.x < -3.5f || world.x > 3.5f))
                     return false;
 
-                /* ---------- 2. spawn area (y > –5, x ±18) ---------- */
+                // Don't go out of spawn.
                 if (world.y > -5f &&
                     (world.x < -18f || world.x > 18f))
                     return false;
+                }
+        
+        if (!isMainTilemapAStar) {
+            nPCManager.testTilemapAStar.walkableTiles.Add(cell);
+        } else {
+            walkableTiles.Add(cell);
+        }
 
-                /* ---------- 3. global mine bounds (x ±74) ---------- */
-                if (world.x < -74f || world.x > 74f)
-                    return false;
-
-                /* ---------- 4. solid‑tile test ---------- */
-                if (mineRenderer.tilemaps[mp.x, mp.y].HasTile(check))
-                    return false;
-                    }
         return true;
     }
 
