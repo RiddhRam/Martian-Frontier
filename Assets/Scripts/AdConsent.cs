@@ -17,22 +17,7 @@ public class AdConsent : MonoBehaviour
             PlayerPrefs.SetString("iOSATT", "");
             ConsentInformation.Reset();*/
 
-            if (PlayerPrefs.GetString("APG") == "Allowed" || PlayerPrefs.GetString("APG") == "Not Allowed") {
-                
-                if (PlayerPrefs.GetString("iOSATT") != "Responded") {
-                    if (Application.isEditor) {
-                        SceneManager.LoadScene("Loading Screen");
-                        return;
-                    }
-                    
-                    SceneManager.LoadScene("iOS ATT");
-                    return;
-                }
-
-                SceneManager.LoadScene("Loading Screen");
-                return;
-            }
-
+            // If not responded to iOS ATT, then go to iOS ATT
             if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                 if (Application.isEditor) {
                     SceneManager.LoadScene("Loading Screen");
@@ -40,11 +25,6 @@ public class AdConsent : MonoBehaviour
                 }
 
                 SceneManager.LoadScene("iOS ATT");
-            }
-
-            if (PlayerPrefs.GetString("iOSATT") == "Responded") {
-                SceneManager.LoadScene("Loading Screen");
-                return;
             }
 
         } catch {
@@ -62,6 +42,7 @@ public class AdConsent : MonoBehaviour
     }
 
     public void GetAdConsent() {
+        Debug.Log("GETTING AD CONSENt");
         try {
             // Only uncomment when debugging user consent settings
             /*var debugSettings = new ConsentDebugSettings
@@ -80,7 +61,7 @@ public class AdConsent : MonoBehaviour
                 ConsentDebugSettings = debugSettings,
             };*/
             
-            // Create a ConsentRequestParameters object.\
+            // Create a ConsentRequestParameters object.
             ConsentRequestParameters request = new();
 
             // Check the current consent information status.
@@ -98,6 +79,7 @@ public class AdConsent : MonoBehaviour
             {
                 // Handle the error.
                 Debug.LogError(consentError);
+                SceneManager.LoadScene("Loading Screen");
                 return;
             }
 
@@ -108,7 +90,8 @@ public class AdConsent : MonoBehaviour
                 if (formError != null)
                 {
                     // Consent gathering failed.
-                    Debug.LogError(consentError);
+                    Debug.LogError(formError);
+                    SceneManager.LoadScene("Loading Screen");
                     return;
                 }
 
@@ -119,7 +102,6 @@ public class AdConsent : MonoBehaviour
                 } else {
                     PlayerPrefs.SetString("APG", "Not Allowed");
                 }
-
 
                 if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                     if (Application.isEditor) {
