@@ -156,8 +156,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         if (!haulerController.CheckIfNpc()) {
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
-        } else {
-            StartCoroutine(collision.transform.parent.GetComponent<NPCMovement>().AskIfHaulingIsNeeded());
         }
 
         if (tutorialManager == null) {
@@ -329,8 +327,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
 
-            this.initialBattery = 750;
-            this.refineryBattery = 750;
+            this.initialBattery = 700;
+            this.refineryBattery = 700;
 
             return;
         }

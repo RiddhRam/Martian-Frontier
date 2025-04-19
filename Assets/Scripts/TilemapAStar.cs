@@ -23,14 +23,8 @@ public class TilemapAStar : MonoBehaviour
     private readonly HashSet<Vector3Int> closed = new HashSet<Vector3Int>();
     private readonly Dictionary<Vector3Int, Node> nodePool = new Dictionary<Vector3Int, Node>();
 
-    Color randomColor = Color.red;
+    private readonly int MaxNodesToExpand = 15000;
 
-    private readonly int MaxNodesToExpand = 20000;
-
-    void Start()
-    {
-        randomColor = Random.ColorHSV();
-    }
 
     /* ---------- const data ---------- */
     private static readonly Vector3Int[] Dir4 =
@@ -93,7 +87,6 @@ public class TilemapAStar : MonoBehaviour
             if (current.pos == goal)
             {
                 Reconstruct(current);
-
                 PathFound = true;
                 generating = false;
                 return;
@@ -135,7 +128,7 @@ public class TilemapAStar : MonoBehaviour
         int index = 0;
         for (Node cur = goalNode; cur != null; cur = cur.parent, index++)
         {
-            // Only add first, last and every 6th point
+            // Only add first, last and every 3rd point
             if (index % 3 == 0 || cur.parent == null || cur == goalNode)
             {
                 Vector2Int mp = mineRenderer.CalculateTileMapPos(new(cur.pos.x, cur.pos.y));

@@ -590,8 +590,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerCheckTimer += sessionUpdateTimer;
 
-            if (haulerCheckTimer > 60) {
-                haulerCheckTimer = 0;
+            if (haulerCheckTimer > 90) {
                 CheckIfHaulingNeeded(-1);
             }
 
@@ -652,7 +651,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         transitioningVehicle[npcToChange] = false;
     }
 
-    private IEnumerator SwitchHaulerToDriller(int npcToChange) {
+    public IEnumerator SwitchHaulerToDriller(int npcToChange) {
 
         transitioningVehicle[npcToChange] = true;
 
@@ -695,6 +694,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public IEnumerator WaitInLobby() {
         waitingInLobby = true;
+        drillingNeeded = true;
+        
         if (mineRenderer.mineInitialization == 0) {
             for (int i = 0; i != npcCount; i++) {
                 if (nPCMovements[i] != null) {
@@ -762,19 +763,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     }
 
-    public bool CheckIfHaulingNeeded(int npcIndex, bool hasCargo = false) {
+    public bool CheckIfHaulingNeeded(int npcIndex) {
+
+        haulerCheckTimer = 0;
 
         testTilemapAStar.mineRenderer = mineRenderer;
-        
-        if (uncollectedMaterialsDelegator.materialCount < Get1HaulerThreshold()) {
-            // -1 means it wasn't called from a npc
-            if (npcIndex != -1 && !hasCargo) {
-                StartCoroutine(SwitchHaulerToDriller(npcIndex));
-                return false;
-            } else if (hasCargo) {
-                return true;
-            }
-        }
 
         // return false = become a drill
         // return true = keep hauling
@@ -787,17 +780,14 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulPositionCount++;
         } 
-        while(!testTilemapAStar.PathFound && haulPositionCount < 60);
+        while(!testTilemapAStar.PathFound && haulPositionCount < 5);
 
-        if (haulPositionCount >= 60 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
+        if (haulPositionCount >= 5 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
             drillingNeeded = true;
 
             // -1 means it wasn't called from a npc
-            if (npcIndex != -1 && !hasCargo) {
+            if (npcIndex != -1) {
                 StartCoroutine(SwitchHaulerToDriller(npcIndex));
-                return false;
-            } else if (hasCargo) {
-                return true;
             }
 
             return false;

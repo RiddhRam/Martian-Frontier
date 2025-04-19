@@ -40,7 +40,7 @@ public class NPCMovement : MonoBehaviour
     private float wheelRotation;
     Vector2 direction;
     readonly System.Random random = new();
-    private float timer = 0;
+    public float timer = 0;
     private readonly float maxTimer = 20f;
 
     // Cache
@@ -48,7 +48,7 @@ public class NPCMovement : MonoBehaviour
 
     public bool transitioning = false;
 
-    private Vector3 dest;
+    public Vector3 dest;
 
     // Start is called before the first frame update
     void Start() {
@@ -162,6 +162,11 @@ public class NPCMovement : MonoBehaviour
         RequestNewPosition();
         yield return new WaitForSeconds((float) random.NextDouble() * 3);
 
+        if (haulerController == null) {
+            agent.enabled = false;
+            agent.enabled = true;
+        }
+
         transitioning = false;
     }
 
@@ -250,12 +255,11 @@ public class NPCMovement : MonoBehaviour
 
         // Get hauler position
         if (haulerController != null) {
-            StartCoroutine(AskIfHaulingIsNeeded());
+            AskIfHaulingIsNeeded();
 
             // If hauler doesnt need to become a drill, or isnt waiting in spawn, then go to a new position
             if (!transitioning) {
                 UpdateAgentDestination(RequestNewHaulerPosition());
-                tilemapAStar.GeneratePath(transform.position, dest, 3);
             } 
             // Otherwise drop off materials if there are more than 10 then try again
             else if (haulerController.GetTotalMaterialCount() > 0) {
@@ -274,17 +278,17 @@ public class NPCMovement : MonoBehaviour
 
     public Vector3 RequestNewHaulerPosition() {
 
-        // Threshold; potent
-        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold()) {
+        // Threshold
+        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || (nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold() && nPCManager.drillingNeeded)) {
+            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
             return new(0, 6);
         }
 
         // If path is null, initialize it
         path ??= new NavMeshPath();
 
-        Vector3 newHaulerPosition = new();
+        Vector3 newHaulerPosition;
 
-        bool foundNearbyMaterial = false;
         // Check if the game object's collider is touching a tilemap with "Mine Tag"
         // Dont do this in the spawn
         if (transform.position.y < -5) {
@@ -300,15 +304,10 @@ public class NPCMovement : MonoBehaviour
                 tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
 
                 if (tilemapAStar.PathFound) {
-                    UpdateAgentDestination(newHaulerPosition);
-                    foundNearbyMaterial = true;
-                    break;
+
+                    return newHaulerPosition;
                 }
             }
-        }
-
-        if (foundNearbyMaterial) {
-            return newHaulerPosition;
         }
 
         // Check for a position for a max of 60 times. If still invalid, then the hauler is too big
@@ -320,14 +319,13 @@ public class NPCMovement : MonoBehaviour
 
             haulPositionCount++;
         } 
-        while(!tilemapAStar.PathFound && haulPositionCount < 60);
+        while(!tilemapAStar.PathFound && haulPositionCount < 10);
 
         // If invalid
-        if (haulPositionCount >= 60) {
+        if (haulPositionCount >= 10) {
             newHaulerPosition = new(0, -6);
+            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
             nPCManager.drillingNeeded = true;
-        } else {
-            UpdateAgentDestination(newHaulerPosition);
         }
 
         return newHaulerPosition;
@@ -418,15 +416,25 @@ public class NPCMovement : MonoBehaviour
         
     }
 
-    public IEnumerator AskIfHaulingIsNeeded() {
+    public void AskIfHaulingIsNeeded() {
         transitioning = true;
-        bool stay = nPCManager.CheckIfHaulingNeeded(npcIndex, haulerController.GetTotalMaterialCount() > 10);
 
-        if (stay) {
+        if (nPCManager.drillingNeeded) {
+            // If has cargo, don't switch yet, let it drop off the ores then check again
+            if (haulerController.GetTotalMaterialCount() > 0) {
+                return;
+            }
+
+            StartCoroutine(nPCManager.SwitchHaulerToDriller(npcIndex));
+        } else {
             transitioning = false;
-            yield break;
+            return;
         }
 
+        StartCoroutine(MakeHaulerWait());
+    }
+
+    private IEnumerator MakeHaulerWait() {
         // If transitioning to a driller, keep going to final destination
         while (Vector3.Distance(transform.position, dest) > 0.5f) {
             MoveVehicle();

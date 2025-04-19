@@ -26,8 +26,10 @@ public class PlayerMovement : MonoBehaviour
     private float currentAngle;
     private float newAngle;
     private float tempLastRotation;
-    private readonly float maxBodyRotation = 30;
-    private readonly float maxChangeRotation = 20;
+
+    // Used for steering wheel
+    private readonly float maxBodyRotation = 40;
+    private readonly float maxChangeRotation = 30;
     private float wheelRotation;
 
     // Start is called before the first frame update
@@ -105,10 +107,10 @@ public class PlayerMovement : MonoBehaviour
             }
 
             // newAngle - tempLastRotation is same as rotationDifference, but without Mathf.Abs
-            // Wheel rotation cannot exceed 30 degrees of the body
-            wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 20, -maxBodyRotation, maxBodyRotation);
+            // Wheel rotation cannot exceed maxBodyRotation degrees of the body
+            wheelRotation = Mathf.Clamp((newAngle - tempLastRotation) * 10, -maxBodyRotation, maxBodyRotation);
 
-            // Wheel rotation cannot exceed 20 degrees of the last frame's rotation
+            // Wheel rotation cannot exceed maxChangeRotation degrees of the last frame's rotation
             wheelRotation = Mathf.Clamp(wheelRotation - frontWheels.GetChild(0).rotation.z, -maxChangeRotation, maxChangeRotation);
             for (int i = 0; i != frontWheels.childCount; i++) {
                 frontWheels.GetChild(i).rotation = Quaternion.Euler(0, 0, wheelRotation + newAngle);
