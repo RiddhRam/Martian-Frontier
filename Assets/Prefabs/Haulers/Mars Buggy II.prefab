@@ -190,7 +190,7 @@ GameObject:
   m_Component:
   - component: {fileID: 282149017061923489}
   - component: {fileID: 7554440636665362500}
-  - component: {fileID: 5509093860994059967}
+  - component: {fileID: 1678851287377977894}
   m_Layer: 3
   m_Name: Front Wheels
   m_TagString: Untagged
@@ -265,8 +265,8 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &5509093860994059967
-PolygonCollider2D:
+--- !u!61 &1678851287377977894
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -307,17 +307,9 @@ PolygonCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: -0.11, y: 0.42499998}
-      - {x: -0.17, y: 0.385}
-      - {x: -0.17, y: -0.325}
-      - {x: -0.12, y: -0.42499998}
-      - {x: 0.12, y: -0.42499998}
-      - {x: 0.17, y: -0.345}
-      - {x: 0.17, y: 0.375}
-      - {x: 0.14, y: 0.42499998}
-  m_UseDelaunayMesh: 0
+  serializedVersion: 2
+  m_Size: {x: 0.34, y: 0.85}
+  m_EdgeRadius: 0
 --- !u!1 &6736136543444068953
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +524,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7702234012253531432}
   - component: {fileID: 2821852936961666549}
-  - component: {fileID: 5298748424080061151}
+  - component: {fileID: 3317737498487871481}
   m_Layer: 3
   m_Name: Front Wheels
   m_TagString: Untagged
@@ -607,8 +599,8 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!60 &5298748424080061151
-PolygonCollider2D:
+--- !u!61 &3317737498487871481
+BoxCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -649,14 +641,6 @@ PolygonCollider2D:
     drawMode: 0
     adaptiveTiling: 0
   m_AutoTiling: 0
-  m_Points:
-    m_Paths:
-    - - {x: -0.11, y: 0.42499998}
-      - {x: -0.17, y: 0.385}
-      - {x: -0.17, y: -0.325}
-      - {x: -0.12, y: -0.42499998}
-      - {x: 0.12, y: -0.42499998}
-      - {x: 0.17, y: -0.345}
-      - {x: 0.17, y: 0.375}
-      - {x: 0.14, y: 0.42499998}
-  m_UseDelaunayMesh: 0
+  serializedVersion: 2
+  m_Size: {x: 0.34, y: 0.85}
+  m_EdgeRadius: 0

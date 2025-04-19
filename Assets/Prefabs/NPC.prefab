@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4204548501517398993}
   - component: {fileID: 7098116111142927337}
   - component: {fileID: 3514970347240824575}
+  - component: {fileID: 1838909319392282600}
   m_Layer: 3
   m_Name: NPC
   m_TagString: Untagged
@@ -79,6 +80,7 @@ MonoBehaviour:
   npcIndex: 0
   nPCManager: {fileID: 0}
   agent: {fileID: 7098116111142927337}
+  tilemapAStar: {fileID: 1838909319392282600}
   sortingGroup: {fileID: 3514970347240824575}
   npcNameText: {fileID: 8246624334342476664}
   rebirthText: {fileID: 6255348507250313727}
@@ -88,6 +90,7 @@ MonoBehaviour:
   haulerIndex: 0
   drillTier: 0
   stopMoving: 0
+  transitioning: 0
 --- !u!195 &7098116111142927337
 NavMeshAgent:
   m_ObjectHideFlags: 0
@@ -122,6 +125,23 @@ SortingGroup:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_SortAtRoot: 0
+--- !u!114 &1838909319392282600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1361560756291077853}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4494c5c3d294a4e4ab41b54a530dd5e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Waypoints: []
+  PathFound: 0
+  nPCMovement: {fileID: 4204548501517398993}
+  generating: 0
+  mineRenderer: {fileID: 0}
 --- !u!1 &7120913283068114814
 GameObject:
   m_ObjectHideFlags: 0

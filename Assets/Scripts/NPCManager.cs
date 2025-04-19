@@ -43,6 +43,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int[] nPCTimeRemaining;
     [SerializeField]
     private int nPCEmptyTimer = 0;
+    private int haulerCheckTimer = 0;
     private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
     // Helps prevent race conditions with NPCMovement and LiveManageSession()
     private bool[] transitioningVehicle;
@@ -68,7 +69,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField]
     private GameObject lostInternetScreen;
     [SerializeField]
-    private NavMeshAgent testAgent;
+    private TilemapAStar testTilemapAStar;
     [SerializeField]
     private MapRecordingMode mapRecordingMode;
     [SerializeField]
@@ -76,7 +77,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     private bool waitingInLobby = false;
 
-    private readonly int sessionUpdateTimer = 4;
+    private readonly int sessionUpdateTimer = 5;
     private readonly int[] drillerTierThresholds = {5, 11, 17};
     private readonly int[] haulerThresholds = {9, 13, 19};
     private readonly string[] botNames = {
@@ -151,7 +152,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     HaulerController haulerController;
     Coroutine liveSessionCoroutine;
     private Camera mainCamera;
-    private NavMeshPath path;
 
     void Awake()
     {
@@ -245,7 +245,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             }
             
             // If its a Specter, drop the index by one
-            // Specters are buggy with AI Navigation, they keep getting stuck
             if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
                 index--;
             }
@@ -290,8 +289,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 index = 0;
             }
 
-            // Helions are too large, too buggy, also there's no nav mesh surface for them
-            if (garageDelegator.haulers[index].name.Contains("HELION")) {
+            // Helions and turbo tankers are too largeare too large
+            if (garageDelegator.haulers[index].name.Contains("HELION") || garageDelegator.haulers[index].name.Contains("TURBO TANKER")) {
                 index--;
             }
 
@@ -308,8 +307,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerController = vehicle.GetComponent<HaulerController>();
 
-            // (width - 2) gives the right agent index for haulers
-            navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(haulerController.width - 2).agentTypeID;
+            navMeshAgents[npcIndex].enabled = false;
 
             if (mapRecordingMode.enabled) {
                 speed = 8;
@@ -480,7 +478,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         Time.timeScale = 6;
         // 5 real seconds
-        // Comment when recording
         if (!mapRecordingMode.enabled) {
             yield return new WaitForSeconds(30);
             Time.timeScale = 1;
@@ -591,7 +588,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 nPCEmptyTimer = 0;
             }
 
-            CheckIfHaulingNeeded(-1);
+            haulerCheckTimer += sessionUpdateTimer;
+
+            if (haulerCheckTimer > 60) {
+                haulerCheckTimer = 0;
+                CheckIfHaulingNeeded(-1);
+            }
 
             highestDrillTier = playerState.GetHighestDrillTier();
         }
@@ -695,7 +697,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         waitingInLobby = true;
         if (mineRenderer.mineInitialization == 0) {
             for (int i = 0; i != npcCount; i++) {
-                StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition(npcIsHauler[i])));
+                if (nPCMovements[i] != null) {
+                    StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition(npcIsHauler[i])));
+                }
             } 
         }
         yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
@@ -703,15 +707,15 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public int Get1HaulerThreshold() {
-        return 320 + (130 * highestDrillTier);
+        return 250 + (110 * highestDrillTier);
     }
 
     public int Get2HaulerThreshold() {
-        return 390 + (130 * highestDrillTier);
+        return 350 + (110 * highestDrillTier);
     }
 
     public int Get3HaulerThreshold() {
-        return 500 + (150 * highestDrillTier);
+        return 450 + (110 * highestDrillTier);
     }
 
     public void DropMaterials(int npcIndex) {
@@ -760,6 +764,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public bool CheckIfHaulingNeeded(int npcIndex, bool hasCargo = false) {
 
+        testTilemapAStar.mineRenderer = mineRenderer;
+        
         if (uncollectedMaterialsDelegator.materialCount < Get1HaulerThreshold()) {
             // -1 means it wasn't called from a npc
             if (npcIndex != -1 && !hasCargo) {
@@ -775,15 +781,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         Vector3 newHaulerPosition;
         int haulPositionCount = 0;
 
-        // If path is null, initialize it
-        path ??= new NavMeshPath();
-
         do {
             newHaulerPosition = RequestNewHaulerPosition(highestDrillTier);
+            testTilemapAStar.GeneratePath(new(12, -1, 0), newHaulerPosition, 3);
 
             haulPositionCount++;
         } 
-        while((!testAgent.CalculatePath(newHaulerPosition, path) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
+        while(!testTilemapAStar.PathFound && haulPositionCount < 60);
 
         if (haulPositionCount >= 60 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
             drillingNeeded = true;

@@ -12,13 +12,11 @@ public class NPCMovement : MonoBehaviour
     private float playerSpeed = 5f;
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
-    // If the difference between last and current rotation is less than this, we assume it's stuck
-    /*[SerializeField]
-    private float rotationThreshold;  // should be 0.1*/
     Transform frontWheels;
     public int npcIndex;
     public NPCManager nPCManager;
     public NavMeshAgent agent;
+    public TilemapAStar tilemapAStar;
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
     public TextMeshProUGUI rebirthText;
@@ -43,13 +41,12 @@ public class NPCMovement : MonoBehaviour
     Vector2 direction;
     readonly System.Random random = new();
     private float timer = 0;
-    private float maxTimer = 10f;
+    private readonly float maxTimer = 20f;
 
     // Cache
     NavMeshPath path;
 
     public bool transitioning = false;
-    private int frameCounter = 0;
 
     private Vector3 dest;
 
@@ -70,13 +67,46 @@ public class NPCMovement : MonoBehaviour
             return;
         }
 
-        try {
-            UpdateAgentDestination(agent.destination);
-        } catch {
+        timer += Time.deltaTime;
+
+        if (!haulerController) {
+
+            try {
+                UpdateAgentDestination(agent.destination);
+            } catch {
+            }
+
+            float distance = Vector3.Distance(transform.position, agent.steeringTarget);
+
+            if (distance < 0.5f) {
+                agent.nextPosition = transform.position;
+            } else {
+                direction = (agent.steeringTarget - transform.position).normalized;
+            }
+
+            // If npc is close or timer reached then choose a new spot
+            if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer) {
+                RequestNewPosition();
+            }
+
+        } else {
+            
+            if (tilemapAStar.Waypoints.Count != 0 && maxTimer > timer) {
+                float distance = Vector3.Distance(transform.position, tilemapAStar.Waypoints[0]);
+
+                if (distance < 2f) {
+                    tilemapAStar.Waypoints.RemoveAt(0);
+                } else {
+                    direction = (tilemapAStar.Waypoints[0] - transform.position).normalized;
+                }
+            } else {
+                RequestNewPosition();
+            }
+
         }
 
         // (0, -6, 0) means theres a problem with requesting new position
-        if (Math.Abs(agent.destination.y + 6) < 0.1) {
+        if (Math.Abs(dest.y + 6) < 0.1) {
             // If its a hauler, drop to a smaller hauler or sell ores
             if (haulerController != null) {
                 if (haulerController.GetTotalMaterialCount() > 0) {
@@ -97,38 +127,6 @@ public class NPCMovement : MonoBehaviour
 
         joystickVec = direction;
 
-        float distance = Vector3.Distance(transform.position, agent.steeringTarget);
-
-        if (distance < 0.5f) {
-            agent.nextPosition = transform.position;
-        } else {
-            direction = (agent.steeringTarget - transform.position).normalized;
-        }
-
-        frameCounter++;
-
-        if (!agent.enabled && frameCounter >= 10) {
-            agent.enabled = true;
-            frameCounter = 0;
-        }
-
-        if (!agent.enabled || !agent.isOnNavMesh) {
-            return;
-        }
-        
-        // If npc takes more than 10 seconds to reach destination, set a new destination
-        if (Vector3.Distance(transform.position, dest) < 0.5f) {
-            RequestNewPosition();
-        }
-
-        timer += Time.deltaTime;
-
-        if (timer > maxTimer) {
-            agent.enabled = false;
-
-            timer = 0;
-        }
-
         if (!stopMoving) {
             MoveVehicle();
         } else {
@@ -137,10 +135,11 @@ public class NPCMovement : MonoBehaviour
     }
 
     public void UpdateAgentDestination(Vector3 newDestination) {
-        if (agent.enabled) {
+        if (haulerController == null) {
             agent.SetDestination(newDestination);
-            dest = newDestination;
         }
+
+        dest = newDestination;
     }
 
     public IEnumerator WaitInSpawnPosition(Vector3 newDestination) {
@@ -149,28 +148,19 @@ public class NPCMovement : MonoBehaviour
         yield return null;
 
         transitioning = true;
-
-        if (!agent.enabled) {
-            agent.enabled = true;
-        }
-
-        agent.SetDestination(newDestination);
-        dest = newDestination;
-
-        agent.enabled = false;
-        agent.enabled = true;
+        
+        UpdateAgentDestination(newDestination);
 
         while (Vector3.Distance(transform.position, dest) > 0.5f) {
             joystickVec = (dest - transform.position).normalized;
-
             MoveVehicle();
-
             yield return null;
         }
         rb.velocity = Vector2.zero;
 
         yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
-        yield return new WaitForSeconds((float) random.NextDouble() * 4);
+        RequestNewPosition();
+        yield return new WaitForSeconds((float) random.NextDouble() * 3);
 
         transitioning = false;
     }
@@ -216,7 +206,7 @@ public class NPCMovement : MonoBehaviour
         float rad = randomAngle * Mathf.Deg2Rad;
         Vector2 offset = new Vector2(Mathf.Sin(rad), Mathf.Cos(rad)) * distance;
 
-        Vector3 newPos = new(transform.position.x + offset.x, transform.position.y + offset.y, agent.destination.z);
+        Vector3 newPos = new(transform.position.x + offset.x, transform.position.y + offset.y, dest.z);
  
         if (newPos.y < minY || newPos.y > maxY) {
             newPos.y *= -1;
@@ -256,18 +246,21 @@ public class NPCMovement : MonoBehaviour
     }
 
     public void RequestNewPosition() {
+        timer = 0;
 
         // Get hauler position
         if (haulerController != null) {
-            AskIfHaulingIsNeeded();
+            StartCoroutine(AskIfHaulingIsNeeded());
 
-            // If hauler doesnt need to become a drill, then go to a new position
+            // If hauler doesnt need to become a drill, or isnt waiting in spawn, then go to a new position
             if (!transitioning) {
                 UpdateAgentDestination(RequestNewHaulerPosition());
+                tilemapAStar.GeneratePath(transform.position, dest, 3);
             } 
             // Otherwise drop off materials if there are more than 10 then try again
             else if (haulerController.GetTotalMaterialCount() > 0) {
                 UpdateAgentDestination(new(0, 6));
+                tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
                 transitioning = false;
             }
             // Otherwise, it is going to become a driller
@@ -304,11 +297,10 @@ public class NPCMovement : MonoBehaviour
 
                 newHaulerPosition = collision.transform.position;
 
-                if (!agent.enabled) {
-                    break;
-                }
+                tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
 
-                if (agent.CalculatePath(newHaulerPosition, path) && path.status == NavMeshPathStatus.PathComplete) {
+                if (tilemapAStar.PathFound) {
+                    UpdateAgentDestination(newHaulerPosition);
                     foundNearbyMaterial = true;
                     break;
                 }
@@ -324,15 +316,18 @@ public class NPCMovement : MonoBehaviour
         int haulPositionCount = 0;
         do {
             newHaulerPosition = nPCManager.RequestNewHaulerPosition(drillTier);
+            tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
 
             haulPositionCount++;
         } 
-        while(((agent.enabled && !agent.CalculatePath(newHaulerPosition, path)) || path.status != NavMeshPathStatus.PathComplete) && haulPositionCount < 60);
+        while(!tilemapAStar.PathFound && haulPositionCount < 60);
 
         // If invalid
         if (haulPositionCount >= 60) {
             newHaulerPosition = new(0, -6);
             nPCManager.drillingNeeded = true;
+        } else {
+            UpdateAgentDestination(newHaulerPosition);
         }
 
         return newHaulerPosition;
@@ -360,15 +355,9 @@ public class NPCMovement : MonoBehaviour
 
         // Smoothly rotate towards the target angle over time (0.3 second)
         currentAngle = transform.eulerAngles.z;
-        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
-
-        // This checks if the user is trying to go straight forward or reverse, if neither then rotate
-        if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
-            // Apply the new rotation
-            transform.rotation = Quaternion.Euler(0, 0, newAngle);
-        } else {
-            transform.rotation = Quaternion.Euler(0, 0, targetAngle);
-        }
+        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, 8f * Time.deltaTime); // 8f = sharpness, higher is snappier
+        
+        transform.rotation = Quaternion.Euler(0, 0, newAngle);
 
         // Save this value in case it's needed for front wheels
         tempLastRotation = lastRotation;
@@ -417,19 +406,37 @@ public class NPCMovement : MonoBehaviour
         for (int i = 0; i != vehicle.childCount; i++) {
             if (vehicle.GetChild(i).name == "Front Wheels") {
                 frontWheels = vehicle.GetChild(i);
+
+                for (int j = 0; j != frontWheels.childCount; j++) {
+                    frontWheels.GetChild(j).GetComponent<BoxCollider2D>().enabled = false;
+                }
                 return;
             }
         }
         frontWheels = null;
+
+        
     }
 
-    public void AskIfHaulingIsNeeded() {
+    public IEnumerator AskIfHaulingIsNeeded() {
         transitioning = true;
         bool stay = nPCManager.CheckIfHaulingNeeded(npcIndex, haulerController.GetTotalMaterialCount() > 10);
 
         if (stay) {
             transitioning = false;
+            yield break;
         }
+
+        // If transitioning to a driller, keep going to final destination
+        while (Vector3.Distance(transform.position, dest) > 0.5f) {
+            MoveVehicle();
+            joystickVec = (dest - transform.position).normalized;
+            yield return null;
+        }
+
+        // Then stop moving and wait
+        stopMoving = true;
+        rb.velocity = Vector2.zero;
     }
 
     private IEnumerator HoldPlayerCardStill() {

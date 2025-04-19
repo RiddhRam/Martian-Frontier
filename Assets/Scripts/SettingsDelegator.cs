@@ -159,7 +159,6 @@ public class SettingsDelegator : MonoBehaviour
         {
             string languageShortCode = locale.Identifier.Code;
             string languageName = GetLanguageFullName(languageShortCode);
-            
             options.Add(languageName);
         }
 
@@ -176,10 +175,14 @@ public class SettingsDelegator : MonoBehaviour
                 return "中文 (简体)"; // Chinese Simplified
             case "en":
                 return "ENGLISH"; // English
+            case "fil":
+                return "FILIPINO";
             case "fr":
                 return "FRANÇAIS"; // French
             case "hi":
                 return "हिन्दी"; // Hindi
+            case "id":
+                return "INDONESIAN"; // Indonesian
             case "ja":
                 return "日本語"; // Japanese
             case "ko":
@@ -207,6 +210,10 @@ public class SettingsDelegator : MonoBehaviour
                 return "en"; // English
             case "ENGLISH":
                 return "en"; // English
+            case "Filipino":
+                return "fil"; // Filipino
+            case "FILIPINO":
+                return "fil"; // Filipino
             case "French":
                 return "fr"; // French
             case "FRANÇAIS":
@@ -215,6 +222,10 @@ public class SettingsDelegator : MonoBehaviour
                 return "hi"; // Hindi
             case "हिन्दी":
                 return "hi"; // Hindi
+            case "Indonesian":
+                return "id"; // Indonesian
+            case "INDONESIAN":
+                return "id"; // Indonesian
             case "Japanese":
                 return "ja"; // Japanese
             case "日本語":

@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     public GameObject mainCamera;
     public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
+    public bool stopMoving;
 
     [SerializeField]
     private float playerSpeed = 5f;
@@ -32,17 +33,17 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
     }
 
-    // Update is called once per frame
-    
+    // 50 times a second
     void FixedUpdate()
     {
         float y = transform.position.y;
         float x = transform.position.x;
-        if (y > 18 || y < -515 || x > 79 || x < -79) {
+        if (y > 21 || y < -515 || x > 79 || x < -79) {
             transform.position = new(4.5f, 5.4f, 0);
         }
 
@@ -55,7 +56,7 @@ public class PlayerMovement : MonoBehaviour
         joystickVec = joystickMovement.joystickVec;
 
         // Make sure vehicle is trying to move
-        if (joystickVec.x == 0 && joystickVec.y == 0) {
+        if (stopMoving || (joystickVec.x == 0 && joystickVec.y == 0)) {
             rb.velocity = Vector2.zero;
             return;
         }
@@ -75,15 +76,9 @@ public class PlayerMovement : MonoBehaviour
 
         // Smoothly rotate towards the target angle over time (0.3 second)
         currentAngle = transform.eulerAngles.z;
-        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, Time.deltaTime / 0.3f);
-
-        // This checks if the user is trying to go straight forward or reverse, if neither then rotate
-        if (Math.Abs(transform.rotation.eulerAngles.z - newAngle) < 11) {
-            // Apply the new rotation
-            transform.rotation = Quaternion.Euler(0, 0, newAngle);
-        } else {
-            transform.rotation = Quaternion.Euler(0, 0, targetAngle);
-        }
+        newAngle = Mathf.LerpAngle(currentAngle, targetAngle, 8f * Time.deltaTime); // 8f = sharpness, higher is snappier
+        
+        transform.rotation = Quaternion.Euler(0, 0, newAngle);
 
         // Save this value in case it's needed for front wheels
         tempLastRotation = lastRotation;

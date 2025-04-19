@@ -44,7 +44,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // public so DrillerController can easily use it
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
     // Array of the tilemap Game objects
-    private Tilemap[,] tilemaps;
+    public Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
     // Lowercase names
@@ -224,7 +224,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             if (seed == 0) {
                 // Tutorial map, limestone close to the surface
-                seed = 9752063;
+                seed = 11036764;
             } else {
                 seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             }
@@ -801,7 +801,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         coopMineLoaded = true;
 
-        GameObject.Find("NavMesh Surface Width 3").GetComponent<BuildNavMeshSurface>().InitializeMesh();
         try {
             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
         } catch {

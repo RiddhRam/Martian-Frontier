@@ -5,7 +5,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
-using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
@@ -54,7 +53,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     private List<string> equippedPowers = new();
     private List<Powers> powers = new();
 
-    [SerializeField] private int cooldownTimer = 0;
+    public int cooldownTimer = 0;
     [SerializeField] private SerializableDictionary<string, int> powerUpgradeLevels;
     // Reduce Cooldown
     public int cooldown = 90;
@@ -67,6 +66,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     public int destroyRadius;
     // Increase Profits
     public float profitMultiplier;
+
+    public bool scannedForOres = false;
 
     private int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
 
@@ -82,6 +83,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     public int visionBoost;
 
     public void UsePower() {
+        // Just for tutorial usage
+        scannedForOres = true;
+        
         foreach (var power in powers) {
             if (power.Name == equippedPowers[0]) {
                 power.ActivatePower();
@@ -113,6 +117,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         mineRenderer.RevealTiles(tilesToReveal);
         
         audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[0], audioVolumes[0]);
+        
         StartCoroutine(StartCooldownTimer(cooldown));
     }
 
@@ -181,6 +186,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         scannerLine.sortingOrder = 3;
 
         Vector3 start = playerVehicle.position;
+        scannerLine.SetPosition(0, start);
 
         while (angle > -270f)
         {
@@ -188,7 +194,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             float rad = angle * Mathf.Deg2Rad;
             
             Vector3 end = start + new Vector3(Mathf.Cos(rad) * visionRadius, Mathf.Sin(rad) * visionRadius, 0);
-            scannerLine.SetPosition(0, start);
             scannerLine.SetPosition(1, end);
             yield return null;
         }

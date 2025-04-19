@@ -30,7 +30,7 @@ public class SessionDelegator : MonoBehaviour
             return;
         }
 
-        lockedUntilDoneTutorial.SetActive(false);
+        UnlockTeam();
     }
 
     public void UnlockTeam() {

@@ -2985,7 +2985,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -3196,6 +3196,7 @@ MonoBehaviour:
   playerVehicle: {fileID: 0}
   sliderCounter: {fileID: 7736120810581676890}
   amountToDestroy: 0
+  preventDestruction: 0
 --- !u!114 &3080944713843936600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8714,7 +8715,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -10481,7 +10482,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -14603,7 +14604,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -14976,7 +14977,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -16359,7 +16360,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -21772,7 +21773,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -25865,7 +25866,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -26074,6 +26075,8 @@ MonoBehaviour:
   - {r: 0.22352941, g: 1, b: 0.078431375, a: 1}
   - {r: 0.6901961, g: 0.14901961, b: 1, a: 1}
   - {r: 0.2784314, g: 0.7254902, b: 0.7764706, a: 1}
+  activePanel: Drillers
+  openedGarage: 0
   playerState: {fileID: 0}
   playerVehicleDelegation: {fileID: 0}
   analyticsDelegator: {fileID: 0}
@@ -26081,6 +26084,8 @@ MonoBehaviour:
   vehicleUpgradeLevels:
     keys: []
     values: 
+  stubbyImage: {fileID: 0}
+  blockPanelSwitching: 0
 --- !u!114 &213116404333213292
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29751,18 +29756,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: TutorialManager, Scripts
-        m_MethodName: ClickedGarageButton
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 4723785854329842489}
         m_TargetAssemblyTypeName: GarageDelegator, Assembly-CSharp
         m_MethodName: ActivatePanel
@@ -30000,7 +29993,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -43630,7 +43623,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -49711,7 +49704,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
@@ -56398,7 +56391,7 @@ MonoBehaviour:
     m_TableReference:
       m_TableCollectionName: GUID:d5dd5b5ec4fe649d49c8bc61dae5b783
     m_TableEntryReference:
-      m_KeyId: 1575224336386
+      m_KeyId: 13640059017224192
       m_Key: 
     m_FallbackState: 0
     m_WaitForCompletion: 0
