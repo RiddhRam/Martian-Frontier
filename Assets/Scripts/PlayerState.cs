@@ -349,8 +349,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
         }
-        
-        analyticsDelegator = AnalyticsDelegator.Instance;
 
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
@@ -362,6 +360,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+
+        analyticsDelegator = AnalyticsDelegator.Instance;
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             ResetMineButton.SetActive(false);
@@ -424,7 +424,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
 
         upgradesDelegator.SwapPower(0);
-        upgradesDelegator.UpdatePowerVisibility();
+        upgradesDelegator.UpdatePowerVisibility(GetRebirths());
 
         GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         

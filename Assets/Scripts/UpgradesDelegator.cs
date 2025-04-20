@@ -472,9 +472,10 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powerIconImage.gameObject.SetActive(true);
     }
 
-    public void UpdatePowerVisibility() {
+    public void UpdatePowerVisibility(int rebirths) {
+        
         foreach (var power in powers) {
-            if (power.MinLevelRequired > playerState.GetRebirths()) {
+            if (power.MinLevelRequired > rebirths) {
                 powerPanels[power.Index].SetActive(false);
                 powerLockedPanels[power.Index].SetActive(true);
             } else {
@@ -538,7 +539,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         StartCoroutine(StartCooldownTimer(cooldownTimer));
 
-        UpdatePowerVisibility();
+        UpdatePowerVisibility((int) Mathf.Round(data.rebirthProfitMultiplier / 0.01f));
     }
 
     public void SaveData(ref GameData data)
