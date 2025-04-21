@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class GenerationTrigger : MonoBehaviour
 {
-    private MineRenderer mineRenderer;
-    private bool needToGenerate = true;
+    public MineRenderer mineRenderer;
+    public bool needToGenerate = true;
 
     // Upon touching a trigger
     private void OnTriggerEnter2D(Collider2D collider) {
@@ -24,9 +24,6 @@ public class GenerationTrigger : MonoBehaviour
             // Turn the number into an int then pass it to CreateTiles to create a new row
             mineRenderer.CreateTiles(int.Parse(numberStr));
         }
-
-        // Destroy to save memory
-        Destroy(gameObject);
     }
 
     

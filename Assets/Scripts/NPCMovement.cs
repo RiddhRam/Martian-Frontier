@@ -218,6 +218,7 @@ public class NPCMovement : MonoBehaviour
                 }
             }
 
+            // Get all tiles with ores
             List<Vector2Int> oreTiles = new();
 
             foreach (Vector2Int tilePos in unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Keys) {
@@ -232,9 +233,13 @@ public class NPCMovement : MonoBehaviour
                 }
             }
 
-            Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
+            // If tiles found
+            if (oreTiles.Count != 0) {
+                // Choosen a random ore tile
+                Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
 
-            return new(chosenCell.x, chosenCell.y, 0);
+                return new(chosenCell.x, chosenCell.y, 0);
+            }
         }
         
         // Second algorithm, usually used at the start of the game

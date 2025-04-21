@@ -39,11 +39,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // It's going to stay as a list as a future anti cheat measure
     // We can see if the user is creating materials out of nowhere or has made more money than possible from this mine
     private SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
+    public bool[] generatedRows;
     // Use this to get a tilemap rather than calling GetComponent each time a tilemap is being mined
     // string = tilemap gameobject name
     // public so DrillerController can easily use it
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
-    // Array of the tilemap Game objects
+    // Array of the tilemap Game objects, same as above, but in a 2d array rather than a dictionary with the string as the key
     public Tilemap[,] tilemaps;
     // The gameobject of each ore material to be instantied onto the map when mining ores
     private GameObject[] materials;
@@ -83,6 +84,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     float invGridWidth;  // Precompute inverse for division
     int totalRowsForFunc;
     int totalColumnsForFunc;
+    public Transform genTrigTransform;
 
 
     private int tileTier;
@@ -249,6 +251,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
+        CreateGenTriggers();
         // Create first 4 rows
         // Change to totalRows + 1 to create entire map
         for (int i = 1; i != 5; i++) {
@@ -269,7 +272,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             DestroyTiles(coopInitializeTiles, false, true);
         }
 
-        CreateGenTriggers();
         mineInitialization = 2;
         SaveGame();
 
@@ -280,9 +282,27 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-mapHalfLength, -5) and going to the right and downward
-    public void CreateTiles(int chunkRow)
+    public void CreateTiles(int chunkRow, bool setHighestRow = true)
     {
-        highestRow = chunkRow;
+        try {
+            Destroy(GameObject.Find("Generate Row (" + (chunkRow) + ")"));
+        } catch {
+        }
+
+        for (int i = 1; i < chunkRow; i++) {
+            // Verify previous tiles were created
+            if (!generatedRows[i]) {
+                CreateTiles(i, false);
+            }
+        }
+
+        if (generatedRows[chunkRow - 1]) {
+            return;
+        }
+
+        if (setHighestRow) {
+            highestRow = chunkRow;
+        }
 
         // Find the level of the rocks
         int level = 0;
@@ -331,7 +351,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             chunkColumn++;
         }
 
-        MoveFogOfWar(chunkRow);
+        MoveFogOfWar(highestRow);
+
+        generatedRows[chunkRow - 1] = true;
     }
 
     public void MoveFogOfWar(int rowLoaded) {
@@ -392,14 +414,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void CreateGenTriggers() {
-        // Create the new mine
-        GameObject genTrigGameObject = Instantiate(generationTriggers);
-        genTrigGameObject.transform.SetParent(transform);
+        generatedRows = new bool[totalRows];
+        // Create the new mine triggers
+        genTrigTransform = Instantiate(generationTriggers).transform;
+        genTrigTransform.SetParent(transform);
         // Remove the last 7 characters from the name (the (Clone) part)
-        genTrigGameObject.name = genTrigGameObject.name.Substring(0, genTrigGameObject.name.Length - 7);
+        genTrigTransform.name = genTrigTransform.name.Substring(0, genTrigTransform.name.Length - 7);
         // Set the mineGameObject variable for each row trigger
-        for (int i = 0; i != genTrigGameObject.transform.childCount; i++) {
-            genTrigGameObject.transform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(this);
+        for (int i = 0; i != genTrigTransform.childCount; i++) {
+            genTrigTransform.GetChild(i).GetComponent<GenerationTrigger>().SetMineGameObject(this);
         }
     }
 
