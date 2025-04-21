@@ -188,20 +188,9 @@ public class DataPersistenceManager : MonoBehaviour
             finishedTutorial = true
         };
 
-        if (notSinglePlayerScene) {
-            DirectlyWriteSave();
-            SceneManager.LoadScene("Loading Screen");
-            return;
-        }
-
-        // initialize values to scripts that need it
-        foreach (IDataPersistence dataPersistenceObj in dataPersistenceObjects) {
-            try {
-                dataPersistenceObj.LoadData(this.gameData);
-            } catch (Exception error) {
-                Debug.Log(error);
-            }
-        }
+        DirectlyWriteSave();
+        
+        SceneManager.LoadScene("Loading Screen");
     }   
 
     // For web saving only

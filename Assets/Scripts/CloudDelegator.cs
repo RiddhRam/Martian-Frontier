@@ -182,6 +182,9 @@ public class CloudDelegator : MonoBehaviour
         await AuthenticationService.Instance.DeleteAccountAsync();
         askToDeleteAccount.SetActive(false);
 
+        AuthenticationService.Instance.SignOut(true); // True to clear cache
+        PlayerAccountService.Instance.SignOut();
+
         loginPanel.SetActive(true);
         userPanel.SetActive(false);
         askToLogOut.SetActive(false);
@@ -321,12 +324,9 @@ public class CloudDelegator : MonoBehaviour
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
                 loadingScreen.gameObject.SetActive(true);
                 IncrementLoadedItems();
-                if (notSinglePlayerScene) {
-                    dataPersistenceManager.DirectlyWriteSave();
-                    SceneManager.LoadScene("Loading Screen");
-                } else {
-                    dataPersistenceManager.LoadGame();
-                }
+
+                dataPersistenceManager.DirectlyWriteSave();
+                SceneManager.LoadScene("Loading Screen");
             }
         }
         catch (Exception e)

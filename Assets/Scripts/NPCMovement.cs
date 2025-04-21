@@ -180,23 +180,36 @@ public class NPCMovement : MonoBehaviour
 
         int rowsPerTier = unplacedTilemapsTileValues.GetLength(1)/nPCManager.mineRenderer.oresPerTier.Length; // 18 * 3
         int lower = rowsPerTier * (drillTier - 1) - 1;
+        if (lower < 0) {
+            lower = 0;
+        }
         int upper = rowsPerTier * drillTier - 1; 
 
         Vector2Int bestTilemaptoTarget = new(0, lower);
 
         bool tilemapGenerated = false;
 
-        if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y] != null) {
-            tilemapGenerated = true;
+        try {
+            if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y] != null) {
+                tilemapGenerated = true;
+            }
+        } catch {
+            tilemapGenerated = false;
         }
+        
 
         if (tilemapGenerated) {
             for (int i = lower; i != upper; i++) {
                 for (int j = 0; j != unplacedTilemapsTileValues.GetLength(0); j++) { 
-                    if (unplacedTilemapsTileValues[j, i] == null) {
+                    try {
+                        if (unplacedTilemapsTileValues[j, i] == null) {
+                            break;
+                        }
+                    } catch {
                         break;
                     }
-                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count == unplacedTilemapsTileValues[j, i].Count && random.NextDouble() < 0.33) {
+                    
+                    if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count == unplacedTilemapsTileValues[j, i].Count && random.NextDouble() < 0.33) {
                         bestTilemaptoTarget = new(j, i);
                     }
                     else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count < unplacedTilemapsTileValues[j, i].Count) {

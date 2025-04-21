@@ -234,14 +234,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 min = drillerTierThresholds[highestDrillTier - 2];
             }
 
-            int index;
-            
-            if (mapRecordingMode.enabled) {
-                // Gaurantee Bore I spawns
-                index = 10;
-            } else {
-                index = seedRandom.Next(min, max);
-            }
+            int index = seedRandom.Next(min, max);
             
             // If its a Specter, drop the index by one. I haven't retested it yet
             if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
@@ -249,7 +242,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             }
             // If its a grinder, increment index. They are small and slow, not good for the NPC algorithm which needs fast or wide drills (mostly wide)
             if (garageDelegator.drillers[index].name.Contains("GRINDER")) {
-                index--;
+                index++;
             }
 
             vehicle = Instantiate(garageDelegator.drillers[index]);
