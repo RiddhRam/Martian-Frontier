@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using TMPro;
 using UnityEngine;
@@ -173,13 +174,63 @@ public class NPCMovement : MonoBehaviour
     }
 
     public Vector3 GetRandomPosition() {
+
+        // First algorithm, only works when tilemaps are generated, so later in the game not at the start
+        SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValues = nPCManager.mineRenderer.unplacedTilemapsTileValues;
+
+        int rowsPerTier = unplacedTilemapsTileValues.GetLength(1)/nPCManager.mineRenderer.oresPerTier.Length; // 18 * 3
+        int lower = rowsPerTier * (drillTier - 1) - 1;
+        int upper = rowsPerTier * drillTier - 1; 
+
+        Vector2Int bestTilemaptoTarget = new(0, lower);
+
+        bool tilemapGenerated = false;
+
+        if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y] != null) {
+            tilemapGenerated = true;
+        }
+
+        if (tilemapGenerated) {
+            for (int i = lower; i != upper; i++) {
+                for (int j = 0; j != unplacedTilemapsTileValues.GetLength(0); j++) { 
+                    if (unplacedTilemapsTileValues[j, i] == null) {
+                        break;
+                    }
+                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count == unplacedTilemapsTileValues[j, i].Count && random.NextDouble() < 0.33) {
+                        bestTilemaptoTarget = new(j, i);
+                    }
+                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count < unplacedTilemapsTileValues[j, i].Count) {
+                        bestTilemaptoTarget = new(j, i);
+                    }
+                }
+            }
+
+            List<Vector2Int> oreTiles = new();
+
+            foreach (Vector2Int tilePos in unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Keys) {
+                if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].TryGetValue(tilePos, out int value) && nPCManager.mineRenderer.oreDelegation.VerifyIfOre(value))
+                {
+                    int oreTier = nPCManager.mineRenderer.GetTileTier(nPCManager.mineRenderer.tileValues[value]);
+                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
+                        continue;
+                    }
+
+                    oreTiles.Add(tilePos);
+                }
+            }
+
+            Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
+
+            return new(chosenCell.x, chosenCell.y, 0);
+        }
+        
+        // Second algorithm, usually used at the start of the game
         timer = 0;
 
         int maxY;
         int minY;
 
-        // Since player speed can't be 10 naturally, since specter is disabled, then it was set for recording purposes
-        if (drillTier == 1 || playerSpeed == 10)  {
+        if (drillTier == 1)  {
             minY = -155;
             maxY = -8;
         } else if (drillTier == 2) {
@@ -281,7 +332,7 @@ public class NPCMovement : MonoBehaviour
     public Vector3 RequestNewHaulerPosition() {
 
         // Threshold
-        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.4 || (nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold() && nPCManager.drillingNeeded)) {
+        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5 || (nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold() && nPCManager.drillingNeeded)) {
             tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
             return new(0, 6);
         }

@@ -243,8 +243,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 index = seedRandom.Next(min, max);
             }
             
-            // If its a Specter, drop the index by one
+            // If its a Specter, drop the index by one. I haven't retested it yet
             if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
+                index--;
+            }
+            // If its a grinder, increment index. They are small and slow, not good for the NPC algorithm which needs fast or wide drills (mostly wide)
+            if (garageDelegator.drillers[index].name.Contains("GRINDER")) {
                 index--;
             }
 
@@ -364,12 +368,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return botName;
     }
 
-    public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier) {
-        if (mapRecordingMode && mapRecordingMode.enabled) {
-            // Gaurantee tier 1
-            return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, 1);
-        }
-        
+    public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier) {        
         return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
     }
 
@@ -589,7 +588,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulerCheckTimer += sessionUpdateTimer;
 
-            if (haulerCheckTimer > 60) {
+            if (haulerCheckTimer > 30) {
                 CheckIfHaulingNeeded(-1);
             }
 
@@ -714,11 +713,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public int Get2HaulerThreshold() {
-        return 350 + (110 * highestDrillTier);
+        return 550 + (110 * highestDrillTier);
     }
 
     public int Get3HaulerThreshold() {
-        return 450 + (110 * highestDrillTier);
+        return 700 + (110 * highestDrillTier);
     }
 
     public void DropMaterials(int npcIndex) {
@@ -782,9 +781,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             haulPositionCount++;
         } 
-        while(!testTilemapAStar.PathFound && haulPositionCount < 5);
+        while(!testTilemapAStar.PathFound && haulPositionCount < 10);
 
-        if (haulPositionCount >= 5 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
+        if (haulPositionCount >= 10 || Vector3.Distance(newHaulerPosition, new(0, -6)) < 0.2) {
             drillingNeeded = true;
 
             // -1 means it wasn't called from a npc

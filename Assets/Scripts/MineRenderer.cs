@@ -1205,7 +1205,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                         continue;
                     }
                     oreTiles.Add(tilePos);
-                    //Debug.LogFormat("Current Pos: {0}, Current Rotation: {1}, New Pos: {2}, New Rotation: {3}", currentPosition, currentRotation, tilePos, angle * Mathf.Rad2Deg);
                 }
             }
         }

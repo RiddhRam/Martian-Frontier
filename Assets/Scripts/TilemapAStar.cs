@@ -29,16 +29,6 @@ public class TilemapAStar : MonoBehaviour
 
     private readonly int MaxNodesToExpand = 15000;
 
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-
-        foreach (Vector3 wp in Waypoints) {
-            Gizmos.DrawSphere(wp, 0.5f);
-        }
-    }
-
     /* ---------- const data ---------- */
     private static readonly Vector3Int[] Dir4 =
     {
