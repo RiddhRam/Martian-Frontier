@@ -546,9 +546,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         playerMovement.SetSpeed(originalSpeed * 1.5f);
 
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        //mineRenderer.SetVisionRadius(upgradesDelegator.visionRadius + upgradesDelegator.visionBoost);
-        mineRenderer.SetVisionRadius(9);
-        //visionText.text =  "+" + upgradesDelegator.visionBoost.ToString();
+        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost + 6);
         visionText.text = "+6";
 
         //refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier * upgradesDelegator.refineryProfitMultiplierBoost);
@@ -604,7 +602,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         visionText.transform.parent.parent.gameObject.SetActive(false);
         
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionRadius);
+        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost);
 
         refineryController.SetProfitMultiplier(1);
 

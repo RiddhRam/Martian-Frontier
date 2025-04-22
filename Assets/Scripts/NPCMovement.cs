@@ -174,6 +174,7 @@ public class NPCMovement : MonoBehaviour
     }
 
     public Vector3 GetRandomPosition() {
+        // Used by drillers only
 
         // First algorithm, only works when tilemaps are generated, so later in the game not at the start
         SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValues = nPCManager.mineRenderer.unplacedTilemapsTileValues;
@@ -199,6 +200,7 @@ public class NPCMovement : MonoBehaviour
         
 
         if (tilemapGenerated) {
+            // Find best tilemap
             for (int i = lower; i != upper; i++) {
                 for (int j = 0; j != unplacedTilemapsTileValues.GetLength(0); j++) { 
                     try {
@@ -209,16 +211,18 @@ public class NPCMovement : MonoBehaviour
                         break;
                     }
                     
+                    // Choose randomly between the best tilemaps if there's a tie
                     if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count == unplacedTilemapsTileValues[j, i].Count && random.NextDouble() < 0.33) {
                         bestTilemaptoTarget = new(j, i);
                     }
+                    // Otherwise choose the best if not a tie
                     else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count < unplacedTilemapsTileValues[j, i].Count) {
                         bestTilemaptoTarget = new(j, i);
                     }
                 }
             }
 
-            // Get all tiles with ores
+            // Get all tiles with ores in the best tilemap
             List<Vector2Int> oreTiles = new();
 
             foreach (Vector2Int tilePos in unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Keys) {
@@ -235,7 +239,7 @@ public class NPCMovement : MonoBehaviour
 
             // If tiles found
             if (oreTiles.Count != 0) {
-                // Choosen a random ore tile
+                // Choose a random ore tile
                 Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
 
                 return new(chosenCell.x, chosenCell.y, 0);

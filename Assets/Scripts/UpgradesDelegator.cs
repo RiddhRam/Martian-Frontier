@@ -61,7 +61,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     public float crateMultiplier;
 
     // Survey Radar
-    public int visionRadius;
+    public int surveyVisionRadius;
     // Explosive Charge
     public int destroyRadius;
     // Increase Profits
@@ -103,11 +103,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         Vector2Int playerPos = new((int) playerVehicle.position.x, (int) playerVehicle.position.y);
 
-        for (int x = -visionRadius; x <= visionRadius; x++)
+        for (int x = -surveyVisionRadius; x <= surveyVisionRadius; x++)
         {
-            for (int y = -visionRadius; y <= visionRadius; y++)
+            for (int y = -surveyVisionRadius; y <= surveyVisionRadius; y++)
             {
-                if (x * x + y * y <= visionRadius * visionRadius) // Check if inside circle
+                if (x * x + y * y <= surveyVisionRadius * surveyVisionRadius) // Check if inside circle
                 {
                     AddTileIfOre(new(playerPos.x + x, playerPos.y - y));
                 }
@@ -171,8 +171,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     private IEnumerator SurveyAnimation() {
 
-        GameObject outerCircle = CreateCircle(visionRadius, surveyRadarColor, 40);
-        GameObject innerCircle = CreateCircle(visionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 1000);
+        GameObject outerCircle = CreateCircle(surveyVisionRadius, surveyRadarColor, 40);
+        GameObject innerCircle = CreateCircle(surveyVisionRadius, new(surveyRadarColor.r, surveyRadarColor.g, surveyRadarColor.b, 0.4f), 1000);
 
         float angle = 180;
         GameObject scanner = new GameObject("ScannerLine");
@@ -193,7 +193,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             angle -= 200f * Time.deltaTime; // 200f = degrees per second
             float rad = angle * Mathf.Deg2Rad;
             
-            Vector3 end = start + new Vector3(Mathf.Cos(rad) * visionRadius, Mathf.Sin(rad) * visionRadius, 0);
+            Vector3 end = start + new Vector3(Mathf.Cos(rad) * surveyVisionRadius, Mathf.Sin(rad) * surveyVisionRadius, 0);
             scannerLine.SetPosition(1, end);
             yield return null;
         }
@@ -377,7 +377,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public void UpdateRadar() {
         Powers power = powers[0];
-        visionRadius = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
+        surveyVisionRadius = (int)(power.Level0Value + power.UpgradeValue * GetPowerLevel(power.Name));
     }
 
     public void UpdateExplosive() {
