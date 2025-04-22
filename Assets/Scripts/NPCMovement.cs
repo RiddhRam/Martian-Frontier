@@ -165,6 +165,11 @@ public class NPCMovement : MonoBehaviour
         RequestNewPosition();
         yield return new WaitForSeconds((float) random.NextDouble() * 3);
 
+        if (Vector3.Distance(dest, new(0, 6)) < 0.1f) {
+            UpdateAgentDestination(new(random.Next(-2, 2), random.Next(6, 9)));
+            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
+        }
+
         if (haulerController == null) {
             agent.enabled = false;
             agent.enabled = true;
@@ -201,6 +206,7 @@ public class NPCMovement : MonoBehaviour
 
         if (tilemapGenerated) {
             // Find best tilemap
+            int randomSubtract = random.Next(-80, 80);
             for (int i = lower; i != upper; i++) {
                 for (int j = 0; j != unplacedTilemapsTileValues.GetLength(0); j++) { 
                     try {
@@ -215,8 +221,8 @@ public class NPCMovement : MonoBehaviour
                     if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count == unplacedTilemapsTileValues[j, i].Count && random.NextDouble() < 0.33) {
                         bestTilemaptoTarget = new(j, i);
                     }
-                    // Otherwise choose the best if not a tie
-                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count < unplacedTilemapsTileValues[j, i].Count) {
+                    // Otherwise choose the best if not a tie (subtract from the count to add a bit of randomness)
+                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count - randomSubtract < unplacedTilemapsTileValues[j, i].Count) {
                         bestTilemaptoTarget = new(j, i);
                     }
                 }

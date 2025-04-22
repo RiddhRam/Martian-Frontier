@@ -92,7 +92,10 @@ public class HaulerController : MonoBehaviour
 
             // If max material limit of the hauler is exceeded then just reduce the count of the material
             if (amountPickedUp + GetTotalMaterialCount() > maxMaterials) {
-                UIDelegation.ShowError("YOUR HAULER IS FULL!");
+                if (!isNPC) {
+                    UIDelegation.ShowError("YOUR HAULER IS FULL!");
+                }
+                
                 // Only pick up what we can
                 amountPickedUp = maxMaterials - GetTotalMaterialCount();
                 // then update the profit multplier and material count
