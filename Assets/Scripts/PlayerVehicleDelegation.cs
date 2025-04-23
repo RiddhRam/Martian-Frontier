@@ -22,6 +22,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     // For tutorial
     public bool blockSwitching = false;
     public HaulerController haulerController3;
+    public bool firstTimePlaying = false;
+    private float speedBoostAmount = 1.2f;
 
     public void SwitchVehicle(GameObject newVehicle) {
 
@@ -91,6 +93,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
             playerSpeed = haulerController2.GetPlayerSpeed();
             playerSpeed = UpdateOriginalSpeed(playerSpeed);
+            // Speed boost to new players
+            if (firstTimePlaying) {
+                playerSpeed *= speedBoostAmount;
+            }
             gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
 
             vehicleType = "Hauler";
@@ -108,6 +114,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
+        // Speed boost to new players
+        if (firstTimePlaying) {
+            playerSpeed *= speedBoostAmount;
+        }
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
 
         vehicleType = "Driller";
@@ -124,6 +134,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             notSinglePlayerScene = true;
             FindVehicle(currentCoopVehicle, null, null);
             return;
+        }
+
+        if (!data.finishedTutorial) {
+            firstTimePlaying = true;
         }
         
         // Load the vehicle name
@@ -211,8 +225,13 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     }
 
     private float UpdateOriginalSpeed(float playerSpeed) {
-        if (adDelegator.speedBoostActive) {
+        if (firstTimePlaying) {
+            playerSpeed *= speedBoostAmount;
+        }
+
+        if (adDelegator.speedBoostActive) {   
             adDelegator.originalSpeed = playerSpeed;
+            
             playerSpeed *= 1.5f;
         }
 
