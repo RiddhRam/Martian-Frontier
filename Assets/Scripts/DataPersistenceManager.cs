@@ -56,12 +56,10 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
-        #if UNITY_IPHONE || UNITY_IOS
         if (adConsent) {
             adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
             return;
         }
-        #endif
         LoadGame();
     }
 

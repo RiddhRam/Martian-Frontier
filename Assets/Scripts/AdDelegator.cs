@@ -4,9 +4,8 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using GoogleMobileAds.Ump.Api;
-using GoogleMobileAds.Mediation.UnityAds.Api;
 using UnityEngine.SceneManagement;
+using GoogleMobileAds.Mediation.UnityAds.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
@@ -62,34 +61,21 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool firstTimePlaying = false;
     private bool disableAds = false;
 
-    // Search this to find all lines to comment/uncomment for ads: ADMOB DISABLE
-    void Awake() {
-        
-        #if UNITY_ANDROID
-        // Reset everything
-        //PlayerPrefs.SetString("APG", "");
-        //ConsentInformation.Reset();
-        #endif
-        
-        adPermissionGiven = PlayerPrefs.GetString("APG");
-
-        if (adPermissionGiven == "Allowed") {
-            UnityAds.SetConsentMetaData("gdpr.consent", true);
-            UnityAds.SetConsentMetaData("privacy.consent", true);
-        } else if (adPermissionGiven == "Not Allowed") {
-            UnityAds.SetConsentMetaData("gdpr.consent", false);
-            UnityAds.SetConsentMetaData("privacy.consent", false);
-        }
-
-        SetAdUnitId();
-    }
-
     // Start is called before the first frame update
     void Start()
     {
-        if (adPermissionGiven == "Not Allowed") {
-            return;
+        adPermissionGiven = PlayerPrefs.GetString("APG");
+
+        if (adPermissionGiven == "Not Allowed") {   
+            UnityAds.SetConsentMetaData("gdpr.consent", false);
+            UnityAds.SetConsentMetaData("privacy.consent", false);
+        } else {
+            UnityAds.SetConsentMetaData("gdpr.consent", true);
+            UnityAds.SetConsentMetaData("privacy.consent", true);
         }
+
+        SetAdUnitId();
+
         // Need this so rewarded ads actually reward in the real app
         MobileAds.RaiseAdEventsOnUnityMainThread = true; 
         // ADMOB DISABLE
@@ -98,82 +84,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             adsInitialized = true;
             FillEmptyAdSlots();
         });
-
-        GetAdConsent();
     }
-
-    // Called from loading screen
-    public void GetAdConsent() {
-        #if UNITY_ANDROID
-        try {
-            // On iOS this is done in the Ad Consent screen in AdConsent.cs
-
-            // Only uncomment when debugging user consent settings
-            /*var debugSettings = new ConsentDebugSettings
-            {
-                DebugGeography = DebugGeography.EEA,
-                TestDeviceHashedIds =
-                new List<string>
-                {
-                    "93001fda-7fff-44e5-80b1-b086356f0b51"
-                }
-            };
-
-            // Create a ConsentRequestParameters object.
-            ConsentRequestParameters request = new ConsentRequestParameters
-            {
-                ConsentDebugSettings = debugSettings,
-            };*/
-
-            // Create a ConsentRequestParameters object.
-            ConsentRequestParameters request = new ConsentRequestParameters();
-
-            // TODO: Fix on android so that we can show personalized android ads
-            // Check the current consent information status.
-            //ConsentInformation.Update(request, OnConsentInfoUpdated);
-        } catch {
-            //Debug.Log("CONSENT EXCEPTION: " + ex.Message);
-        }
-        #endif
-    }
-
-    #if UNITY_ANDROID
-    void OnConsentInfoUpdated(FormError consentError)
-    {
-        if (consentError != null)
-        {
-            // Handle the error.
-            Debug.LogError(consentError);
-            return;
-        }
-
-        // If the error is null, the consent information state was updated.
-        // You are now ready to check if a form is available.
-        ConsentForm.LoadAndShowConsentFormIfRequired((FormError formError) =>
-        {
-            if (formError != null)
-            {
-                // Consent gathering failed.
-                Debug.LogError(consentError);
-                return;
-            }
-
-            // Consent has been gathered.
-            if (ConsentInformation.CanRequestAds())
-            {
-                UnityAds.SetConsentMetaData("gdpr.consent", true);
-                UnityAds.SetConsentMetaData("privacy.consent", true);
-
-                PlayerPrefs.SetString("APG", "Allowed");
-            } else {
-                UnityAds.SetConsentMetaData("gdpr.consent", false);
-                UnityAds.SetConsentMetaData("privacy.consent", false);
-
-                PlayerPrefs.SetString("APG", "Not Allowed");
-            }
-        });
-    }
-    #endif
 
     void FixedUpdate() {
 

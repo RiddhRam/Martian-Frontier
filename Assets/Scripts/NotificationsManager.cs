@@ -11,6 +11,10 @@ using Unity.Notifications.Android;
 
 public class NotificationsManager : MonoBehaviour {
     public async void Start() {
+        if (Debug.isDebugBuild) {
+            return;
+        }
+        
         #if UNITY_ANDROID
         string requestNotifs = "";
 

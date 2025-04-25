@@ -1,4 +1,5 @@
 using System;
+using GoogleMobileAds.Mediation.UnityAds.Api;
 using GoogleMobileAds.Ump.Api;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,10 +8,10 @@ public class AdConsent : MonoBehaviour
 {
     public DataPersistenceManager dataPersistenceManager;
 
-    #if UNITY_IPHONE || UNITY_IOS
-
     void Awake()
     {
+        #if UNITY_IPHONE || UNITY_IOS
+
         try {
             // Reset everything
             /*PlayerPrefs.SetString("APG", "");
@@ -30,6 +31,23 @@ public class AdConsent : MonoBehaviour
         } catch {
             SceneManager.LoadScene("Loading Screen");
         }
+
+        #elif UNITY_ANDROID
+
+        // Don't show ads the first time, just go to the game
+        try {
+
+            if (PlayerPrefs.GetString("First Load") != "Loaded") {
+                PlayerPrefs.SetString("First Load", "Loaded");
+                SceneManager.LoadScene("Loading Screen");
+            }
+
+        } catch (Exception ex) {
+            Debug.LogError(ex.Message);
+            SceneManager.LoadScene("Loading Screen");
+        }
+
+        #endif
     }   
 
     public void UpdatePlayerStatus(bool doneTutorialStatus) {
@@ -42,7 +60,8 @@ public class AdConsent : MonoBehaviour
     }
 
     public void GetAdConsent() {
-        Debug.Log("GETTING AD CONSENt");
+        
+        Debug.Log("GETTING AD CONSENT");
         try {
             // Only uncomment when debugging user consent settings
             /*var debugSettings = new ConsentDebugSettings
@@ -63,7 +82,6 @@ public class AdConsent : MonoBehaviour
             
             // Create a ConsentRequestParameters object.
             ConsentRequestParameters request = new();
-
             // Check the current consent information status.
             ConsentInformation.Update(request, OnConsentInfoUpdated);
         } catch (Exception ex) {
@@ -98,10 +116,20 @@ public class AdConsent : MonoBehaviour
                 // Consent has been gathered.
                 if (ConsentInformation.CanRequestAds())
                 {
+                    Debug.Log("SET UNITY CONSENT: TRUE");
+                    UnityAds.SetConsentMetaData("gdpr.consent", true);
+                    UnityAds.SetConsentMetaData("privacy.consent", true);
+
                     PlayerPrefs.SetString("APG", "Allowed");
                 } else {
+                    Debug.Log("SET UNITY CONSENT: FALSE");
+                    UnityAds.SetConsentMetaData("gdpr.consent", false);
+                    UnityAds.SetConsentMetaData("privacy.consent", false);
+
                     PlayerPrefs.SetString("APG", "Not Allowed");
                 }
+
+                #if UNITY_IPHONE || UNITY_IOS
 
                 if (PlayerPrefs.GetString("iOSATT") != "Responded") {
                     if (Application.isEditor) {
@@ -113,6 +141,8 @@ public class AdConsent : MonoBehaviour
                     return;
                 }
 
+                #endif
+
                 SceneManager.LoadScene("Loading Screen");
             });
         } catch (Exception ex) {
@@ -120,12 +150,5 @@ public class AdConsent : MonoBehaviour
             SceneManager.LoadScene("Loading Screen");
         }
     }
-
-    #elif UNITY_ANDROID
-    void Awake() {
-        SceneManager.LoadScene("Loading Screen");
-    }
-
-    #endif
 
 }

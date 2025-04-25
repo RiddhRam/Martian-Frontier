@@ -43,8 +43,6 @@ public class LoadingScreen : MonoBehaviour
             return;
         }
 
-        GameObject.Find("Ad Delegator").GetComponent<AdDelegator>().GetAdConsent();
-
         gameObject.SetActive(false);
     }
 

@@ -32,6 +32,9 @@ public class PlayerMovement : MonoBehaviour
     private readonly float maxChangeRotation = 30;
     private float wheelRotation;
 
+    // Only for recording
+    public bool freezeCamera = false;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -121,6 +124,9 @@ public class PlayerMovement : MonoBehaviour
 
     // Smooth camera follow
     public void MoveCamera() {
+        if (freezeCamera) {
+            return;
+        }
         targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
         mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
     }

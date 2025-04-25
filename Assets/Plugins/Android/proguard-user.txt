@@ -7,6 +7,10 @@
 -keep public class com.google.ads.** {
    public *;
 }
+-keep public class com.google.android.ump.** {
+   public *;
+}
+-keep class com.google.android.ump.consent.ConsentFormActivity { *; }
 -keepattributes *Annotation*
 -dontobfuscate
 -keep class com.unity.** { *;}
