@@ -270,8 +270,11 @@ public class CloudDelegator : MonoBehaviour
             LoadGameDataFromCloud();
         }
 
-        _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
-        leaderboardDelegator.CheckForRewards();
+        if (leaderboardDelegator) {
+            _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
+            leaderboardDelegator.CheckForRewards();
+        }
+        
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }

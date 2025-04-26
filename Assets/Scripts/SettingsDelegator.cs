@@ -138,7 +138,9 @@ public class SettingsDelegator : MonoBehaviour
 
         // Set the language
         LocalizationSettings.SelectedLocale = selectedLocale;
-        upgradesDelegator.UpdateAllPowerPanels();
+        if (upgradesDelegator) {
+            upgradesDelegator.UpdateAllPowerPanels();
+        }
         
         if (!analyticsDelegator) {
             analyticsDelegator = AnalyticsDelegator.Instance;
