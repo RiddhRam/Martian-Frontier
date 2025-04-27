@@ -11,7 +11,7 @@ public class CreditsDelegator : MonoBehaviour
     int maxCredits = 50;
 
     int minY = -350;
-    int maxY = -5;
+    int maxY = -8;
     int minX = -70;
     int maxX = 70;
 
@@ -43,7 +43,13 @@ public class CreditsDelegator : MonoBehaviour
             newCredit.GetComponent<CreditMaterialsInfo>().SetCount(rng.Next(1, maxCredits));
             newCredit.SetActive(true);
             
-            newCredit.transform.position = new(rng.Next(minX, maxX), rng.Next(minY, maxY));
+            if (creditPool.Count == 0) {
+                // Ensures at least 1 is at the entrance
+                newCredit.transform.position = new(0, -10);
+            } else {
+                newCredit.transform.position = new(rng.Next(minX, maxX), rng.Next(minY, maxY));
+            }
+            
         }
     }
 

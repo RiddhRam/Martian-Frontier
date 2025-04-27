@@ -26,7 +26,7 @@ public class MagnetHauler : MonoBehaviour
         floatingText = transform.GetChild(0).gameObject;
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
-        orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().orePickupSoundEffect;
+        orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().oreSaleSoundEffect;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
     }
 
@@ -112,7 +112,7 @@ public class MagnetHauler : MonoBehaviour
     }
    
     private void PlayAudio() {
-        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.6f);
+        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.4f);
     }
 
 }

@@ -54,9 +54,10 @@ public class CreditMaterialsInfo : MonoBehaviour
         TextMeshPro countText = GetComponentInChildren<TextMeshPro>();
         countText.text = count.ToString();
 
-        float percentage = count / maxCredits;
-        float redAndBlueValue = 255f - (percentage * 255);
-        miniSpriteRenderer.color = new(redAndBlueValue, 255f, redAndBlueValue);
-        mapSpriteIcons.transform.GetChild(0).GetComponent<SpriteRenderer>().color = new(redAndBlueValue, 255f, redAndBlueValue);
+        // Make the color greener, the higher the percentage is
+        float percentage = Mathf.Clamp01((float) count / maxCredits);
+        float redAndBlueValue = 1.0f - percentage;
+        miniSpriteRenderer.color = new(redAndBlueValue, 1, redAndBlueValue);
+        mapSpriteIcons.transform.GetChild(0).GetComponent<SpriteRenderer>().color = new(redAndBlueValue, 1, redAndBlueValue);
     }
 }
