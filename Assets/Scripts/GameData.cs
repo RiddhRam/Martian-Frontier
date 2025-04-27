@@ -48,6 +48,7 @@ public class GameData
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
+    public string userCredits;
 
     public GameData() {
         this.userCash = "0";
@@ -98,5 +99,6 @@ public class GameData
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
+        this.userCredits = "0";
     }
 }

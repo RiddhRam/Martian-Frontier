@@ -41,6 +41,7 @@ public class GameDataString
     public string cooldownTimer;
     public string equippedPowers;
     public string powerUpgradeLevels;
+    public string userCredits;
 
     public GameDataString() {
         this.userCash = null;
@@ -81,5 +82,6 @@ public class GameDataString
         this.cooldownTimer = null;
         this.equippedPowers = null;
         this.powerUpgradeLevels = null;
+        this.userCredits = null;
     }
 }

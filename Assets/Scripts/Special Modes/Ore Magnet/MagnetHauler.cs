@@ -1,16 +1,15 @@
 using UnityEngine;
 using TMPro; // Use TextMeshPro if you're using TextMeshPro
 using System.Collections;
-using UnityEngine.UI;
 
 public class MagnetHauler : MonoBehaviour
 {
-    [SerializeField]
-    private CreditsDelegator creditsDelegator;
+    [SerializeField] private CreditsDelegator creditsDelegator;
+    [SerializeField] private TextMeshProUGUI creditCounterText;
 
-    private int maxMaterials;
-    [SerializeField]
-    private float playerSpeed;
+    [SerializeField] private float playerSpeed;
+
+    public int collectedCredits;
 
     private GameObject floatingText; // Display the amount picked up
     // This never gets reset back to 0, it just keeps going up, but I don't think it will be an issue
@@ -41,15 +40,21 @@ public class MagnetHauler : MonoBehaviour
         CreditMaterialsInfo creditMaterial = other.GetComponent<CreditMaterialsInfo>();
 
         int amountPickedUp = creditMaterial.count;
+        UpdateCreditCount(amountPickedUp);
 
         PickUpOre(amountPickedUp);
         creditsDelegator.ReturnCreditGameObject(other.gameObject);
     }
 
+    public void UpdateCreditCount(int newAmount) {
+        collectedCredits += newAmount;
+        creditCounterText.text = collectedCredits.ToString();
+    }
+
     private void PickUpOre(int amountPickedUp) {
         ShowFloatingText(amountPickedUp.ToString());
         PlayAudio();
-    }
+    }    
 
     public void ShowFloatingText(string amount)
     {
