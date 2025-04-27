@@ -83,7 +83,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
-        drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        if (garagePanel) {
+            drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        }
     }
 
     void Start() {
