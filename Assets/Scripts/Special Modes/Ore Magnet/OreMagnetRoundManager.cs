@@ -15,6 +15,7 @@ public class OreMagnetRoundManager : MonoBehaviour
     [SerializeField] GameObject roundInfo;
 
 
+    [SerializeField] CreditsDelegator creditsDelegator;
     [SerializeField] PlayerState playerState;
     [SerializeField] MagnetHauler magnetHauler;
 
@@ -66,11 +67,28 @@ public class OreMagnetRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
 
         playerState.AddCredits(magnetHauler.collectedCredits);
-        magnetHauler.UpdateCreditCount(0);
+        // Remove all credits
+        magnetHauler.UpdateCreditCount(-magnetHauler.collectedCredits);
 
         roundInfo.SetActive(false);
 
         roundInProgress = false;
+
+        ResetAllCreditMaterials();
+    }
+
+    public void ResetAllCreditMaterials() {
+        Transform creditsDelegatorTransform = creditsDelegator.transform;
+
+        // Return all objects
+        for (int i = 0; i != creditsDelegatorTransform.childCount; i++) {
+            if (creditsDelegatorTransform.GetChild(i).gameObject.activeSelf) {
+                creditsDelegator.ReturnCreditGameObject(creditsDelegatorTransform.GetChild(i).gameObject);
+            }
+        }
+
+        // Place them again
+        creditsDelegator.GenerateCredits();
     }
 
     private IEnumerator AnimateArrow() {
