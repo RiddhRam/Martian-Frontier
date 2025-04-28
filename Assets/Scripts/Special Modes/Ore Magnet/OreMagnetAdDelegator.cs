@@ -40,6 +40,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
+    private bool adShowing = false;
 
     // Start is called before the first frame update
     void Start()
@@ -214,14 +215,15 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
         {
+            adShowing = true;
             rewardedAd.Show((Reward reward) =>
             {
+                adShowing = false;
+                lastAdShown = DateTime.Now;
+                RewardBoost();
+                dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
-
-            lastAdShown = DateTime.Now;
-            RewardBoost();
-            dataPersistenceManager.SaveGame();
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
@@ -244,13 +246,14 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         // ADMOB DISABLE
         if (convertAd != null && convertAd.CanShowAd())
         {   
+            adShowing = true;
             convertAd.Show((Reward reward) =>
             {
+                adShowing = false;
+                // Reward user
+                ConvertRewardSuccess();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
-
-            // Reward user
-            ConvertRewardSuccess();
             
             // Listen to user events during ad
             RegisterEventHandlers(convertAd);
@@ -329,11 +332,13 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         // Raised when the ad closed full screen content.
         ad.OnAdFullScreenContentClosed += () =>
         {
+            adShowing = false;
             RegisterReloadHandler(ad);
         };
         // Raised when the ad failed to open full screen content.
         ad.OnAdFullScreenContentFailed += (AdError error) =>
         {
+            adShowing = false;
             //Debug.LogError("Rewarded ad failed to open full screen content " + "with error : " + error);
             RegisterReloadHandler(ad);
         };
@@ -466,6 +471,11 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void FillEmptyAdSlots() {
+        // Dont load new ad if an ad is showing (mainly used for iOS)
+        if (adShowing) {
+            return;
+        }
+
         if (rewardedAd == null || !rewardedAd.CanShowAd()) {
             LoadRewardedAd("Speed");
         }

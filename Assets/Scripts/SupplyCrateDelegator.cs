@@ -155,7 +155,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         System.Random random = new System.Random();
 
         cashRewardAmount = (int) (random.Next(10000, 30000) * (1 + upgradesDelegator.crateMultiplier));
-        gemRewardAmount = (int) (random.Next(600, 1800) * (1 + upgradesDelegator.crateMultiplier));
+        gemRewardAmount = (int) (random.Next(600, 1300) * (1 + upgradesDelegator.crateMultiplier));
 
         cashRewardAmount *= BigInteger.Pow(100, (-1 + playerState.GetHighestDrillTier()));
 
