@@ -14,13 +14,16 @@ public class OreMagnetRoundManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] GameObject roundInfo;
 
+    [SerializeField] TextMeshProUGUI creditTextAmount;
+    [SerializeField] TextMeshProUGUI gemTextAmount;
+
 
     [SerializeField] CreditsDelegator creditsDelegator;
     [SerializeField] PlayerState playerState;
     [SerializeField] MagnetHauler magnetHauler;
 
     [SerializeField] private int roundTimer;
-    bool roundInProgress = false;
+    public bool roundInProgress = false;
 
     [SerializeField] private AudioSource UISoundEffects;
     [SerializeField] private AudioClip roundEndSoundEffect;
@@ -28,6 +31,7 @@ public class OreMagnetRoundManager : MonoBehaviour
 
     void Start()
     {
+        UpdateConversion();
         magnetHauler.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
     }
@@ -67,6 +71,7 @@ public class OreMagnetRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
 
         playerState.AddCredits(magnetHauler.collectedCredits);
+        UpdateConversion();
         // Remove all credits
         magnetHauler.UpdateCreditCount(-magnetHauler.collectedCredits);
 
@@ -75,6 +80,11 @@ public class OreMagnetRoundManager : MonoBehaviour
         roundInProgress = false;
 
         ResetAllCreditMaterials();
+    }
+
+    public void UpdateConversion() {
+        creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
+        gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
     }
 
     public void ResetAllCreditMaterials() {

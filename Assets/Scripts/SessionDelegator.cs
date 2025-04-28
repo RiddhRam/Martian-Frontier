@@ -34,7 +34,10 @@ public class SessionDelegator : MonoBehaviour
     }
 
     public void UnlockTeam() {
-        lockedUntilDoneTutorial.SetActive(false);
+        if (lockedUntilDoneTutorial) {
+            lockedUntilDoneTutorial.SetActive(false);
+        }
+        
     }
 
     public void GoToTeamSession() {

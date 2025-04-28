@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class CreditMagnet : MonoBehaviour
 {
+    [SerializeField] private OreMagnetRoundManager oreMagnetRoundManager;
+
     public float magnetRadius;
     public float pullForce;
 
@@ -13,6 +15,10 @@ public class CreditMagnet : MonoBehaviour
 
     void Update()
     {
+        if (!oreMagnetRoundManager.roundInProgress) {
+            return;
+        }
+        
         checkTimer -= Time.deltaTime;
         if (checkTimer <= 0f)
         {

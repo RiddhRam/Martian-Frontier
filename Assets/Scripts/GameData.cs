@@ -50,6 +50,7 @@ public class GameData
     public SerializableDictionary<string, int> powerUpgradeLevels;
     public string userCredits;
     public SerializableDictionary<string, int> oreMagnetUpgrades;
+    public int oreMagnetAdTimer;
 
     public GameData() {
         this.userCash = "0";
@@ -102,5 +103,6 @@ public class GameData
         this.powerUpgradeLevels = new();
         this.userCredits = "0";
         this.oreMagnetUpgrades = new();
+        this.oreMagnetAdTimer = 0;
     }
 }

@@ -4,52 +4,34 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
-public class AdDelegator : MonoBehaviour, IDataPersistence
+public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
-    public TextMeshProUGUI visionText;
-    public TextMeshProUGUI profitText;
-    public TextMeshProUGUI rewardAdTimerText;
-    public string[] rewardTypes;
-    public GameObject movementJoystick;
-    public GameObject tutorial;
+    public TextMeshProUGUI oreMagnetAdTimerText;
     public GameObject customAdScreen;
     public GameObject signupNoWifi;
     public GameObject signUpButton;
     public GameObject accountNoWifi;
     public GameObject changeNameButton;
     public GameObject deleteAccountButton;
-    public GameObject leaderboardNoWifi;
-    public GameObject doubleCrateRewardButton;
-    public GameObject crateRewardNoWifi;
-    public GameObject teamNoWifi;
-
-    public GameObject leaderboardTabButtons;
-    public GameObject leaderboardCashPanel;
-    public GameObject leaderboardVehiclesPanel;
-    private bool cashPanelWasOpen = true;
+    public GameObject doubleConvertRewardButton;
+    public GameObject convertRewardNoWifi;
 
     private RewardedAd rewardedAd;
-    private RewardedAd crateAd;
+    private RewardedAd convertAd;
     private int timer = 0;
     private bool internetReachable = false;
-    // This needs to be seperate because user can swap vehicle while boost active
-    public float originalSpeed;
-    public bool speedBoostActive;
 
-    private int rewardAdTimer = 0;
+    private int oreMagnetAdTimer = 0;
 
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
     public CloudDelegator cloudDelegator;
     public PlayerState playerState;
-    public RefineryController refineryController;
-    public SupplyCrateDelegator supplyCrateDelegator;
-    public UpgradesDelegator upgradesDelegator;
+    public OreMagnetRoundManager oreMagnetRoundManager;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -58,8 +40,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
-    private bool firstTimePlaying = false;
-    private bool disableAds = false;
 
     // Start is called before the first frame update
     void Start()
@@ -104,10 +84,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // If there is internet
         internetReachable = true;
         ToggleDisplay();
-
-        if (firstTimePlaying) {
-            return;
-        }
         
         timer++;
 
@@ -116,10 +92,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
         timer = 0;
 
-        if (!disableAds) {
-            FillEmptyAdSlots();
-        }
-    
+
+        FillEmptyAdSlots();
     }
 
     // Choose the right ad unit before doing anything with ads
@@ -171,21 +145,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Loads the rewarded ad.
     public void LoadRewardedAd(string type)
     {
-        if (disableAds)
-            return;
-
         bool currentCloudLoadState = cloudLoading;
         // ADMOB DISABLE
         //IncrementLoadedItems();
 
         // ADMOB DISABLE
         // Clean up the old ad before loading a new one.
-        if (rewardedAd != null && type == "Boost") {
+        if (rewardedAd != null && type == "Speed") {
             rewardedAd.Destroy();
             rewardedAd = null;
-        } else if (crateAd != null && type == "Crate") {
-            crateAd.Destroy();
-            crateAd = null;
+        } else if (convertAd != null && type == "Convert") {
+            convertAd.Destroy();
+            convertAd = null;
         }
 
         // send the request to load the ad.
@@ -210,10 +181,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 }
 
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
-                if (type == "Boost") {
+                if (type == "Speed") {
                     rewardedAd = ad;
-                } else if (type == "Crate") {
-                    crateAd = ad;
+                } else if (type == "Convert") {
+                    convertAd = ad;
                 }
                 
                 if (currentCloudLoadState == cloudLoading) {   
@@ -233,10 +204,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     // Show ad to user
     public void ShowRewardedAd()
     {
-        if (disableAds)
-            return;
         // If user watched an ad in the last 30 seconds or first time playing
-        if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-90)) {
+        if (lastAdShown >= DateTime.Now.AddSeconds(-90)) {
             RewardBoost();
             dataPersistenceManager.SaveGame();
             return;
@@ -266,51 +235,52 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
-    public void ShowCrateRewardedAd() {
-        if (disableAds) {
-            return;
-        }
-
+    public void ShowConvertRewardedAd() {
         try {
-            analyticsDelegator.AdWatchAttempt("Crate");
+            analyticsDelegator.AdWatchAttempt("Convert");
         } catch {
         }
 
-        if (firstTimePlaying) {
-            CrateRewardSuccess();
-            return;
-        }
-
         // ADMOB DISABLE
-        if (crateAd != null && crateAd.CanShowAd())
+        if (convertAd != null && convertAd.CanShowAd())
         {   
-            crateAd.Show((Reward reward) =>
+            convertAd.Show((Reward reward) =>
             {
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
 
             // Reward user
-            CrateRewardSuccess();
+            ConvertRewardSuccess();
             
             // Listen to user events during ad
-            RegisterEventHandlers(crateAd);
+            RegisterEventHandlers(convertAd);
             return;
         } else {
             // CustomAdScreen if no ad ready
-            StartCoroutine(UseCustomAdScreen(() => CrateRewardSuccess()));
+            StartCoroutine(UseCustomAdScreen(() => ConvertRewardSuccess()));
         }
         
     }
 
-    private void CrateRewardSuccess() {
-        supplyCrateDelegator.DoubleRewardsActivated();
-        dataPersistenceManager.SaveGame();
+    public void ConvertToGems() {
+        // 1 gem per 30 credits
+        playerState.AddGems((int) playerState.GetUserCredits() / 30);
+        Debug.Log((int) playerState.GetUserCredits() / 30);
+        playerState.SubtractCredits((long) playerState.GetUserCredits());
+
+        oreMagnetRoundManager.UpdateConversion();
+    }
+
+    private void ConvertRewardSuccess() {
+        // 1 gem per 15 credits
+        playerState.AddGems((int) playerState.GetUserCredits() / 15);
+        Debug.Log((int) playerState.GetUserCredits() / 15);
+        playerState.SubtractCredits((long) playerState.GetUserCredits());
+
+        oreMagnetRoundManager.UpdateConversion();
     }
 
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
-        if (disableAds) {
-            yield break;
-        }
 
         Slider progressSlider = customAdScreen.transform.GetChild(3).GetComponent<Slider>();
 
@@ -398,23 +368,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             accountNoWifi.SetActive(false);
             changeNameButton.SetActive(true);
             deleteAccountButton.SetActive(true);
-            leaderboardCashPanel.SetActive(cashPanelWasOpen);
-            leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
-            leaderboardTabButtons.SetActive(true);
-            leaderboardNoWifi.SetActive(false);
-            
 
-            if (!disableAds) {
+            adButton.SetActive(true);
 
-                adButton.SetActive(true);
-
-                if (!supplyCrateDelegator.adWatchedAlready) {
-                    doubleCrateRewardButton.SetActive(true);
-                    crateRewardNoWifi.SetActive(false);
-                }
-
-                teamNoWifi.SetActive(false);
-            }
+            convertRewardNoWifi.SetActive(false);
+            doubleConvertRewardButton.SetActive(true);
 
             _ = cloudDelegator.AttemptLogIn();
             
@@ -431,43 +389,22 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         accountNoWifi.SetActive(true);
         changeNameButton.SetActive(false);
         deleteAccountButton.SetActive(false);
-        cashPanelWasOpen = leaderboardCashPanel.activeSelf;
-        leaderboardCashPanel.SetActive(false);
-        leaderboardVehiclesPanel.SetActive(false);
-        leaderboardTabButtons.SetActive(false);
-        leaderboardNoWifi.SetActive(true);
         
-        if (!disableAds) {
-            crateRewardNoWifi.SetActive(true);
-            doubleCrateRewardButton.SetActive(false);
-            adButton.SetActive(false);
+        adButton.SetActive(false);
 
-
-            teamNoWifi.SetActive(true);
-        }
+        convertRewardNoWifi.SetActive(true);
+        doubleConvertRewardButton.SetActive(false);
 
         displayStatus = false;
     }
 
-    private void RewardBoost(int? totalTime = 240) {
-
+    private void RewardBoost(int? totalTime = 90) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        originalSpeed = playerMovement.GetSpeed();
-        playerMovement.SetSpeed(originalSpeed * 1.5f);
-
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost + 6);
-        visionText.text = "+6";
-
-        //refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier * upgradesDelegator.refineryProfitMultiplierBoost);
-        //profitText.text = upgradesDelegator.refineryProfitMultiplierBoost.ToString() + "X";
-
-        refineryController.SetProfitMultiplier(2);
-        profitText.text = "2X";
+        playerMovement.SetSpeed(12);
 
         StartCoroutine(StartRewardCountdown((int) totalTime));
 
-        LogAnalytics("Profit");
+        LogAnalytics("Speed");
     }
 
     private void LogAnalytics(string analyticToLog) {
@@ -479,10 +416,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private IEnumerator StartRewardCountdown(int totalTime) {
 
-        speedBoostActive = true;
-
         adButton.SetActive(false);
-        visionText.transform.parent.parent.gameObject.SetActive(true);
+        adButton.transform.parent.GetChild(1).gameObject.SetActive(true);
 
         int minutes;
         int seconds;
@@ -496,8 +431,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            rewardAdTimerText.text = timerText;
-            rewardAdTimer = totalTime - 1;
+            oreMagnetAdTimerText.text = timerText;
+            oreMagnetAdTimer = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -505,60 +440,37 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        rewardAdTimerText.text = "0:00";
-        rewardAdTimer = 0;
+        oreMagnetAdTimerText.text = "0:00";
+        oreMagnetAdTimer = 0;
 
         adButton.SetActive(true);
-        visionText.transform.parent.parent.gameObject.SetActive(false);
-        
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost);
+        adButton.transform.parent.GetChild(1).gameObject.SetActive(false);
 
-        refineryController.SetProfitMultiplier(1);
-
-        speedBoostActive = false;
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(originalSpeed);
+        playerMovement.SetSpeed(6);
         yield break;
     }
 
     public void LoadData(GameData data) {
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
-            disableAds = true;
-            return;
-        }
+        this.oreMagnetAdTimer = data.oreMagnetAdTimer;
 
-        this.rewardAdTimer = data.rewardAdTimer;
-
-        if (rewardAdTimer > 0) {
+        if (oreMagnetAdTimer > 0) {
             // Reward
-            RewardBoost(rewardAdTimer);
-        }
-
-        if (!data.finishedTutorial) {
-            firstTimePlaying = true;
+            RewardBoost(oreMagnetAdTimer);
         }
     }
 
-    public void SaveData(ref GameData data) {
-        if (disableAds) {
-            return;
-        }
-        
-        data.rewardAdTimer= this.rewardAdTimer;
+    public void SaveData(ref GameData data) {        
+        data.oreMagnetAdTimer = this.oreMagnetAdTimer;
     }
 
     private void FillEmptyAdSlots() {
-        if (disableAds) {
-            return;
-        }
-
         if (rewardedAd == null || !rewardedAd.CanShowAd()) {
-            LoadRewardedAd("Boost");
+            LoadRewardedAd("Speed");
         }
-        if (crateAd == null || !crateAd.CanShowAd()) {
-            LoadRewardedAd("Crate");
+        if (convertAd == null || !convertAd.CanShowAd()) {
+            LoadRewardedAd("Convert");
         }
     }
 

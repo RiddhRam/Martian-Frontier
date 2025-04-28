@@ -187,6 +187,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void SubtractCredits(long amountToSubtract) {
         userCredits -= amountToSubtract;
         UpdateCreditDisplays();
+
+        dataPersistenceManager.SaveGame();
     }
 
     // Validate and add XP
@@ -529,6 +531,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public BigInteger GetUserCash() {
         return userCash;
+    }
+
+    public BigInteger GetUserCredits() {
+        return userCredits;
     }
 
     // For development only

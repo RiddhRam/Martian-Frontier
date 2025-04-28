@@ -43,6 +43,7 @@ public class GameDataString
     public string powerUpgradeLevels;
     public string userCredits;
     public string oreMagnetUpgrades;
+    public string oreMagnetAdTimer;
 
     public GameDataString() {
         this.userCash = null;
@@ -85,5 +86,6 @@ public class GameDataString
         this.powerUpgradeLevels = null;
         this.userCredits = null;
         this.oreMagnetUpgrades = null;
+        this.oreMagnetAdTimer = null;
     }
 }
