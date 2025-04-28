@@ -69,7 +69,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public bool scannedForOres = false;
 
-    private int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
+    private readonly int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
 
     void Start()
     {
@@ -139,10 +139,13 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         LineRenderer circle = circleObject.AddComponent<LineRenderer>();
         float radiusToUse = radius;
 
+        // Outer ring
         if (circleColor == surveyRadarColor) {
             circle.startWidth = 1f;
             circle.endWidth = 1f;
-        } else {
+        } 
+        // Inner ring
+        else {
             circle.startWidth = radius;
             circle.endWidth = radius;
             radiusToUse /= 2;

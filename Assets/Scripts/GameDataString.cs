@@ -42,6 +42,7 @@ public class GameDataString
     public string equippedPowers;
     public string powerUpgradeLevels;
     public string userCredits;
+    public string oreMagnetUpgrades;
 
     public GameDataString() {
         this.userCash = null;
@@ -83,5 +84,6 @@ public class GameDataString
         this.equippedPowers = null;
         this.powerUpgradeLevels = null;
         this.userCredits = null;
+        this.oreMagnetUpgrades = null;
     }
 }

@@ -227,6 +227,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return false;
     }
 
+    public bool VerifyEnoughCredits(int price) {
+        if (userCredits < price) {
+            return false;
+        }
+        
+        return true;
+    }
+
     public void NewBlockMined(int oresMined, int amount) {
 
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore

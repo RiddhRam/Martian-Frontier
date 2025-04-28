@@ -4,8 +4,11 @@ using System.Collections;
 
 public class MagnetHauler : MonoBehaviour
 {
+    [SerializeField] private CreditMagnet creditMagnet;
     [SerializeField] private CreditsDelegator creditsDelegator;
     [SerializeField] private TextMeshProUGUI creditCounterText;
+
+    [SerializeField] private Transform magnetArea;
 
     [SerializeField] private float playerSpeed;
 
@@ -21,12 +24,52 @@ public class MagnetHauler : MonoBehaviour
 
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
+    private LineRenderer lineRenderer;
+    [SerializeField] private Color lineRendererColor;
+    [SerializeField] private Material defaultMaterial;
+    readonly float multplier = 360f / 50;
+
     void Start() {
+        lineRenderer = GetComponent<LineRenderer>();
+
+        lineRenderer.startWidth = 1f;
+        lineRenderer.endWidth = 1f;
+
+        lineRenderer.loop = true;
+        lineRenderer.positionCount = 50;
+        lineRenderer.material = defaultMaterial;
+        lineRenderer.sortingOrder = 1;
+        lineRenderer.startColor = lineRendererColor;
+        lineRenderer.endColor = lineRendererColor;   
+
         floatingText = transform.GetChild(0).gameObject;
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().oreSaleSoundEffect;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+    }
+
+    void Update()
+    {
+        DrawRing();
+    }
+
+    void DrawRing()
+    {
+        float radiusToUse = creditMagnet.magnetRadius;
+
+        for (int i = 0; i < 50; i++)
+        {
+            float angle = i * multplier * Mathf.Deg2Rad;
+
+            float x = Mathf.Cos(angle) * radiusToUse;
+            float y = Mathf.Sin(angle) * radiusToUse;
+
+            lineRenderer.SetPosition(i, new Vector3(x, y, 0) + transform.position);
+        }
+
+        float radius = radiusToUse * 2;
+        magnetArea.localScale = new(radius, radius, radius);
     }
 
     private void OnTriggerEnter2D(Collider2D other)

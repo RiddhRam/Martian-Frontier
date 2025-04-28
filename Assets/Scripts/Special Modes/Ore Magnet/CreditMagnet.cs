@@ -2,12 +2,11 @@ using UnityEngine;
 
 public class CreditMagnet : MonoBehaviour
 {
-    [Header("Magnet Settings")]
-    [SerializeField] private float magnetRadius = 5.0f; // Changed variable name to match tooltip
+    public float magnetRadius;
+    public float pullForce;
 
-    [SerializeField] private float pullForce = 10.0f;
-    private float minimumDistance = 0.1f; // Prevents division by zero or excessive force
-    private float checkInterval = 0.1f; // Check 10 times per second
+    private readonly float minimumDistance = 0.1f; // Prevents division by zero or excessive force
+    private readonly float checkInterval = 0.1f; // Check 10 times per second
 
     private float checkTimer = 0f;
     private Collider2D[] nearbyColliders;
