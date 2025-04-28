@@ -140,6 +140,7 @@ public class PlayerMovement : MonoBehaviour
         for (int i = 0; i != vehicle.childCount; i++) {
             if (vehicle.GetChild(i).name == "Front Wheels") {
                 frontWheels = vehicle.GetChild(i);
+                Debug.Log("Found wheels");
                 return;
             }
         }

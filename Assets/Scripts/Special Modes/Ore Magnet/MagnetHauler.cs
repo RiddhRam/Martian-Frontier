@@ -47,6 +47,10 @@ public class MagnetHauler : MonoBehaviour
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().oreSaleSoundEffect;
         audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+
+        // Do this so front wheels are found
+        PlayerMovement playerMovement = transform.parent.GetComponent<PlayerMovement>();
+        playerMovement.SetSpeed(playerMovement.GetSpeed());
     }
 
     void Update()
