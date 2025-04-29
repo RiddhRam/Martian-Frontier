@@ -16,8 +16,8 @@ public class OreBlasterRoundManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI gemTextAmount;
 
     [SerializeField] PlayerState playerState;
-    [SerializeField] BlasterDriller blasterDriller;
     [SerializeField] MineRenderer mineRenderer;
+    [SerializeField] OreBlaster oreBlaster;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -28,7 +28,7 @@ public class OreBlasterRoundManager : MonoBehaviour
 
     void Start()
     {
-        blasterDriller.UpdateCreditCount(0);
+        oreBlaster.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
         UpdateConversion();
     }
@@ -61,19 +61,19 @@ public class OreBlasterRoundManager : MonoBehaviour
         StartCoroutine(ResetMine());
         
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
-
-        playerState.AddCredits(blasterDriller.collectedCredits);
+        Debug.Log(oreBlaster.collectedCredits);
+        playerState.AddCredits(oreBlaster.collectedCredits);
         UpdateConversion();
         // Remove all credits
-        blasterDriller.UpdateCreditCount(-blasterDriller.collectedCredits);
+        oreBlaster.UpdateCreditCount(-oreBlaster.collectedCredits);
 
         roundInfo.SetActive(false);
         roundInProgress = false;
     }
 
     public void UpdateConversion() {
-        //creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
-        //gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
+        creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
+        gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
     }
 
     private IEnumerator ResetMine() {
