@@ -22015,7 +22015,7 @@ MonoBehaviour:
   joystickMovement: {fileID: 1828223861}
   depthTracker: {fileID: 469771645}
   stopMoving: 0
-  playerSpeed: 6
+  playerSpeed: 7
   freezeCamera: 0
 --- !u!50 &1012335948
 Rigidbody2D:
@@ -24046,17 +24046,17 @@ RectTransform:
   m_GameObject: {fileID: 1460905304}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.99971277, y: 0.99971277, z: 0.99971277}
+  m_LocalScale: {x: 0.9997127, y: 0.9997127, z: 0.9997127}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1715049556}
   - {fileID: 1019246241}
-  m_Father: {fileID: 1826239603}
+  m_Father: {fileID: 5893465902896828831}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 1493.5}
-  m_SizeDelta: {x: 700, y: 300}
+  m_AnchoredPosition: {x: 0, y: -502.51062}
+  m_SizeDelta: {x: -520, y: 300}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1460905306
 MonoBehaviour:
@@ -32611,20 +32611,20 @@ PrefabInstance:
     - {fileID: 5734671613992369059, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 1
-      addedObject: {fileID: 1460905305}
-    - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 7
+      insertIndex: 6
       addedObject: {fileID: 552295379}
     - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 8
+      insertIndex: 7
       addedObject: {fileID: 1033373748}
     - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 15
+      insertIndex: 14
       addedObject: {fileID: 1041991032}
     - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 16
+      insertIndex: 15
       addedObject: {fileID: 979684671}
+    - targetCorrespondingSourceObject: {fileID: 1374889871933495008, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1460905305}
     - targetCorrespondingSourceObject: {fileID: 4759678510557893092, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       insertIndex: -1
       addedObject: {fileID: 698228831}
@@ -32648,6 +32648,11 @@ PrefabInstance:
 --- !u!224 &5893465902896828830 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3426874065441177811, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!224 &5893465902896828831 stripped
+RectTransform:
+  m_CorrespondingSourceObject: {fileID: 1374889871933495008, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6996234097937692045

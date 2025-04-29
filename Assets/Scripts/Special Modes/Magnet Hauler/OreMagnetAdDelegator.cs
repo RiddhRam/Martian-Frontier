@@ -405,7 +405,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     private void RewardBoost(int? totalTime = 90) {
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(12);
+        playerMovement.SetSpeed(14);
 
         StartCoroutine(StartRewardCountdown((int) totalTime));
 
@@ -452,7 +452,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         adButton.transform.parent.GetChild(1).gameObject.SetActive(false);
 
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(6);
+        playerMovement.SetSpeed(7);
         yield break;
     }
 

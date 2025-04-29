@@ -2,10 +2,10 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
-// For Magnet Hauler, also known as Ore Magnet
-public class OreMagnetRoundManager : MonoBehaviour
+// For Ore Blaster
+public class OreBlasterRoundManager : MonoBehaviour
 {
-    [SerializeField] GameObject largeFogOfWar;
+
     [SerializeField] Transform playerVehicle;
     [SerializeField] RectTransform enterMineArrow;
 
@@ -15,9 +15,9 @@ public class OreMagnetRoundManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI creditTextAmount;
     [SerializeField] TextMeshProUGUI gemTextAmount;
 
-    [SerializeField] CreditsDelegator creditsDelegator;
     [SerializeField] PlayerState playerState;
-    [SerializeField] MagnetHauler magnetHauler;
+    [SerializeField] BlasterDriller blasterDriller;
+    [SerializeField] MineRenderer mineRenderer;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -28,9 +28,9 @@ public class OreMagnetRoundManager : MonoBehaviour
 
     void Start()
     {
-        UpdateConversion();
-        magnetHauler.UpdateCreditCount(0);
+        blasterDriller.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
+        UpdateConversion();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -46,9 +46,7 @@ public class OreMagnetRoundManager : MonoBehaviour
         roundInProgress = true;
         roundInfo.SetActive(true);
         enterMineArrow.gameObject.SetActive(false);
-        // Let player see the map
-        largeFogOfWar.SetActive(false);
-
+ 
         roundTimer = 30;
         
         while (roundTimer > 0) {
@@ -59,39 +57,28 @@ public class OreMagnetRoundManager : MonoBehaviour
 
         playerVehicle.position = new(0, 5);
         enterMineArrow.gameObject.SetActive(true);
-        // Hide map
-        largeFogOfWar.SetActive(true);
+
+        StartCoroutine(ResetMine());
         
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
 
-        playerState.AddCredits(magnetHauler.collectedCredits);
+        playerState.AddCredits(blasterDriller.collectedCredits);
         UpdateConversion();
         // Remove all credits
-        magnetHauler.UpdateCreditCount(-magnetHauler.collectedCredits);
+        blasterDriller.UpdateCreditCount(-blasterDriller.collectedCredits);
 
         roundInfo.SetActive(false);
         roundInProgress = false;
-
-        ResetAllCreditMaterials();
     }
 
     public void UpdateConversion() {
-        creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
-        gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
+        //creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
+        //gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
     }
 
-    public void ResetAllCreditMaterials() {
-        Transform creditsDelegatorTransform = creditsDelegator.transform;
-
-        // Return all objects
-        for (int i = 0; i != creditsDelegatorTransform.childCount; i++) {
-            if (creditsDelegatorTransform.GetChild(i).gameObject.activeSelf) {
-                creditsDelegator.ReturnCreditGameObject(creditsDelegatorTransform.GetChild(i).gameObject);
-            }
-        }
-
-        // Place them again
-        creditsDelegator.GenerateCredits();
+    private IEnumerator ResetMine() {
+        yield return mineRenderer.ReturnAllObjectsToPool();
+        mineRenderer.InitializeMine();
     }
 
     private IEnumerator AnimateArrow() {

@@ -10,8 +10,6 @@ public class MagnetHauler : MonoBehaviour
 
     [SerializeField] private Transform magnetArea;
 
-    [SerializeField] private float playerSpeed;
-
     public int collectedCredits;
 
     private GameObject floatingText; // Display the amount picked up
@@ -157,10 +155,6 @@ public class MagnetHauler : MonoBehaviour
 
         // Ensure it's fully transparent
         textComponent.alpha = 0f;
-    }
-
-    public float GetPlayerSpeed() {
-        return playerSpeed;
     }
    
     private void PlayAudio() {
