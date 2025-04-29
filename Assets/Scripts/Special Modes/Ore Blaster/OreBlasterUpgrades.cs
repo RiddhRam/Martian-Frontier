@@ -48,8 +48,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     }
 
     public void SetPowers() {
-        oreBlaster.destroyRadius = 8 + GetUpgradeLevel("Radius");
-        oreBlaster.blastInterval = 5f - (GetUpgradeLevel("Reload") * 0.25f);
+        oreBlaster.destroyRadius = GetBlastRadius();
+        oreBlaster.blastInterval = GetReloadTime();
     }
 
     public void UpdatePowerPanels() {
@@ -57,7 +57,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         int radiusLevel = GetUpgradeLevel("Radius");
         
         radiusLevelText.text = GetLocalizedValue("LEVEL {0}", radiusLevel);
-        radiusValueText.text = GetLocalizedValue("{0} BLOCKS", 8 + GetUpgradeLevel("Radius"));
+        radiusValueText.text = GetLocalizedValue("{0} BLOCKS", GetBlastRadius());
 
         if (radiusLevel == upgradePrices.Length) {
             radiusPriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -73,7 +73,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         int reloadLevel = GetUpgradeLevel("Reload");
 
         reloadLevelText.text = GetLocalizedValue("LEVEL {0}", reloadLevel);
-        reloadValueText.text = GetLocalizedValue("{0} SECONDS", 5f - (GetUpgradeLevel("Reload") * 0.25f));
+        reloadValueText.text = GetLocalizedValue("{0} SECONDS", GetReloadTime());
 
         if (reloadLevel == upgradePrices.Length) {
             reloadPriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -84,6 +84,14 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         } else {
             reloadPriceText.text = FormatPrice(upgradePrices[reloadLevel]);
         }
+    }
+
+    public int GetBlastRadius() {
+        return 8 + GetUpgradeLevel("Radius");
+    }
+
+    public float GetReloadTime() {
+        return 5f - (GetUpgradeLevel("Reload") * 0.25f);
     }
     
     public void LoadData(GameData data) {

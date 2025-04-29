@@ -48,8 +48,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     }
 
     public void SetPowers() {
-        creditMagnet.magnetRadius = 10 + GetUpgradeLevel("Range");
-        creditMagnet.pullForce = 8 + GetUpgradeLevel("Strength");
+        creditMagnet.magnetRadius = GetMagnetRadius();
+        creditMagnet.pullForce = GetMagnetStrength();
     }
 
     public void UpdatePowerPanels() {
@@ -57,7 +57,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         int rangeLevel = GetUpgradeLevel("Range");
         
         rangeLevelText.text = GetLocalizedValue("LEVEL {0}", rangeLevel);
-        rangeValueText.text = GetLocalizedValue("{0} BLOCKS", 10 + rangeLevel);
+        rangeValueText.text = GetLocalizedValue("{0} BLOCKS", GetMagnetRadius());
 
         if (rangeLevel == upgradePrices.Length) {
             rangePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -73,7 +73,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         int strengthLevel = GetUpgradeLevel("Strength");
 
         strengthLevelText.text = GetLocalizedValue("LEVEL {0}", strengthLevel);
-        strengthValueText.text = GetLocalizedValue("{0} FORCE", 8 + strengthLevel);
+        strengthValueText.text = GetLocalizedValue("{0} FORCE", GetMagnetStrength());
 
         if (strengthLevel == upgradePrices.Length) {
             strengthPriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -84,6 +84,14 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         } else {
             strengthPriceText.text = FormatPrice(upgradePrices[strengthLevel]);
         }
+    }
+
+    public int GetMagnetRadius() {
+        return 10 + GetUpgradeLevel("Range");
+    }
+
+    public int GetMagnetStrength() {
+        return 8 + GetUpgradeLevel("Strength");
     }
 
     public void LoadData(GameData data) {

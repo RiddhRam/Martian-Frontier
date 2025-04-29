@@ -6,11 +6,11 @@ using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
-public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
+public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
-    public TextMeshProUGUI magnetHaulerAdTimerText;
+    public TextMeshProUGUI oreBlasterAdTimerText;
     public GameObject customAdScreen;
     public GameObject signupNoWifi;
     public GameObject signUpButton;
@@ -25,13 +25,15 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     private int timer = 0;
     private bool internetReachable = false;
 
-    private int magnetHaulerAdTimer = 0;
+    private int oreBlasterAdTimer = 0;
 
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
     public CloudDelegator cloudDelegator;
     public PlayerState playerState;
-    public OreMagnetRoundManager oreMagnetRoundManager;
+    public OreBlasterRoundManager oreBlasterRoundManager;
+    public OreBlasterUpgrades oreBlasterUpgrades;
+    public OreBlaster oreBlaster;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -271,7 +273,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         Debug.Log((int) playerState.GetUserCredits() / 30);
         playerState.SubtractCredits((long) playerState.GetUserCredits());
 
-        oreMagnetRoundManager.UpdateConversion();
+        oreBlasterRoundManager.UpdateConversion();
     }
 
     private void ConvertRewardSuccess() {
@@ -280,7 +282,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         Debug.Log((int) playerState.GetUserCredits() / 15);
         playerState.SubtractCredits((long) playerState.GetUserCredits());
 
-        oreMagnetRoundManager.UpdateConversion();
+        oreBlasterRoundManager.UpdateConversion();
     }
 
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
@@ -404,12 +406,10 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void RewardBoost(int? totalTime = 150) {
-        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(14);
 
         StartCoroutine(StartRewardCountdown((int) totalTime));
 
-        LogAnalytics("Speed");
+        LogAnalytics("Reload");
     }
 
     private void LogAnalytics(string analyticToLog) {
@@ -430,14 +430,28 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
         // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
+            bool succeeded = true;
+            try {
+                oreBlaster.blastInterval = oreBlasterUpgrades.GetReloadTime() / 2;
+            } catch {
+                succeeded = false;
+            }
+
+            // Fails when game is loading, so just wait a second and try again
+            if (!succeeded) {
+                yield return new WaitForSeconds(1);
+                continue;
+            }
+
+            
             // Calculate minutes and seconds
             minutes = totalTime / 60;
             seconds = totalTime % 60;
             timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            magnetHaulerAdTimerText.text = timerText;
-            magnetHaulerAdTimer = totalTime - 1;
+            oreBlasterAdTimerText.text = timerText;
+            oreBlasterAdTimer = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -445,8 +459,10 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        magnetHaulerAdTimerText.text = "0:00";
-        magnetHaulerAdTimer = 0;
+        oreBlaster.blastInterval = oreBlasterUpgrades.GetReloadTime();
+
+        oreBlasterAdTimerText.text = "0:00";
+        oreBlasterAdTimer = 0;
 
         adButton.SetActive(true);
         adButton.transform.parent.GetChild(1).gameObject.SetActive(false);
@@ -458,16 +474,16 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
 
-        this.magnetHaulerAdTimer = data.magnetHaulerAdTimer;
+        this.oreBlasterAdTimer = data.oreBlasterAdTimer;
 
-        if (magnetHaulerAdTimer > 0) {
+        if (oreBlasterAdTimer > 0) {
             // Reward
-            RewardBoost(magnetHaulerAdTimer);
+            RewardBoost(oreBlasterAdTimer);
         }
     }
 
     public void SaveData(ref GameData data) {        
-        data.magnetHaulerAdTimer = this.magnetHaulerAdTimer;
+        data.oreBlasterAdTimer = this.oreBlasterAdTimer;
     }
 
     private void FillEmptyAdSlots() {
