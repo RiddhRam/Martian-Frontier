@@ -36,6 +36,7 @@ public class OreBlaster : MonoBehaviour
     {
         // If in lobby, disable projectible
         if (!oreBlasterRoundManager.roundInProgress) {
+            blastTimer = blastInterval;
             explosiveChargeProjectile.gameObject.SetActive(false);
             return;
         }

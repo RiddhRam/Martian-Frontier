@@ -8,6 +8,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 {
     [SerializeField] private PlayerState playerState;
     [SerializeField] private CreditMagnet creditMagnet;
+    [SerializeField] private UIDelegation uIDelegation;
 
     [SerializeField] private TextMeshProUGUI rangeLevelText;
     [SerializeField] private TextMeshProUGUI strengthLevelText;
@@ -18,32 +19,32 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private TextMeshProUGUI rangePriceText;
     [SerializeField] private TextMeshProUGUI strengthPriceText;
 
-    private SerializableDictionary<string, int> oreMagnetUpgrades;
+    private SerializableDictionary<string, int> magnetHaulerUpgrades;
     private readonly int[] upgradePrices = { 300, 500, 700, 1000, 1300, 1700, 2200, 2800, 3500, 4300, 5200, 6200, 7400, 8700, 10100, 11800, 13600, 15700, 18000, 20500 };
 
     public void UpgradeMagnet(string upgradeType) {
         int level = GetUpgradeLevel(upgradeType);
 
         if (!playerState.VerifyEnoughCredits(upgradePrices[level])) {
-            Debug.Log("No Credits");
+            uIDelegation.ShowError("NOT ENOUGH CREDITS!");
             return;
         }
 
         playerState.SubtractCredits(upgradePrices[level]);
 
         level++;
-        oreMagnetUpgrades[upgradeType] = level;
+        magnetHaulerUpgrades[upgradeType] = level;
         
         UpdatePowerPanels();
         SetPowers();
     }
 
     public int GetUpgradeLevel(string key) {
-        if (!oreMagnetUpgrades.ContainsKey(key)) {
+        if (!magnetHaulerUpgrades.ContainsKey(key)) {
             return 0;
         }
 
-        return oreMagnetUpgrades[key];
+        return magnetHaulerUpgrades[key];
     }
 
     public void SetPowers() {
@@ -67,7 +68,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         } else {
             rangePriceText.text = FormatPrice(upgradePrices[rangeLevel]);
         }
-        
 
         // Strength
         int strengthLevel = GetUpgradeLevel("Strength");
@@ -86,19 +86,15 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void ResetUpgrades() {
-        oreMagnetUpgrades.Clear();
-    }
-
     public void LoadData(GameData data) {
-        this.oreMagnetUpgrades = data.oreMagnetUpgrades;
+        this.magnetHaulerUpgrades = data.magnetHaulerUpgrades;
 
         UpdatePowerPanels();
         SetPowers();
     }
 
     public void SaveData(ref GameData data) {
-        data.oreMagnetUpgrades = this.oreMagnetUpgrades;
+        data.magnetHaulerUpgrades = this.magnetHaulerUpgrades;
     }
 
     public string FormatPrice(int price)

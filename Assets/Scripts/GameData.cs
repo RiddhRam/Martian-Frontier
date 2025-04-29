@@ -49,8 +49,10 @@ public class GameData
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
     public string userCredits;
-    public SerializableDictionary<string, int> oreMagnetUpgrades;
-    public int oreMagnetAdTimer;
+    public SerializableDictionary<string, int> magnetHaulerUpgrades;
+    public int magnetHaulerAdTimer;
+    public SerializableDictionary<string, int> oreBlasterUpgrades;
+    public int oreBlasterAdTimer;
 
     public GameData() {
         this.userCash = "0";
@@ -102,7 +104,9 @@ public class GameData
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
         this.userCredits = "0";
-        this.oreMagnetUpgrades = new();
-        this.oreMagnetAdTimer = 0;
+        this.magnetHaulerUpgrades = new();
+        this.magnetHaulerAdTimer = 0;
+        this.oreBlasterUpgrades = new();
+        this.oreBlasterAdTimer = 0;
     }
 }

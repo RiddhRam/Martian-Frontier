@@ -15307,7 +15307,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 887356398}
-  - component: {fileID: 887356397}
   - component: {fileID: 887356396}
   m_Layer: 0
   m_Name: Ore Magnet Upgrades
@@ -15330,25 +15329,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerState: {fileID: 276248154}
   creditMagnet: {fileID: 1012335949}
+  uIDelegation: {fileID: 319486926}
   rangeLevelText: {fileID: 8991640827441280942}
   strengthLevelText: {fileID: 1469302985}
   rangeValueText: {fileID: 5005660574800644269}
   strengthValueText: {fileID: 1469302984}
   rangePriceText: {fileID: 550380624961594286}
   strengthPriceText: {fileID: 1469302983}
---- !u!114 &887356397
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 887356395}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b84ab4429c70449928ca15ef31ed8b13, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  creditPrefab: {fileID: 5836944365000543928, guid: b1459fdf619994405b622dfc4d39ae11, type: 3}
 --- !u!4 &887356398
 Transform:
   m_ObjectHideFlags: 0
@@ -25550,7 +25537,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c5e5039c4632045a9a74832332e04235, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mineEntranceCollider: {fileID: 1644249865}
   largeFogOfWar: {fileID: 315029583}
   playerVehicle: {fileID: 1012335946}
   enterMineArrow: {fileID: 1597789843}
@@ -33172,7 +33158,6 @@ MonoBehaviour:
   creditsDelegator: {fileID: 1578362574}
   creditCounterText: {fileID: 1272065583}
   magnetArea: {fileID: 1623273968}
-  playerSpeed: 0
   collectedCredits: 0
   lineRendererColor: {r: 0.92941177, g: 0.6117647, b: 0.20784314, a: 1}
   defaultMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}

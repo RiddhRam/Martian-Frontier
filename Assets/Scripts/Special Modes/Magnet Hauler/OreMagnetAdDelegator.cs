@@ -10,7 +10,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
-    public TextMeshProUGUI oreMagnetAdTimerText;
+    public TextMeshProUGUI magnetHaulerAdTimerText;
     public GameObject customAdScreen;
     public GameObject signupNoWifi;
     public GameObject signUpButton;
@@ -25,7 +25,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     private int timer = 0;
     private bool internetReachable = false;
 
-    private int oreMagnetAdTimer = 0;
+    private int magnetHaulerAdTimer = 0;
 
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
@@ -436,8 +436,8 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
             timerText = $"{minutes}:{seconds:D2}";
 
             // Update the timer text (assuming it's a TMP Text component)
-            oreMagnetAdTimerText.text = timerText;
-            oreMagnetAdTimer = totalTime - 1;
+            magnetHaulerAdTimerText.text = timerText;
+            magnetHaulerAdTimer = totalTime - 1;
             // Wait for 1 second
             yield return new WaitForSeconds(1);
 
@@ -445,8 +445,8 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
             totalTime--;
         }
 
-        oreMagnetAdTimerText.text = "0:00";
-        oreMagnetAdTimer = 0;
+        magnetHaulerAdTimerText.text = "0:00";
+        magnetHaulerAdTimer = 0;
 
         adButton.SetActive(true);
         adButton.transform.parent.GetChild(1).gameObject.SetActive(false);
@@ -458,16 +458,16 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
 
-        this.oreMagnetAdTimer = data.oreMagnetAdTimer;
+        this.magnetHaulerAdTimer = data.magnetHaulerAdTimer;
 
-        if (oreMagnetAdTimer > 0) {
+        if (magnetHaulerAdTimer > 0) {
             // Reward
-            RewardBoost(oreMagnetAdTimer);
+            RewardBoost(magnetHaulerAdTimer);
         }
     }
 
     public void SaveData(ref GameData data) {        
-        data.oreMagnetAdTimer = this.oreMagnetAdTimer;
+        data.magnetHaulerAdTimer = this.magnetHaulerAdTimer;
     }
 
     private void FillEmptyAdSlots() {

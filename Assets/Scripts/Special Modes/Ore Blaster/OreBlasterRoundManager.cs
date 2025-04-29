@@ -77,8 +77,10 @@ public class OreBlasterRoundManager : MonoBehaviour
     }
 
     private IEnumerator ResetMine() {
+        mineRenderer.mineInitialization = 0;
         yield return mineRenderer.ReturnAllObjectsToPool();
         mineRenderer.InitializeMine();
+        mineRenderer.mineInitialization = 2;
     }
 
     private IEnumerator AnimateArrow() {
