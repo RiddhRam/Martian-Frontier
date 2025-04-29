@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 
+// For Magnet Hauler, also known as Ore Magnet
 public class OreMagnetRoundManager : MonoBehaviour
 {
     // This is always enabled, but used as a trigger

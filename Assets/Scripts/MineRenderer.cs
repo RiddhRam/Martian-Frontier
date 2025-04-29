@@ -22,7 +22,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI oresMinedText;
     public TextMeshProUGUI mineValueText;
     // Height of the map, measured in tilemaps
-    private readonly int totalRows = 42;
+    [SerializeField] private int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
     private int totalColumns;
     // Half the width of the map, measured in tiles
@@ -146,8 +146,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private TileBase[] tilesBeingUsed;
     private bool alreadyBeingReturned = false;
     private bool notSinglePlayerScene = false;
-    public bool coopMineLoaded = false;
 
+    public bool coopMineLoaded = false;
     private bool soloMineLoaded = false;
 
     int seedInUse;
@@ -302,17 +302,23 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         if (setHighestRow) {
             highestRow = chunkRow;
+            MoveFogOfWar(highestRow);
         }
 
         // Find the level of the rocks
         int level = 0;
         int tileValueIndex = 0;
-        if (chunkRow < 2 * totalRows/3 && chunkRow >= totalRows/3) {
+        // 14 is the height of all tilemaps of 1 tier
+        if (chunkRow < 2 * 14 && chunkRow >= 14) {
             level = 1;
             tileValueIndex = 4;
-        } else if (chunkRow >= 2 * totalRows/3) {
+        } else if (chunkRow >= 2 * 14) {
             level = 2;
             tileValueIndex = 8;
+        }
+
+        if (level >= tierThresholds.Length) {
+            return;
         }
 
         int chunkColumn = 1;
@@ -351,14 +357,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             chunkColumn++;
         }
 
-        MoveFogOfWar(highestRow);
-
         generatedRows[chunkRow - 1] = true;
     }
 
     public void MoveFogOfWar(int rowLoaded) {
         // If the last row, send it very far down where it won't be seen at the edge of the map
-        if (rowLoaded == totalRows) {
+        if (rowLoaded == totalRows || genTrigTransform.childCount == 1) {
             largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
@@ -550,7 +554,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             unplacedTilemapsTileValueDictionary = unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y];
 
-            if (!unplacedTilemapsTileValueDictionary.ContainsKey(tileToReveal)) {
+            if (unplacedTilemapsTileValueDictionary == null || !unplacedTilemapsTileValueDictionary.ContainsKey(tileToReveal)) {
                 continue;
             }
 
@@ -634,11 +638,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 continue;
             }
 
+            int visionBoost = 0;
+            if (upgradesDelegator) {
+                // Value is offset by 3
+                visionBoost = upgradesDelegator.visionBoost - 3;
+            }
+
             // Reveal new tiles
             // Search in a radius around tileToDestroy
-            for (int x = 0; x <= visionRadius + upgradesDelegator.visionBoost - 3; x++)
+            for (int x = 0; x <= visionRadius + visionBoost; x++)
             {
-                int yLimit = visionRadius - x + upgradesDelegator.visionBoost - 3;
+                int yLimit = visionRadius - x + visionBoost;
                 for (int y = 0; y <= yLimit; y++)
                 {
                     // Add all 4 quadrants
@@ -794,21 +804,22 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
-            notSinglePlayerScene = true;
-            StartCoroutine(LoadCoopLocal());
-            return;
-        }
-
         // If there's already a coroutine running, stop it
         if (_loadDataCoroutine != null) {
             StopCoroutine(_loadDataCoroutine);
         }
 
-        // This has to be done async so that we can return all objects to the pool when loading a cloud save
-        // Return objects happens over several frames to reduce lag
-        // Start the new coroutine and store its reference
-        _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
+            notSinglePlayerScene = false;
+            // This has to be done async so that we can return all objects to the pool when loading a cloud save
+            // Return objects happens over several frames to reduce lag
+            // Start the new coroutine and store its reference
+            _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
+            return;
+        }
+
+        notSinglePlayerScene = true;
+        StartCoroutine(LoadCoopLocal());
     }
 
     private IEnumerator LoadCoopLocal() {
@@ -1415,6 +1426,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Return the original price as a string for smaller numbers
         return "$" + price.ToString();
+    }
+
+    public int GetTotalRows() {
+        return totalRows;
     }
 
 }

@@ -117,7 +117,9 @@ public class UIDelegation : MonoBehaviour
         // Assign the RenderTexture to the mapCamera's target texture
         mapCamera.GetComponent<Camera>().targetTexture = renderTexture;
         mapCameraView.GetComponent<RawImage>().texture = renderTexture;
-        teleportCameraView.GetComponent<RawImage>().texture = renderTexture;
+        if (teleportCameraView) {
+            teleportCameraView.GetComponent<RawImage>().texture = renderTexture;
+        }
     }
 
     // Used when clicking the cargo button to prepare the columns and rows of the Content in the scrollview
