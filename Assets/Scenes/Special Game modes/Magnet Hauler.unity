@@ -27424,7 +27424,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   adButton: {fileID: 1809245441}
-  oreMagnetAdTimerText: {fileID: 602600273}
+  magnetHaulerAdTimerText: {fileID: 0}
   customAdScreen: {fileID: 2083460690}
   signupNoWifi: {fileID: 145579701}
   signUpButton: {fileID: 927457579}
@@ -30281,23 +30281,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3729502256530100424, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3729502256530100424, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3729502256530100424, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 0
+      value: 595
       objectReference: {fileID: 0}
     - target: {fileID: 3729502256530100424, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 337.5
       objectReference: {fileID: 0}
     - target: {fileID: 3729502256530100424, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -56.52291
       objectReference: {fileID: 0}
     - target: {fileID: 3738600610338163622, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
@@ -30455,6 +30455,10 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 2066369585}
+    - target: {fileID: 4123860370839184481, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4148055122360259955, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
       value: 0
@@ -31489,11 +31493,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6453406438639770069, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6453406438639770069, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6479535909704373086, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31834,6 +31838,14 @@ PrefabInstance:
     - target: {fileID: 7355580174912166649, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: UpgradePower
+      objectReference: {fileID: 0}
+    - target: {fileID: 7368137549845063976, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: -1170.49
+      objectReference: {fileID: 0}
+    - target: {fileID: 7368137549845063976, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 585.24
       objectReference: {fileID: 0}
     - target: {fileID: 7368582132440059934, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y

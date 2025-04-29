@@ -3,6 +3,7 @@ using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
 
 public class OreBlaster : MonoBehaviour
 {
@@ -11,6 +12,8 @@ public class OreBlaster : MonoBehaviour
     [SerializeField] private OreBlasterRoundManager oreBlasterRoundManager;
     [SerializeField] private ExplosiveChargeProjectile explosiveChargeProjectile;
     [SerializeField] private MineRenderer mineRenderer;
+
+    [SerializeField] private Slider slider;
 
     public int destroyRadius;
 
@@ -34,6 +37,7 @@ public class OreBlaster : MonoBehaviour
 
     void FixedUpdate()
     {
+        slider.value = blastTimer / blastInterval;
         // If in lobby, disable projectible
         if (!oreBlasterRoundManager.roundInProgress) {
             blastTimer = blastInterval;
