@@ -77,7 +77,7 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 472dbbff3c01a4dfbb69b94e8cd05169, type: 3}
   audioVolumes:
   - 0.6
-  - 0.6
+  - 0.8
   - 0.6
   defaultMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
   surveyRadarColor: {r: 0, g: 1, b: 1, a: 1}
@@ -85,9 +85,14 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 45021d3faff6549f09f4cbf1eaed5a98, type: 3}
   - {fileID: 21300000, guid: ef24b3d2afc244635a0ef4e163c2df86, type: 3}
   - {fileID: 21300000, guid: 756482b8d477b42fd8647f7fba3247bc, type: 3}
-  visionRadius: 3
-  destroyRadius: 0
-  refineryProfitMultiplier: 1
-  visionBoost: 3
-  refineryProfitMultiplierBoost: 2
   cooldownTimer: 0
+  powerUpgradeLevels:
+    keys: []
+    values: 
+  cooldown: 90
+  crateMultiplier: 0
+  surveyVisionRadius: 0
+  destroyRadius: 0
+  profitMultiplier: 0
+  scannedForOres: 0
+  visionBoost: 3

@@ -25,11 +25,10 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        this.twoDayIntervals = data.twoDayIntervals;
+        this.twoDayIntervals = CalculateTwoDayIntervals();
 
-        if (CalculateTwoDayIntervals() > twoDayIntervals) {
-            twoDayIntervals = CalculateTwoDayIntervals();
-
+        // If its time for a new mini game
+        if (this.twoDayIntervals > data.twoDayIntervals) {
             ResetMiniGameData();
         }
 
@@ -51,6 +50,7 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
             resetTimerText.text = GetLocalizedValue("RESETS IN {0}", timeString);
 
             if (timeRemaining.TotalSeconds <= 0) {
+                this.twoDayIntervals = CalculateTwoDayIntervals();
                 SetMiniGameTimer();
 
                 ResetMiniGameData();
@@ -61,9 +61,11 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
     }
 
     private void ResetMiniGameData() {
-        GameData gameData = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().GetGameDataRef();
 
-        gameData.userCredits = "0";
+        GameObject.Find("PlayerState").GetComponent<PlayerState>().ResetCredits();
+
+        var dataManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        ref GameData gameData = ref dataManager.GetGameDataRef();
 
         gameData.magnetHaulerUpgrades.Clear();
         gameData.magnetHaulerAdTimer = 0;

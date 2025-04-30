@@ -404,7 +404,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void RewardBoost(int? totalTime = 150) {
-
         StartCoroutine(StartRewardCountdown((int) totalTime));
 
         LogAnalytics("Reload");
@@ -418,8 +417,8 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {
-
         adButton.SetActive(false);
+        yield return new WaitForEndOfFrame();
         adButton.transform.parent.GetChild(1).gameObject.SetActive(true);
 
         int minutes;

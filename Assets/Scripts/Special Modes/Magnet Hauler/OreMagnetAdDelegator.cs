@@ -420,6 +420,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     private IEnumerator StartRewardCountdown(int totalTime) {
 
         adButton.SetActive(false);
+        yield return new WaitForEndOfFrame();
         adButton.transform.parent.GetChild(1).gameObject.SetActive(true);
 
         int minutes;

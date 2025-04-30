@@ -191,6 +191,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
+    public void ResetCredits() {
+        userCredits = 0;
+        UpdateCreditDisplays();
+
+        dataPersistenceManager.SaveGame();
+    }
+
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
         // objectReason can be something the user dropped off or rebirth
