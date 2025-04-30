@@ -60,6 +60,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool displayStatus = true;
     private bool firstTimePlaying = false;
     private bool disableAds = false;
+    private bool adShowing = false;
 
     // Start is called before the first frame update
     void Start()
@@ -241,19 +242,19 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             dataPersistenceManager.SaveGame();
             return;
         }
-        
 
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
         {
+            adShowing = true;
             rewardedAd.Show((Reward reward) =>
             {
+                adShowing = false;
+                RewardBoost();
+                lastAdShown = DateTime.Now;
+                dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
-
-            lastAdShown = DateTime.Now;
-            RewardBoost();
-            dataPersistenceManager.SaveGame();
 
             // Listen to user events during ad
             RegisterEventHandlers(rewardedAd);
@@ -268,6 +269,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ShowCrateRewardedAd() {
+        Debug.Log("Showing Ad");
         if (disableAds) {
             return;
         }
@@ -285,14 +287,16 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // ADMOB DISABLE
         if (crateAd != null && crateAd.CanShowAd())
         {   
+            adShowing = true;
             crateAd.Show((Reward reward) =>
             {
+                adShowing = false;
+                Debug.Log("Give Rewarded Ad");
+                // Reward user
+                CrateRewardSuccess();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
 
-            // Reward user
-            CrateRewardSuccess();
-            
             // Listen to user events during ad
             RegisterEventHandlers(crateAd);
             return;
@@ -360,11 +364,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Raised when the ad closed full screen content.
         ad.OnAdFullScreenContentClosed += () =>
         {
+            adShowing = false;
             RegisterReloadHandler(ad);
         };
         // Raised when the ad failed to open full screen content.
         ad.OnAdFullScreenContentFailed += (AdError error) =>
         {
+            adShowing = false;
             //Debug.LogError("Rewarded ad failed to open full screen content " + "with error : " + error);
             RegisterReloadHandler(ad);
         };
@@ -376,7 +382,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Raised when the ad closed full screen content.
         ad.OnAdFullScreenContentClosed += () =>
         {
-            //Debug.Log("Rewarded Ad full screen content closed.");
+            Debug.Log("Rewarded Ad full screen content closed.");
 
             // Reload the ad so that we can show another as soon as possible.
             FillEmptyAdSlots();
@@ -384,7 +390,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // Raised when the ad failed to open full screen content.
         ad.OnAdFullScreenContentFailed += (AdError error) =>
         {
-            Debug.LogError("Rewarded ad failed to open full screen content " + "with error : " + error);
+            Debug.LogError("Rewarded Ad failed to open full screen content " + "with error : " + error);
 
             // Reload the ad so that we can show another as soon as possible.
             FillEmptyAdSlots();
@@ -551,6 +557,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void FillEmptyAdSlots() {
+        // Dont load new ad if an ad is showing (mainly used for iOS)
+        if (adShowing) {
+            return;
+        }
+
         if (disableAds) {
             return;
         }

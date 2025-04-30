@@ -32,7 +32,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 100;
+    private readonly int currentVersionNumber = 101;
     private bool notSinglePlayerScene = false;
 
     async void Awake() {
@@ -329,6 +329,7 @@ public class CloudDelegator : MonoBehaviour
                 IncrementLoadedItems();
 
                 dataPersistenceManager.DirectlyWriteSave();
+                TempSignOut();
                 SceneManager.LoadScene("Loading Screen");
             }
         }

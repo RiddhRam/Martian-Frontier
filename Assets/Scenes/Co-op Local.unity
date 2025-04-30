@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 27620709}
   - component: {fileID: 27620708}
   - component: {fileID: 27620707}
+  - component: {fileID: 27620711}
   m_Layer: 5
   m_Name: Solo Button
   m_TagString: Untagged
@@ -314,6 +315,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 27620705}
   m_CullTransparentMesh: 1
+--- !u!114 &27620711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 27620705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &37705407
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,6 +364,9 @@ MonoBehaviour:
   tutorialManager: {fileID: 0}
   lockedUntilDoneTutorial: {fileID: 0}
   loadingScreen: {fileID: 577285929}
+  minigameName: 
+  teamButtonImage: {fileID: 0}
+  minigameButtonImage: {fileID: 0}
 --- !u!4 &37705409
 Transform:
   m_ObjectHideFlags: 0
@@ -1940,11 +1959,6 @@ RectTransform:
   m_AnchoredPosition: {x: 824.99994, y: 443}
   m_SizeDelta: {x: 230, y: 409.02}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &532954548 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 446844952372221202, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &539137834 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4732688365685087117, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -26049,6 +26063,7 @@ MonoBehaviour:
   depthTracker: {fileID: 469771645}
   stopMoving: 0
   playerSpeed: 5
+  freezeCamera: 0
 --- !u!50 &1012335948
 Rigidbody2D:
   serializedVersion: 4
@@ -26101,6 +26116,7 @@ MonoBehaviour:
   garageDelegator: {fileID: 648771415}
   blockSwitching: 0
   haulerController3: {fileID: 0}
+  firstTimePlaying: 0
 --- !u!114 &1012335951
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33871,7 +33887,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1639131008925530705, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems6.5mcrates2.5k
+      value: gems160kcrates500
       objectReference: {fileID: 0}
     - target: {fileID: 1672960096604828892, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -33955,7 +33971,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1955991340701251259, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems800kcrates500
+      value: gems70kcrates300
       objectReference: {fileID: 0}
     - target: {fileID: 1979498585169427516, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -34199,7 +34215,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2520915186515152675, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates1000
+      value: crates275.
       objectReference: {fileID: 0}
     - target: {fileID: 2520915186515152675, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -34315,20 +34331,20 @@ PrefabInstance:
       objectReference: {fileID: 1743240306}
     - target: {fileID: 2957347648782921089, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: primaryElements.Array.size
-      value: 9
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2957347648782921089, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: primaryElements.Array.data[5]
       value: 
-      objectReference: {fileID: 532954548}
+      objectReference: {fileID: 971522168}
     - target: {fileID: 2957347648782921089, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: primaryElements.Array.data[6]
       value: 
-      objectReference: {fileID: 971522168}
+      objectReference: {fileID: 525179095}
     - target: {fileID: 2957347648782921089, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: primaryElements.Array.data[7]
       value: 
-      objectReference: {fileID: 525179095}
+      objectReference: {fileID: 2031472036}
     - target: {fileID: 2957347648782921089, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: primaryElements.Array.data[8]
       value: 
@@ -34511,7 +34527,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3366533793899419134, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems2m
+      value: gems160k.
       objectReference: {fileID: 0}
     - target: {fileID: 3366533793899419134, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -34731,7 +34747,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4092682885537218643, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems25kcrates30
+      value: gems20kcrates90
       objectReference: {fileID: 0}
     - target: {fileID: 4107698216515854335, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -34907,7 +34923,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4616925150677408291, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems6m
+      value: gems450k.
       objectReference: {fileID: 0}
     - target: {fileID: 4616925150677408291, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -35203,7 +35219,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5506150044072964887, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates200
+      value: crates110.
       objectReference: {fileID: 0}
     - target: {fileID: 5506150044072964887, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -35615,7 +35631,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6536363239095932793, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems275k
+      value: gems70k.
       objectReference: {fileID: 0}
     - target: {fileID: 6591585527999901595, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -36123,7 +36139,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8152033621686239705, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates2500
+      value: crates800.
       objectReference: {fileID: 0}
     - target: {fileID: 8152033621686239705, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -36299,7 +36315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9061451933775309905, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems25mcrates5.5k
+      value: gems450kcrates1000
       objectReference: {fileID: 0}
     - target: {fileID: 9150621817723319149, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y

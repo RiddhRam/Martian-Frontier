@@ -86,7 +86,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(13, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(14, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]
@@ -340,8 +340,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
-        int primaryElementCount = 9;
+        string[] primaryElementNames = { "Important Info", "CargoInfo", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
+        int primaryElementCount = 8;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
@@ -460,6 +460,7 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.mineBackgroundRuleTile.name, "Mine Background Rule Tile");
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
+        Assert.AreEqual(mineRenderer.GetTotalRows(), 42);
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         for (int i = 0; i != mineRenderer.tileValues.Length; i++) {

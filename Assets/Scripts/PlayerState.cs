@@ -11,6 +11,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
     public GameObject[] rebirthDisplays;
+    public GameObject[] creditDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
     public GameObject lockedRebirthPanel;
@@ -30,29 +31,20 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger moneyEarned;
     private BigInteger userGems;
     private BigInteger gemsEarned;
+    private BigInteger userCredits;
     private List<string> vehiclesOwned = new();
-    [SerializeField]
-    private float rebirthProfitMultiplier;
-    [SerializeField]
-    private RefineryController refineryController;
-    [SerializeField]
-    private DataPersistenceManager dataPersistenceManager;
-    [SerializeField]
-    private UIDelegation uIDelegation;
-    [SerializeField]
-    private AnalyticsDelegator analyticsDelegator;
-    [SerializeField]
-    private DailyChallengeDelegator dailyChallengeDelegator;
-    [SerializeField]
-    private LeaderboardDelegator leaderboardDelegator;
-    [SerializeField]
-    private SupplyCrateDelegator supplyCrateDelegator;
+    [SerializeField] private float rebirthProfitMultiplier;
+    [SerializeField] private RefineryController refineryController;
+    [SerializeField] private DataPersistenceManager dataPersistenceManager;
+    [SerializeField] private UIDelegation uIDelegation;
+    [SerializeField] private AnalyticsDelegator analyticsDelegator;
+    [SerializeField] private DailyChallengeDelegator dailyChallengeDelegator;
+    [SerializeField] private LeaderboardDelegator leaderboardDelegator;
+    [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
     private int freeMoneyToAdd = 0;
-    [SerializeField]
-    private GameObject cashSliderGO;
-    [SerializeField]
-    private GameObject cashTextGO;
+    [SerializeField] private GameObject cashSliderGO;
+    [SerializeField] private GameObject cashTextGO;
     private Slider cashSlider;
     private TextMeshProUGUI cashText;
     private Slider[] xpDisplaysSliders;
@@ -74,7 +66,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     string levelString;
     private long rebirthPrice = 15_000_000_000;
 
+    public bool loaded = false;
+    bool specialGameMode = false;
+
     void Awake() {
+        // Credits are used for special game modes
+        if (creditDisplays.Length > 0) {
+            specialGameMode = true;
+        }
+
         xpDisplaysSliders = new Slider[xpDisplays.Length];
         xpDisplaysText = new TextMeshProUGUI[xpDisplays.Length];
 
@@ -83,7 +83,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
-        drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        if (garagePanel) {
+            drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        }
     }
 
     void Start() {
@@ -123,6 +125,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         gemsEarned += gemsToAdd;
 
         UpdateGemDisplays();
+        dataPersistenceManager.SaveGame();
+    }
+
+    public void AddCredits(int creditsToAdd) {        
+        userCredits += creditsToAdd;
+
+        UpdateCreditDisplays();
         dataPersistenceManager.SaveGame();
     }
 
@@ -176,6 +185,20 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateGemDisplays();
     }
 
+    public void SubtractCredits(long amountToSubtract) {
+        userCredits -= amountToSubtract;
+        UpdateCreditDisplays();
+
+        dataPersistenceManager.SaveGame();
+    }
+
+    public void ResetCredits() {
+        userCredits = 0;
+        UpdateCreditDisplays();
+
+        dataPersistenceManager.SaveGame();
+    }
+
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
         // objectReason can be something the user dropped off or rebirth
@@ -206,12 +229,21 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return false;
     }
 
+    // True if player has sufficient funds
     public bool VerifyEnoughGems(long price) {
         if (userGems - price >= 0) {
             return true;
         }
 
         return false;
+    }
+
+    public bool VerifyEnoughCredits(int price) {
+        if (userCredits < price) {
+            return false;
+        }
+        
+        return true;
     }
 
     public void NewBlockMined(int oresMined, int amount) {
@@ -291,6 +323,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
     }
 
+    public void UpdateCreditDisplays() {
+        string creditText = FormatPrice(userCredits);
+
+        for (int i = 0; i != creditDisplays.Length; i++) {
+            creditDisplays[i].GetComponent<TextMeshProUGUI>().text = creditText;
+        }
+    }
+
     public void UpdateGemDisplays() {
         string gemText = FormatPrice(userGems);
 
@@ -359,7 +399,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.rebirthProfitMultiplier = data.rebirthProfitMultiplier;
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
-        refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+        this.userCredits = BigInteger.Parse(data.userCredits);
+
+        loaded = true;
+
+        if (!specialGameMode) {
+            refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
+            UpdateHighestDrillTier();
+        }
 
         analyticsDelegator = AnalyticsDelegator.Instance;
 
@@ -371,7 +418,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateGemDisplays();
         UpdateRebirthDisplays();
         UpdateXPDisplays();
-        UpdateHighestDrillTier();
+        UpdateCreditDisplays();
     }
 
     public void SaveData(ref GameData data) {
@@ -384,9 +431,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.rebirthProfitMultiplier = this.rebirthProfitMultiplier;
         data.userGems = this.userGems.ToString();
         data.gemsEarned = this.gemsEarned.ToString();
+        data.userCredits = this.userCredits.ToString();
+
+        
     }
 
     private void UpdateXPDisplays() {
+        if (specialGameMode) {
+            return;
+        }
+
         baseXP = 500; // XP needed for level 0 to 1
         increment = 500; // Additional XP per level
         level = 0; // Start at level 0
@@ -461,8 +515,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             rebirthDisplays[i].GetComponent<TextMeshProUGUI>().text = rebirthText;
         }
     }
-
-   
+ 
     public int GetHighestDrillTier() {
         return highestDrillTier;
     }
@@ -491,6 +544,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public BigInteger GetUserCash() {
         return userCash;
+    }
+
+    public BigInteger GetUserCredits() {
+        return userCredits;
     }
 
     // For development only

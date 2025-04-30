@@ -22,12 +22,13 @@ public class LoadingScreen : MonoBehaviour
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async) || OnSignedIn() (1 total) when changing scenes but still logged in
         MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
         
+        MiniGameChooser: LoadData() (1 total), only in singleplayer
         TutorialManager: LoadData() (1 total), only in singleplayer
         NPCManager: LoadData() (1 total), only in co-op local
 
-        Total as of Mar 22 2025: 13 || 12
+        Total as of Apr 29 2025: 14 || 13
         14 || 13 for coop local
-        Last check: Mar 22 2025
+        Last check: Apr 29 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second

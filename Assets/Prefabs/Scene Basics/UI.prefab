@@ -5301,7 +5301,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -315}
+  m_AnchoredPosition: {x: 0, y: -250}
   m_SizeDelta: {x: -200.00002, y: 230}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5625773372236394622
@@ -8465,7 +8465,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 750.01996, y: -593.06494}
-  m_SizeDelta: {x: 1300.0399, y: 639.15485}
+  m_SizeDelta: {x: 1300.0399, y: 500}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5624529608341403974
 CanvasRenderer:
@@ -11285,7 +11285,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 6.76001, y: -38.989998}
+  m_AnchoredPosition: {x: 6.76001, y: -35}
   m_SizeDelta: {x: 189.68, y: 129.98}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6909997167139279283
@@ -12722,6 +12722,7 @@ GameObject:
   - component: {fileID: 1989230017372169572}
   - component: {fileID: 8281091222678772814}
   - component: {fileID: 5392819823035289909}
+  - component: {fileID: 665066334420307718}
   m_Layer: 5
   m_Name: Daily Challenge Button
   m_TagString: Untagged
@@ -12881,6 +12882,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &665066334420307718
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1975782555760246483}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2023424391994623988
 GameObject:
   m_ObjectHideFlags: 0
@@ -15917,6 +15933,7 @@ GameObject:
   - component: {fileID: 3301227541495657695}
   - component: {fileID: 83529596748621747}
   - component: {fileID: 7608357077779292882}
+  - component: {fileID: 8914317333121584126}
   m_Layer: 5
   m_Name: Supply Crate Button
   m_TagString: Untagged
@@ -16065,6 +16082,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &8914317333121584126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2420002647449112167}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2420742054343545104
 GameObject:
   m_ObjectHideFlags: 0
@@ -16572,6 +16604,7 @@ GameObject:
   - component: {fileID: 5674851998921088705}
   - component: {fileID: 9152959575002679}
   - component: {fileID: 4496062889229944123}
+  - component: {fileID: 3414065026943851794}
   m_Layer: 5
   m_Name: Power Button
   m_TagString: Untagged
@@ -16708,6 +16741,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &3414065026943851794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2501473488864605444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &2524824705772283102
 GameObject:
   m_ObjectHideFlags: 0
@@ -17643,7 +17691,6 @@ MonoBehaviour:
   primaryElements:
   - {fileID: 6779584188671012536}
   - {fileID: 2319240842671158582}
-  - {fileID: 217487191217689421}
   - {fileID: 7853129322559924103}
   - {fileID: 4857724196801848028}
   - {fileID: 446844952372221202}
@@ -17829,7 +17876,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 6.5, y: -774}
+  m_AnchoredPosition: {x: 6.5, y: -786}
   m_SizeDelta: {x: 13, y: 1350}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &779065941477207608
@@ -22375,6 +22422,7 @@ GameObject:
   - component: {fileID: 6303139914047824250}
   - component: {fileID: 2008030129060765662}
   - component: {fileID: 8184220861726502202}
+  - component: {fileID: 3175617171184026915}
   m_Layer: 5
   m_Name: Weekly Leaderboard Button
   m_TagString: Untagged
@@ -22534,6 +22582,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &3175617171184026915
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3565762364890567732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3588846395605587183
 GameObject:
   m_ObjectHideFlags: 0
@@ -29379,6 +29442,7 @@ GameObject:
   - component: {fileID: 2711244609955726980}
   - component: {fileID: 528337624239388378}
   - component: {fileID: 4174906223900569611}
+  - component: {fileID: 3693333074223259538}
   m_Layer: 5
   m_Name: Cargo Button
   m_TagString: Untagged
@@ -29538,6 +29602,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &3693333074223259538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4627249354273674160}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4627469716431030605
 GameObject:
   m_ObjectHideFlags: 0
@@ -30848,6 +30927,7 @@ GameObject:
   - component: {fileID: 5093294594644111493}
   - component: {fileID: 177803185034974764}
   - component: {fileID: 4450487392189491281}
+  - component: {fileID: 875449769444620485}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -30995,6 +31075,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &875449769444620485
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4857724196801848028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &4894635944944666372
 GameObject:
   m_ObjectHideFlags: 0
@@ -31809,7 +31904,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -264.66, y: 1600}
+  m_SizeDelta: {x: -264.66, y: 1267}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3384373944207224144
 CanvasRenderer:
@@ -42754,7 +42849,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: -264.66, y: 1600}
+  m_SizeDelta: {x: -264.66, y: 1267}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7231415596179332480
 CanvasRenderer:
@@ -42809,9 +42904,9 @@ MonoBehaviour:
   m_Padding:
     m_Left: 100
     m_Right: 100
-    m_Top: 50
-    m_Bottom: 50
-  m_ChildAlignment: 4
+    m_Top: 0
+    m_Bottom: 0
+  m_ChildAlignment: 1
   m_Spacing: 0
   m_ChildForceExpandWidth: 1
   m_ChildForceExpandHeight: 0
@@ -44450,6 +44545,7 @@ GameObject:
   - component: {fileID: 5790351055836952822}
   - component: {fileID: 8285227131265676789}
   - component: {fileID: 4753750152643676626}
+  - component: {fileID: 1154637175056177498}
   m_Layer: 5
   m_Name: Rebirth Button
   m_TagString: Untagged
@@ -44597,6 +44693,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &1154637175056177498
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6874939068237467220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &6880666617012262919
 GameObject:
   m_ObjectHideFlags: 0
@@ -48994,8 +49105,8 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 6249270852780863967}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0.5916339}
-  m_AnchorMax: {x: 1, y: 0.99999994}
+  m_AnchorMin: {x: 0, y: 0.591634}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: -22.48, y: 0}
   m_SizeDelta: {x: 64.97, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -60849,7 +60960,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 124314896344809518, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems6.5mcrates2.5k
+      value: gems160kcrates500
       objectReference: {fileID: 0}
     - target: {fileID: 247694231553265105, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -61141,7 +61252,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: gems
-      value: 6500000
+      value: 160000
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: price
@@ -61149,11 +61260,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: crates
-      value: 2500
+      value: 500
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: productId
-      value: gems6.5mcrates2.5k
+      value: gems160kcrates500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -61361,7 +61472,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 124314896344809518, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems800kcrates500
+      value: gems70kcrates300
       objectReference: {fileID: 0}
     - target: {fileID: 247694231553265105, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -61653,7 +61764,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: gems
-      value: 800000
+      value: 70000
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: price
@@ -61661,11 +61772,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: crates
-      value: 500
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: productId
-      value: gems800kcrates500
+      value: gems70kcrates300
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -63411,7 +63522,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 145.6901
+      value: 125.690094
       objectReference: {fileID: 0}
     - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -63439,7 +63550,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates1000
+      value: crates275.
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -63535,7 +63646,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 320.34503
+      value: 300.34503
       objectReference: {fileID: 0}
     - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -63635,7 +63746,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: gems
-      value: 1000
+      value: 275
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: price
@@ -63643,7 +63754,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: productId
-      value: crates1000
+      value: crates275.
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: uIDelegation
@@ -65351,7 +65462,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 124314896344809518, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems25kcrates30
+      value: gems20kcrates90
       objectReference: {fileID: 0}
     - target: {fileID: 247694231553265105, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -65643,7 +65754,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: gems
-      value: 25000
+      value: 20000
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: price
@@ -65651,11 +65762,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: crates
-      value: 30
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: productId
-      value: gems25kcrates30
+      value: gems20kcrates90
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -65773,11 +65884,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1333065336532302563, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems2m
+      value: gems160k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: gems
-      value: 2000000
+      value: 160000
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: price
@@ -65785,7 +65896,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: productId
-      value: gems2m
+      value: gems160k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: uIDelegation
@@ -66149,6 +66260,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6429873821124734443}
     m_Modifications:
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 125.690094
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -51.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -66171,7 +66298,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates200
+      value: crates110.
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -66256,6 +66383,22 @@ PrefabInstance:
     - target: {fileID: 1853820079225570224, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 300.34503
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -51.5
       objectReference: {fileID: 0}
     - target: {fileID: 6587811949904205622, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_Name
@@ -66351,7 +66494,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: gems
-      value: 200
+      value: 110
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: price
@@ -66359,7 +66502,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: productId
-      value: crates200
+      value: crates110.
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: uIDelegation
@@ -66833,11 +66976,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1333065336532302563, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems275k
+      value: gems70k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: gems
-      value: 275000
+      value: 70000
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: price
@@ -66845,7 +66988,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: productId
-      value: gems275k
+      value: gems70k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: uIDelegation
@@ -67333,11 +67476,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1333065336532302563, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems6m
+      value: gems450k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: gems
-      value: 6000000
+      value: 450000
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: price
@@ -67345,7 +67488,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: productId
-      value: gems6m
+      value: gems450k.
       objectReference: {fileID: 0}
     - target: {fileID: 4637941169223996359, guid: 97dfdc57c5de34e07a85f172432b6a42, type: 3}
       propertyPath: uIDelegation
@@ -68348,6 +68491,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 6429873821124734443}
     m_Modifications:
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 125.690094
+      objectReference: {fileID: 0}
+    - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -51.5
+      objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
       value: 1
@@ -68455,6 +68614,22 @@ PrefabInstance:
     - target: {fileID: 1853820079225570224, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 300.34503
+      objectReference: {fileID: 0}
+    - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -51.5
       objectReference: {fileID: 0}
     - target: {fileID: 6587811949904205622, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_Name
@@ -69908,7 +70083,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 124314896344809518, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: gems25mcrates5.5k
+      value: gems450kcrates1000
       objectReference: {fileID: 0}
     - target: {fileID: 247694231553265105, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: m_AnchorMax.y
@@ -70200,7 +70375,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: gems
-      value: 25000000
+      value: 450000
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: price
@@ -70208,11 +70383,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: crates
-      value: 5500
+      value: 1000
       objectReference: {fileID: 0}
     - target: {fileID: 9172976295201745082, guid: d8438c142188a4299b90f44985d756c0, type: 3}
       propertyPath: productId
-      value: gems25mcrates5.5k
+      value: gems450kcrates1000
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -70736,7 +70911,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 145.6901
+      value: 125.690094
       objectReference: {fileID: 0}
     - target: {fileID: 271431581573228120, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -70764,7 +70939,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_StringArgument
-      value: crates2500
+      value: crates800.
       objectReference: {fileID: 0}
     - target: {fileID: 1075704806185284991, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
@@ -70860,7 +71035,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 320.34503
+      value: 300.34503
       objectReference: {fileID: 0}
     - target: {fileID: 6316785494262157676, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -70960,7 +71135,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: gems
-      value: 2500
+      value: 800
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: price
@@ -70968,7 +71143,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: productId
-      value: crates2500
+      value: crates800.
       objectReference: {fileID: 0}
     - target: {fileID: 8054816515452820508, guid: 68a984c75e2144a7badd41ca3e853c5c, type: 3}
       propertyPath: uIDelegation

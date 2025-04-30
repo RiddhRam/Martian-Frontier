@@ -41,6 +41,12 @@ public class GameDataString
     public string cooldownTimer;
     public string equippedPowers;
     public string powerUpgradeLevels;
+    public string userCredits;
+    public string twoDayIntervals;
+    public string magnetHaulerUpgrades;
+    public string magnetHaulerAdTimer;
+    public string oreBlasterUpgrades;
+    public string oreBlasterAdTimer;
 
     public GameDataString() {
         this.userCash = null;
@@ -81,5 +87,11 @@ public class GameDataString
         this.cooldownTimer = null;
         this.equippedPowers = null;
         this.powerUpgradeLevels = null;
+        this.userCredits = null;
+        this.twoDayIntervals = null;
+        this.magnetHaulerUpgrades = null;
+        this.magnetHaulerAdTimer = null;
+        this.oreBlasterUpgrades = null;
+        this.oreBlasterAdTimer = null;
     }
 }

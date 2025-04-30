@@ -229,11 +229,22 @@ public class DataPersistenceManager : MonoBehaviour
             this.gameData = gameData;
             return true;
         }
+
+        // Keep one with most gems if others all equal
+        if (BigInteger.Parse(gameData.userGems) > BigInteger.Parse(this.gameData.userGems)) {
+            this.gameData = gameData;
+            return true;
+        }
+
         return false;
     }
 
     public GameData GetGameData() {
         return this.gameData;
+    }
+
+    public ref GameData GetGameDataRef() {
+        return ref this.gameData;
     }
 
 }
