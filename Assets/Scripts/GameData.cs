@@ -49,6 +49,7 @@ public class GameData
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
     public string userCredits;
+    public int twoDayIntervals;
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
     public int magnetHaulerAdTimer;
     public SerializableDictionary<string, int> oreBlasterUpgrades;
@@ -104,6 +105,7 @@ public class GameData
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
         this.userCredits = "0";
+        this.twoDayIntervals = 0;
         this.magnetHaulerUpgrades = new();
         this.magnetHaulerAdTimer = 0;
         this.oreBlasterUpgrades = new();

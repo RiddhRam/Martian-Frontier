@@ -243,4 +243,8 @@ public class DataPersistenceManager : MonoBehaviour
         return this.gameData;
     }
 
+    public ref GameData GetGameDataRef() {
+        return ref this.gameData;
+    }
+
 }
