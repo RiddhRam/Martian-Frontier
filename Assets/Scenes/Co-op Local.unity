@@ -167,6 +167,7 @@ GameObject:
   - component: {fileID: 27620709}
   - component: {fileID: 27620708}
   - component: {fileID: 27620707}
+  - component: {fileID: 27620711}
   m_Layer: 5
   m_Name: Solo Button
   m_TagString: Untagged
@@ -314,6 +315,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 27620705}
   m_CullTransparentMesh: 1
+--- !u!114 &27620711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 27620705}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 5, y: 5}
+  m_UseGraphicAlpha: 1
 --- !u!1 &37705407
 GameObject:
   m_ObjectHideFlags: 0
@@ -348,6 +364,9 @@ MonoBehaviour:
   tutorialManager: {fileID: 0}
   lockedUntilDoneTutorial: {fileID: 0}
   loadingScreen: {fileID: 577285929}
+  minigameName: 
+  teamButtonImage: {fileID: 0}
+  minigameButtonImage: {fileID: 0}
 --- !u!4 &37705409
 Transform:
   m_ObjectHideFlags: 0
@@ -1244,7 +1263,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: -458.64}
+  m_AnchoredPosition: {x: 0, y: -458.64014}
   m_SizeDelta: {x: -990, y: -3258.3333}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &340491651
