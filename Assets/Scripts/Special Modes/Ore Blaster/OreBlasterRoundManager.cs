@@ -30,7 +30,6 @@ public class OreBlasterRoundManager : MonoBehaviour
     {
         oreBlaster.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
-        UpdateConversion();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -63,7 +62,6 @@ public class OreBlasterRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
 
         playerState.AddCredits(oreBlaster.collectedCredits);
-        UpdateConversion();
         // Remove all credits
         oreBlaster.UpdateCreditCount(-oreBlaster.collectedCredits);
 
@@ -71,10 +69,6 @@ public class OreBlasterRoundManager : MonoBehaviour
         roundInProgress = false;
     }
 
-    public void UpdateConversion() {
-        creditTextAmount.text = playerState.FormatPrice(playerState.GetUserCredits());
-        gemTextAmount.text = playerState.FormatPrice((int) (playerState.GetUserCredits() / 30));
-    }
 
     private IEnumerator ResetMine() {
         mineRenderer.mineInitialization = 0;

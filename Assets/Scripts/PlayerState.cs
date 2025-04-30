@@ -221,6 +221,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return false;
     }
 
+    // True if player has sufficient funds
     public bool VerifyEnoughGems(long price) {
         if (userGems - price >= 0) {
             return true;

@@ -34,6 +34,7 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     public OreBlasterRoundManager oreBlasterRoundManager;
     public OreBlasterUpgrades oreBlasterUpgrades;
     public OreBlaster oreBlaster;
+    public UIDelegation uIDelegation;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -267,22 +268,19 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         
     }
 
-    public void ConvertToGems() {
-        // 1 gem per 30 credits
-        playerState.AddGems((int) playerState.GetUserCredits() / 30);
-        Debug.Log((int) playerState.GetUserCredits() / 30);
-        playerState.SubtractCredits((long) playerState.GetUserCredits());
+    public void ConvertToCredits(int gemCount) {
+        if (!playerState.VerifyEnoughGems(gemCount)) {
+            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            return;
+        }
 
-        oreBlasterRoundManager.UpdateConversion();
+        // 2 Credits per 1 Gem
+        playerState.AddCredits(gemCount * 2);
+        playerState.SubtractGems(gemCount);
     }
 
     private void ConvertRewardSuccess() {
-        // 1 gem per 15 credits
-        playerState.AddGems((int) playerState.GetUserCredits() / 15);
-        Debug.Log((int) playerState.GetUserCredits() / 15);
-        playerState.SubtractCredits((long) playerState.GetUserCredits());
 
-        oreBlasterRoundManager.UpdateConversion();
     }
 
     private IEnumerator UseCustomAdScreen(Action callbackFunc) {
@@ -378,8 +376,8 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
 
             adButton.SetActive(true);
 
-            convertRewardNoWifi.SetActive(false);
-            doubleConvertRewardButton.SetActive(true);
+            //convertRewardNoWifi.SetActive(false);
+            //doubleConvertRewardButton.SetActive(true);
 
             _ = cloudDelegator.AttemptLogIn();
             
@@ -399,8 +397,8 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         
         adButton.SetActive(false);
 
-        convertRewardNoWifi.SetActive(true);
-        doubleConvertRewardButton.SetActive(false);
+        //convertRewardNoWifi.SetActive(true);
+        //doubleConvertRewardButton.SetActive(false);
 
         displayStatus = false;
     }

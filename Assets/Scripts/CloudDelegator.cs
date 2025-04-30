@@ -329,6 +329,7 @@ public class CloudDelegator : MonoBehaviour
                 IncrementLoadedItems();
 
                 dataPersistenceManager.DirectlyWriteSave();
+                TempSignOut();
                 SceneManager.LoadScene("Loading Screen");
             }
         }
