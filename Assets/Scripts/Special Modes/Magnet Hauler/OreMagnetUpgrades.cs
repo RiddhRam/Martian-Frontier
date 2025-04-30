@@ -9,6 +9,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private PlayerState playerState;
     [SerializeField] private CreditMagnet creditMagnet;
     [SerializeField] private UIDelegation uIDelegation;
+    private AnalyticsDelegator analyticsDelegator;
 
     [SerializeField] private TextMeshProUGUI rangeLevelText;
     [SerializeField] private TextMeshProUGUI strengthLevelText;
@@ -37,6 +38,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         
         UpdatePowerPanels();
         SetPowers();
+
+        analyticsDelegator.TechLabUpgrade(upgradeType);
     }
 
     public int GetUpgradeLevel(string key) {
@@ -95,6 +98,11 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        try {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        } catch {
+        }
+
         this.magnetHaulerUpgrades = data.magnetHaulerUpgrades;
 
         UpdatePowerPanels();

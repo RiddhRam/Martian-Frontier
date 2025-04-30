@@ -376,6 +376,8 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         SetUpgradePriceAndLevel(powerIndex);
 
         powers[powerIndex].UpdatePower();
+
+        analyticsDelegator.TechLabUpgrade(powerName);
     }
 
     public void UpdateRadar() {

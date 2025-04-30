@@ -404,4 +404,28 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Tutorial_Step", new Parameter("Index", tutorialIndex));
     }
 
+    public void PurchaseCreditsWithGems(float amount) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Purchase_Credits_With_Gems") {
+            {"Amount", amount},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+        FirebaseAnalytics.LogEvent("Purchase_Credits_With_Gems", new Parameter("Amount", amount));
+    }
+
+    public void TechLabUpgrade(string upgradeName) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Tech_Lab_Upgrade") {
+            {"Upgrade_Name", upgradeName},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+        FirebaseAnalytics.LogEvent("Tech_Lab_Upgrade", new Parameter("Upgrade_Name", upgradeName));
+        
+    }
 }

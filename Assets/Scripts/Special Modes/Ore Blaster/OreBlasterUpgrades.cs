@@ -6,6 +6,7 @@ using UnityEngine.UI;
 
 public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
 {
+    private AnalyticsDelegator analyticsDelegator;
     [SerializeField] private PlayerState playerState;
     [SerializeField] private OreBlaster oreBlaster;
     [SerializeField] private UIDelegation uIDelegation;
@@ -37,6 +38,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         
         UpdatePowerPanels();
         SetPowers();
+
+        analyticsDelegator.TechLabUpgrade(upgradeType);
     }
 
     public int GetUpgradeLevel(string key) {
@@ -95,6 +98,11 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     }
     
     public void LoadData(GameData data) {
+        try {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        } catch {
+        }
+
         this.oreBlasterUpgrades = data.oreBlasterUpgrades;
 
         UpdatePowerPanels();

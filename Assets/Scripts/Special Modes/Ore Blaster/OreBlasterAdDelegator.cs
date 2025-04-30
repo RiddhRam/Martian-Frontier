@@ -277,6 +277,11 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         // 2 Credits per 1 Gem
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
+
+        if (!analyticsDelegator) {
+            analyticsDelegator = AnalyticsDelegator.Instance;
+        }
+        analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
     }
 
     private void ConvertRewardSuccess() {
