@@ -158,7 +158,7 @@ public class MagnetHauler : MonoBehaviour
     }
    
     private void PlayAudio() {
-        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.4f);
+        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.3f);
     }
 
 }
