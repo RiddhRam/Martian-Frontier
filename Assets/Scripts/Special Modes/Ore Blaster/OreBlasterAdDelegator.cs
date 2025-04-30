@@ -426,7 +426,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         int seconds;
         string timerText;
 
-        // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
             bool succeeded = true;
             try {
@@ -441,13 +440,12 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
                 continue;
             }
 
-            
             // Calculate minutes and seconds
             minutes = totalTime / 60;
             seconds = totalTime % 60;
             timerText = $"{minutes}:{seconds:D2}";
 
-            // Update the timer text (assuming it's a TMP Text component)
+            // Update the timer text
             oreBlasterAdTimerText.text = timerText;
             oreBlasterAdTimer = totalTime - 1;
             // Wait for 1 second

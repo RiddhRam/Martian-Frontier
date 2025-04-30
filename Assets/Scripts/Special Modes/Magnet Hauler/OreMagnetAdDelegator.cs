@@ -426,14 +426,13 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         int seconds;
         string timerText;
 
-        // Initialize the timer to 3:00 (3 minutes in seconds)
         while (totalTime > 0) {
             // Calculate minutes and seconds
             minutes = totalTime / 60;
             seconds = totalTime % 60;
             timerText = $"{minutes}:{seconds:D2}";
 
-            // Update the timer text (assuming it's a TMP Text component)
+            // Update the timer text
             magnetHaulerAdTimerText.text = timerText;
             magnetHaulerAdTimer = totalTime - 1;
             // Wait for 1 second

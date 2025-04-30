@@ -59,7 +59,7 @@ public class OreBlasterRoundManager : MonoBehaviour
 
         StartCoroutine(ResetMine());
         
-        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
+        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(oreBlaster.collectedCredits);
         // Remove all credits

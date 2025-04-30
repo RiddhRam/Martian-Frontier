@@ -33,7 +33,7 @@ public class ExplosiveChargeProjectile : MonoBehaviour
         explosionController.transform.position = transform.position;
         explosionController.SetupAndTrigger(oreBlaster.destroyRadius);
 
-        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClip, 0.6f);
+        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClip, 0.8f);
         
         // Destroy ores
         oreBlaster.BlastOres();

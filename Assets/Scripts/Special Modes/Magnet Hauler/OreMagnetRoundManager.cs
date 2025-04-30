@@ -61,7 +61,7 @@ public class OreMagnetRoundManager : MonoBehaviour
         // Hide map
         largeFogOfWar.SetActive(true);
         
-        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.4f);
+        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(magnetHauler.collectedCredits);
         // Remove all credits
