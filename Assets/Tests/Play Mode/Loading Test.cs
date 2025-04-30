@@ -86,7 +86,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(13, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(14, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
     }
 
     [UnityTest]
@@ -340,8 +340,8 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
         Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "CargoInfo", "Ore Prices", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
-        int primaryElementCount = 9;
+        string[] primaryElementNames = { "Important Info", "CargoInfo", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
+        int primaryElementCount = 8;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);

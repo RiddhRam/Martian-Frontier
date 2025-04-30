@@ -14,9 +14,11 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
     [SerializeField] private TextMeshProUGUI nameText;
     [SerializeField] private TextMeshProUGUI descriptionText;
 
+    [SerializeField] private PlayerState playerState;
     [SerializeField] private SessionDelegator sessionDelegator;
 
     [SerializeField] private int twoDayIntervals;
+    private int previousInterval;
     private readonly DateTime resetDate = new DateTime(1970, 1, 2, 12, 0, 0, DateTimeKind.Utc);
 
     DateTime endTime;
@@ -27,16 +29,21 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
     {
         this.twoDayIntervals = CalculateTwoDayIntervals();
 
-        // If its time for a new mini game
-        if (this.twoDayIntervals > data.twoDayIntervals) {
-            ResetMiniGameData();
-        }
+        previousInterval = data.twoDayIntervals;
 
         SetMiniGameTimer();
         StartCoroutine(CountdownToNextInterval());
     }
 
     private IEnumerator CountdownToNextInterval() {
+
+        // Let player state load
+        yield return new WaitUntil(() => playerState.loaded);
+
+        // Reset data if there's a new mini game today
+        if (this.twoDayIntervals > this.previousInterval) {
+            ResetMiniGameData();
+        }
 
         while (true) {
             // Set minigame
@@ -62,7 +69,7 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
 
     private void ResetMiniGameData() {
 
-        GameObject.Find("PlayerState").GetComponent<PlayerState>().ResetCredits();
+        playerState.ResetCredits();
 
         var dataManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
         ref GameData gameData = ref dataManager.GetGameDataRef();

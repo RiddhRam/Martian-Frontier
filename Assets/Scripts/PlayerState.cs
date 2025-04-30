@@ -66,6 +66,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     string levelString;
     private long rebirthPrice = 15_000_000_000;
 
+    public bool loaded = false;
     bool specialGameMode = false;
 
     void Awake() {
@@ -400,6 +401,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         this.userCredits = BigInteger.Parse(data.userCredits);
 
+        loaded = true;
+
         if (!specialGameMode) {
             refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
             UpdateHighestDrillTier();
@@ -429,6 +432,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.userGems = this.userGems.ToString();
         data.gemsEarned = this.gemsEarned.ToString();
         data.userCredits = this.userCredits.ToString();
+
+        
     }
 
     private void UpdateXPDisplays() {
