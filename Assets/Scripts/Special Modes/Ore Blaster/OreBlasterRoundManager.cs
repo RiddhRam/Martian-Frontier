@@ -12,12 +12,10 @@ public class OreBlasterRoundManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] GameObject roundInfo;
 
-    [SerializeField] TextMeshProUGUI creditTextAmount;
-    [SerializeField] TextMeshProUGUI gemTextAmount;
-
     [SerializeField] PlayerState playerState;
     [SerializeField] MineRenderer mineRenderer;
     [SerializeField] OreBlaster oreBlaster;
+    [SerializeField] OreBlasterUpgrades oreBlasterUpgrades;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -67,6 +65,8 @@ public class OreBlasterRoundManager : MonoBehaviour
 
         roundInfo.SetActive(false);
         roundInProgress = false;
+
+        oreBlasterUpgrades.EnableNoticeIconIfNeeded();
     }
 
 

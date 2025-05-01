@@ -12,12 +12,10 @@ public class OreMagnetRoundManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI timerText;
     [SerializeField] GameObject roundInfo;
 
-    [SerializeField] TextMeshProUGUI creditTextAmount;
-    [SerializeField] TextMeshProUGUI gemTextAmount;
-
     [SerializeField] CreditsDelegator creditsDelegator;
     [SerializeField] PlayerState playerState;
     [SerializeField] MagnetHauler magnetHauler;
+    [SerializeField] OreMagnetUpgrades oreMagnetUpgrades;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -69,6 +67,8 @@ public class OreMagnetRoundManager : MonoBehaviour
 
         roundInfo.SetActive(false);
         roundInProgress = false;
+
+        oreMagnetUpgrades.EnableNoticeIconIfNeeded();
 
         ResetAllCreditMaterials();
     }

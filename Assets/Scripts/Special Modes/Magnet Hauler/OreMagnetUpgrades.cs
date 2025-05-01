@@ -1,3 +1,4 @@
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -10,6 +11,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private CreditMagnet creditMagnet;
     [SerializeField] private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
+
+    [SerializeField] private GameObject upgradeNoticeIcon;
 
     [SerializeField] private TextMeshProUGUI rangeLevelText;
     [SerializeField] private TextMeshProUGUI strengthLevelText;
@@ -38,6 +41,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         
         UpdatePowerPanels();
         SetPowers();
+
+        EnableNoticeIconIfNeeded();
 
         analyticsDelegator.TechLabUpgrade(upgradeType);
     }
@@ -95,6 +100,16 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
     public int GetMagnetStrength() {
         return 8 + GetUpgradeLevel("Strength");
+    }
+
+    public void EnableNoticeIconIfNeeded(){
+        BigInteger userCredits = playerState.GetUserCredits();
+
+        if (userCredits > upgradePrices[GetUpgradeLevel("Radius")] || userCredits > upgradePrices[GetUpgradeLevel("Reload")]) {
+            upgradeNoticeIcon.SetActive(true);
+        } else {
+            upgradeNoticeIcon.SetActive(false);
+        }
     }
 
     public void LoadData(GameData data) {

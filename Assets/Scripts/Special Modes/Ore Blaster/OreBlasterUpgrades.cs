@@ -1,3 +1,4 @@
+using System.Numerics;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -10,6 +11,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private PlayerState playerState;
     [SerializeField] private OreBlaster oreBlaster;
     [SerializeField] private UIDelegation uIDelegation;
+
+    [SerializeField] private GameObject upgradeNoticeIcon;
 
     [SerializeField] private TextMeshProUGUI radiusLevelText;
     [SerializeField] private TextMeshProUGUI reloadLevelText;
@@ -39,6 +42,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         UpdatePowerPanels();
         SetPowers();
 
+        EnableNoticeIconIfNeeded();
+        
         analyticsDelegator.TechLabUpgrade(upgradeType);
     }
 
@@ -97,6 +102,16 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         return 5f - (GetUpgradeLevel("Reload") * 0.25f);
     }
     
+    public void EnableNoticeIconIfNeeded(){
+        BigInteger userCredits = playerState.GetUserCredits();
+
+        if (userCredits > upgradePrices[GetUpgradeLevel("Radius")] || userCredits > upgradePrices[GetUpgradeLevel("Reload")]) {
+            upgradeNoticeIcon.SetActive(true);
+        } else {
+            upgradeNoticeIcon.SetActive(false);
+        }
+    }
+
     public void LoadData(GameData data) {
         try {
             analyticsDelegator = AnalyticsDelegator.Instance;
