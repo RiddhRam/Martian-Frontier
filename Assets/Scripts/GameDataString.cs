@@ -47,9 +47,6 @@ public class GameDataString
     public string magnetHaulerAdTimer;
     public string oreBlasterUpgrades;
     public string oreBlasterAdTimer;
-    public string oreBlasterChallengeProgress;
-    public string oreBlasterChallengeCollection;
-    public string oreBlasterSuperChallengeTimer;
 
     public GameDataString() {
         this.userCash = null;
@@ -96,8 +93,5 @@ public class GameDataString
         this.magnetHaulerAdTimer = null;
         this.oreBlasterUpgrades = null;
         this.oreBlasterAdTimer = null;
-        this.oreBlasterChallengeProgress = null;
-        this.oreBlasterChallengeCollection = null;
-        this.oreBlasterSuperChallengeTimer = null;
     }
 }

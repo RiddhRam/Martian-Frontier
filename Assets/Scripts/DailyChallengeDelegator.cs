@@ -14,11 +14,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject mineRenderGO;
     public GameObject dailyTimer;
     public GameObject challengePanel;
-    public GameObject[] challengeStatusIconsGO;
-    public GameObject[] challengeDescriptionTexts;
-    public GameObject[] rewardTexts;
-    public GameObject[] challengeProgressSlidersGO;
-    public GameObject[] challengeProgressSlidersTextGO;
+    public GameObject[] challengeButtons;
     public GameObject superChallengeStartButtonGO;
     public GameObject superChallengeStartButtonTextGO;
     public GameObject superChallengeSliderGO;
@@ -49,8 +45,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private int[] difficulty = {8, 1, 2, 5, 3, 3};
     private int baseGemReward = 180;
     // Related to the above challenge types
-    // This will be multiplied to determine the goal the player needs to reach, 
-    // then multiplied by the difficulty to determine the reward
     private int[] baseGoalAmount = {5, 150, 80, 1, 2, 80};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
@@ -78,12 +72,12 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
 
-        for (int i = 0; i != challengeDescriptionTexts.Length; i++) {
-            challengeStatusIcons[i] = challengeStatusIconsGO[i].GetComponent<Image>();
-            challengeTextMeshes[i] = challengeDescriptionTexts[i].GetComponent<TextMeshProUGUI>();
-            rewardTextMeshes[i] = rewardTexts[i].GetComponent<TextMeshProUGUI>();
-            challengeProgressSliders[i] = challengeProgressSlidersGO[i].GetComponent<Slider>();
-            challengeProgressSlidersText[i] = challengeProgressSlidersTextGO[i].GetComponent<TextMeshProUGUI>();
+        for (int i = 0; i != challengeButtons.Length; i++) {
+            challengeStatusIcons[i] = challengeButtons[i].transform.GetChild(0).GetChild(0).GetComponent<Image>();
+            challengeTextMeshes[i] = challengeButtons[i].transform.GetChild(0).GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>();
+            rewardTextMeshes[i] = challengeButtons[i].transform.GetChild(0).GetChild(2).GetChild(1).GetComponent<TextMeshProUGUI>();
+            challengeProgressSliders[i] = challengeButtons[i].transform.GetChild(0).GetChild(1).GetChild(1).GetComponent<Slider>();
+            challengeProgressSlidersText[i] = challengeButtons[i].transform.GetChild(0).GetChild(1).GetChild(1).GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
         superChallengeSlider = superChallengeSliderGO.GetComponent<Slider>();

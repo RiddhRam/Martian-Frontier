@@ -190,18 +190,10 @@ public class LoadingTest
         Assert.AreEqual(dailyChallengeDelegator.challengePanel.name, "Daily Challenges Panel");
 
         int challengeLengths = 6;
-        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeStatusIconsGO.Length);
-        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeDescriptionTexts.Length);
-        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.rewardTexts.Length);
-        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeProgressSlidersGO.Length);
-        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeProgressSlidersTextGO.Length);
+        Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeButtons.Length);
 
         for (int i = 0; i != challengeLengths; i++) {
-            Assert.True(dailyChallengeDelegator.challengeStatusIconsGO[i].gameObject.activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeDescriptionTexts[i].gameObject.activeSelf);
-            Assert.True(dailyChallengeDelegator.rewardTexts[i].gameObject.activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeProgressSlidersGO[i].gameObject.activeSelf);
-            Assert.True(dailyChallengeDelegator.challengeProgressSlidersTextGO[i].gameObject.activeSelf);
+            Assert.True(dailyChallengeDelegator.challengeButtons[i].activeSelf);
         }
 
         Assert.AreEqual(dailyChallengeDelegator.superChallengeStartButtonGO.name, "Start");

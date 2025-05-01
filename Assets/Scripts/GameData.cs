@@ -54,9 +54,6 @@ public class GameData
     public int magnetHaulerAdTimer;
     public SerializableDictionary<string, int> oreBlasterUpgrades;
     public int oreBlasterAdTimer;
-    public int[] oreBlasterChallengeProgress;
-    public bool[] oreBlasterChallengeCollection;
-    public int oreBlasterSuperChallengeTimer;
 
     public GameData() {
         this.userCash = "0";
@@ -107,17 +104,11 @@ public class GameData
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
-
         this.userCredits = "0";
         this.twoDayIntervals = 0;
-        
         this.magnetHaulerUpgrades = new();
         this.magnetHaulerAdTimer = 0;
-
         this.oreBlasterUpgrades = new();
         this.oreBlasterAdTimer = 0;
-        this.oreBlasterChallengeProgress = new int[6];
-        this.oreBlasterChallengeCollection = new bool[6];
-        this.oreBlasterSuperChallengeTimer = 1200;
     }
 }
