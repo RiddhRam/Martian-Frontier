@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Localization.Tables;
 
-public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
+public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersistence
 {
     public GameObject challengePanel;
     public GameObject[] challengeButtons;
@@ -34,14 +34,14 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI superChallengeStartButtonText;
 
     // Used to check index
-    private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "BLAST {0} CREDITS", "UPGRADE EVERYTHING TO LEVEL {0}"};
+    private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "COLLECT {0} CREDITS", "UPGRADE EVERYTHING TO LEVEL {0}"};
     // This one is not related to challenge types, just order of challenges display
     private int[] difficulty = {8, 3, 5, 15, 8, 3};
     private int baseGemReward = 200;
     // Related to the above challenge types
     // This will be multiplied to determine the goal the player needs to reach, 
     // then multiplied by the difficulty to determine the reward
-    private int[] baseGoalAmount = {5, 1200, 1};
+    private int[] baseGoalAmount = {5, 150, 1};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
