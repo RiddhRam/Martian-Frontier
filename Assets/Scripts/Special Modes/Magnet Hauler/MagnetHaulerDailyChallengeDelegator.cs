@@ -4,7 +4,6 @@ using UnityEngine.UI;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using System;
-using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.Localization.Tables;
 
@@ -20,7 +19,6 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     private System.Random rng;
     private AnalyticsDelegator analyticsDelegator;
 
-    public MineRenderer mineRenderer;
     public PlayerState playerState;
 
     public GameObject challengeNoticeIcon;
@@ -41,7 +39,7 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     // Related to the above challenge types
     // This will be multiplied to determine the goal the player needs to reach, 
     // then multiplied by the difficulty to determine the reward
-    private int[] baseGoalAmount = {5, 150, 1};
+    private int[] baseGoalAmount = {5, 1800, 1};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
@@ -117,7 +115,7 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
 
             if (selectedChallenges[i] == 2) {
                 // The highest level for this game mode is 10
-                challengeValues[i] = Mathf.Clamp(challengeValues[i], 1, 10);
+                challengeValues[i] = Mathf.Clamp(challengeValues[i], 1, 20);
             }
 
             // Set value to 0 if new
@@ -183,11 +181,11 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
         superChallengeSlider.value = challengeProgress[0];
     }
 
-    public void BlastedOres(int quantity) {
+    public void CollectedCredits(int quantity) {
         for (int i = 0; i != selectedChallenges.Length; i++) {
             if (selectedChallenges[i] == 1) {
                 // If its a super challenge and timer isn't started, don't count it
-                if (i == 0 && superChallengeTimer == 0) {
+                if (i == 0 && (superChallengeTimer == superChallengeStartTimer || superChallengeTimer == 0)) {
                     continue;
                 } 
 
@@ -265,9 +263,9 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     public void LoadData(GameData data)
     {
         this.twoDayIntervals = data.twoDayIntervals;
-        this.challengeProgress = data.oreBlasterChallengeProgress;
-        this.challengeCollection = data.oreBlasterChallengeCollection;
-        this.superChallengeTimer = data.oreBlasterSuperChallengeTimer;
+        this.challengeProgress = data.magnetHaulerChallengeProgress;
+        this.challengeCollection = data.magnetHaulerChallengeCollection;
+        this.superChallengeTimer = data.magnetHaulerSuperChallengeTimer;
         Initialize();
 
         for (int i = 0; i != challengeCollection.Length; i++) {
@@ -288,9 +286,9 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
 
     public void SaveData(ref GameData data)
     {
-        data.oreBlasterChallengeProgress = this.challengeProgress;
-        data.oreBlasterChallengeCollection = this.challengeCollection;
-        data.oreBlasterSuperChallengeTimer = this.superChallengeTimer;
+        data.magnetHaulerChallengeProgress = this.challengeProgress;
+        data.magnetHaulerChallengeCollection = this.challengeCollection;
+        data.magnetHaulerSuperChallengeTimer = this.superChallengeTimer;
     }
 
     // Method that is called when the locale changes

@@ -45,6 +45,9 @@ public class GameDataString
     public string twoDayIntervals;
     public string magnetHaulerUpgrades;
     public string magnetHaulerAdTimer;
+    public string magnetHaulerChallengeProgress;
+    public string magnetHaulerChallengeCollection;
+    public string magnetHaulerSuperChallengeTimer;
     public string oreBlasterUpgrades;
     public string oreBlasterAdTimer;
     public string oreBlasterChallengeProgress;
@@ -96,6 +99,9 @@ public class GameDataString
 
         this.magnetHaulerUpgrades = null;
         this.magnetHaulerAdTimer = null;
+        this.magnetHaulerChallengeProgress = null;
+        this.magnetHaulerChallengeCollection = null;
+        this.magnetHaulerSuperChallengeTimer = null;
 
         this.oreBlasterUpgrades = null;
         this.oreBlasterAdTimer = null;

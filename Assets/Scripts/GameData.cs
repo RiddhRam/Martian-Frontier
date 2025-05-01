@@ -52,6 +52,9 @@ public class GameData
     public int twoDayIntervals;
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
     public int magnetHaulerAdTimer;
+    public int[] magnetHaulerChallengeProgress;
+    public bool[] magnetHaulerChallengeCollection;
+    public int magnetHaulerSuperChallengeTimer;
     public SerializableDictionary<string, int> oreBlasterUpgrades;
     public int oreBlasterAdTimer;
     public int[] oreBlasterChallengeProgress;
@@ -113,6 +116,9 @@ public class GameData
 
         this.magnetHaulerUpgrades = new();
         this.magnetHaulerAdTimer = 0;
+        this.magnetHaulerChallengeProgress = new int[6];
+        this.magnetHaulerChallengeCollection = new bool[6];
+        this.magnetHaulerSuperChallengeTimer = 1200;
 
         this.oreBlasterUpgrades = new();
         this.oreBlasterAdTimer = 0;

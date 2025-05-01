@@ -14473,6 +14473,7 @@ MonoBehaviour:
   playerState: {fileID: 276248154}
   creditMagnet: {fileID: 1012335949}
   uIDelegation: {fileID: 319486926}
+  magnetHaulerDailyChallengeDelegator: {fileID: 1285983712}
   upgradeNoticeIcon: {fileID: 826868672}
   rangeLevelText: {fileID: 8991640827441280942}
   strengthLevelText: {fileID: 1469302985}
@@ -21798,6 +21799,64 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1272065581}
   m_CullTransparentMesh: 1
+--- !u!1 &1285983709
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1285983711}
+  - component: {fileID: 1285983712}
+  m_Layer: 0
+  m_Name: Magnet Hauler Daily Challenge Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1285983711
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285983709}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.586868, y: -3.2734132, z: 4.9933586}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1285983712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1285983709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 482b365bc2acf4038a032cf0dbff2dd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  challengePanel: {fileID: 5893465902896828833}
+  challengeButtons:
+  - {fileID: 5893465902896828839}
+  - {fileID: 5893465902896828838}
+  - {fileID: 5893465902896828837}
+  - {fileID: 5893465902896828836}
+  - {fileID: 5893465902896828835}
+  - {fileID: 5893465902896828834}
+  superChallengeStartButtonGO: {fileID: 1529784403}
+  superChallengeStartButtonTextGO: {fileID: 1529784402}
+  superChallengeSliderGO: {fileID: 1529784405}
+  superChallengeTimerTextGO: {fileID: 1529784404}
+  playerState: {fileID: 276248154}
+  challengeNoticeIcon: {fileID: 1529784406}
 --- !u!1 &1298233115
 GameObject:
   m_ObjectHideFlags: 0
@@ -22911,14 +22970,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 693.19
-      objectReference: {fileID: 0}
-    - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 1031
-      objectReference: {fileID: 0}
-    - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -23620,6 +23671,31 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1521537105}
   m_CullTransparentMesh: 1
+--- !u!1 &1529784402 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7835687881839405446, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1529784403 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5727909382840763233, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1529784404 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7764492278881389444, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1529784405 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5918120347481945590, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &1529784406 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2615864006511445456, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!224 &1540355356 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4759678510557893092, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -24390,6 +24466,7 @@ MonoBehaviour:
   playerState: {fileID: 276248154}
   magnetHauler: {fileID: 8852282835856770594}
   oreMagnetUpgrades: {fileID: 887356396}
+  magnetHaulerDailyChallengeDelegator: {fileID: 1285983712}
   roundTimer: 0
   roundInProgress: 0
   UISoundEffects: {fileID: 2107850432}
@@ -27069,14 +27146,6 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 693.19
-      objectReference: {fileID: 0}
-    - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 1031
-      objectReference: {fileID: 0}
-    - target: {fileID: 5894945071846064329, guid: 87dd50904e66b4418b47139a610cb817, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -27566,6 +27635,14 @@ PrefabInstance:
     - target: {fileID: 20439374352587005, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 20439374352587005, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: StartSuperChallenge
+      objectReference: {fileID: 0}
+    - target: {fileID: 20439374352587005, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 27722446922752037, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -27733,7 +27810,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 446844952372221202, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 459516220773188047, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -27834,6 +27911,14 @@ PrefabInstance:
     - target: {fileID: 571702673650597679, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 571702673650597679, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 571702673650597679, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 603806618087269524, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -27853,19 +27938,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 622194237310313137, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 622194237310313137, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 622194237310313137, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 115
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 622194237310313137, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -238.27002
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 632249998323988101, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
@@ -27998,6 +28083,14 @@ PrefabInstance:
     - target: {fileID: 1020832824442512870, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 1020832824442512870, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 1020832824442512870, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 1024368947285346630, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -28190,6 +28283,14 @@ PrefabInstance:
     - target: {fileID: 1391016971688380612, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 1391016971688380612, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 1391016971688380612, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 1397392961095420246, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -28333,7 +28434,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1781284376890755961, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 1820561962783393034, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -28742,6 +28843,14 @@ PrefabInstance:
     - target: {fileID: 2811753908700694749, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 2811753908700694749, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 2811753908700694749, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 2835927787741093471, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -29306,6 +29415,14 @@ PrefabInstance:
     - target: {fileID: 3815365853129937681, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 3815365853129937681, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 3815365853129937681, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 3821667752553145314, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -29978,6 +30095,14 @@ PrefabInstance:
     - target: {fileID: 5330009349759159063, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 5330009349759159063, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: CollectReward
+      objectReference: {fileID: 0}
+    - target: {fileID: 5330009349759159063, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 5334385204287721649, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -31218,6 +31343,14 @@ PrefabInstance:
     - target: {fileID: 8281091222678772814, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_Target
       value: 
+      objectReference: {fileID: 1285983712}
+    - target: {fileID: 8281091222678772814, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: UpdateDisplay
+      objectReference: {fileID: 0}
+    - target: {fileID: 8281091222678772814, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[2].m_TargetAssemblyTypeName
+      value: MagnetHaulerDailyChallengeDelegator, Scripts
       objectReference: {fileID: 0}
     - target: {fileID: 8285227131265676789, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgument
@@ -31563,6 +31696,7 @@ PrefabInstance:
     - {fileID: 6361256398437182250, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     - {fileID: 9184807826428403040, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     - {fileID: 5734671613992369059, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+    - {fileID: 6621355948723104100, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5143800563447687380, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       insertIndex: 6
@@ -31615,6 +31749,41 @@ RectTransform:
 --- !u!224 &5893465902896828832 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 4805501338740033465, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828833 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3219125822991801688, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828834 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1780947086713512304, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828835 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 418950677027458130, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828836 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 870826322358720155, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828837 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3242459962156130665, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828838 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4541937841233656485, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &5893465902896828839 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2094628808409644922, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &6996234097937692045
@@ -32364,8 +32533,9 @@ SceneRoots:
   - {fileID: 7433205018064094770}
   - {fileID: 2233973431454865810}
   - {fileID: 1578362575}
-  - {fileID: 887356398}
   - {fileID: 2047223848}
+  - {fileID: 887356398}
+  - {fileID: 1285983711}
   - {fileID: 1308672357}
   - {fileID: 2078999018}
   - {fileID: 165361378}

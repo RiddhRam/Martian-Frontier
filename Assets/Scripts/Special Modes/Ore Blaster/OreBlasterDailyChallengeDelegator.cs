@@ -20,7 +20,6 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private System.Random rng;
     private AnalyticsDelegator analyticsDelegator;
 
-    public MineRenderer mineRenderer;
     public PlayerState playerState;
 
     public GameObject challengeNoticeIcon;
@@ -183,7 +182,7 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
         superChallengeSlider.value = challengeProgress[0];
     }
 
-    public void BlastedOres(int quantity) {
+    public void BlastedCredits(int quantity) {
         for (int i = 0; i != selectedChallenges.Length; i++) {
             if (selectedChallenges[i] == 1) {
                 // If its a super challenge and timer isn't started, don't count it

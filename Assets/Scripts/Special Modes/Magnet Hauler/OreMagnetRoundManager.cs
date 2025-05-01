@@ -16,6 +16,7 @@ public class OreMagnetRoundManager : MonoBehaviour
     [SerializeField] PlayerState playerState;
     [SerializeField] MagnetHauler magnetHauler;
     [SerializeField] OreMagnetUpgrades oreMagnetUpgrades;
+    [SerializeField] MagnetHaulerDailyChallengeDelegator magnetHaulerDailyChallengeDelegator;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -62,6 +63,7 @@ public class OreMagnetRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(magnetHauler.collectedCredits);
+        magnetHaulerDailyChallengeDelegator.CollectedCredits(magnetHauler.collectedCredits);
         // Remove all credits
         magnetHauler.UpdateCreditCount(-magnetHauler.collectedCredits);
 

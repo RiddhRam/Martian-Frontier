@@ -61,7 +61,7 @@ public class OreBlasterRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(oreBlaster.collectedCredits);
-        oreBlasterDailyChallengeDelegator.BlastedOres(oreBlaster.collectedCredits);
+        oreBlasterDailyChallengeDelegator.BlastedCredits(oreBlaster.collectedCredits);
         // Remove all credits and ores
         oreBlaster.collectedCredits = 0;
 

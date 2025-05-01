@@ -11,6 +11,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private CreditMagnet creditMagnet;
     [SerializeField] private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
+    [SerializeField] MagnetHaulerDailyChallengeDelegator magnetHaulerDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
 
@@ -43,6 +44,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
         SetPowers();
 
         EnableNoticeIconIfNeeded();
+
+        magnetHaulerDailyChallengeDelegator.LeveledUpPower(GetUpgradeLevel("Range"), GetUpgradeLevel("Strength"));
 
         analyticsDelegator.TechLabUpgrade(upgradeType);
     }
@@ -105,7 +108,8 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     public void EnableNoticeIconIfNeeded(){
         BigInteger userCredits = playerState.GetUserCredits();
 
-        if (userCredits > upgradePrices[GetUpgradeLevel("Radius")] || userCredits > upgradePrices[GetUpgradeLevel("Reload")]) {
+        if ((GetUpgradeLevel("Range") < upgradePrices.Length && userCredits > upgradePrices[GetUpgradeLevel("Range")]) 
+        || (GetUpgradeLevel("Strength") < upgradePrices.Length && userCredits > upgradePrices[GetUpgradeLevel("Strength")])) {
             upgradeNoticeIcon.SetActive(true);
         } else {
             upgradeNoticeIcon.SetActive(false);
