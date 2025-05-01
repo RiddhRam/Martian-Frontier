@@ -185,7 +185,8 @@ public class LoadingTest
         // Daily Challenge Delegator
         DailyChallengeDelegator dailyChallengeDelegator = GameObject.Find("Daily Challenge Delegator").GetComponent<DailyChallengeDelegator>();
 
-        Assert.AreEqual(dailyChallengeDelegator.mineRenderGO.name, "Mine");
+        Assert.AreEqual(dailyChallengeDelegator.mineRenderer.gameObject.name, "Mine");
+        Assert.AreEqual(dailyChallengeDelegator.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(dailyChallengeDelegator.dailyTimer.name, "Daily Timer");
         Assert.AreEqual(dailyChallengeDelegator.challengePanel.name, "Daily Challenges Panel");
 

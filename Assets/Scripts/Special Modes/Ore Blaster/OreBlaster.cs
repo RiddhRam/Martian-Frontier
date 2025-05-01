@@ -24,6 +24,7 @@ public class OreBlaster : MonoBehaviour
 
     private int[] creditTileValues = new int[] {0, 4, 7, 12};
     public int collectedCredits = 0;
+    public int blastedOres = 0;
 
     public float blastInterval;
     [SerializeField] private float blastTimer;
@@ -111,6 +112,10 @@ public class OreBlaster : MonoBehaviour
 
         int tileIndex = mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][new(currentTilePos.x, currentTilePos.y)];
         creditsToAdd += creditTileValues[tileIndex];
+
+        if (creditTileValues[tileIndex] > 0) {
+            blastedOres++;
+        }
 
         tilesToDestroy.Add(new(currentTilePos.x, currentTilePos.y));
     }

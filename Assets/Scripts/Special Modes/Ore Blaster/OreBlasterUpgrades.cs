@@ -11,6 +11,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     [SerializeField] private PlayerState playerState;
     [SerializeField] private OreBlaster oreBlaster;
     [SerializeField] private UIDelegation uIDelegation;
+    [SerializeField] private OreBlasterDailyChallengeDelegator oreBlasterDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
 
@@ -43,6 +44,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         SetPowers();
 
         EnableNoticeIconIfNeeded();
+
+        oreBlasterDailyChallengeDelegator.LeveledUpPower(GetUpgradeLevel("Radius"), GetUpgradeLevel("Reload"));
         
         analyticsDelegator.TechLabUpgrade(upgradeType);
     }
@@ -105,7 +108,8 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     public void EnableNoticeIconIfNeeded(){
         BigInteger userCredits = playerState.GetUserCredits();
 
-        if (userCredits > upgradePrices[GetUpgradeLevel("Radius")] || userCredits > upgradePrices[GetUpgradeLevel("Reload")]) {
+        if ((GetUpgradeLevel("Radius") < upgradePrices.Length && userCredits > upgradePrices[GetUpgradeLevel("Radius")]) 
+        || (GetUpgradeLevel("Reload") < upgradePrices.Length && userCredits > upgradePrices[GetUpgradeLevel("Reload")])) {
             upgradeNoticeIcon.SetActive(true);
         } else {
             upgradeNoticeIcon.SetActive(false);
@@ -164,6 +168,5 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);
     }
-
 
 }

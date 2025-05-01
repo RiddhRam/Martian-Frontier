@@ -16,6 +16,7 @@ public class OreBlasterRoundManager : MonoBehaviour
     [SerializeField] MineRenderer mineRenderer;
     [SerializeField] OreBlaster oreBlaster;
     [SerializeField] OreBlasterUpgrades oreBlasterUpgrades;
+    [SerializeField] OreBlasterDailyChallengeDelegator oreBlasterDailyChallengeDelegator;
 
     [SerializeField] private int roundTimer;
     public bool roundInProgress = false;
@@ -60,8 +61,10 @@ public class OreBlasterRoundManager : MonoBehaviour
         audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(oreBlaster.collectedCredits);
-        // Remove all credits
-        oreBlaster.UpdateCreditCount(-oreBlaster.collectedCredits);
+        oreBlasterDailyChallengeDelegator.BlastedOres(oreBlaster.blastedOres);
+        // Remove all credits and ores
+        oreBlaster.collectedCredits = 0;
+        oreBlaster.blastedOres = 0;
 
         roundInfo.SetActive(false);
         roundInProgress = false;
