@@ -517,11 +517,11 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         this.powerUpgradeLevels = data.powerUpgradeLevels;
 
         powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
-        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 1, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
-        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 3, false, false, "", 0, 0, () => {}));
-        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 5, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
-        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 7, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
-        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 9, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
+        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 1, false, false, "", 0, 0, () => {}));
+        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 3, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
+        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 5, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
+        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 8, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
         powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 11, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
 
         int powerIndex = 0;

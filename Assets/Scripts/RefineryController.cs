@@ -158,6 +158,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
         }
 
+        // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
+        if (adDelegator.lobbyAdDisplay) {
+            StartCoroutine(adDelegator.TryShowLobbyReward(cashToAdd));
+        }
+
         if (tutorialManager == null) {
             return;
         }
