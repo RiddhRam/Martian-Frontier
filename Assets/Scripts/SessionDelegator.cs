@@ -51,6 +51,7 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.SetActive(true);
 
         analyticsDelegator.SwitchSession("Team");
+        analyticsDelegator.LogSceneDuration("Team");
 
         Transition();
         SceneManager.LoadScene("Co-op Local");
@@ -62,6 +63,7 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.SetActive(true);
         
         analyticsDelegator.SwitchSession("Solo");
+        analyticsDelegator.LogSceneDuration("Singleplayer");
 
         Transition();
         SceneManager.LoadScene("Loading Screen");
@@ -72,6 +74,7 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.SetActive(true);
         
         analyticsDelegator.SwitchSession(minigameName);
+        analyticsDelegator.LogSceneDuration(minigameName);
 
         Transition();
         SceneManager.LoadScene(minigameName);

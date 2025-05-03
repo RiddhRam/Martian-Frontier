@@ -370,8 +370,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(long rewardAmount) {
 
-        // 34% chance to show, unless ads disabled or already showing or no internet
-        if (rng.NextDouble() > 1f || disableAds || lobbyAdDisplay.activeSelf || !internetReachable) {
+        // 34% chance to show, unless ads disabled or already showing or no internet or first time playing
+        if (rng.NextDouble() > 1f || disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying) {
             yield break;
         }
 
@@ -382,11 +382,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         lobbyAdDisplay.SetActive(true);
 
         while (lobbyRewardTimer > 0) {
-            lobbyAdRewardTimerText.text = timer + "s";
+            lobbyAdRewardTimerText.text = lobbyRewardTimer + "s";
 
             lobbyRewardTimer--;
 
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSecondsRealtime(1);
         }
 
         lobbyAdDisplay.SetActive(false);
