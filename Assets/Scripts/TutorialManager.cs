@@ -90,7 +90,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } else if (tutorialScreenIndex == 3) {
                 playerVehicleDelegation.blockSwitching = true;
                 TellPlayerToMove();
-                yield return new WaitUntil(() => uncollectedMaterialsDelegator.materialCount > 11);
+                yield return new WaitUntil(() => uncollectedMaterialsDelegator.materialCount > 10);
 
             } else if (tutorialScreenIndex == 4) {
                 playerVehicleDelegation.blockSwitching = true;
