@@ -485,7 +485,7 @@ public class LoadingTest
         Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
 
         string[] materialNames = new string[] {"Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium"};
-        int[] materialPrices = new int[] {75, 200, 300, 5000, 15000, 25000, 500000, 1500000, 2500000};
+        int[] materialPrices = new int[] {75, 200, 300, 7500, 20000, 30000, 750000, 2000000, 3000000};
         for (int i = 0; i != materialCount; i++) {
             Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
             Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
