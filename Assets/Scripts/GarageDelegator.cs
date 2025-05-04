@@ -95,7 +95,6 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
                 // Get the prefab and make its panel
                 // Get its values from the prefab
                 DrillerController drillerController = drillers[i].transform.GetChild(1).GetComponent<DrillerController>();
-                int width = drillerController.width;
                 float drillSpeed = drillerController.GetPlayerSpeed();
                 int tier = drillerController.GetDrillTier();
                 long price = drillerController.GetPrice();
@@ -130,8 +129,9 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
                 TextMeshProUGUI profitText = panelTransform.GetChild(7).GetComponent<TextMeshProUGUI>();
                 levelText.text = GetLocalizedValue("LEVEL {0}", level);
                 profitText.text = GetLocalizedValue("PROFIT: +{0}%", GetVehicleProfitMultiplier(drillers[i].name) * 100);
-                panelTransform.GetChild(8).GetChild(1).GetComponent<TextMeshProUGUI>().text = width.ToString();
-                panelTransform.GetChild(9).GetChild(1).GetComponent<Slider>().value = drillSpeed;
+                panelTransform.GetChild(8).GetChild(1).GetComponent<TextMeshProUGUI>().text = drillerController.endurance.ToString();
+                panelTransform.GetChild(9).GetChild(1).GetComponent<TextMeshProUGUI>().text = drillerController.width.ToString();
+                panelTransform.GetChild(10).GetChild(1).GetComponent<Slider>().value = drillSpeed;
 
                 // I made some changes, these comments might be wrong
                 // Multiply the width and height of the panel image relative to the proportion of 
@@ -178,7 +178,7 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
 
                 // Resize the scroll view content height to fit the rows (top padding of tier panels + cell height * rows + vertical spacing between cell rows * (rows - 1))
                 RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 50 + 2500 * rows + 40 * (rows - 1));
+                contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 50 + 2550 * rows + 40 * (rows - 1));
                 tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
                 bigContentHeight += contentRect.sizeDelta.y;
             }
