@@ -4,12 +4,16 @@ using Unity.Services.Analytics;
 using UnityEngine;
 using Firebase.Extensions;
 using Firebase.Analytics;
+using UnityEngine.SceneManagement;
 
 public class AnalyticsDelegator : MonoBehaviour
 {
     private Firebase.FirebaseApp app;
     public static AnalyticsDelegator Instance;
     private bool isInitialized = false;
+
+    private float sceneStartRealtime;
+    private string currentScene;
 
     void Awake()
     {
@@ -26,10 +30,13 @@ public class AnalyticsDelegator : MonoBehaviour
             return;
         }
 
+        currentScene = SceneManager.GetActiveScene().name;
+        sceneStartRealtime = Time.realtimeSinceStartup;
+
         // Wait for initialization in Cloud Delegator
         await Task.Delay(500);
 
-       await Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
+        await Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
             var dependencyStatus = task.Result;
             if (dependencyStatus == Firebase.DependencyStatus.Available) {
                 app = Firebase.FirebaseApp.DefaultInstance;
@@ -43,6 +50,55 @@ public class AnalyticsDelegator : MonoBehaviour
 
         AnalyticsService.Instance.StartDataCollection();
         isInitialized = true;
+    }
+
+    public void LogSceneDuration(string nextScene)
+    {
+        if (!isInitialized) return;
+
+        var ev = new CustomEvent("Scene_Time")
+        {
+            { "Scene", currentScene },
+            { "Duration", Time.realtimeSinceStartup - sceneStartRealtime },
+            { "Next_Scene", nextScene }
+        };
+        AnalyticsService.Instance.RecordEvent(ev);
+        AnalyticsService.Instance.Flush();
+
+        FirebaseAnalytics.LogEvent("Scene_Time",
+            new Parameter("Scene", currentScene),
+            new Parameter("Duration", Time.realtimeSinceStartup - sceneStartRealtime));
+            new Parameter("Next_Scene", nextScene);
+    }
+
+    void OnApplicationPause(bool paused)
+    {
+        if (paused)
+            EndCurrentSceneTimer();   // going to background
+        else
+            ResumeCurrentSceneTimer(); // returning to foreground
+    }
+
+    void OnApplicationQuit()
+    {
+        EndCurrentSceneTimer();       // one last flush before process death
+    }
+
+    private void EndCurrentSceneTimer()
+    {
+        if (currentScene == null) return;
+
+        LogSceneDuration("");
+
+        currentScene = null;  // so we don’t double‑log
+    }
+
+    private void ResumeCurrentSceneTimer()
+    {
+        if (currentScene != null) return;       // already running
+
+        currentScene = SceneManager.GetActiveScene().name;
+        sceneStartRealtime = Time.realtimeSinceStartup;
     }
 
     public void TestEvent(string message) {

@@ -12,10 +12,10 @@ public class BlasterDriller : MonoBehaviour
         PlayerMovement playerMovement = transform.parent.GetComponent<PlayerMovement>();
         playerMovement.SetSpeed(playerMovement.GetSpeed());
         
-        StartCoroutine(HoldPlayerCardStill());
+        StartCoroutine(HoldProgressBarStill());
     }
 
-    private IEnumerator HoldPlayerCardStill() {
+    private IEnumerator HoldProgressBarStill() {
 
         while (true) {
             sliderCanvas.transform.rotation = normalRotation;
