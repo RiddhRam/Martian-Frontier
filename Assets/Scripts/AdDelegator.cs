@@ -359,11 +359,26 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void CrateRewardSuccess() {
+        StartCoroutine(CrateRewardCoroutine());
+    }
+
+    // Need to do this in a coroutine so game doesnt crash on android
+    private IEnumerator CrateRewardCoroutine() {
+        // So game doesnt crash on android
+        yield return new WaitForEndOfFrame();
+
         supplyCrateDelegator.DoubleRewardsActivated();
         dataPersistenceManager.SaveGame();
     }
 
     private void LobbyRewardSuccess() {
+        StartCoroutine(LobbyRewardCoroutine());
+    }
+
+    private IEnumerator LobbyRewardCoroutine() {
+        // So game doesnt crash on android
+        yield return new WaitForEndOfFrame();
+
         playerState.AddCash(lobbyRewardAmount);
         lobbyAdDisplay.SetActive(false);
     }
@@ -570,6 +585,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private IEnumerator StartRewardCountdown(int totalTime) {
 
+        // So game doesnt crash on android
+        yield return new WaitForEndOfFrame();
         speedBoostActive = true;
 
         adButton.SetActive(false);
