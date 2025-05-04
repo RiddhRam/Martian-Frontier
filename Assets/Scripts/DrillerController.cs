@@ -206,7 +206,7 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                drillHeat = Mathf.Min(endurance, drillHeat + highestTierDrilled);
+                drillHeat = Mathf.Min(endurance, drillHeat + (int) Mathf.Pow(highestTierDrilled, 3));
             }
 
             lastMineTime = Time.time;
