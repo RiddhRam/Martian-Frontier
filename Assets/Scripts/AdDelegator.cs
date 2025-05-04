@@ -321,7 +321,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ShowLobbyRewardedAd() {
-        if (disableAds) {
+        if (disableAds || adShowing) {
             return;
         }
 
@@ -338,7 +338,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // ADMOB DISABLE
         if (lobbyAd != null && lobbyAd.CanShowAd())
         {   
-            Debug.Log("Showing ad");
             adShowing = true;
             lobbyAd.Show((Reward reward) =>
             {
