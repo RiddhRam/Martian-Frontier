@@ -234,11 +234,6 @@ public class NPCMovement : MonoBehaviour
             foreach (Vector2Int tilePos in unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Keys) {
                 if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].TryGetValue(tilePos, out int value) && nPCManager.mineRenderer.oreDelegation.VerifyIfOre(value))
                 {
-                    int oreTier = nPCManager.mineRenderer.GetTileTier(nPCManager.mineRenderer.tileValues[value]);
-                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
-                        continue;
-                    }
-
                     oreTiles.Add(tilePos);
                 }
             }

@@ -98,8 +98,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 garageDelegator.blockPanelSwitching = false;
 
-                garageDelegator.DeactivatePanel();
-                garageDelegator.activePanel = "Haulers";
+                garageDelegator.ActivatePanel("Haulers");
                 garageDelegator.openedGarage = false;
 
                 garageArrow.SetActive(true);

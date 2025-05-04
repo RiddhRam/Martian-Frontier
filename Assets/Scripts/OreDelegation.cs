@@ -50,22 +50,6 @@ public class OreDelegation : MonoBehaviour
     }
 
     public void PrepareGrid() {
-        GameObject[] tierPanels = new GameObject[oresPerTier.Length];
-
-        // Create a tier panel for each tier
-        for (int i = 0; i != 3; i++) {
-            GameObject newTierPanel = Instantiate(oreMaterialTierPanel);
-            tierPanels[i] = newTierPanel;
-            Transform panelTransform = tierPanels[i].transform;
-            panelTransform.SetParent(contentGO.transform);
-            // Have to make sure scale is right
-            panelTransform.localScale = new(1, 1, 1);
-            // Get the right translation
-            string tierString = GetLocalizedValue("TIER {0}", i+1);
-            // Set the name
-            panelTransform.GetChild(0).GetComponent<TextMeshProUGUI>().text = tierString;
-        }
-
         // Track number of items in each tier, to dynamically resize content height based on rows
         int[] tierItems = new int[3];
 
@@ -87,7 +71,7 @@ public class OreDelegation : MonoBehaviour
             Transform panelTransform = newMaterialPanel.transform;
             // Add panel to the content scroll view of the right tier panel
             // This should just be a regular panel with a photo
-            panelTransform.SetParent(tierPanels[tier].transform.GetChild(1));
+            panelTransform.SetParent(contentGO.transform);
 
             panelTransform.localScale = new(1, 1, 1);
 
@@ -100,25 +84,12 @@ public class OreDelegation : MonoBehaviour
             tierItems[tier]++;
         }
 
-        float bigContentHeight = 0;
-        // Resize each tier panel
-        for (int i = 0; i != 3; i++) {
-            Transform scrollViewContent = tierPanels[i].transform.GetChild(1);
-            // Calculate the number of rows
-            GridLayoutGroup gridLayoutGroup = scrollViewContent.GetComponent<GridLayoutGroup>();
-            int columns = Mathf.Max(1, Mathf.FloorToInt(scrollViewContent.GetComponent<RectTransform>().rect.width / gridLayoutGroup.cellSize.x));
-            int rows = Mathf.CeilToInt((float) tierItems[i] / columns);
-
-            // Resize the scroll view content height to fit the rows (top padding of tier panels + cell height * rows + vertical spacing between cell rows * (rows - 1))
-            RectTransform contentRect = scrollViewContent.GetComponent<RectTransform>();
-            contentRect.sizeDelta = new Vector2(contentRect.sizeDelta.x, 50 + 1000 * rows + 40 * (rows - 1));
-            tierPanels[i].GetComponent<RectTransform>().sizeDelta = new (0, contentRect.sizeDelta.y);
-            bigContentHeight += contentRect.sizeDelta.y;
-        }
-
+        int rows = 3;
+        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows;
+        
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
-        // Resize the scroll view content height to fit the rows using the height of all panels and then factor in the spacing * (tiers - 1) which is (150 * 2) currently
-        bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, 150 + bigContentHeight + 150 * (tierPanels.Length - 1));
+        // Resize the scroll view content height to fit the rows using the height of all panels
+        bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
     }
 
     // Clear grid when closing, then reprepare it in case user changes language

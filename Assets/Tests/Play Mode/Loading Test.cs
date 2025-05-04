@@ -383,7 +383,6 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.drillersButton.name, "DRILLERS");
         Assert.AreEqual(garageDelegator.drillersPanel.name, "Drillers Panel");
         Assert.AreEqual(garageDelegator.drillersContent.name, "Content");
-        Assert.AreEqual(garageDelegator.drillerTierPanel.name, "Drill Tier Panel");
         Assert.AreEqual(garageDelegator.drillerDisplayPanel.name, "Drill Display Panel");
         Assert.AreEqual(garageDelegator.haulersButton.name, "HAULERS");
         Assert.AreEqual(garageDelegator.haulersPanel.name, "Haulers Panel");
@@ -393,13 +392,7 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
         Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
 
-        Color[] tierColors = { new(57/255f, 255/255f, 20/255f), new(176/255f, 38/255f, 255/255f), new(71/255f, 185/255f, 198/255f) };
-        Assert.AreEqual(garageDelegator.tierColors.Length, tierColors.Length);
-        for (int i = 0; i != tierColors.Length; i++) {
-            Assert.AreEqual(garageDelegator.tierColors[i], tierColors[i]);
-        }
-
-        int drillersCount = 17;
+        int drillersCount = 6;
         Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
         Assert.AreEqual(drillersCount, garageDelegator.drillersImages.Length);
         for (int i = 0; i != drillersCount; i++) {
@@ -408,7 +401,7 @@ public class LoadingTest
             Assert.AreEqual(garageDelegator.drillers[i].name.ToLower(), garageDelegator.drillersImages[i].name.ToLower());
         }
 
-        int haulersCount = 19;
+        int haulersCount = 7;
         Assert.AreEqual(haulersCount, garageDelegator.haulers.Length);
         Assert.AreEqual(haulersCount, garageDelegator.haulersImages.Length);
         for (int i = 0; i != haulersCount; i++) {

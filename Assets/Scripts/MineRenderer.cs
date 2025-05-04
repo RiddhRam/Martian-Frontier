@@ -969,28 +969,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tileTier;
     }
 
-    public int GetTileTier(int tileIndex) {
-        TileBase tileToIdentify = tileValues[tileIndex];
-        
-        tileTier = 1;
-
-        for (int i = 0; i != tileValues.Length; i++) {
-            if (tileToIdentify != tileValues[i]) {
-                continue;
-            }
-
-            for (int j = 0; j != tierThresholds.Length; j++) {
-                if (tierThresholds[j] <= i) {
-                    tileTier = j + 1;
-                }
-            }
-
-            break;
-        }
-
-        return tileTier;
-    }
-
     public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount, float profitMultiplier)
     {
         if (materialPools[materialIndex].Count > 0)
@@ -1234,10 +1212,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 // Check if this tile has ore
                 if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value))
                 {
-                    int oreTier = GetTileTier(tileValues[value]);
-                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
-                        continue;
-                    }
                     oreTiles.Add(tilePos);
                 }
             }

@@ -186,10 +186,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public void FindVehicle(string vehicleName, int[] tempHaulerCargo, float[] tempMaterialProfitMultipliers) {
         // Iterate through all vehicles and find which vehicle it is
         // First check if user used a hauler
-        // Most likely did since a user would probably leave after making some money
         GameObject[] haulers = garageDelegator.GetHaulers();
         for (int i = 0; i != haulers.Length; i++) {
-            if (vehicleName != haulers[i].name) {
+            if (!vehicleName.Contains(haulers[i].name)) {
                 continue;
             }
 
@@ -209,7 +208,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // If wasn't a hauler then it's a driller
         GameObject[] drillers = garageDelegator.GetDrillers();
         for (int i = 0; i != drillers.Length; i++) {
-            if (vehicleName != drillers[i].name) {
+            if (!vehicleName.Contains(drillers[i].name)) {
                 continue;
             }
 

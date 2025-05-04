@@ -37,6 +37,14 @@ public class DrillerController : MonoBehaviour
     private Vector2 size;
     Vector2 rotatedOffset;
 
+    // Endurance
+    private int drillHeat = 0;
+    private readonly float heatCooldownDelay = 1.5f;
+    private readonly float coolRate = 0.5f;
+    private float lastMineTime = -Mathf.Infinity;
+    private int highestTierDrilled = 0;
+
+    // Cache
     private Collider2D[] colliders;
     private Tilemap tilemap;
     private Vector3Int spriteTilePos;
@@ -52,10 +60,6 @@ public class DrillerController : MonoBehaviour
     bool minedSomething;
     public bool isNPC = false;
 
-    private int drillHeat = 0;
-    private readonly float heatCooldownDelay = 1.5f;
-    private readonly float coolRate = 0.5f;
-    private float lastMineTime = -Mathf.Infinity;
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -202,7 +206,7 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                drillHeat = Mathf.Min(endurance, drillHeat + 1);
+                drillHeat = Mathf.Min(endurance, drillHeat + highestTierDrilled);
             }
 
             lastMineTime = Time.time;
@@ -213,6 +217,8 @@ public class DrillerController : MonoBehaviour
                 drillHeat = Mathf.Max(0, (int) (drillHeat - coolRate));
             }
         }
+
+        highestTierDrilled = 0;
 
     }
 
@@ -241,9 +247,8 @@ public class DrillerController : MonoBehaviour
         
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
-        if (drillTier < tileTier) {
-            ErrorWhenDrilling("TIER {0} DRILL IS NEEDED!", tileTier);
-            return;
+        if (highestTierDrilled < tileTier) {
+            highestTierDrilled = tileTier;
         }
 
         currentTilePositions.Add(new(currentTilePos.x, currentTilePos.y));

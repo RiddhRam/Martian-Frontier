@@ -321,12 +321,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         Vector2Int tilemapPos = mineRenderer.CalculateTileMapPos(new(currentTilePos.x, currentTilePos.y));
         int tileIndex = mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][new(currentTilePos.x, currentTilePos.y)];
 
-        // Make sure the drill is capable of destroying this tile
-        int tileTier = mineRenderer.GetTileTier(mineRenderer.tileValues[tileIndex]);
-        if (playerState.GetHighestDrillTier() < tileTier) {            
-            return;
-        }
-
         tilesToDestroy.Add(new(currentTilePos.x, currentTilePos.y));
         tileBasesToDestroy.Add(tilemap.GetTile(currentTilePos));
         tileWorldPositions.Add(tilemap.GetCellCenterWorld(currentTilePos));

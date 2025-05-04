@@ -50,7 +50,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private Slider[] xpDisplaysSliders;
     private TextMeshProUGUI[] xpDisplaysText;
     private GameObject[] drillers;
-    private int highestDrillTier = 1;
+    public int highestDrillTier = 1;
     private bool notSinglePlayerScene;
 
     [SerializeField]
@@ -279,8 +279,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public bool CheckVehicleOwnerShip(string vehicleName) {
 
-        if (vehiclesOwned.Contains(vehicleName)) {
-            return true;
+        foreach (string vehicleOwned in vehiclesOwned) {
+            if (vehicleOwned.Contains(vehicleName)) {
+                return true;
+            }
         }
 
         return false;

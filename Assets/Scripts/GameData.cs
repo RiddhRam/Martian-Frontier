@@ -69,8 +69,8 @@ public class GameData
         this.blocksMined = "0";
         this.materialsSold = "0";
         this.moneyEarned = "0";
-        this.vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
-        this.currentVehicle = "GRINDER I";
+        this.vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
+        this.currentVehicle = "GRINDER";
         this.haulerCargo = new int[9];
         this.materials = new();
         this.refineryBattery = 120;
@@ -105,7 +105,7 @@ public class GameData
         this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
-        this.currentCoopVehicle = "GRINDER I";
+        this.currentCoopVehicle = "GRINDER";
         this.rewardAdTimer = 0;
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
