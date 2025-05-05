@@ -265,7 +265,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(int heat) {
+    public void UpdateOverheatSlider(float heat) {
         slider.value = heat;
     }
 

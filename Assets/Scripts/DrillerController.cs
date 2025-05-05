@@ -52,7 +52,7 @@ public class DrillerController : MonoBehaviour
     bool minedSomething;
     public bool isNPC = false;
 
-    private int drillHeat = 0;
+    private float drillHeat = 0;
     private readonly float heatCooldownDelay = 1.5f;
     private readonly float coolRate = 0.5f;
     private float lastMineTime = -Mathf.Infinity;
@@ -202,7 +202,11 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                drillHeat = Mathf.Min(endurance, drillHeat + 1);
+                float amountToAdd = 1f;
+                if (playerVehicleDelegation.adDelegator.speedBoostActive) {
+                    amountToAdd = 0.5f;
+                }
+                drillHeat = Mathf.Min(endurance, drillHeat + amountToAdd);
             }
 
             lastMineTime = Time.time;
