@@ -42,6 +42,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField] private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
+    [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
     [SerializeField] private GameObject cashTextGO;
@@ -279,8 +280,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public bool CheckVehicleOwnerShip(string vehicleName) {
 
+        (string secondaryName, bool checkSecondaryName) = playerVehicleDelegation.GetMergedVehicleName(vehicleName);
+
         foreach (string vehicleOwned in vehiclesOwned) {
             if (vehicleOwned.Contains(vehicleName)) {
+                return true;
+            } else if (checkSecondaryName && vehicleOwned.Contains(secondaryName)) {
                 return true;
             }
         }
@@ -477,16 +482,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         
         userXP = 0;
         userCash = 0;
-        vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
+        vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
 
         upgradesDelegator.SwapPower(0);
         upgradesDelegator.UpdatePowerVisibility(GetRebirths());
 
         GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
         
-        PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
         playerVehicleDelegation.SwitchVehicle(newVehicle);
-        playerVehicleDelegation.currentCoopVehicle = "GRINDER I";
+        playerVehicleDelegation.currentCoopVehicle = "GRINDER";
 
         // Switch vehicle, then reset mine, to get rid of all materials for sure,
         // because the haulers will drop everything
@@ -501,13 +505,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateCashDisplays();
         UpdateRebirthDisplays();
         UpdateXPDisplays();
-
-        // DO THIS MANUALLY, DONT CALL UpdateHighestDrillTier()
-        highestDrillTier = 1;
-        dailyChallengeDelegator.ScaleAllTiers();
-        lockedRebirthPanel.SetActive(true);
-        rebirthPanel.SetActive(false);
-        rebirthIcon.color = new(1, 1, 1);
     }
 
     private void UpdateRebirthDisplays() {

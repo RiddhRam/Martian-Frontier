@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7266859613148834683}
   - component: {fileID: 8317575811333887239}
   - component: {fileID: 7392620932611929992}
-  - component: {fileID: 531788706375636789}
+  - component: {fileID: 1998292806382725861}
   m_Layer: 3
   m_Name: Player Drill Driller
   m_TagString: Untagged
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 5
-  m_Sprite: {fileID: 21300000, guid: 474a0c1d4895641f495d88e23a5e3e34, type: 3}
+  m_Sprite: {fileID: 21300000, guid: f1a1f024b683040e8a88224170739020, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -101,10 +101,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerVehicleDelegation: {fileID: 0}
   playerSpeed: 4
-  drillTier: 3
+  drillTier: 2
   width: 5
-  endurance: 400
-  price: 3000000000
+  endurance: 280
+  price: 30000000
   profitMultiplier: 0
   isNPC: 0
 --- !u!61 &7392620932611929992
@@ -143,7 +143,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 2.69, y: 1.89}
+    oldSize: {x: 2.69, y: 1.88}
     newSize: {x: 2.69, y: 1.88}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -152,7 +152,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 3.8, y: 1}
   m_EdgeRadius: 0
---- !u!95 &531788706375636789
+--- !u!95 &1998292806382725861
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0
@@ -162,7 +162,7 @@ Animator:
   m_GameObject: {fileID: 4097290298094533797}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 1b8195c84b07e423f8e4bae61c61bab9, type: 2}
+  m_Controller: {fileID: 9100000, guid: 61163f213ab064da3becfbc219427633, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -247,7 +247,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 4
-  m_Sprite: {fileID: 21300000, guid: a3ea3416832ec4bb8bb93735de6188b6, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a54a7610376fd42408630ac13802a38a, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -313,7 +313,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8474527260415442493}
   m_Layer: 3
-  m_Name: BORE
+  m_Name: BORE Surge
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

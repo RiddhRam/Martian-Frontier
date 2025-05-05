@@ -184,12 +184,17 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     // ONLY USED WHEN LOADING
     public void FindVehicle(string vehicleName, int[] tempHaulerCargo, float[] tempMaterialProfitMultipliers) {
+
+        (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
+
         // Iterate through all vehicles and find which vehicle it is
         // First check if user used a hauler
         GameObject[] haulers = garageDelegator.GetHaulers();
         for (int i = 0; i != haulers.Length; i++) {
             if (!vehicleName.Contains(haulers[i].name)) {
-                continue;
+                if (!(checkSecondaryName && haulers[i].name.Contains(secondaryName))) {
+                    continue;
+                }
             }
 
             // Switch to that vehicle
@@ -209,7 +214,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         GameObject[] drillers = garageDelegator.GetDrillers();
         for (int i = 0; i != drillers.Length; i++) {
             if (!vehicleName.Contains(drillers[i].name)) {
-                continue;
+                if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
+                    continue;
+                }
             }
 
             SwitchVehicle(drillers[i]);
@@ -219,6 +226,23 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
             break;
         }
+    }
+
+    // Check to see if this vehicle was merged into another in a previous update
+    public (string secondaryName, bool checkSecondaryName) GetMergedVehicleName(string vehicleName) {
+
+        if (vehicleName.Contains("TURBO TANKER")) {
+            return ("HEAVY", true);
+        } else if (vehicleName.Contains("HEAVY")) {
+            return ("TURBO TANKER", true);
+        } else if (vehicleName.Contains("DASH")) {
+            return ("STUBBY", true);
+        }
+        else if (vehicleName.Contains("STUBBY")) {
+            return ("DASH", true);
+        }
+
+        return ("", false);
     }
 
     public void SaveData(ref GameData data) {

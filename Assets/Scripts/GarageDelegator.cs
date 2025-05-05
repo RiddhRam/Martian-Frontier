@@ -223,9 +223,13 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
     private GameObject FindVehicle(string vehicleName) {
         // Iterate through all vehicles and find which vehicle it is
         // First check if user used a hauler
+        (string secondaryName, bool checkSecondaryName) = playerVehicleDelegation.GetMergedVehicleName(vehicleName);
+
         for (int i = 0; i != haulers.Length; i++) {
             if (!vehicleName.Contains(haulers[i].name)) {
-                continue;
+                if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
+                    continue;
+                }
             }
             
             return haulers[i];
@@ -234,7 +238,9 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
         // If wasn't a hauler then it's a driller
         for (int i = 0; i != drillers.Length; i++) {
             if (!vehicleName.Contains(drillers[i].name)) {
-                continue;
+                if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
+                    continue;
+                }
             }
 
             return drillers[i];

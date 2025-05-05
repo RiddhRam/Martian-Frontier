@@ -5,10 +5,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     private SerializableDictionary<string, int> vehicleUpgradeLevels;
 
-    private readonly Color vertexColor = new(200/255f, 252/255f, 6/255f);
-    private readonly Color surgeColor = new(224/255f, 40/255f, 240/255f);
-    private readonly Color cryoColor = new(86/255f, 226/255f, 241/255f);
-
     /*public void OnUpgradeButtonClick (string vehicleName, Transform upgradeButton, TextMeshProUGUI level, TextMeshProUGUI profit) {
         int gemPrice = upgradeGemPrices[GetVehicleLevel(vehicleName)];
 
