@@ -10,7 +10,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
-    public string vehicleType;
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
@@ -23,7 +22,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     // For tutorial
     public bool blockSwitching = false;
-    public HaulerController haulerController3;
+
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
 
@@ -48,25 +47,15 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         if (newVehicle.name == oldVehicle.name && !loading) {
             // User is already in this vehicle, do nothing
+            Debug.Log("Returning");
+            if (!notSinglePlayerScene) {
+                currentVehicle = oldVehicle.name;
+            } else {
+                currentCoopVehicle = oldVehicle.name;
+            }
             return;
         }
         loading = false;
-
-        HaulerController haulerController1 = oldVehicle.GetComponent<HaulerController>();
-
-        if (haulerController1) {
-            int[] materialCount = haulerController1.GetMaterialCount();
-            float[] materialProfitMultipliers = haulerController1.GetMaterialProfitMultipliers();
-
-            for (int i = 0; i != materialCount.Length; i++) {
-                // Should never be less than zero but just in case
-                if (materialCount[i] <= 0) {
-                    continue;
-                }
-
-                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i], materialProfitMultipliers[i]);
-            }
-        }
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
         Destroy(oldVehicle);
@@ -95,40 +84,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
         
         float playerSpeed;
-        
-        HaulerController haulerController2 = playerVehicle.GetComponent<HaulerController>();
-        
-        // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
-        if (haulerController2) {
-            // Display the hauler cargo button
-            cargoInfo.SetActive(true);
-            UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
-            playerSpeed = haulerController2.GetPlayerSpeed();
-            playerSpeed = UpdateOriginalSpeed(playerSpeed);
-            // Speed boost to new players
-            if (firstTimePlaying) {
-                playerSpeed *= speedBoostAmount;
-            }
-            gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
 
-            vehicleType = "Hauler";
-
-            haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
-            haulerController3 = haulerController2;
-
-            if (holdProgressBarStill != null) {
-                StopCoroutine(holdProgressBarStill);
-                sliderCanvas.gameObject.SetActive(false);
-                holdProgressBarStill = null;
-            }
-
-            analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
-            return;
-        }
-
-        // If not a hauler, hide the hauler cargo button
-        cargoInfo.SetActive(false);
-        UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);
         DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
@@ -137,8 +93,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed *= speedBoostAmount;
         }
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-
-        vehicleType = "Driller";
         
         drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
         drillerController.playerVehicleDelegation = this;
@@ -159,7 +113,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
-            FindVehicle(currentCoopVehicle, null, null);
+            FindVehicle(currentCoopVehicle);
             return;
         }
 
@@ -172,43 +126,18 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         this.currentVehicle = data.currentVehicle;
         this.loadPlayerPos = data.playerPos;
         this.loadRotate = data.playerRotation;
-        // Hauler cargo is loaded lower down
-        // It's saved to this temp variable because otherwise it magically gets wiped I don't know how
-        int[] tempHaulerCargo = data.haulerCargo;
-        float[] tempMaterialProfitMultipliers = data.materialProfitMultipliers;
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
-        FindVehicle(currentVehicle, tempHaulerCargo, tempMaterialProfitMultipliers);
+        FindVehicle(currentVehicle);
     }
 
     // ONLY USED WHEN LOADING
-    public void FindVehicle(string vehicleName, int[] tempHaulerCargo, float[] tempMaterialProfitMultipliers) {
+    public void FindVehicle(string vehicleName) {
 
         (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
 
         // Iterate through all vehicles and find which vehicle it is
-        // First check if user used a hauler
-        GameObject[] haulers = garageDelegator.GetHaulers();
-        for (int i = 0; i != haulers.Length; i++) {
-            if (!vehicleName.Contains(haulers[i].name)) {
-                if (!(checkSecondaryName && haulers[i].name.Contains(secondaryName))) {
-                    continue;
-                }
-            }
-
-            // Switch to that vehicle
-            SwitchVehicle(haulers[i]);
-            
-            if (!notSinglePlayerScene) {
-                HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
-                haulerController.SetMaterialProfitMultipliers(tempMaterialProfitMultipliers);
-                haulerController.SetMaterialCount(tempHaulerCargo);
-                playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
-            }
-            
-            return;
-        }
 
         // If wasn't a hauler then it's a driller
         GameObject[] drillers = garageDelegator.GetDrillers();
@@ -225,6 +154,12 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             }
 
             break;
+        }
+
+        // If it reaches here, no vehicle was found, so we just set the player to use the first drill
+        SwitchVehicle(drillers[0]);
+        if (!notSinglePlayerScene) {
+            playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
         }
     }
 
@@ -256,22 +191,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         data.currentVehicle = this.currentVehicle;
 
         if (!playerVehicle) {
-            data.haulerCargo = new int[9];
             return;
         }
 
         data.playerPos = playerVehicle.transform.parent.position;
         data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
-
-        HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
-        if (haulerController) {
-            data.haulerCargo = haulerController.GetMaterialCount();
-            data.materialProfitMultipliers = haulerController.GetMaterialProfitMultipliers();
-        } else {
-            data.haulerCargo = new int[9];
-            data.materialProfitMultipliers = new float[9];
-        }
-        
     }
 
     private float UpdateOriginalSpeed(float playerSpeed) {

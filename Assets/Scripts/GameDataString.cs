@@ -11,9 +11,7 @@ public class GameDataString
     public string playerRotation;
     public string vehiclesOwned;
     public string currentVehicle;
-    public string haulerCargo;
-    // Uncollected materials
-    public string materials;
+
     public string refineryBattery;
     public string destroyedTilemapsTileValues;
     public string revealedTilemapsTileValues;
@@ -64,8 +62,7 @@ public class GameDataString
         this.moneyEarned = null;
         this.vehiclesOwned = null;
         this.currentVehicle = null;
-        this.haulerCargo = null;
-        this.materials = null;
+
         this.refineryBattery = null;
         this.destroyedTilemapsTileValues = null;
         this.revealedTilemapsTileValues = null;        

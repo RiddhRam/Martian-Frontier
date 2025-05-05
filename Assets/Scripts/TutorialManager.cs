@@ -10,11 +10,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public PlayerVehicleDelegation playerVehicleDelegation;
     public GarageDelegator garageDelegator;
     public RefineryController refineryController;
-    public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
+    //public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
     public SupplyCrateDelegator supplyCrateDelegator;
     public SessionDelegator sessionDelegator;
     public UpgradesDelegator upgradesDelegator;
-    public DestroyMaterial destroyMaterial;
+
     public GameObject ResetMine;
     public GameObject TutorialUIParent;
     public GameObject powerIndicator;
@@ -39,7 +39,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     {
         ResetMine.SetActive(false);
         // Player cannot destroy materials during tutorial
-        destroyMaterial.preventDestruction = true;
+        //destroyMaterial.preventDestruction = true;
 
         // Wait for the loading screen to be destroyed
         yield return new WaitUntil(() => !loadingScreen.activeSelf);
@@ -90,7 +90,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } else if (tutorialScreenIndex == 3) {
                 playerVehicleDelegation.blockSwitching = true;
                 TellPlayerToMove();
-                yield return new WaitUntil(() => uncollectedMaterialsDelegator.materialCount > 10);
+                //yield return new WaitUntil(() => uncollectedMaterialsDelegator.materialCount > 10);
 
             } else if (tutorialScreenIndex == 4) {
                 playerVehicleDelegation.blockSwitching = true;
@@ -98,7 +98,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 garageDelegator.blockPanelSwitching = false;
 
-                garageDelegator.ActivatePanel("Haulers");
+                //garageDelegator.ActivatePanel("Haulers");
                 garageDelegator.openedGarage = false;
 
                 garageArrow.SetActive(true);
@@ -121,10 +121,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 
                 playerVehicleDelegation.blockSwitching = false;
                 // In case reloading game
-                if (garageDelegator.activePanel != "Haulers") {
+                /*if (garageDelegator.activePanel != "Haulers") {
                     tutorialScreenIndex = 4;
                     continue;
-                }
+                }*/
 
                 Coroutine flashButton = StartCoroutine(garageDelegator.FlashDeployButton());
 
@@ -135,10 +135,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 }
 
                 // Player closed panel without deploying the hauler
-                if (playerVehicleDelegation.vehicleType != "Hauler") {
+                /*if (playerVehicleDelegation.vehicleType != "Hauler") {
                     tutorialScreenIndex = 4;
                     continue;
-                }
+                }*/
 
             } else if (tutorialScreenIndex == 6) {
                 playerVehicleDelegation.blockSwitching = true;
@@ -157,20 +157,20 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 }
                 
             } else if (tutorialScreenIndex == 7) {
-                Vector3 newPos = uncollectedMaterialsDelegator.GetRandomMaterialLocation(1) + new Vector3(0, 6, 0);
+                //Vector3 newPos = uncollectedMaterialsDelegator.GetRandomMaterialLocation(1) + new Vector3(0, 6, 0);
                 // Mine didn't load properly yet
                 // uncollectedMaterialsDelegator.GetRandomMaterialLocation(1) returns (0, -6, 0) then we add (0, 6, 0) which gives (0, 0,0 )
-                if (Vector3.Distance(newPos, new(0, 0, 0)) < 0.2f) {
+                /*if (Vector3.Distance(newPos, new(0, 0, 0)) < 0.2f) {
                     tutorialScreenIndex = 6;
                     yield return new WaitForSeconds(2f);
                     continue;
                 }
 
-                enterMineArrow.transform.position = newPos;
+                enterMineArrow.transform.position = newPos;*/
                 enterMineArrow.SetActive(true);
                 arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
 
-                yield return new WaitUntil(() => playerVehicleDelegation.haulerController3.GetTotalMaterialCount() > 0);
+                //yield return new WaitUntil(() => playerVehicleDelegation.haulerController3.GetTotalMaterialCount() > 0);
 
                 enterMineArrow.SetActive(false);
                 if (arrowAnimation != null) {
@@ -194,7 +194,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         ResetMine.SetActive(true);
-        destroyMaterial.preventDestruction = false;
+        //destroyMaterial.preventDestruction = false;
         playerVehicleDelegation.blockSwitching = false;
         garageDelegator.blockPanelSwitching = false;
 

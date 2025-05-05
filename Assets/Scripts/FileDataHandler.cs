@@ -129,15 +129,6 @@ public class FileDataHandler
 
                 correspondingField.SetValue(tempData, newArray);
             } 
-            else if (fieldType == typeof(SerializableDictionary<string, MaterialManagerData>)) {
-                // Same as below intDictData
-                // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
-                value = "{" + value + "}";
-
-                SerializableDictionary<string, MaterialManagerData> materialManagerData = JsonUtility.FromJson<SerializableDictionary<string, MaterialManagerData>>(value);
-                correspondingField.SetValue(tempData, materialManagerData);
-            }
             else if (fieldType == typeof(SerializableDictionary<string, int>)) {
                 // Same as above materialManagerData
                 // Trim the outer [ ] and also turn the url encoding back to quotation marks
@@ -325,23 +316,16 @@ public class FileDataHandler
 
                 jsonBuilder.Append("]\",\n");
             }
-            else if (fieldValue is SerializableDictionary<string, MaterialManagerData> materialDictionaryArray) {
-
-                // Same as intDictionaryArray
-                string json = JsonUtility.ToJson(materialDictionaryArray);
-                json = json.Trim('{', '}');
-                json = json.Replace("\"", "%22");
-                json = "\"[" + json + "]\"";
-
-                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
-            }
+            // For upgrade arrays
             else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray) {
-
-                // Same as materialDictionaryArray
                 string json = JsonUtility.ToJson(intDictionaryArray);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
                 json = "\"[" + json + "]\"";
+
+                if (useEncryption) {
+                    json = EncryptDecrypt(json, true);
+                }
 
                 jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
             }

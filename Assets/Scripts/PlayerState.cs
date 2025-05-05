@@ -149,10 +149,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             string vehicleType = null;
             int tier = 0;
 
-            if (objectBeingPurchased.GetComponent<HaulerController>()) {
-                vehicleType = "Hauler";
-                dailyChallengeDelegator.PurchasedVehicle(1);
-            } else if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
+            if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
                 vehicleType = "Driller";
                 tier = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
                 dailyChallengeDelegator.PurchasedVehicle(0);
@@ -268,14 +265,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateSubtractedAmount(GameObject objectBeingPurchased) {
-        // If hauler
-        if (objectBeingPurchased.GetComponent<HaulerController>()) {
-            savedAmountSubtract = objectBeingPurchased.GetComponent<HaulerController>().GetPrice();
-        } 
         // If driller
-        else {
-            savedAmountSubtract = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetPrice();
-        }
+        savedAmountSubtract = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetPrice();
     }
 
     public bool CheckVehicleOwnerShip(string vehicleName) {

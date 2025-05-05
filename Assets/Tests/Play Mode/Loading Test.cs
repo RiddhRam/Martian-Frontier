@@ -384,10 +384,6 @@ public class LoadingTest
         Assert.AreEqual(garageDelegator.drillersPanel.name, "Drillers Panel");
         Assert.AreEqual(garageDelegator.drillersContent.name, "Content");
         Assert.AreEqual(garageDelegator.drillerDisplayPanel.name, "Drill Display Panel");
-        Assert.AreEqual(garageDelegator.haulersButton.name, "HAULERS");
-        Assert.AreEqual(garageDelegator.haulersPanel.name, "Haulers Panel");
-        Assert.AreEqual(garageDelegator.haulersContent.name, "Content");
-        Assert.AreEqual(garageDelegator.haulerDisplayPanel.name, "Haul Display Panel");
         Assert.AreEqual(garageDelegator.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
         Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
@@ -399,15 +395,6 @@ public class LoadingTest
             Assert.True(garageDelegator.drillers[i].name != "");
             Assert.True(garageDelegator.drillers[i].name != null);
             Assert.AreEqual(garageDelegator.drillers[i].name.ToLower(), garageDelegator.drillersImages[i].name.ToLower());
-        }
-
-        int haulersCount = 7;
-        Assert.AreEqual(haulersCount, garageDelegator.haulers.Length);
-        Assert.AreEqual(haulersCount, garageDelegator.haulersImages.Length);
-        for (int i = 0; i != haulersCount; i++) {
-            Assert.True(garageDelegator.haulers[i].name != "");
-            Assert.True(garageDelegator.haulers[i].name != null);
-            Assert.AreEqual(garageDelegator.haulers[i].name.ToLower(), garageDelegator.haulersImages[i].name.ToLower());
         }
 
         // Tutorial
@@ -427,7 +414,6 @@ public class LoadingTest
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER I");
 
         playerVehicle = GameObject.Find("Player Vehicle");
-        Assert.False(playerVehicle.GetComponent<RecordingMovement>().isActiveAndEnabled);
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
 
         playerMovement = playerVehicle.GetComponent<PlayerMovement>();
@@ -657,9 +643,6 @@ public class LoadingTest
 
         Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);
         Assert.False(garagePanel.activeSelf);
-
-        Assert.True(playerVehicle.GetComponent<PlayerVehicleDelegation>().playerVehicle.name == "STUBBY");
-        Assert.True(playerVehicle.GetComponent<PlayerVehicleDelegation>().vehicleType == "Hauler");
 
         Assert.True(tutorialManager.oreRefineryCanvas.activeSelf);
         Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));

@@ -71,40 +71,20 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     void OnTriggerEnter2D(Collider2D collision)
     {
-        HaulerController haulerController = collision.gameObject.GetComponent<HaulerController>();
+        /*HaulerController haulerController = collision.gameObject.GetComponent<HaulerController>();
 
         // Make sure it was a hauler that collides, only haulers will have a HaulerController
         if (!haulerController) {
             return;
-        }
-        
-        int[] materialCount = haulerController.GetMaterialCount();
-        float[] materialProfitMultipliers = haulerController.GetMaterialProfitMultipliers();
+        }*/
 
-        int preSale = haulerController.GetTotalMaterialCount();
+        //int preSale = haulerController.GetTotalMaterialCount();
 
-        // Track what's being added so we can verify the cash amount
-        int[] savedMaterialCount = new int[materialCount.Length];
-
-        // Refinery each ore by reducing refinery battery and adding money to user's account
-        for (int i = 0; i != materialCount.Length; i++) {
-            // Have to start j in the negative because the values will meet in the middle at 0
-            // j increases by 1, but materialCount[i] also decreases by 1
-            for (int j = -materialCount[i]; j < materialCount[i]; j++) {
-                if (refineryBattery <= 0) {
-                    break;
-                }
-                
-                refineryBattery -= 1;
-                materialCount[i]--;
-                savedMaterialCount[i]++;
-            }
-        }
-
-        int change = preSale - haulerController.GetTotalMaterialCount();
+        //int change = preSale - haulerController.GetTotalMaterialCount();
+        int change = 0;
         materialsSold += change;
         dailyChallengeDelegator.SoldOres(change);
-        playerState.NewMaterialsSold(change, haulerController.CheckIfNpc());
+        //playerState.NewMaterialsSold(change, haulerController.CheckIfNpc());
 
         if (materialsSold >= 200 && !askedForReview && doneLoading) {
             askedForReview = true;
@@ -135,28 +115,24 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         UpdateRefineryProgressBars();
 
-        // Calculate how much money to add
         long cashToAdd = 0;
-        for (int i = 0; i != savedMaterialCount.Length; i++) {
-            cashToAdd += (long) (savedMaterialCount[i] * materialPrices[i] * (1 + materialProfitMultipliers[i]));
-        }
 
         // Should never be less than 0
         if (cashToAdd <= 0) {
             return;
         }
 
-        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier() * (1 + haulerController.GetProfitMultiplier()));
+        //cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier() * (1 + haulerController.GetProfitMultiplier()));
 
         // Verify that this is the right amount
-        playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
+        /*playerState.AddCash(cashToAdd, haulerController.CheckIfNpc());
         haulerController.SetMaterialCount(materialCount);
         haulerController.ShowFloatingText("$" + FormatPrice(cashToAdd));
         PlaySaleNoise();
 
         if (!haulerController.CheckIfNpc()) {
             analyticsDelegator.DropOffOres(collision.name, haulerController.GetTotalMaterialCount(), cashToAdd);
-        }
+        }*/
 
         // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
         if (adDelegator.lobbyAdDisplay) {

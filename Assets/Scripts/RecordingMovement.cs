@@ -44,11 +44,11 @@ public class RecordingMovement : MonoBehaviour
     void OnEnable() {
         SetSpeed(5);
 
-        if (transform.GetChild(0).GetComponent<HaulerController>()) {
+        /*if (transform.GetChild(0).GetComponent<HaulerController>()) {
             writeMode = false;
             moveCounter = 0;
             return;
-        }
+        }*/
 
         writeMode = true;
         drillMoves.Clear();

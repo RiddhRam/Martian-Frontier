@@ -53,7 +53,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Uppercase names
     private string[] materialNames;
     private int[] materialPrices;
-    public UncollectedMaterialsDelegator materialsDelegator;
+
     [SerializeField]
     private int seed;
     public int highestRow = 0;
@@ -830,7 +830,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         Random.InitState(this.seed);
         seedInUse = this.seed;
 
-        GenerateMaterials();
         InitializeMine();
 
         coopMineLoaded = true;
@@ -858,20 +857,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // This doesn't necessarily mean the player is new, just that a new mine is needed
         this.mineInitialization = data.mineInitialization;
 
-        SerializableDictionary<string, MaterialManagerData> savedMaterials = data.materials;
         this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
 
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
-
-        GenerateMaterials();
-
-        foreach (string id in savedMaterials.Keys) {
-            // Copy all the saved values into the loaded material
-            MaterialManagerData savedMaterialManager = savedMaterials[id];
-            GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count, savedMaterialManager.drillProfitMultiplier);
-        }
 
         if (mineInitialization == 2) {
             LoadTiles();
@@ -888,22 +878,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         soloMineLoaded = true;
     }
 
-    public void GenerateMaterials() {
-        // Create pools of materials before loading materials
-        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
-
-        for (int i = 0; i != materialPools.Length; i++) {
-            materialPools[i] = new Queue<GameObject>();
-            // Create the right amount of each material according to each pool size
-            for (int j = 0; j != materialPoolSizes[i]; j++) {
-                GameObject newMaterial = Instantiate(materials[i]);
-                newMaterial.SetActive(false);
-                materialPools[i].Enqueue(newMaterial);
-                newMaterial.transform.SetParent(materialsDelegator.transform);
-            }
-        }
-    }
-
     public void SaveData(ref GameData data) {
         if (notSinglePlayerScene) {
             return;
@@ -914,7 +888,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             return;
         }
 
-        data.materials = materialsDelegator.uncollectedMaterials;
         data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
         data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
         data.seed = this.seed;
@@ -969,41 +942,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tileTier;
     }
 
-    public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount, float profitMultiplier)
-    {
-        if (materialPools[materialIndex].Count > 0)
-        {
-            obj = materialPools[materialIndex].Dequeue();
-        }
-        else
-        {
-            // Expand the pool if empty
-            obj = Instantiate(materials[materialIndex]);
-        }
-
-        obj.transform.position = materialPosition;
-        obj.SetActive(true);
-        materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount, profitMultiplier);
-
-        currentMineValue += materialPrices[materialIndex] * materialCount;
-        mineValueText.text = FormatPrice(currentMineValue);
-        //return obj;
-    }
-
-    // Method to return an object to the pool
-    public void ReturnMaterialObject(GameObject obj, int materialIndex, string materialID)
-    {
-        try {
-            currentMineValue -= materialPrices[materialIndex] * materialsDelegator.uncollectedMaterials[materialID].count;
-            mineValueText.text = FormatPrice(currentMineValue);
-        } catch {
-        }
-        materialsDelegator.RemoveMaterial(materialID);
-        
-        obj.SetActive(false);
-        materialPools[materialIndex].Enqueue(obj);
-    }
-
     public GameObject GetTilemapObject()
     {
         obj = mineTilemaps[0];
@@ -1044,15 +982,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             yield break;
         } else {
             alreadyBeingReturned = true;
-        }
-
-        // Return materials, TODO: FIX PERFORMANCE OPTIMIZATION HERE
-        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
-        MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
-
-        for (int i = 0; i < taggedObjects.Length; i++)
-        {
-            materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
         }
 
         // Reset the mine        
@@ -1096,21 +1025,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 counter++;
             }
         }
-
-        // Only 6 materials per 3 frames
-        for (int j = 0; j < materials.Length;) {
-            for (int i = 0; i < 6; i++, j++) {
-                if (j >= materials.Length) {
-                    break;
-                }
-                ReturnMaterialObject(materials[j].gameObject, materials[j].materialIndex, materials[j].id);
-            }
-            
-            yield return null;
-            yield return null;
-            yield return null;
-        }
-
         alreadyBeingReturned = false;
     }
 

@@ -17,9 +17,6 @@ public class GameData
     public float playerRotation;
     public List<string> vehiclesOwned;
     public string currentVehicle;
-    public int[] haulerCargo;
-    // Uncollected materials
-    public SerializableDictionary<string, MaterialManagerData> materials;
     public float refineryBattery;
     // Keep track of both in user used a vision boost when destroying tiles. Reveal all tiles first, then set destroyed ones to null
     public SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
@@ -71,8 +68,7 @@ public class GameData
         this.moneyEarned = "0";
         this.vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
         this.currentVehicle = "GRINDER";
-        this.haulerCargo = new int[9];
-        this.materials = new();
+
         this.refineryBattery = 120;
         // SEARCH FOR [42] TO FIND ALL OCCURRENCES OF THE LENGTH, THERE MAY BE MORE IN DEPTH STUFF IN MineRenderer.cs
         this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];

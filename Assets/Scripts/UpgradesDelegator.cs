@@ -45,9 +45,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     Vector3Int spriteTilePos;
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
-    GameObject materialToUse;
-    private MaterialManager newMaterialManager;
-    private Collider2D[] hitColliders;
+
     ExplosionController explosionController;
 
     private List<string> equippedPowers = new();
@@ -255,45 +253,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             }
 
             mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true);
-        }
-
-        for (int j = 0; j != tileWorldPositions.Count; j++) {
-            for (int i = 0; i != ores.Length; i++) {
-                if (tileBasesToDestroy[j] != ores[i]) {
-                    continue;
-                }
-
-                materialToUse = materials[i];
-
-                // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-                int oldCount = 0;
-                hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], 3);
-
-                foreach (var hitCollider in hitColliders)
-                {      
-                    // Make sure a gameobject was hit
-                    if (hitCollider == null) {
-                        continue;
-                    }
-                    
-                    // Make sure they are the same materials
-                    if (hitCollider.name != materialToUse.name + "(Clone)") {
-                        continue;
-                    }
-            
-                    // If a neighbouring material was found, return to object pool,
-                    // and keep track of the count of the object
-                    // Don't set oldCount, use += in case there are more than 1;
-                    // Also don't break for the same reason
-                    newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                    oldCount += newMaterialManager.count;
-
-                    mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
-                }
-
-                mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, 0);
-                break;
-            }
         }
 
         tileWorldPositions.Clear();

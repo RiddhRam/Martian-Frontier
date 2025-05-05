@@ -13,21 +13,8 @@ public class GarageDelegator : MonoBehaviour
     private TextMeshProUGUI[] drillerWidthTexts;
     private Slider[] drillerSpeedSliders;
 
-    public GameObject haulersButton;
-    public GameObject haulersPanel;
-    public Transform haulersContent;
-    public GameObject haulerDisplayPanel;
-    private TextMeshProUGUI[] cargoTexts;
-    private TextMeshProUGUI[] haulerWidthTexts;
-    private Slider[] haulerSpeedSliders;
-
     public GameObject[] drillers;
     public Sprite[] drillersImages;
-
-    public GameObject[] haulers;
-    public Sprite[] haulersImages;
-
-    public string activePanel = "Drillers";
 
     public bool openedGarage = false;
 
@@ -42,37 +29,12 @@ public class GarageDelegator : MonoBehaviour
     public bool blockPanelSwitching;
 
     void Start() {
-        // Haulers
-        cargoTexts = new TextMeshProUGUI[haulersContent.childCount];
-        haulerWidthTexts = new TextMeshProUGUI[haulersContent.childCount];
-        haulerSpeedSliders = new Slider[haulersContent.childCount];
-
-        Transform panel;
-
-        for (int i = 0; i != haulersContent.childCount; i++) {
-
-            panel = haulersContent.GetChild(i);
-
-            cargoTexts[i] = panel.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>();
-            haulerWidthTexts[i] = panel.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>();
-            haulerSpeedSliders[i] = panel.GetChild(7).GetChild(1).GetComponent<Slider>();
-            UpdateVehicleGarageAppearance(i, "Hauler");
-
-            // If already purchased
-            if (playerState.CheckVehicleOwnerShip(panel.name)) {
-                PurchasedVehicle(panel);
-            } 
-            // Otherwise show the price
-            else {
-                long price = GetHaulerController(i).GetPrice();
-                panel.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + playerState.FormatPrice(price);
-            }
-        }
-
         // Drillers
         heatLimitTexts = new TextMeshProUGUI[drillersContent.childCount];
         drillerWidthTexts = new TextMeshProUGUI[drillersContent.childCount];
         drillerSpeedSliders = new Slider[drillersContent.childCount];
+
+        Transform panel;
 
         for (int i = 0; i != drillersContent.childCount; i++) {
 
@@ -81,7 +43,7 @@ public class GarageDelegator : MonoBehaviour
             heatLimitTexts[i] = panel.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>();
             drillerWidthTexts[i] = panel.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>();
             drillerSpeedSliders[i] = panel.GetChild(7).GetChild(1).GetComponent<Slider>();
-            UpdateVehicleGarageAppearance(i, "Driller");
+            UpdateVehicleGarageAppearance(i);
 
             // If already purchased
             if (playerState.CheckVehicleOwnerShip(panel.name)) {
@@ -95,25 +57,12 @@ public class GarageDelegator : MonoBehaviour
         }
     }
 
-    private void UpdateVehicleGarageAppearance(int index, string vehicleType) {
-        if (vehicleType == "Hauler") {
-            HaulerController haulerController = GetHaulerController(index);
-
-            cargoTexts[index].text = haulerController.GetMaxMaterials().ToString();
-            haulerWidthTexts[index].text = haulerController.width.ToString();
-            haulerSpeedSliders[index].value = haulerController.GetPlayerSpeed();
-            return;
-        }
-
+    private void UpdateVehicleGarageAppearance(int index) {
         DrillerController drillerController = GetDrillerController(index);
 
         heatLimitTexts[index].text = drillerController.endurance.ToString();
         drillerWidthTexts[index].text = drillerController.width.ToString();
         drillerSpeedSliders[index].value = drillerController.GetPlayerSpeed();
-    }
-
-    private HaulerController GetHaulerController(int index) {
-        return haulers[index].GetComponent<HaulerController>();
     }
 
     private DrillerController GetDrillerController(int index) {
@@ -148,50 +97,6 @@ public class GarageDelegator : MonoBehaviour
         }
     }
 
-    public void ActivatePanel(string panel) {
-        if (blockPanelSwitching) {
-            uIDelegation.ShowError("FINISH THE TUTORIAL FIRST");
-            return;
-        }
-
-        DeactivatePanel();
-
-        // If drillers
-        if (panel == "Drillers") {
-            drillersPanel.SetActive(true);
-            drillersButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-            drillersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
-            
-            activePanel = "Drillers";
-            return;
-        }
-
-        // If haulers
-        haulersPanel.SetActive(true);
-        haulersButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-        haulersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
-        activePanel = "Haulers";
-    }
-
-    public void DeactivatePanel() {
-        if (blockPanelSwitching) {
-            return;
-        }
-
-        // If drillers
-        if (activePanel == "Drillers") {
-            drillersPanel.SetActive(false);
-            drillersButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-            drillersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
-            return;
-        }
-
-        // If haulers
-        haulersPanel.SetActive(false);
-        haulersButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-        haulersButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
-    }
-
     public void BuyVehicle (Transform panelPurchasingFrom) {
 
         GameObject vehicle = FindVehicle(panelPurchasingFrom.name);
@@ -202,11 +107,7 @@ public class GarageDelegator : MonoBehaviour
             return;
         }
 
-        if (vehicle.GetComponent<HaulerController>()) {
-            playerState.SubtractCash(vehicle.GetComponent<HaulerController>().GetPrice(), vehicle);
-        } else {
-            playerState.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
-        }
+        playerState.SubtractCash(vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPrice(), vehicle);
 
         // If purchase was successful
         if (playerState.CheckVehicleOwnerShip(vehicle.name)) {
@@ -222,16 +123,6 @@ public class GarageDelegator : MonoBehaviour
         // Iterate through all vehicles and find which vehicle it is
         // First check if user used a hauler
         (string secondaryName, bool checkSecondaryName) = playerVehicleDelegation.GetMergedVehicleName(vehicleName);
-
-        for (int i = 0; i != haulers.Length; i++) {
-            if (!vehicleName.Contains(haulers[i].name)) {
-                if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
-                    continue;
-                }
-            }
-            
-            return haulers[i];
-        }
 
         // If wasn't a hauler then it's a driller
         for (int i = 0; i != drillers.Length; i++) {
@@ -263,10 +154,6 @@ public class GarageDelegator : MonoBehaviour
 
     public GameObject[] GetDrillers() {
         return drillers;
-    }
-
-    public GameObject[] GetHaulers() {
-        return haulers;
     }
 
     public float GetVehicleProfitMultiplier(string vehicleName) {

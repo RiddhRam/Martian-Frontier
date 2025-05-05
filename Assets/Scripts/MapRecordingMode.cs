@@ -8,7 +8,6 @@ public class MapRecordingMode : MonoBehaviour
     public Transform playerVehicle;
     public GameObject mapText;
     public PlayerState playerState;
-    public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
 
     public TextMeshProUGUI cargoValueText;
     public TextMeshProUGUI depthText;
@@ -133,7 +132,6 @@ public class MapRecordingMode : MonoBehaviour
             return;
         }
 
-        mineValueText.text = "$" + FormatPrice(uncollectedMaterialsDelegator.GetMineValue() - originalMineValue);
         cashEarnedValueText.text = "$" + FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
     }
 
@@ -228,13 +226,7 @@ public class MapRecordingMode : MonoBehaviour
         if (!notSingleplayerScene) {
             mineValueText.transform.parent.parent.parent.gameObject.SetActive(false);
             Camera.main.orthographicSize = 26f;
-        } else {
-            originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
-            originalCashEarned = playerState.GetMoneyEarned();
-            //GetComponent<Camera>().orthographicSize = 162;
-            GetComponent<Camera>().orthographicSize = 125;
         }
-        
         //Camera.main.orthographicSize = 30;
 
         /*
