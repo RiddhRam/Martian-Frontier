@@ -1,7 +1,20 @@
+using UnityEditor.Animations;
 using UnityEngine;
 
 public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 {
+    [Header("Drill Bodies")]
+    [SerializeField] Sprite[] grinderBodies;
+    [SerializeField] Sprite[] twinBodies;
+    [SerializeField] Sprite[] viperBodies;
+    [SerializeField] Sprite[] specterBodies;
+    [SerializeField] Sprite[] tempestBodies;
+    [SerializeField] Sprite[] boreBodies;
+
+    [Header("Drill Drillers")]
+    [SerializeField] Sprite[] baseDrills;
+    [SerializeField] Sprite[] wideDrills;
+    [SerializeField] AnimatorController[] boreDrills;
 
     private SerializableDictionary<string, int> vehicleUpgradeLevels;
 

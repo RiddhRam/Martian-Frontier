@@ -1,0 +1,82 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7847215067739206082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7830850851919390988}
+  - component: {fileID: 7980692916062527447}
+  m_Layer: 0
+  m_Name: Vehicle Upgrade Bay Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7830850851919390988
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7847215067739206082}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7980692916062527447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7847215067739206082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adec068929f8e4969915578bf5ed8b02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grinderBodies:
+  - {fileID: 21300000, guid: c4aa7e1fee6884800ae5372d735f565b, type: 3}
+  - {fileID: 21300000, guid: 7f32e157500ac4c9aadb90258308c33c, type: 3}
+  - {fileID: 21300000, guid: 62df9d8d95d1f4540a86a0ca76664513, type: 3}
+  twinBodies:
+  - {fileID: 21300000, guid: 5f3279b4b6e0042a1828ac0a64c40c78, type: 3}
+  - {fileID: 21300000, guid: 4246c2d63d26440af835d1ecba5bc9d4, type: 3}
+  - {fileID: 21300000, guid: 0d57b5aba6ad7424a82a3b7f3ce8ced8, type: 3}
+  viperBodies:
+  - {fileID: 21300000, guid: 07dc59c784da54a28b546ead6f095f3e, type: 3}
+  - {fileID: 21300000, guid: 4aaa87922bf6b481584f525b53b3987b, type: 3}
+  - {fileID: 21300000, guid: 1258e686f39db4f67acf3d10b27b3de9, type: 3}
+  specterBodies:
+  - {fileID: 21300000, guid: cc3e7932260ee4ac9a5bd1d2d2531634, type: 3}
+  - {fileID: 21300000, guid: 971f0d03a41c049a8b90c1d415ed9835, type: 3}
+  - {fileID: 21300000, guid: b484c0985a65146f7a0c8184d981fc8d, type: 3}
+  tempestBodies:
+  - {fileID: 21300000, guid: ccae25f8e080242a5b6b580bb73cba30, type: 3}
+  - {fileID: 21300000, guid: 1873d4972827b4ff58be30d55566f1a6, type: 3}
+  - {fileID: 21300000, guid: 91c9f08a1fa7b419a84c902cc0a97f49, type: 3}
+  boreBodies:
+  - {fileID: 21300000, guid: a3ea3416832ec4bb8bb93735de6188b6, type: 3}
+  - {fileID: 21300000, guid: a54a7610376fd42408630ac13802a38a, type: 3}
+  - {fileID: 21300000, guid: e157346c5688a48039b9fdfa0aca8822, type: 3}
+  baseDrills:
+  - {fileID: 21300000, guid: c03747714475d45c5b68eeda95081097, type: 3}
+  - {fileID: 21300000, guid: 76802dd992168438cbd959bd37379344, type: 3}
+  - {fileID: 21300000, guid: 3272332d9b1fd48728dc822986ffbb39, type: 3}
+  wideDrills:
+  - {fileID: 21300000, guid: 260cfaeff2c324605b77d41459a1a844, type: 3}
+  - {fileID: 21300000, guid: 20dc8557bfb7e412faa1ac5e2763a389, type: 3}
+  - {fileID: 21300000, guid: fb0594fe487f547388d22e87689d7550, type: 3}
+  boreDrills:
+  - {fileID: 9100000, guid: 1b8195c84b07e423f8e4bae61c61bab9, type: 2}
+  - {fileID: 9100000, guid: 61163f213ab064da3becfbc219427633, type: 2}
+  - {fileID: 9100000, guid: dbee3f287d9b5438ca0e972a131cdd7d, type: 2}

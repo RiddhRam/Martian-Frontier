@@ -1,11 +1,9 @@
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.Tables;
 using System.Collections;
 
-public class GarageDelegator : MonoBehaviour, IDataPersistence
+public class GarageDelegator : MonoBehaviour
 {
     public GameObject drillersButton;
     public GameObject drillersPanel;
@@ -269,25 +267,6 @@ public class GarageDelegator : MonoBehaviour, IDataPersistence
 
     public GameObject[] GetHaulers() {
         return haulers;
-    }
-
-    public void LoadData(GameData data)
-    {
-        this.vehicleUpgradeLevels = data.vehicleUpgradeLevels;
-
-        if (playerVehicleDelegation.vehicleType == "Driller") {
-            DrillerController drillerController = playerVehicleDelegation.transform.GetChild(0).GetChild(1).GetComponent<DrillerController>();
-            drillerController.SetProfitMultiplier(GetVehicleProfitMultiplier(drillerController.name));
-            return;
-        }
-
-        HaulerController haulerController = playerVehicleDelegation.transform.GetChild(0).GetComponent<HaulerController>();
-        haulerController.SetProfitMultiplier(GetVehicleProfitMultiplier(haulerController.name));
-    }
-
-    public void SaveData(ref GameData data)
-    {
-        data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
     }
 
     public float GetVehicleProfitMultiplier(string vehicleName) {
