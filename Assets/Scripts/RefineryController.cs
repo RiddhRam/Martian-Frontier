@@ -27,7 +27,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private const int initialTimer = 180;
     // The cash made during the current refinery timer, resets to 0 when mine resets
     long cashMadeThisMine;
-    bool countingDown = false;
 
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
@@ -54,8 +53,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
     public AdDelegator adDelegator;
+
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
+    private Coroutine countdownCoroutine;
+
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
 
@@ -81,13 +83,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     public void StartRefineryCountdown(int timer = initialTimer) {
         // Mining in progress
-        if (countingDown) {
+        if (countdownCoroutine != null) {
             return;
         }
 
-        countingDown = true;
-
-        StartCoroutine(RefineryCountdown(timer));
+        countdownCoroutine = StartCoroutine(RefineryCountdown(timer));
     }
 
     private IEnumerator RefineryCountdown(int timer) {
@@ -100,10 +100,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         PlaySaleNoise();
-
-        // Reset mine
-        // Stop user from entering mine
-        mineEntranceBoxCollider.isTrigger = false;
 
         // Shouldnt be possible but just in case
         if (resetMineCoroutine != null) {
@@ -119,44 +115,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             nPCManager.ResetPlayerPos();
             nPCManager.ResetAllNPCPos();
         }
-
-        countingDown = false;
-    }
-
-    public void SellOres(int[] materialsMined, bool isNPC) {
-        int change = 0;
-        materialsSold += change;
-        dailyChallengeDelegator.SoldOres(change);
-        playerState.NewMaterialsSold(change, isNPC);
-
-        UpdateRefineryProgressBars();
-
-        long cashToAdd = 0;
-
-        for (int i = 0; i != materialPrices.Length; i++) {
-            cashToAdd += materialPrices[i] * materialsMined[i];
-        }
-
-        // Should never be less than 0
-        if (cashToAdd <= 0) {
-            return;
-        }
-
-        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
-        cashMadeThisMine += cashToAdd;
-
-        playerState.AddCash(cashToAdd, isNPC);
-
-        if (tutorialManager == null) {
-            return;
-        }
-    }
-
-    public void PlaySaleNoise() {
-        audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     public void CallResetMineFromButton() {
+    
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
         }
@@ -167,7 +129,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator ResetMine() {
+        if (countdownCoroutine != null) {
+            StopCoroutine(countdownCoroutine);
+            countdownCoroutine = null;
+        }
+
         mineRenderer.mineInitialization = 0;
+
+        // Reset mine
+        // Stop user from entering mine
+        mineEntranceBoxCollider.isTrigger = false;
+        mineEntranceSpriteRenderer.sprite = mineEntranceOff;
 
         if (materialsSold >= 300 && !askedForReview && doneLoading) {
             askedForReview = true;
@@ -188,10 +160,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StartCoroutine(nPCManager.WaitInLobby());
         }
 
-        // Disable mine temporarily
-        mineEntranceSpriteRenderer.sprite = mineEntranceOff;
-        mineEntranceBoxCollider.isTrigger = false;
-
         // Move player off the dropoff area, and move all players inside the mine to the outside
         playerVehicle.transform.SetPositionAndRotation(new(0, 6, 0), Quaternion.Euler(0, 0, 180));
 
@@ -209,7 +177,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // the mine set as its parent
         // This HAS to go first otherwise the mine will not reset tilemaps properly
         yield return mineRenderer.ReturnAllObjectsToPool();
-        
+
         yield return new WaitUntil(() => doneAnimation);
 
         // Initialize and uncover map
@@ -228,6 +196,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // Renable the mine
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.isTrigger = true;
+        mineEntranceBoxCollider.enabled = false;
+        mineEntranceBoxCollider.enabled = true;
     }
 
     private IEnumerator GraduallyIncreaseBattery(float batteryToUse)
@@ -277,6 +247,39 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
     }
 
+    public void SellOres(int[] materialsMined, bool isNPC) {
+        int change = 0;
+        materialsSold += change;
+        dailyChallengeDelegator.SoldOres(change);
+        playerState.NewMaterialsSold(change, isNPC);
+
+        UpdateRefineryProgressBars();
+
+        long cashToAdd = 0;
+
+        for (int i = 0; i != materialPrices.Length; i++) {
+            cashToAdd += materialPrices[i] * materialsMined[i];
+        }
+
+        // Should never be less than 0
+        if (cashToAdd <= 0) {
+            return;
+        }
+
+        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
+        cashMadeThisMine += cashToAdd;
+
+        playerState.AddCash(cashToAdd, isNPC);
+
+        if (tutorialManager == null) {
+            return;
+        }
+    }
+
+    public void PlaySaleNoise() {
+        audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
+    }
+
     public void SetRefineryBattery(int newValue) {
         refineryTimer = newValue;
         UpdateRefineryProgressBars();
@@ -295,6 +298,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             firstTimePlaying = true;
         }
 
+        // Just gaurantee that the player can enter the mine
         mineEntranceSpriteRenderer.sprite = mineEntranceOn;
         mineEntranceBoxCollider.isTrigger = true;
 
