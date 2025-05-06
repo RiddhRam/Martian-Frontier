@@ -114,16 +114,14 @@ public class DrillerController : MonoBehaviour
 
                 currentTilePositions.Clear();
                 // Iterate over nearby tiles within the radius
-                for (int x = 0; x <= radius; x++)
+                for (int x = -radius; x <= radius; x++)
                 {
-                    int yLimit = radius - x;
-                    for (int y = 0; y <= yLimit; y++)
+                    for (int y = -radius; y <= radius; y++)
                     {
-                        // Check all 4 quadrants
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(x, y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(x, -y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, -y, 0));
+                        if (x * x + y * y <= radius * radius) // Check if inside circle
+                        {
+                            CheckToDestroyTile(spriteTilePos + new Vector3Int(x, y, 0));
+                        }
                     }
                 }
 
@@ -206,7 +204,7 @@ public class DrillerController : MonoBehaviour
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
 
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
+        if (!tilemap.HasTile(currentTilePos)) {
             return;
         }
 

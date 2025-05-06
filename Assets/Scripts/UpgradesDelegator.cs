@@ -207,6 +207,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     // Destroy surrounding ores
     [ContextMenu("Explosive Charge")]
     private void ExplosiveCharge() {
+        // If the radius is very large, there's a chance that some ungenerated tiles will be destroyed
+        // This gameobject activates any generation triggers if needed
+
         // Set off any generation triggers first
         // Create a new GameObject for the collider
         GameObject colliderObject = new("GroundCollider");
@@ -219,7 +222,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         boxCollider.size = new(1, destroyRadius);
         boxCollider.transform.position = new(playerVehicle.position.x, playerVehicle.position.y - destroyRadius/2);
         boxCollider.transform.rotation = new();
-
+        
         StartCoroutine(DestroyGroundCollider(colliderObject));
 
         // Very similar to what is used in Driller Controller
