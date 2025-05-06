@@ -10,6 +10,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public Sprite mineEntranceOff;
     public SpriteRenderer mineEntranceSpriteRenderer;
     public BoxCollider2D mineEntranceBoxCollider;
+
+    [SerializeField] private TextMeshProUGUI cashMadeThisMineText;
     
     public GameObject mine;
     public GameObject[] refineryProgressSliders;
@@ -46,6 +48,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
     public UpgradesDelegator upgradesDelegator;
+    [SerializeField] PlayerMovement playerMovement;
 
     private bool doneLoading = false;
     bool doneAnimation;
@@ -138,6 +141,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         // Stop user from entering mine
         mineEntranceBoxCollider.isTrigger = false;
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
+
+        cashMadeThisMine = 0;
+        UpdateCashText();
 
         if (materialsSold >= 300 && !askedForReview && doneLoading) {
             askedForReview = true;
@@ -269,13 +275,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
         cashMadeThisMine += cashToAdd;
 
-        Debug.Log("Adding: " + cashToAdd);
-
-        playerState.AddCash(cashToAdd, isNPC);
+        playerState.AddCash(cashToAdd, true);
+        playerMovement.NewOreMined(cashToAdd);
+        UpdateCashText();
 
         if (tutorialManager == null) {
             return;
         }
+    }
+
+    private void UpdateCashText() {
+        cashMadeThisMineText.text = "$" + playerState.FormatPrice(cashMadeThisMine);
     }
 
     public void PlaySaleNoise() {

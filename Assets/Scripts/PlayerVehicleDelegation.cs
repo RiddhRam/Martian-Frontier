@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
-    public GameObject cargoInfo;
     public GameObject UI;
     public string currentVehicle;
     public string currentCoopVehicle;

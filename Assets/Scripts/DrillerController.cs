@@ -6,8 +6,7 @@ using UnityEngine.Tilemaps;
 public class DrillerController : MonoBehaviour
 {
     private int radius;
-    private TileBase[] ores;
-    private GameObject[] materials;
+
     private MineRenderer mineRenderer;
     private JoystickMovement joystickMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -45,7 +44,8 @@ public class DrillerController : MonoBehaviour
     private int highestTierDrilled = 0;
 
     // Cache
-    private Collider2D[] colliders;
+    // 40 should be more enough for drilling
+    private readonly Collider2D[] colliders = new Collider2D[40];
     private Tilemap tilemap;
     private Vector3Int spriteTilePos;
     private TileBase tileToDestroy;
@@ -60,8 +60,6 @@ public class DrillerController : MonoBehaviour
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        ores = mineRenderer.GetOres();
-        materials = mineRenderer.oreDelegation.materials;
 
         boxCollider2D = GetComponent<BoxCollider2D>();
         // Get the bounds of the BoxCollider2D
@@ -102,15 +100,15 @@ public class DrillerController : MonoBehaviour
             Vector3 correctedOffset = transform.rotation * rotatedOffset;
 
             // Check if the game object's collider is touching a tilemap with "Mine Tag"
-            colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
+            int colliderCount = Physics2D.OverlapBoxNonAlloc(transform.position + correctedOffset, size, 0, colliders);
 
             // Destroy tiles
-            foreach (Collider2D collision in colliders) {
-                if (!collision.CompareTag("Mine Tag")) {
+            for (int i = 0; i < colliderCount; i++) {
+                if (!colliders[i].CompareTag("Mine Tag")) {
                     continue;
                 }
 
-                tilemap = mineRenderer.tilemapsDictionary[collision.name];
+                tilemap = mineRenderer.tilemapsDictionary[colliders[i].name];
 
                 spriteTilePos = tilemap.WorldToCell(transform.position);
 

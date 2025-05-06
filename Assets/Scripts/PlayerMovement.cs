@@ -37,8 +37,13 @@ public class PlayerMovement : MonoBehaviour
     public bool freezeCamera = false;
 
     // Details above the player
-    [SerializeField] private Canvas sliderCanvas;
+    [SerializeField] private Transform sliderCanvas;
+    [SerializeField] private TextMeshProUGUI cashEarnedText;
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
+
+    private long cashToShow;
+    private Coroutine floatingTextCoroutine;
+    public float fadeDuration = 0.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -171,27 +176,82 @@ public class PlayerMovement : MonoBehaviour
         {
             // Truncate to 3 decimal places and format with "KM"
             return (positionY / 1_000) + " KM";
-        } else {
+        } 
+        else {
             return positionY + " M";
         }
+    }
+
+    public void NewOreMined(long cashEarned) {
+        cashToShow += cashEarned;
+        
+        if (floatingTextCoroutine != null) {
+            StopCoroutine(floatingTextCoroutine);
+        }
+        floatingTextCoroutine = StartCoroutine(ShowFloatingText());
+    }
+
+    private IEnumerator ShowFloatingText() {
+        // Show text
+        cashEarnedText.text = "↑ $" + FormatPrice(cashToShow);
+        cashEarnedText.alpha = 1;
+
+        // Wait 2 seconds
+        yield return new WaitForSecondsRealtime(2);
+
+        // Fade text out
+        float t = 0f;
+        while (t < fadeDuration)
+        {
+            t += Time.deltaTime;
+            cashEarnedText.alpha = Mathf.Lerp(1f, 0f, t / fadeDuration);
+            yield return null;
+        }
+
+        // Ensure it’s fully invisible
+        cashEarnedText.alpha = 0f;   
+        // Reset for next time
+        cashToShow = 0;   
     }
 
     private IEnumerator HoldProgressBarStill() {
         
         while (true) {
 
-            sliderCanvas.transform.rotation = normalRotation;
+            sliderCanvas.rotation = normalRotation;
 
             float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
 
             // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 4.2f;
-            float y = Mathf.Cos(angle) * 4.2f;
+            float x = Mathf.Sin(angle) * 4.6f;
+            float y = Mathf.Cos(angle) * 4.6f;
 
-            sliderCanvas.transform.localPosition = new Vector3(x, y, 0);
+            sliderCanvas.localPosition = new Vector3(x, y, 0);
 
             yield return null;
         }
+    }
+
+    public string FormatPrice(long price)
+    {
+        if (price >= 1_000_000_000)
+        {
+            // Truncate to 2 decimal places and format with "B"
+            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 2 decimal places and format with "M"
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 2 decimal places and format with "K"
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 
 }

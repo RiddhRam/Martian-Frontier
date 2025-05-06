@@ -395,7 +395,6 @@ public class LoadingTest
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
 
         // Player Vehicle
-        Assert.AreEqual(playerVehicleDelegation.cargoInfo.name, "CargoInfo");
         Assert.AreEqual(playerVehicleDelegation.UI.name, "UI");
         Assert.AreEqual(playerVehicleDelegation.currentVehicle, "GRINDER I");
         Assert.AreEqual(playerVehicleDelegation.garageDelegator.name, "Garage Panel");

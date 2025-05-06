@@ -70,6 +70,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public bool loaded = false;
     bool specialGameMode = false;
 
+    // Can't constantly be saving the game when an ore so only call it once in a while
+    int miningCount = 0;
+    const int miningSaveInterval = 100;
+
     void Awake() {
         // Credits are used for special game modes
         if (creditDisplays.Length > 0) {
@@ -101,12 +105,21 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd, bool isNPC = false) {
+    public void AddCash(long cashToAdd, bool fromMining = false) {
 
         userCash += cashToAdd;
         moneyEarned += cashToAdd;
-        
+
         UpdateCashDisplays();
+
+        if (fromMining) {
+            miningCount++;
+            if (miningCount < miningSaveInterval) {
+                return;                
+            }
+            miningCount = 0;
+        }
+
         dataPersistenceManager.SaveGame();
     }
 
@@ -343,11 +356,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public string FormatPrice(BigInteger price)
     {
         if (price >= 1_000_000_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "Se"
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Se";
-        }
-        else if (price >= 1_000_000_000_000_000_000)
         {
             // Truncate to 3 decimal places and format with "Qu"
             return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";

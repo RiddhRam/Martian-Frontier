@@ -20,7 +20,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
     public TextMeshProUGUI oresMinedText;
-    public TextMeshProUGUI mineValueText;
+
     // Height of the map, measured in tilemaps
     [SerializeField] private int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
@@ -46,13 +46,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
     // Array of the tilemap Game objects, same as above, but in a 2d array rather than a dictionary with the string as the key
     public Tilemap[,] tilemaps;
-    // The gameobject of each ore material to be instantied onto the map when mining ores
-    private GameObject[] materials;
-    // Lowercase names
-    private string[] oreNames;
+
     // Uppercase names
     private string[] materialNames;
-    private int[] materialPrices;
 
     [SerializeField]
     private int seed;
@@ -75,8 +71,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private Dictionary<string, int> quantities = new();
     public int[] oresCount;
-    private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
-    private Queue<GameObject>[] materialPools;
+
+    private Queue<GameObject> materialPools;
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     // Destroy these so haulers dont get stuck
@@ -212,11 +208,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         oresCount = new int[sum];
-    
-        materials = oreDelegation.materials;
-        oreNames = oreDelegation.GetOreNames();
+
         materialNames = oreDelegation.materialNames;
-        materialPrices = oreDelegation.GetMaterialPrices();
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
