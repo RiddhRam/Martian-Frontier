@@ -1409,17 +1409,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f3d952913015d4708ba8e148e0672d4a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &295927379 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5721152284056384388, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a8b2f553e820b4922a453d12c19e7183, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &299356767 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 9015988568525939654, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -19127,17 +19116,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1e1774bb3751f4cb2ba9930fa0ef8140, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1262672824 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4563826537479658624, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
-  m_PrefabInstance: {fileID: 6070635390797036892}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48cfdfae4b035438fb0eca813fdc55ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1308672356
 GameObject:
   m_ObjectHideFlags: 0
@@ -21599,7 +21577,6 @@ MonoBehaviour:
   playerVehicle: {fileID: 1012335946}
   mapText: {fileID: 1590678440}
   playerState: {fileID: 276248154}
-  uncollectedMaterialsDelegator: {fileID: 1262672824}
   cargoValueText: {fileID: 1947669186}
   depthText: {fileID: 1026780951}
   mineText: {fileID: 980698367}
@@ -21655,7 +21632,6 @@ MonoBehaviour:
   superChallengeStartButtonTextGO: {fileID: 520872230}
   superChallengeSliderGO: {fileID: 520872233}
   superChallengeTimerTextGO: {fileID: 520872232}
-  mineRenderer: {fileID: 1834048436}
   playerState: {fileID: 276248154}
   challengeNoticeIcon: {fileID: 1665122864}
 --- !u!4 &1797330471
@@ -27029,6 +27005,18 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5995885103889452158, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5995885103889452158, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5995885103889452158, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5995885103889452158, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
@@ -28597,7 +28585,7 @@ PrefabInstance:
     - target: {fileID: 4563826537479658624, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: oreDelegation
       value: 
-      objectReference: {fileID: 295927379}
+      objectReference: {fileID: 0}
     - target: {fileID: 4881658683426951593, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: m_Name
       value: Mine
@@ -28633,7 +28621,7 @@ PrefabInstance:
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: oreDelegation
       value: 
-      objectReference: {fileID: 295927379}
+      objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: oresMinedText
       value: 

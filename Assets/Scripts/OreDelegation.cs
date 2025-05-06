@@ -104,6 +104,7 @@ public class OreDelegation : MonoBehaviour
     public int[] GetMaterialPrices() {
         return materialPrices;
     }
+    
     private string FormatPrice(long price)
     {
         if (price >= 1_000_000_000_000_000_000)
@@ -139,21 +140,6 @@ public class OreDelegation : MonoBehaviour
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
-    }
-
-    private string GetLocalizedValue(string key, params object[] args)
-    {
-        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
-
-        StringTableEntry entry = table.GetEntry(key);;
-
-        // If no translation, just return the key
-        if (entry == null) {
-            return string.Format(key, args);
-        }
-
-        // Use string.Format to replace placeholders with arguments
-        return string.Format(entry.LocalizedValue, args);
     }
 
     public string[] GetOreNames() {

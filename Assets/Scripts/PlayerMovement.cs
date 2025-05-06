@@ -49,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
         float y = transform.position.y;
         float x = transform.position.x;
         if (y > 21 || y < -515 || x > 79 || x < -79) {
-            transform.position = new(4.5f, 5.4f, 0);
+            transform.position = new(0, 6, 0);
         }
 
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.

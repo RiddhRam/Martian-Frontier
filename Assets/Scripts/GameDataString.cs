@@ -12,7 +12,7 @@ public class GameDataString
     public string vehiclesOwned;
     public string currentVehicle;
 
-    public string refineryBattery;
+    public string refineryTimer;
     public string destroyedTilemapsTileValues;
     public string revealedTilemapsTileValues;
     public string seed;
@@ -63,7 +63,7 @@ public class GameDataString
         this.vehiclesOwned = null;
         this.currentVehicle = null;
 
-        this.refineryBattery = null;
+        this.refineryTimer = null;
         this.destroyedTilemapsTileValues = null;
         this.revealedTilemapsTileValues = null;        
         this.seed = null;

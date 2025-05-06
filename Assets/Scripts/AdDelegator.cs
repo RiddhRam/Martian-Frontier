@@ -384,8 +384,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(long rewardAmount) {
 
-        // 34% chance to show, unless ads disabled or already showing or no internet or first time playing
-        if (rng.NextDouble() > 0.34f || disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying) {
+        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is 0
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount <= 0) {
             yield break;
         }
 

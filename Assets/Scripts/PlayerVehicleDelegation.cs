@@ -47,7 +47,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         if (newVehicle.name == oldVehicle.name && !loading) {
             // User is already in this vehicle, do nothing
-            Debug.Log("Returning");
             if (!notSinglePlayerScene) {
                 currentVehicle = oldVehicle.name;
             } else {
@@ -70,7 +69,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerVehicle.name = playerVehicle.name[..^7];
 
         if (!notSinglePlayerScene) {
-            transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+            transform.SetPositionAndRotation(new(0, 6, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
             currentVehicle = playerVehicle.name;
@@ -144,6 +143,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         for (int i = 0; i != drillers.Length; i++) {
             if (!vehicleName.Contains(drillers[i].name)) {
                 if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
+                    
                     continue;
                 }
             }
@@ -153,7 +153,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
                 playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             }
 
-            break;
+            return;
         }
 
         // If it reaches here, no vehicle was found, so we just set the player to use the first drill
@@ -212,7 +212,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(int heat) {
+    public void UpdateOverheatSlider(float heat) {
         slider.value = heat;
     }
 

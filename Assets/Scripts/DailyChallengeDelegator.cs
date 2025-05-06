@@ -39,14 +39,14 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private TimeSpan timeRemaining;
     private string timeString;
     // Used to check index
-    private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "MINE {0} ORES", "MINE {0} ORES OF {1}", "BUY {0} DRILLERS", "BUY {0} HAULERS"};
+    private string[] challengeTypes = {"COLLECT ALL DAILY CHALLENGES", "MINE {0} ORES", "MINE {0} ORES OF {1}"};
     // This one is not related to challenge types, just order of challenges display
     private int[] difficulty = {8, 2, 3, 6, 4, 3};
     private int baseGemReward = 180;
     // Related to the above challenge types
     // This will be multiplied to determine the goal the player needs to reach, 
     // then multiplied by the difficulty to determine the reward
-    private int[] baseGoalAmount = {5, 150, 80, 1, 2};
+    private int[] baseGoalAmount = {5, 150, 80};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
@@ -151,7 +151,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
             // If its a super challenge, it can only be certain challenges
             if (i == 0) {
-                int[] possibleValues = { 1, 2, 5 };
+                int[] possibleValues = { 1, 2 };
                 selectedChallenges[i] = possibleValues[rng.Next(0, possibleValues.Length)];
             }
 

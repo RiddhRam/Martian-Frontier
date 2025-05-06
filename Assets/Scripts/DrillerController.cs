@@ -38,7 +38,7 @@ public class DrillerController : MonoBehaviour
     Vector2 rotatedOffset;
 
     // Endurance
-    private int drillHeat = 0;
+    private float drillHeat = 0;
     private readonly float heatCooldownDelay = 1.5f;
     private readonly float coolRate = 0.5f;
     private float lastMineTime = -Mathf.Infinity;
@@ -147,7 +147,8 @@ public class DrillerController : MonoBehaviour
 
             tileWorldPositions.Clear();
             tileBasesToDestroy.Clear();
-        } else {
+        } 
+        else {
             minedSomething = false;
 
             ErrorWhenDrilling("DRILL OVERHEATED!");
@@ -161,17 +162,29 @@ public class DrillerController : MonoBehaviour
         float timeSinceLastMine = Time.time - lastMineTime;
         
         if (minedSomething) {
-            // if within chain window, add heat
+            // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                drillHeat = Mathf.Min(endurance, drillHeat + (int) Mathf.Pow(highestTierDrilled, 3));
+                // Time factor makes it so faster drills go farther than slower drills with the same endurance
+                // 7.5f = 10 / 1.5
+                // 1.5 = heatCooldownDelay, but not sure where the 10 comes from. 
+                // Maybe on average the mining happens once every 5 frames and 5/50 = 1/10
+                float timeFactor = Mathf.Clamp01(timeSinceLastMine / heatCooldownDelay) * 7.5f;
+
+                // After a short break in mining, the time factor becomes very large, causing the heat progress bar to jump, so clamp to 1
+                if (timeFactor > 1) {
+                    timeFactor = 1;
+                }
+
+                float heatToAdd = (int) Mathf.Pow(highestTierDrilled, 3) * timeFactor;
+                
+                drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
             }
 
             lastMineTime = Time.time;
         } else {
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                // DeltaTime in FixedUpdate is fixedDeltaTime
                 drillHeat = Mathf.Max(0, (int) (drillHeat - coolRate));
             }
         }

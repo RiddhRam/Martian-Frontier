@@ -10,10 +10,6 @@ public class UIDelegation : MonoBehaviour
     public GameObject mapCameraView;
     public GameObject teleportCameraView;
     private RenderTexture renderTexture;
-    public GameObject scrollViewContent;
-    public GameObject playerVehicle;
-    public GameObject sliderCount;
-    public GameObject destroyButton;
 
     // Higher resolution UI version of the minerals, because they will be larger now in the cargo panel
     // The first elements a user sees, these are the ones they see while playing the game
@@ -22,8 +18,6 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public GameObject errorMessage;
-    public GameObject[] cargoProgressBars;
-    public GameObject[] cargoCounters;
     private Sprite[] materialHighResSprites;
     private string[] materialNames;
     public int[] materialPrices;
@@ -132,13 +126,5 @@ public class UIDelegation : MonoBehaviour
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);
-    }
-
-    public GameObject[] GetCargoProgressBars() {
-        return cargoProgressBars;
-    }
-
-    public GameObject[] GetCargoCounters() {
-        return cargoCounters;
     }
 }

@@ -291,7 +291,6 @@ public class LoadingTest
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
         Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Mine Entrance");
-        Assert.AreEqual(refineryController.gameObjectBoxCollider2D.gameObject.name, "Ore Refinery Dropoff");
         Assert.AreEqual(refineryController.mine.name, "Mine");
         Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(refineryController.askForReviewScreen.name, "Ask For Review");
@@ -328,12 +327,8 @@ public class LoadingTest
 
         Assert.AreEqual(uIDelegation.mapCamera.name, "Map Camera");
         Assert.AreEqual(uIDelegation.mapCameraView.name, "Map Camera View");
-        Assert.AreEqual(uIDelegation.scrollViewContent.name, "Content");
-        Assert.AreEqual(uIDelegation.playerVehicle.name, "Player Vehicle");
-        Assert.AreEqual(uIDelegation.sliderCount.name, "Slider");
-        Assert.AreEqual(uIDelegation.destroyButton.name, "Destroy");
 
-        string[] primaryElementNames = { "Important Info", "CargoInfo", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
+        string[] primaryElementNames = { "Important Info", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom", "Team"};
         int primaryElementCount = 8;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++) {
@@ -343,16 +338,9 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.materialButton.name, "Material Button");
         Assert.AreEqual(uIDelegation.errorMessage.name, "Error Message");
 
-        int cargoProgressCount = 2;
-        Assert.AreEqual(uIDelegation.cargoProgressBars.Length, cargoProgressCount);
-        Assert.AreEqual(uIDelegation.cargoCounters.Length, cargoProgressCount);
-        for (int i = 0; i != cargoProgressCount; i++) {
-            Assert.AreSame(uIDelegation.cargoCounters[i].transform.parent.gameObject, uIDelegation.cargoProgressBars[i]);
-        }
-
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "CargoInfo", "Supply Crate", "Team", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Hauler Cargo Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Go To Team Panel", "Premium Shop Panel", "Teleport Panel", "Settings Panel"};
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Team", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Go To Team Panel", "Premium Shop Panel", "Teleport Panel", "Settings Panel" };
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -456,7 +444,7 @@ public class LoadingTest
         Assert.AreEqual(4, mineRenderer.maxVeinRadius);
 
 
-        oreDelegation = GameObject.Find("Ore Prices").GetComponent<OreDelegation>();
+        oreDelegation = mineRenderer.GetComponent<OreDelegation>();
         int materialCount = 9;
         Assert.AreEqual(materialCount, oreDelegation.materialNames.Length);
         Assert.AreEqual(materialCount, oreDelegation.materials.Length);
