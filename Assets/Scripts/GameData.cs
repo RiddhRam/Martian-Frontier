@@ -34,6 +34,7 @@ public class GameData
     public int superChallengeTimer;
     public string userGems;
     public string gemsEarned;
+    // Actually current blocks mined, not ores
     public int currentOresMined;
     public long gemRewardsToCollect;
     public int tutorialScreenIndex;

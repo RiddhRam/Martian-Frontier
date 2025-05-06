@@ -31,12 +31,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
 
-    private int[] materialPrices;
-    [SerializeField]
-    private float profitMultiplier = 1;
+    [SerializeField] private int[] materialPrices;
+    [SerializeField] private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
-    [SerializeField]
-    private float rebirthProfitMultiplier = 0;
+    [SerializeField] private float rebirthProfitMultiplier = 0;
     public Transform largeFogOfWar;
 
     public AudioDelegator audioDelegator;
@@ -248,26 +246,30 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void SellOres(int[] materialsMined, bool isNPC) {
+        // Track number of ores mined and cash earned
         int change = 0;
-        materialsSold += change;
-        dailyChallengeDelegator.SoldOres(change);
-        playerState.NewMaterialsSold(change, isNPC);
-
-        UpdateRefineryProgressBars();
-
         long cashToAdd = 0;
 
         for (int i = 0; i != materialPrices.Length; i++) {
             cashToAdd += materialPrices[i] * materialsMined[i];
+            change += materialsMined[i];
         }
+
+        // Update stats
+        materialsSold += change;
+        dailyChallengeDelegator.SoldOres(change);
+        playerState.NewMaterialsSold(change, isNPC);
 
         // Should never be less than 0
         if (cashToAdd <= 0) {
             return;
         }
 
+        // Add cash
         cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
         cashMadeThisMine += cashToAdd;
+
+        Debug.Log("Adding: " + cashToAdd);
 
         playerState.AddCash(cashToAdd, isNPC);
 

@@ -26,15 +26,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
 
-    [SerializeField] private Canvas sliderCanvas;
-    private Slider slider;
-    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
-    private Coroutine holdProgressBarStill;
-
-    void Awake()
-    {
-        slider = sliderCanvas.transform.GetChild(0).GetComponent<Slider>();
-    }
+    [SerializeField] private Slider slider;
 
     public void SwitchVehicle(GameObject newVehicle) {
 
@@ -96,12 +88,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
         drillerController.playerVehicleDelegation = this;
 
-        if (holdProgressBarStill != null) {
-            StopCoroutine(holdProgressBarStill);
-        }
-
-        sliderCanvas.gameObject.SetActive(true);
-        holdProgressBarStill = StartCoroutine(HoldProgressBarStill());
         slider.maxValue = drillerController.endurance;
        
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
@@ -214,24 +200,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     public void UpdateOverheatSlider(float heat) {
         slider.value = heat;
-    }
-
-    private IEnumerator HoldProgressBarStill() {
-        
-        while (true) {
-
-            sliderCanvas.transform.rotation = normalRotation;
-
-            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
-
-            // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 4.2f;
-            float y = Mathf.Cos(angle) * 4.2f;
-
-            sliderCanvas.transform.localPosition = new Vector3(x, y, 0);
-
-            yield return null;
-        }
     }
 
 }

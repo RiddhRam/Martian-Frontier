@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -35,9 +36,15 @@ public class PlayerMovement : MonoBehaviour
     // Only for recording
     public bool freezeCamera = false;
 
+    // Details above the player
+    [SerializeField] private Canvas sliderCanvas;
+    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
+
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(HoldProgressBarStill());
+        
         stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
         mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
@@ -166,6 +173,24 @@ public class PlayerMovement : MonoBehaviour
             return (positionY / 1_000) + " KM";
         } else {
             return positionY + " M";
+        }
+    }
+
+    private IEnumerator HoldProgressBarStill() {
+        
+        while (true) {
+
+            sliderCanvas.transform.rotation = normalRotation;
+
+            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+
+            // Calculate new position based on rotation
+            float x = Mathf.Sin(angle) * 4.2f;
+            float y = Mathf.Cos(angle) * 4.2f;
+
+            sliderCanvas.transform.localPosition = new Vector3(x, y, 0);
+
+            yield return null;
         }
     }
 

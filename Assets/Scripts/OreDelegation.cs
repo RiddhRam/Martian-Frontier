@@ -1,8 +1,6 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
-using UnityEngine.Localization.Settings;
-using UnityEngine.Localization.Tables;
 
 public class OreDelegation : MonoBehaviour
 {
@@ -144,6 +142,17 @@ public class OreDelegation : MonoBehaviour
 
     public string[] GetOreNames() {
         return oreNames;
+    }
+
+    public int GetTileIndexByName(string name) {
+        for (int i = 0; i != materialNames.Length; i++) {
+            if (materialNames[i] == name) {
+                return i;
+            }
+        }
+
+        // Shouldnt reach here
+        return 0;
     }
 
     public bool VerifyIfOre(int tileIndex) {

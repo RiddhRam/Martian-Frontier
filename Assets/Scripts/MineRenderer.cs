@@ -65,11 +65,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
+
     public DataPersistenceManager dataPersistenceManager;
     public AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
     public DailyChallengeDelegator dailyChallengeDelegator;
     public UpgradesDelegator upgradesDelegator;
+    public RefineryController refineryController;
+
     private Dictionary<string, int> quantities = new();
     public int[] oresCount;
     private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
@@ -135,6 +138,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int x;
     private Coroutine _loadDataCoroutine;
     private bool cloudLoading = false;
+    // Actually current blocks mined, not ores
     public int currentOresMined = 0;
     public System.Numerics.BigInteger currentMineValue = 0;
     public int minVeinRadius;
@@ -666,16 +670,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             tileMined = tilemap.GetTile(tileToDestroy);
     
-            identifiedTile = IdentifyTile(tileMined);
+            // Get tile index
+            identifiedTile = GetTileIndex(tileMined);
             oreMined = true;
 
-            for (int i = 0; i != tierThresholds.Length; i++) {
-                if (identifiedTile == tierThresholds[i]) {
-                    oreMined = false;
-                    break;
-                }
+            if (!oreDelegation.VerifyIfOre(identifiedTile)) {
+                oreMined = false;
             }
 
+            // Actually current blocks mined, not ores
             currentOresMined++;
 
             if (!oreMined) {
@@ -716,14 +719,30 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
         }
         
+        oresMinedText.text = currentOresMined.ToString();
+
         try {
-            // If not loading, and is not from an NPC
-            if (!loading && !isNPC) {
-                oresMinedText.text = currentOresMined.ToString();
-                playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
-                dailyChallengeDelegator.MinedOres(quantities);
+            
+            // If not loading
+            if (!loading) {
+                // If not from an npc
+                if (!isNPC) {
+                    playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+                    dailyChallengeDelegator.MinedOres(quantities);
+                }
+
+                // Track which ores are being sold so the player can get paid
+                int[] newMaterials = new int[9];
+                foreach (string name in quantities.Keys) {
+                    newMaterials[oreDelegation.GetTileIndexByName(name)] = quantities[name];
+                }
+                
+                // Finally pay player
+                refineryController.SellOres(newMaterials, isNPC);
             }
-        } catch {
+            
+        } catch (System.Exception ex) {
+            Debug.Log(ex.Message);
         }
 
         quantities.Clear();
@@ -789,7 +808,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     // Get the index of the tile
-    private int IdentifyTile(TileBase tileToIdentify) {
+    private int GetTileIndex(TileBase tileToIdentify) {
 
         int index = 0;
 

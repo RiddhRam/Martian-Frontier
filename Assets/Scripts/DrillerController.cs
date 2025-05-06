@@ -54,10 +54,9 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
-    bool dontPlayAudio;
+
     bool minedSomething;
     public bool isNPC = false;
-
 
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -104,8 +103,6 @@ public class DrillerController : MonoBehaviour
 
             // Check if the game object's collider is touching a tilemap with "Mine Tag"
             colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
-            
-            dontPlayAudio = false;
 
             // Destroy tiles
             foreach (Collider2D collision in colliders) {
@@ -132,11 +129,14 @@ public class DrillerController : MonoBehaviour
                     }
                 }
 
-                mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
-                
-                if (!dontPlayAudio && !isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
-                    PlayAudio();
+                if (minedSomething) {
+                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
+
+                    if (!isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
+                        PlayAudio();
+                    }
                 }
+                
             }
 
             if (tileWorldPositions.Count > 0) {
@@ -202,8 +202,6 @@ public class DrillerController : MonoBehaviour
                 uiDelegation.ShowError(error, args);
                 errorCounter = 0;
             }
-
-            dontPlayAudio = true;
         }
     }
 
