@@ -255,7 +255,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
                 }
             }
 
-            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true);
+            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true, playerVehicle.position);
         }
 
         tileWorldPositions.Clear();

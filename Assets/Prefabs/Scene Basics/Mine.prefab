@@ -210,8 +210,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
   - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
   - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  tileColours:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.7254902, g: 0.7254902, b: 0.7254902, a: 1}
+  - {r: 0.9882353, g: 0.9254902, b: 0.44705883, a: 1}
+  - {r: 0.6666667, g: 0.3019608, b: 0.22745098, a: 1}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.95686275, g: 0.95686275, b: 0.95686275, a: 1}
+  - {r: 0.5019608, g: 0.50980395, b: 0.50980395, a: 1}
+  - {r: 0.2, g: 0.31764707, b: 0.60784316, a: 1}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.60784316, g: 0.60784316, b: 0.60784316, a: 1}
+  - {r: 0.5764706, g: 0.7176471, b: 0.8627451, a: 1}
+  - {r: 0.60784316, g: 0.627451, b: 0.09411765, a: 1}
   oresMinedText: {fileID: 0}
-  mineValueText: {fileID: 0}
   totalRows: 42
   generatedRows: 
   seed: 0
@@ -224,7 +236,8 @@ MonoBehaviour:
   oreDelegation: {fileID: 3812123160642750527}
   dailyChallengeDelegator: {fileID: 0}
   upgradesDelegator: {fileID: 0}
-  oresCount: 
+  refineryController: {fileID: 0}
+  vacuumPrefab: {fileID: 2675737178741110276, guid: adb4b10c2d2be4a4fb92a7bb8b595014, type: 3}
   playerStateScript: {fileID: 0}
   genTrigTransform: {fileID: 0}
   currentOresMined: 0
@@ -233,6 +246,7 @@ MonoBehaviour:
   minVeinCount: 1
   maxVeinCount: 2
   coopMineLoaded: 0
+  mult: 0
 --- !u!114 &3812123160642750527
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -17,8 +17,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public TileBase mineBackgroundRuleTile;
     public TileBase unknownTile;
+
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
+    public Color[] tileColours;
+
     public TextMeshProUGUI oresMinedText;
 
     // Height of the map, measured in tilemaps
@@ -50,8 +53,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Uppercase names
     private string[] materialNames;
 
-    [SerializeField]
-    private int seed;
+    [SerializeField] private int seed;
     public int highestRow = 0;
 
     // 0 = Not created
@@ -70,11 +72,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public RefineryController refineryController;
 
     private Dictionary<string, int> quantities = new();
-    public int[] oresCount;
+    //public int[] oresCount;
 
     [SerializeField] ParticleSystem vacuumPrefab;
 
-    private Queue<GameObject> materialPools;
+    private readonly Queue<ParticleSystem> particlePool = new();
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     // Destroy these so haulers dont get stuck
@@ -209,9 +211,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             sum += oresPerTier[i];
         }
 
-        oresCount = new int[sum];
+        //oresCount = new int[sum];
 
         materialNames = oreDelegation.materialNames;
+
+        // Create particle object pool
+        for (int i = 0; i != 40; i++) {
+            var ps = Instantiate(vacuumPrefab, new(), Quaternion.identity);
+
+            ps.gameObject.SetActive(false);
+            particlePool.Enqueue(ps);
+        }
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
@@ -677,6 +687,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             if (!oreDelegation.VerifyIfOre(identifiedTile)) {
                 oreMined = false;
+            } else {
+                if (generateParticles) {
+                    SpawnVacuum(tileToDestroy, vehiclePos, tileColours[identifiedTile]);
+                }
             }
 
             // Actually current blocks mined, not ores
@@ -713,12 +727,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Set tiles being destroyed
             for (int j = 0; j != size; j++) {
-                tilesToSet[j] = destroyTilesForTilemaps[i][j];
-
-                if (generateParticles) {
-                    SpawnVacuum(tilesToSet[j], vehiclePos, new(1, 1, 1));
-                }
-                
+                tilesToSet[j] = destroyTilesForTilemaps[i][j];                
                 // Leave tilesBeingChanged[j] as null since we are destroying it
             }
 
@@ -757,10 +766,19 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         RevealTiles(tilesToReveal);
     }
 
+    public float mult;
     public void SpawnVacuum(Vector3 from, Vector3 to, Color colour)
     {
         // Instantiate at source
-        var ps = Instantiate(vacuumPrefab, from, Quaternion.identity);
+        var ps = GetParticleFromPool();
+
+        // No particle was available
+        if (ps == null) {
+            return;
+        }
+
+        ps.transform.position = from;
+        ps.gameObject.SetActive(true);
 
         // Tint
         var main = ps.main;
@@ -769,7 +787,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Compute direction and force so particles reach target ~75‑90 % of lifetime
         var dir      = (to - from).normalized;
         var distance = Vector3.Distance(from, to);
-        var forceMag = 4f * distance / main.startLifetime.constant;   // tweak multiplier to taste
+        var forceMag = mult * distance / main.startLifetime.constant;
 
         var fol = ps.forceOverLifetime;
         fol.enabled = true;
@@ -777,13 +795,28 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         fol.y       = dir.y * forceMag;
         fol.z       = dir.z * forceMag;
 
-        // Optional: orient swirl around travel axis
+        // orient swirl around travel axis
         var vol = ps.velocityOverLifetime;
         vol.enabled = true;
         vol.orbitalZ = new ParticleSystem.MinMaxCurve(6f);
 
         ps.Play();
-        Destroy(ps.gameObject, main.startLifetime.constant + 0.1f);
+
+        StartCoroutine(ReturnParticleToPool(ps));
+    }
+
+    private ParticleSystem GetParticleFromPool() {
+        if (particlePool.Count > 0) {
+            return particlePool.Dequeue();
+        }
+        return null;
+    }
+
+    private IEnumerator ReturnParticleToPool(ParticleSystem particle) {
+        yield return new WaitForSeconds(particle.main.startLifetime.constant);
+
+        particlePool.Enqueue(particle);
+        particle.gameObject.SetActive(false);
     }
 
     public TileBase[] GetOres() {

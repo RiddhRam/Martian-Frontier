@@ -422,8 +422,12 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.GetTotalRows(), 42);
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        Color[] tileColours = { new(), new(185/255f, 185/255f, 185/255f, 1), new(252/255f, 236/255f, 114/255f, 1), new(170/255f, 77/255f, 58/255f, 1), new(), new(244/255f, 244/255f, 244/255f, 1), new(128/255f, 130/255f, 130/255f, 1), new(51/255f, 81/255f, 155/255f, 1), new(), new(155/255f, 155/255f, 155/255f, 1), new(147/255f, 183/255f, 220/255f, 1), new(155/255f, 160/255f, 24/255f, 1) };
+        Assert.AreEqual(tileNames.Length, mineRenderer.tileValues.Length);
+        Assert.AreEqual(tileColours.Length, mineRenderer.tileColours.Length);
         for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
             Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
+            Assert.AreEqual(tileColours[i], mineRenderer.tileColours[i]);
         }
 
         Assert.True(mineRenderer.GetSeed() == 0);
