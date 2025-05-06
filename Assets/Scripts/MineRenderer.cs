@@ -72,6 +72,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private Dictionary<string, int> quantities = new();
     public int[] oresCount;
 
+    [SerializeField] ParticleSystem vacuumPrefab;
+
     private Queue<GameObject> materialPools;
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
@@ -592,7 +594,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC, Vector3 vehiclePos = new()) {
 
         oresMined = 0;
 
@@ -601,6 +603,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         tilesToReveal.Clear();
         revealTilemapsToEdit.Clear();
         revealTilesForTilemaps.Clear();
+
+        bool generateParticles = false;
+        // If its not Vector3.zero, then it was initialized because there needs to be particles generated
+        if (Vector3.Distance(vehiclePos, new()) > 0.1f) {
+            generateParticles = true;
+        }
 
         foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
@@ -706,6 +714,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // Set tiles being destroyed
             for (int j = 0; j != size; j++) {
                 tilesToSet[j] = destroyTilesForTilemaps[i][j];
+
+                if (generateParticles) {
+                    SpawnVacuum(tilesToSet[j], vehiclePos, new(1, 1, 1));
+                }
+                
                 // Leave tilesBeingChanged[j] as null since we are destroying it
             }
 
@@ -742,6 +755,35 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Reveal the tiles
         RevealTiles(tilesToReveal);
+    }
+
+    public void SpawnVacuum(Vector3 from, Vector3 to, Color colour)
+    {
+        // Instantiate at source
+        var ps = Instantiate(vacuumPrefab, from, Quaternion.identity);
+
+        // Tint
+        var main = ps.main;
+        main.startColor = colour;
+
+        // Compute direction and force so particles reach target ~75‑90 % of lifetime
+        var dir      = (to - from).normalized;
+        var distance = Vector3.Distance(from, to);
+        var forceMag = 4f * distance / main.startLifetime.constant;   // tweak multiplier to taste
+
+        var fol = ps.forceOverLifetime;
+        fol.enabled = true;
+        fol.x       = dir.x * forceMag;
+        fol.y       = dir.y * forceMag;
+        fol.z       = dir.z * forceMag;
+
+        // Optional: orient swirl around travel axis
+        var vol = ps.velocityOverLifetime;
+        vol.enabled = true;
+        vol.orbitalZ = new ParticleSystem.MinMaxCurve(6f);
+
+        ps.Play();
+        Destroy(ps.gameObject, main.startLifetime.constant + 0.1f);
     }
 
     public TileBase[] GetOres() {
