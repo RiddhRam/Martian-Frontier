@@ -1,4 +1,4 @@
-using UnityEditor.Animations;
+using UnityEngine.Animations;
 using UnityEngine;
 
 public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
@@ -14,7 +14,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("Drill Drillers")]
     [SerializeField] Sprite[] baseDrills;
     [SerializeField] Sprite[] wideDrills;
-    [SerializeField] AnimatorController[] boreDrills;
+    [SerializeField] RuntimeAnimatorController[] boreDrills;
 
     private SerializableDictionary<string, int> vehicleUpgradeLevels;
 
