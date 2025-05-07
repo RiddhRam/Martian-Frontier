@@ -70,11 +70,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public DailyChallengeDelegator dailyChallengeDelegator;
     public UpgradesDelegator upgradesDelegator;
     public RefineryController refineryController;
+    public AudioDelegator audioDelegator;
 
     private Dictionary<string, int> quantities = new();
     //public int[] oresCount;
-
+    
     [SerializeField] ParticleSystem vacuumPrefab;
+    [SerializeField] AudioClip orePickUpAudioClip;
+    [SerializeField] AudioSource orePickUpSequenceAudioSource;
+    private float lastOreMinedTime;
 
     private readonly Queue<ParticleSystem> particlePool = new();
     private List<GameObject> mineTilemaps;
@@ -155,6 +159,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool soloMineLoaded = false;
 
     int seedInUse;
+
 
     // Called before Start
     void Awake()
@@ -746,6 +751,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     dailyChallengeDelegator.MinedOres(quantities);
                 }
 
+                if (oresMined > 0) {
+                    // Must mine at least once per 0.5s in order to keep audio going
+                    float timeSinceLastMine = Time.time - lastOreMinedTime;
+                    if (timeSinceLastMine >= 0.4f) {
+                        // Play ore pick up audio
+                        StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, 0.5f));
+                        
+                        lastOreMinedTime= Time.time;
+                    }   
+                }
+
                 // Track which ores are being sold so the player can get paid
                 int[] newMaterials = new int[9];
                 foreach (string name in quantities.Keys) {
@@ -766,7 +782,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         RevealTiles(tilesToReveal);
     }
 
-    public float mult;
     public void SpawnVacuum(Vector3 from, Vector3 to, Color colour)
     {
         // Instantiate at source
@@ -785,15 +800,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         main.startColor = colour;
 
         // Compute direction and force so particles reach target ~75‑90 % of lifetime
-        var dir      = (to - from).normalized;
+        var dir = (to - from).normalized;
         var distance = Vector3.Distance(from, to);
-        var forceMag = mult * distance / main.startLifetime.constant;
+        var forceMag = 2f * distance / main.startLifetime.constant;
 
         var fol = ps.forceOverLifetime;
         fol.enabled = true;
-        fol.x       = dir.x * forceMag;
-        fol.y       = dir.y * forceMag;
-        fol.z       = dir.z * forceMag;
+        fol.x = dir.x * forceMag;
+        fol.y = dir.y * forceMag;
+        fol.z = dir.z * forceMag;
 
         // orient swirl around travel axis
         var vol = ps.velocityOverLifetime;

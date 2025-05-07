@@ -142,7 +142,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceBoxCollider.isTrigger = false;
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
 
-        cashMadeThisMine = 0;
         UpdateCashText();
 
         if (materialsSold >= 300 && !askedForReview && doneLoading) {
@@ -159,6 +158,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (adDelegator.lobbyAdDisplay) {
             StartCoroutine(adDelegator.TryShowLobbyReward(cashMadeThisMine));
         }
+
+        cashMadeThisMine = 0;
 
         if (nPCManager) {
             StartCoroutine(nPCManager.WaitInLobby());

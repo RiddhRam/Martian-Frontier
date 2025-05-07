@@ -944,6 +944,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!82 &155794456 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 7181630211746284805, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
+  m_PrefabInstance: {fileID: 7087937064856202617}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &157187081 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8856152176168989830, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -37719,7 +37724,7 @@ PrefabInstance:
       objectReference: {fileID: 2066369585}
     - target: {fileID: 4627469716431030605, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4636626020754399339, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -39839,6 +39844,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 260615467}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
+      propertyPath: audioDelegator
+      value: 
+      objectReference: {fileID: 178773787}
+    - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: playerStateScript
       value: 
       objectReference: {fileID: 276248154}
@@ -39862,6 +39871,10 @@ PrefabInstance:
       propertyPath: dailyChallengeDelegator
       value: 
       objectReference: {fileID: 875091222}
+    - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
+      propertyPath: orePickUpSequenceAudioSource
+      value: 
+      objectReference: {fileID: 155794456}
     - target: {fileID: 5667027524459750897, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 

@@ -38,8 +38,8 @@ public class DrillerController : MonoBehaviour
 
     // Endurance
     private float drillHeat = 0;
-    private readonly float heatCooldownDelay = 1.5f;
-    private readonly float coolRate = 0.5f;
+    private const float heatCooldownDelay = 1.5f;
+    private const float coolRate = 0.5f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 
@@ -126,7 +126,7 @@ public class DrillerController : MonoBehaviour
                 }
 
                 if (minedSomething) {
-                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, transform.position);
+                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2);
 
                     if (!isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                         PlayAudio();
@@ -143,7 +143,7 @@ public class DrillerController : MonoBehaviour
 
             tileWorldPositions.Clear();
             tileBasesToDestroy.Clear();
-        } 
+        }
         else {
             minedSomething = false;
 
