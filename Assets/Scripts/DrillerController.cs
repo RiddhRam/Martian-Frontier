@@ -17,10 +17,17 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
-    [SerializeField]
-    private long price;
-    [SerializeField]
-    private float profitMultiplier;
+    [SerializeField] private long price;
+    [SerializeField] private float profitMultiplier;
+
+    [Header("Upgrade Bay Info")]
+    public int drillerIndex; // Position in the garage
+    [SerializeField] private float bodyPos;
+    [SerializeField] private float drillPos;
+    [SerializeField] private bool needFrontWheels;
+    [SerializeField] private Vector2 frontWheelsPos;
+    [SerializeField] private float frontWheelsScale;
+
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 400;
     private int lastErrorCounter = 400;
@@ -126,7 +133,7 @@ public class DrillerController : MonoBehaviour
                 }
 
                 if (minedSomething) {
-                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2);
+                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2, true);
 
                     if (!isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
                         PlayAudio();
@@ -255,5 +262,9 @@ public class DrillerController : MonoBehaviour
         audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
+    }
+
+    public (float bodyPos, float drillPos, bool needFrontWheels, Vector2 frontWheelsPos, float frontWheelsScale) GetUpgradeBayInfo() {
+        return (bodyPos, drillPos, needFrontWheels, frontWheelsPos, frontWheelsScale);
     }
 }

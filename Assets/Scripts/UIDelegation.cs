@@ -28,10 +28,15 @@ public class UIDelegation : MonoBehaviour
  
     void Start()
     {
+        mainCameraController = Camera.main.GetComponent<GameCameraController>();
+
+        if (!oreDelegation) {
+            Debug.Log("No ore delegation");
+            return;
+        }
         materialNames = oreDelegation.materialNames;
         materialHighResSprites = oreDelegation.materialHighResSprites;
         materialPrices = oreDelegation.GetMaterialPrices();
-        mainCameraController = Camera.main.GetComponent<GameCameraController>();
     }
 
     // Hide all base elements, and only used before opening a secondary element like the camera

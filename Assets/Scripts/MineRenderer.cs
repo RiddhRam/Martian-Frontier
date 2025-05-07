@@ -609,7 +609,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC, Vector3 vehiclePos = new()) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC, Vector3 vehiclePos = new(), bool playAudio = false) {
 
         oresMined = 0;
 
@@ -751,7 +751,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     dailyChallengeDelegator.MinedOres(quantities);
                 }
 
-                if (oresMined > 0) {
+                if (oresMined > 0 && playAudio) {
                     // Must mine at least once per 0.4s in order to keep audio going
                     float timeSinceLastMine = Time.time - lastOreMinedTime;
                     const float volume = 0.75f;
@@ -768,16 +768,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                         
                         lastOreMinedTime= Time.time;
                     }
-                }
 
-                // Track which ores are being sold so the player can get paid
-                int[] newMaterials = new int[9];
-                foreach (string name in quantities.Keys) {
-                    newMaterials[oreDelegation.GetTileIndexByName(name)] = quantities[name];
+                    // Track which ores are being sold so the player can get paid
+                    int[] newMaterials = new int[9];
+                    foreach (string name in quantities.Keys) {
+                        newMaterials[oreDelegation.GetTileIndexByName(name)] = quantities[name];
+                    }
+                    
+                    // Finally pay player
+                    refineryController.SellOres(newMaterials, isNPC);
                 }
-                
-                // Finally pay player
-                refineryController.SellOres(newMaterials, isNPC);
             }
             
         } catch (System.Exception ex) {

@@ -63,7 +63,7 @@ public class GameData
     public GameData() {
         this.userCash = "0";
         this.userXP = "0";
-        this.playerPos = new(0, 6, 0);
+        this.playerPos = new(0, 3, 0);
         this.playerRotation = 180;
         this.blocksMined = "0";
         this.materialsSold = "0";

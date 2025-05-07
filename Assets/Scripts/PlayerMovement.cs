@@ -43,7 +43,7 @@ public class PlayerMovement : MonoBehaviour
 
     private long cashToShow;
     private Coroutine floatingTextCoroutine;
-    public float fadeDuration = 0.5f;
+    const float fadeDuration = 0.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -61,7 +61,7 @@ public class PlayerMovement : MonoBehaviour
         float y = transform.position.y;
         float x = transform.position.x;
         if (y > 21 || y < -515 || x > 79 || x < -79) {
-            transform.position = new(0, 6, 0);
+            transform.position = new(0, 3, 0);
         }
 
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
@@ -216,6 +216,10 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator HoldProgressBarStill() {
         
+        if (sliderCanvas == null) {
+            Debug.Log("No canvas found");
+            yield break;
+        }
         while (true) {
 
             sliderCanvas.rotation = normalRotation;

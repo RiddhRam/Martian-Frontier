@@ -27,10 +27,10 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7847215067739206082}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0, z: 0.7071068, w: -0.7071068}
-  m_LocalPosition: {x: 2.2, y: 17.87, z: 0.108711906}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -5.74, y: 13.759999, z: 0.108711906}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -82,6 +82,14 @@ MonoBehaviour:
   - {fileID: 9100000, guid: 1b8195c84b07e423f8e4bae61c61bab9, type: 2}
   - {fileID: 9100000, guid: 61163f213ab064da3becfbc219427633, type: 2}
   - {fileID: 9100000, guid: dbee3f287d9b5438ca0e972a131cdd7d, type: 2}
+  drillerController: {fileID: 0}
+  upgradeBayPanel: {fileID: 0}
+  bodyImage: {fileID: 0}
+  drillImage: {fileID: 0}
+  frontWheels: {fileID: 0}
+  uIDelegation: {fileID: 0}
+  playerState: {fileID: 0}
+  joystickMovement: {fileID: 0}
 --- !u!212 &6521921964771852846
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -163,7 +171,7 @@ BoxCollider2D:
   m_CallbackLayers:
     serializedVersion: 2
     m_Bits: 4294967295
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
@@ -177,5 +185,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 12.96, y: 7.7}
+  m_Size: {x: 6.2, y: 9}
   m_EdgeRadius: 0

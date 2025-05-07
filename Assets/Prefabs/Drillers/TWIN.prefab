@@ -60,8 +60,8 @@ Transform:
   m_GameObject: {fileID: 8494479027812159986}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.1103, z: 0}
-  m_LocalScale: {x: 1, y: 1.05, z: 1.05}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1.05}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1159897856790554294}
@@ -191,7 +191,7 @@ Transform:
   m_GameObject: {fileID: 8776318639812117929}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 1, w: 0}
-  m_LocalPosition: {x: 0, y: -1.85, z: 0}
+  m_LocalPosition: {x: 0, y: -1.92, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -268,6 +268,12 @@ MonoBehaviour:
   endurance: 150
   price: 60000
   profitMultiplier: 0
+  drillerIndex: 1
+  bodyPos: 0
+  drillPos: 0
+  needFrontWheels: 0
+  frontWheelsPos: {x: 0, y: 0}
+  frontWheelsScale: 0
   isNPC: 0
 --- !u!61 &2381165575891716374
 BoxCollider2D:

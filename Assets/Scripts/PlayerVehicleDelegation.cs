@@ -12,19 +12,23 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
+
+    [Header("Other Scripts")]
     public MineRenderer mineRenderer;
     public AdDelegator adDelegator;
     public AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
     public GarageDelegator garageDelegator;
+    public VehicleUpgradeBayManager vehicleUpgradeBayManager;
+
     private bool notSinglePlayerScene = false;
 
     // For tutorial
     public bool blockSwitching = false;
-
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
 
+    [Header("Visual")]
     [SerializeField] private Slider slider;
 
     public void SwitchVehicle(GameObject newVehicle) {
@@ -60,7 +64,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerVehicle.name = playerVehicle.name[..^7];
 
         if (!notSinglePlayerScene) {
-            transform.SetPositionAndRotation(new(0, 6, 0), Quaternion.Euler(0, 0, 180));
+            transform.SetPositionAndRotation(new(0, 3, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
             currentVehicle = playerVehicle.name;
@@ -88,6 +92,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         drillerController.playerVehicleDelegation = this;
 
         slider.maxValue = drillerController.endurance;
+        vehicleUpgradeBayManager.drillerController = drillerController;
        
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
