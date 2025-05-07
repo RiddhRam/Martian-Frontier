@@ -22,11 +22,7 @@ public class DrillerController : MonoBehaviour
 
     [Header("Upgrade Bay Info")]
     public int drillerIndex; // Position in the garage
-    [SerializeField] private float bodyPos;
-    [SerializeField] private float drillPos;
-    [SerializeField] private bool needFrontWheels;
-    [SerializeField] private Vector2 frontWheelsPos;
-    [SerializeField] private float frontWheelsScale;
+    public int drillTypeIndex; // Corresponds to sprite's position in allNormalDrills in VehicleUpgradeBayManager
 
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 400;
@@ -262,9 +258,5 @@ public class DrillerController : MonoBehaviour
         audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
-    }
-
-    public (float bodyPos, float drillPos, bool needFrontWheels, Vector2 frontWheelsPos, float frontWheelsScale) GetUpgradeBayInfo() {
-        return (bodyPos, drillPos, needFrontWheels, frontWheelsPos, frontWheelsScale);
     }
 }

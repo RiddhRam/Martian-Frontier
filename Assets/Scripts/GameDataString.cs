@@ -30,7 +30,10 @@ public class GameDataString
     public string currentOresMined;
     public string gemRewardsToCollect;
     public string tutorialScreenIndex;
+
     public string vehicleUpgradeLevels;
+    public string vehicleCustomizations;
+
     public string materialProfitMultipliers;
     public string cratesAvailable;
     public string progressToNextCrate;
@@ -81,7 +84,10 @@ public class GameDataString
         this.currentOresMined = null;
         this.gemRewardsToCollect = null;
         this.tutorialScreenIndex = null;
+
         this.vehicleUpgradeLevels = null;
+        this.vehicleCustomizations = null;
+
         this.materialProfitMultipliers = null;
         this.cratesAvailable = null;
         this.progressToNextCrate = null;

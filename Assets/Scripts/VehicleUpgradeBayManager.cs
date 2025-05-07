@@ -1,4 +1,3 @@
-using UnityEngine.Animations;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -12,11 +11,15 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [SerializeField] Sprite[] tempestBodies;
     [SerializeField] Sprite[] boreBodies;
 
+    private Sprite[][] allBodies;
+
     [Header("Drill Drillers")]
     [SerializeField] Sprite[] baseDrills;
     [SerializeField] Sprite[] wideDrills;
     [SerializeField] RuntimeAnimatorController[] boreDrills;
     [SerializeField] RuntimeAnimatorController[] boreUIDrills;
+
+    private Sprite[][] allNormalDrills;
 
     [Header("For Displaying")]
     public DrillerController drillerController;
@@ -30,15 +33,16 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     // The actual sprite to show
     private Sprite bodySprite;
-    private Sprite drillSprite;
     private Animator drillAnimator;
 
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
     public PlayerState playerState;
     public JoystickMovement joystickMovement;
+    public GarageDelegator garageDelegator;
 
     private SerializableDictionary<string, int> vehicleUpgradeLevels;
+    private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
 
     /*public void OnUpgradeButtonClick (string vehicleName, Transform upgradeButton, TextMeshProUGUI level, TextMeshProUGUI profit) {
         int gemPrice = upgradeGemPrices[GetVehicleLevel(vehicleName)];
@@ -98,7 +102,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Get rid of last vehicle display and create new one that matches the current vehicle
         DestroyPreviousVehicleDisplay();
-        MatchGarageDisplayToDrill();
         CreateNewVehicleDisplay();
 
         uIDelegation.RevealElement(upgradeBayPanel);
@@ -106,39 +109,91 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         joystickMovement.joystickVec = Vector2.zero;
     }
 
-    private void MatchGarageDisplayToDrill() {
-        bodySprite = drillerController.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite;
+    // driller = the gameobject of the driller, not its panel
+    // matchActiveDrill = whether or not to update the drill the player is currently using too
+    private void MatchGarageDisplayToDrill(int drillerIndex, Transform driller) {
+        bodySprite = GetBodySprite(drillerIndex, driller.name);
+        DrillerController currentDrillerController = driller.GetChild(1).GetComponent<DrillerController>();
         
-        garageBodyImages[drillerController.drillerIndex].sprite = bodySprite;
+        garageBodyImages[drillerIndex].sprite = bodySprite;
         
-        drillAnimator = drillerController.GetComponent<Animator>();
+        drillAnimator = currentDrillerController.GetComponent<Animator>();
 
         if (drillAnimator) {
-            garageDrillImages[drillerController.drillerIndex].GetComponent<Animator>().runtimeAnimatorController = FindUIAnimator(drillAnimator.runtimeAnimatorController);
+            garageDrillImages[drillerIndex].GetComponent<Animator>().runtimeAnimatorController = GetUIDrillAnimator(driller.name);
         } 
         else {
-            drillSprite = drillerController.GetComponent<SpriteRenderer>().sprite;
-        
-            garageDrillImages[drillerController.drillerIndex].sprite = drillSprite;
+            garageDrillImages[drillerIndex].sprite = GetDrillSprite(currentDrillerController.drillTypeIndex, driller.name);
         }
     }
 
-    private RuntimeAnimatorController FindUIAnimator(RuntimeAnimatorController controllerToMatch) {
-        for (int i = 0; i != boreDrills.Length; i++) {
-            if (boreDrills[i] == controllerToMatch) {
+    // Find the selected body sprite the user chose
+    private Sprite GetBodySprite(int drillerIndex, string drillName) {
+
+        // If they didn't choose any, return the first one, which is supposed to be Vertex
+        if (!vehicleCustomizations.ContainsKey(drillName)) {
+            return allBodies[drillerIndex][0];
+        }
+
+        string bodySpriteName = vehicleCustomizations[drillName].body;
+
+        for (int i = 0; i != allBodies[drillerIndex].Length; i++) {
+            if (bodySpriteName == allBodies[drillerIndex][i].name) {
+                return allBodies[drillerIndex][i];
+            }
+        }
+
+        // Fallback
+        return allBodies[drillerIndex][0];
+    }
+
+    // Find the selected drill animator the user chose
+    private RuntimeAnimatorController GetUIDrillAnimator(string drillName) {
+
+        // If they didn't choose any, return the first one, which is supposed to be Vertex
+        if (!vehicleCustomizations.ContainsKey(drillName)) {
+            return boreUIDrills[0];
+        }
+
+        string bodySpriteName = vehicleCustomizations[drillName].body;
+
+        for (int i = 0; i != boreUIDrills.Length; i++) {
+            if (bodySpriteName == boreUIDrills[i].name) {
                 return boreUIDrills[i];
             }
         }
 
-        return null;
+        // Fallback
+        return boreUIDrills[0];
     }
 
+    private Sprite GetDrillSprite(int drillTypeIndex, string drillName) {
+
+        // If they didn't choose any, return the first one, which is supposed to be Vertex
+        if (!vehicleCustomizations.ContainsKey(drillName)) {
+            return allNormalDrills[drillTypeIndex][0];
+        }
+
+        string bodySpriteName = vehicleCustomizations[drillName].body;
+
+        for (int i = 0; i != allNormalDrills[drillTypeIndex].Length; i++) {
+            if (bodySpriteName == allNormalDrills[drillTypeIndex][i].name) {
+                return allNormalDrills[drillTypeIndex][i];
+            }
+        }
+
+        // Fallback
+        return allNormalDrills[drillTypeIndex][0];
+    }
+
+    // Remove the display from the upgrade bay
     private void DestroyPreviousVehicleDisplay() {
         if (drillToCopy) {
             Destroy(drillToCopy.gameObject);
         }
     }
 
+    // Copy the garage display and show that in upgrade bay
     private void CreateNewVehicleDisplay() {
         // Copy from garage panel
         drillToCopy = Instantiate(garageDrillImages[drillerController.drillerIndex].transform.parent.gameObject).transform;
@@ -159,11 +214,32 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+        allBodies = new Sprite[][]
+        {
+            grinderBodies,
+            twinBodies,
+            viperBodies,
+            specterBodies,
+            tempestBodies,
+            boreBodies
+        };
+
+        allNormalDrills = new Sprite[][] {
+            baseDrills,
+            wideDrills,
+        };
+
         this.vehicleUpgradeLevels = data.vehicleUpgradeLevels;
+        this.vehicleCustomizations = data.vehicleCustomizations;
+
+        for (int i = 0; i != garageDelegator.drillers.Length; i++) {
+            MatchGarageDisplayToDrill(i, garageDelegator.drillers[i].transform);
+        }
     }
 
     public void SaveData(ref GameData data)
     {
         data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
+        data.vehicleCustomizations = this.vehicleCustomizations;
     }
 }

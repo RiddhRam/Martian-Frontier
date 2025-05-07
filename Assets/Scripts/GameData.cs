@@ -38,7 +38,11 @@ public class GameData
     public int currentOresMined;
     public long gemRewardsToCollect;
     public int tutorialScreenIndex;
+
     public SerializableDictionary<string, int> vehicleUpgradeLevels;
+    public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
+
+
     public float[] materialProfitMultipliers;
     public int cratesAvailable;
     public int progressToNextCrate;
@@ -99,7 +103,10 @@ public class GameData
         this.currentOresMined = 0;
         this.gemRewardsToCollect = 0;
         this.tutorialScreenIndex = 0;
+
         this.vehicleUpgradeLevels = new();
+        this.vehicleCustomizations = new();
+
         this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
