@@ -28,11 +28,11 @@ public class AudioDelegator : MonoBehaviour
         audioSource.Play();
     }
 
-    public IEnumerator PlayTimedAudio(AudioSource audioSource, AudioClip audioClip, float volume) {
+    public IEnumerator PlayTimedAudio(AudioSource audioSource, AudioClip audioClip, float volume, bool forcePlay) {
 
         audioTimer += 0.5f;
 
-        if (audioPlaying) {
+        if (audioPlaying && !forcePlay) {
             yield break;
         }
 
@@ -40,6 +40,8 @@ public class AudioDelegator : MonoBehaviour
         PlayAudio(audioSource, audioClip, volume);
 
         float time = 0;
+
+        timeAudioVolume = volume;
 
         // Wait until audio plays fully or timer is up
         while (time < audioClip.length && audioTimer > 0) {
@@ -63,6 +65,8 @@ public class AudioDelegator : MonoBehaviour
             // If music is not enabled then volume is 0;
             currentVolume = soundFXEnabled ? currentVolume : 0;
             audioSource.volume = currentVolume;
+            
+            timeAudioVolume = currentVolume;
             yield return null;
         }
 

@@ -193,7 +193,7 @@ public class PlayerMovement : MonoBehaviour
 
     private IEnumerator ShowFloatingText() {
         // Show text
-        cashEarnedText.text = "↑ $" + FormatPrice(cashToShow);
+        cashEarnedText.text = "+$" + FormatPrice(cashToShow);
         cashEarnedText.alpha = 1;
 
         // Wait 2 seconds

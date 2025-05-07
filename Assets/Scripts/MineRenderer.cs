@@ -752,14 +752,22 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
 
                 if (oresMined > 0) {
-                    // Must mine at least once per 0.5s in order to keep audio going
+                    // Must mine at least once per 0.4s in order to keep audio going
                     float timeSinceLastMine = Time.time - lastOreMinedTime;
+                    const float volume = 0.75f;
                     if (timeSinceLastMine >= 0.4f) {
                         // Play ore pick up audio
-                        StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, 0.5f));
+                        StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
+                        
+                        lastOreMinedTime = Time.time;
+                    } 
+                    // If audio is fading out or faded out already, then skip the 0.4s timer, and play right away
+                    else if (audioDelegator.audioTimer <= 0f) {
+                        // Play ore pick up audio
+                        StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
                         
                         lastOreMinedTime= Time.time;
-                    }   
+                    }
                 }
 
                 // Track which ores are being sold so the player can get paid
