@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -45,8 +46,15 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public Outline[] drillOutlines;
 
     private Outline selectedOutline;
+    private bool drillIsSelected;
     private Outline equippedBodyOutline;
     private Outline equippedDrillOutline;
+
+    public GameObject equipButton;
+    public GameObject buyButton;
+    public TextMeshProUGUI gemPriceText;
+
+    long gemPrice;
 
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
@@ -56,6 +64,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     private SerializableDictionary<string, int> vehicleUpgradeLevels;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
+    private List<string> customizationsOwned;
 
     /*public void OnUpgradeButtonClick (string vehicleName, Transform upgradeButton, TextMeshProUGUI level, TextMeshProUGUI profit) {
         int gemPrice = upgradeGemPrices[GetVehicleLevel(vehicleName)];
@@ -125,7 +134,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     // driller = the gameobject of the driller, not its panel
     // matchActiveDrill = whether or not to update the drill the player is currently using too
-    private void MatchGarageDisplayToDrill(int drillerIndex, Transform driller) {
+    private void MatchGarageDisplayToDrill(int drillerIndex) {
+
+        Transform driller = garageDelegator.drillers[drillerIndex].transform;
+
         (bodySprite, _) = GetBodySprite(drillerIndex, driller.name);
         DrillerController currentDrillerController = driller.GetChild(1).GetComponent<DrillerController>();
         
@@ -206,6 +218,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         if (drillToCopy) {
             Destroy(drillToCopy.gameObject);
         }
+
+        for (int i = 0; i != bodyOutlines.Length; i++) {
+            bodyOutlines[i].transform.GetChild(0).GetComponent<Button>().onClick.RemoveAllListeners();
+        }
+
+        for (int i = 0; i != drillOutlines.Length; i++) {
+            drillOutlines[i].transform.GetChild(0).GetComponent<Button>().onClick.RemoveAllListeners();
+        }
     }
 
     // Copy the garage display and show that in upgrade bay
@@ -228,7 +248,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     private void GenerateCustomizationsDisplays() {
-        bool usesAnimatedDrill = drillerController.GetComponent<Animator>();
+        bool usesAnimatedDrill = DrillUsesAnimation();
 
         for (int i = 0; i != bodyOutlines.Length; i++) {
             // Reset everything
@@ -274,7 +294,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Reset drill sprite
         drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = null;
-        if (drillerController.GetComponent<Animator>()) {
+        if (DrillUsesAnimation()) {
             (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(transform.parent.name);
         } else {
             (drillToCopy.GetChild(2).GetComponent<Image>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name);
@@ -282,9 +302,27 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Show preview of driller with this body
         drillToCopy.GetChild(1).GetComponent<Image>().sprite = allBodies[drillerController.drillerIndex][index];
+
+        // If the selected one is the currently active one, disable equip and purchase button
+        if (GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name).Item1 == allBodies[drillerController.drillerIndex][index]) {
+            equipButton.SetActive(false);
+            buyButton.SetActive(false);
+        } 
+        // Player owns this but not equipped
+        else if (PlayerOwnsCustomization((allBodies[drillerController.drillerIndex][index].name + drillerController.transform.parent.name).ToLower())) {
+            equipButton.SetActive(true);
+            buyButton.SetActive(false);
+        } 
+        // Doesn't own and not equpped
+        else {
+            equipButton.SetActive(false);
+            buyButton.SetActive(true);
+        }
+
+        drillIsSelected = false;
         
         // Rehighlight equipped options to be blue, in case it was made green or white
-        HighlightEquippedOptions(drillerController.GetComponent<Animator>());
+        HighlightEquippedOptions(DrillUsesAnimation());
     } 
 
     private void SelectDrill(int index) {
@@ -301,15 +339,48 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         (drillToCopy.GetChild(1).GetComponent<Image>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
         
         // Show preview of driller with this drill
-        if (drillerController.GetComponent<Animator>()) {
+        if (DrillUsesAnimation()) {
             drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = boreUIDrills[index];
+
+            // If the selected one is the currently active one, disable equip and purchase button
+            if (GetDrillAnimator(drillerController.transform.parent.name).uiRuntimeAnimatorController == boreUIDrills[index]) {
+                equipButton.SetActive(false);
+                buyButton.SetActive(false);
+            } 
+            // Player owns this but not equipped
+            else if (PlayerOwnsCustomization((boreUIDrills[index].name + drillerController.transform.parent.name).ToLower())) {
+                equipButton.SetActive(true);
+                buyButton.SetActive(false);
+            } 
+            // Doesn't own and not equpped
+            else {
+                equipButton.SetActive(false);
+                buyButton.SetActive(true);
+            }
         } else {
             drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = null;
             drillToCopy.GetChild(2).GetComponent<Image>().sprite = allNormalDrills[drillerController.drillTypeIndex][index];
+
+            if (GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name).Item1 == allNormalDrills[drillerController.drillTypeIndex][index]) {
+                equipButton.SetActive(false);
+                buyButton.SetActive(false);
+            } 
+            // Player owns this but not equipped
+            else if (PlayerOwnsCustomization((allNormalDrills[drillerController.drillTypeIndex][index].name + drillerController.transform.parent.name).ToLower())) {
+                equipButton.SetActive(true);
+                buyButton.SetActive(false);
+            } 
+            // Doesn't own and not equpped
+            else {
+                equipButton.SetActive(false);
+                buyButton.SetActive(true);
+            }
         }
+        
+        drillIsSelected = true;
 
         // Rehighlight equipped options to be blue, in case it was made green or white
-        HighlightEquippedOptions(drillerController.GetComponent<Animator>());
+        HighlightEquippedOptions(DrillUsesAnimation());
     }
 
     private void HighlightEquippedOptions(bool usesAnimatedDrill) {
@@ -327,6 +398,97 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
         equippedDrillOutline = drillOutlines[selectedDrill];
         equippedDrillOutline.effectColor = new(35/255f, 35/255f, 1);
+    }
+
+    private bool PlayerOwnsCustomization(string name) {
+        // Vertex is free
+        if (name.ToLower().Contains("vertex")) {
+            return true;
+        }
+
+        if (customizationsOwned.Contains(name)) {
+            Debug.Log("Found!");
+            return true;
+        }
+
+        return false;
+    }
+
+    public void EquipCustomization() {
+        
+        Transform spriteTransform = selectedOutline.transform.GetChild(0);
+
+        if (drillIsSelected) {
+            
+            if (DrillUsesAnimation()) {
+                // Remove last customization
+                drillerController.GetComponent<Animator>().runtimeAnimatorController = null;
+
+                // Add new customization
+                UpdateCustomizationDictionary(spriteTransform.GetComponent<Animator>().runtimeAnimatorController.name.Replace(" UI", ""), true);
+            } else {
+                UpdateCustomizationDictionary(spriteTransform.GetComponent<Image>().sprite.name, true);
+            }
+        } else {
+            UpdateCustomizationDictionary(spriteTransform.GetComponent<Image>().sprite.name, false);
+        }
+
+        equipButton.SetActive(false);
+
+        MatchGarageDisplayToDrill(drillerController.drillerIndex);
+    }
+
+    private void UpdateCustomizationDictionary(string customization, bool isDrill) {
+        // If not in dictionary, add it and make vertex the default
+        if (!vehicleCustomizations.ContainsKey(drillerController.transform.parent.name)) {
+            vehicleCustomizations[drillerController.transform.parent.name] = new VehicleCustomization("vertex", "vertex");
+        }
+
+        if (isDrill) {
+            vehicleCustomizations[drillerController.transform.parent.name].drill = customization;
+            return;
+        }
+
+        vehicleCustomizations[drillerController.transform.parent.name].body = customization;
+    }
+
+    public void PurchaseCustomization() {
+        if (!playerState.VerifyEnoughGems(gemPrice)) {
+            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            return;
+        }
+
+        playerState.SubtractGems(gemPrice);
+
+        string customizationName;
+
+        Transform spriteTransform = selectedOutline.transform.GetChild(0);
+        if (drillIsSelected) {
+            if (DrillUsesAnimation()) {
+                customizationName = spriteTransform.GetComponent<Animator>().runtimeAnimatorController.name;
+            } else {
+                customizationName = spriteTransform.GetComponent<Image>().sprite.name;
+            }
+        } else {
+            customizationName = spriteTransform.GetComponent<Image>().sprite.name;
+        }
+
+        customizationName += drillerController.transform.parent.name;
+        customizationName = customizationName.ToLower();
+        
+        customizationsOwned.Add(customizationName);
+
+        buyButton.SetActive(false);
+
+        EquipCustomization();
+    }
+
+    public bool DrillUsesAnimation() {
+        if (drillerController.GetComponent<Animator>()) {
+            return true;
+        }
+
+        return false;
     }
 
     public void LoadData(GameData data)
@@ -348,9 +510,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         this.vehicleUpgradeLevels = data.vehicleUpgradeLevels;
         this.vehicleCustomizations = data.vehicleCustomizations;
+        this.customizationsOwned = data.customizationsOwned;
 
         for (int i = 0; i != garageDelegator.drillers.Length; i++) {
-            MatchGarageDisplayToDrill(i, garageDelegator.drillers[i].transform);
+            MatchGarageDisplayToDrill(i);
         }
     }
 
@@ -358,6 +521,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     {
         data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
         data.vehicleCustomizations = this.vehicleCustomizations;
+        data.customizationsOwned = this.customizationsOwned;
     }
 
     public void ToggleButtonColor(bool isCustomizations) {
@@ -367,7 +531,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
             upgradesButtonImage.color = new(1, 1, 1, 90/255f);
             upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50/255f, 50/255f, 50/255f, 1);
-            
         } 
         else {
             customizationsButtonImage.color = new(1, 1, 1, 90/255f);

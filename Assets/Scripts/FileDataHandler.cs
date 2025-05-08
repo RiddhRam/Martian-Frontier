@@ -129,7 +129,24 @@ public class FileDataHandler
 
                 correspondingField.SetValue(tempData, newArray);
             } 
+            else if (fieldType == typeof(SerializableDictionary<string, VehicleCustomization>)) {
+                if (useEncryption) {
+                    value = EncryptDecrypt(value, true);
+                }
+
+                // Same as below intDictData
+                // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
+                value = "{" + value + "}";
+
+                SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(value);
+                correspondingField.SetValue(tempData, vehicleData);
+            }
             else if (fieldType == typeof(SerializableDictionary<string, int>)) {
+                if (useEncryption) {
+                    value = EncryptDecrypt(value, true);
+                }
+
                 // Same as above materialManagerData
                 // Trim the outer [ ] and also turn the url encoding back to quotation marks
                 value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
@@ -315,6 +332,20 @@ public class FileDataHandler
                 }
 
                 jsonBuilder.Append("]\",\n");
+            }
+            else if (fieldValue is SerializableDictionary<string, VehicleCustomization> materialDictionaryArray) {
+
+                // Same as intDictionaryArray
+                string json = JsonUtility.ToJson(materialDictionaryArray);
+                json = json.Trim('{', '}');
+                json = json.Replace("\"", "%22");
+                json = "\"[" + json + "]\"";
+
+                if (useEncryption) {
+                    json = EncryptDecrypt(json, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
             }
             // For upgrade arrays
             else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray) {

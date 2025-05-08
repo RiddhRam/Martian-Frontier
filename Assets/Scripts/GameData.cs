@@ -41,6 +41,7 @@ public class GameData
 
     public SerializableDictionary<string, int> vehicleUpgradeLevels;
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
+    public List<string> customizationsOwned;
 
 
     public float[] materialProfitMultipliers;
@@ -106,6 +107,7 @@ public class GameData
 
         this.vehicleUpgradeLevels = new();
         this.vehicleCustomizations = new();
+        this.customizationsOwned = new();
 
         this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;

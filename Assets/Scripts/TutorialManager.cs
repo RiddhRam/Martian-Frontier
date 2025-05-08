@@ -38,6 +38,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private IEnumerator DisplayTutorial()
     {
         ResetMine.SetActive(false);
+        Debug.Log("Hide mine");
         // Player cannot destroy materials during tutorial
         //destroyMaterial.preventDestruction = true;
 
@@ -194,6 +195,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         ResetMine.SetActive(true);
+        Debug.Log("Show mine");
         //destroyMaterial.preventDestruction = false;
         playerVehicleDelegation.blockSwitching = false;
         garageDelegator.blockPanelSwitching = false;

@@ -33,6 +33,7 @@ public class GameDataString
 
     public string vehicleUpgradeLevels;
     public string vehicleCustomizations;
+    public string customizationsOwned;
 
     public string materialProfitMultipliers;
     public string cratesAvailable;
@@ -87,6 +88,7 @@ public class GameDataString
 
         this.vehicleUpgradeLevels = null;
         this.vehicleCustomizations = null;
+        this.customizationsOwned = null;
 
         this.materialProfitMultipliers = null;
         this.cratesAvailable = null;
