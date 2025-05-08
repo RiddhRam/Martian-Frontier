@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -34,6 +35,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // The actual sprite to show
     private Sprite bodySprite;
     private Animator drillAnimator;
+
+    [Header("Buttons")]
+    public Image customizationsButtonImage;
+    public Image upgradesButtonImage;
 
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
@@ -208,7 +213,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         rt.offsetMax = new(0, rt.offsetMax.y);
 
         Vector2 pos = rt.anchoredPosition;
-        pos.y = -915f;
+        pos.y = -850f;
         rt.anchoredPosition = pos;
     }
 
@@ -241,5 +246,21 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     {
         data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
         data.vehicleCustomizations = this.vehicleCustomizations;
+    }
+
+    public void ToggleButtonColor(bool isCustomizations) {
+        if (isCustomizations) {
+            customizationsButtonImage.color = new(1, 0, 0, 1);
+            customizationsButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);
+
+            upgradesButtonImage.color = new(1, 1, 1, 90/255f);
+            upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50/255f, 50/255f, 50/255f, 1);
+        } else {
+            customizationsButtonImage.color = new(1, 1, 1, 90/255f);
+            customizationsButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50/255f, 50/255f, 50/255f, 1);
+
+            upgradesButtonImage.color = new(1, 0, 0, 1);
+            upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);
+        }
     }
 }
