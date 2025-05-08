@@ -185,7 +185,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         string bodySpriteName = vehicleCustomizations[drillName].drill;
 
         for (int i = 0; i != boreUIDrills.Length; i++) {
-            if (bodySpriteName == boreUIDrills[i].name) {
+            if (bodySpriteName == boreDrills[i].name) {
                 return (boreUIDrills[i], boreDrills[i], i);
             }
         }
@@ -295,7 +295,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Reset drill sprite
         drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = null;
         if (DrillUsesAnimation()) {
-            (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(transform.parent.name);
+            (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(drillerController.transform.parent.name);
         } else {
             (drillToCopy.GetChild(2).GetComponent<Image>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name);
         }
@@ -304,7 +304,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         drillToCopy.GetChild(1).GetComponent<Image>().sprite = allBodies[drillerController.drillerIndex][index];
 
         // If the selected one is the currently active one, disable equip and purchase button
-        if (GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name).Item1 == allBodies[drillerController.drillerIndex][index]) {
+        if (GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name).bodySprite == allBodies[drillerController.drillerIndex][index]) {
             equipButton.SetActive(false);
             buyButton.SetActive(false);
         } 
@@ -313,8 +313,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             equipButton.SetActive(true);
             buyButton.SetActive(false);
         } 
-        // Doesn't own and not equpped
+        // Doesn't own and not equipped
         else {
+            if (allBodies[drillerController.drillerIndex][index].name.Contains("Surge")) {
+                UpdateGemPrice(20_000);
+            } else if (allBodies[drillerController.drillerIndex][index].name.Contains("Cryo")) {
+                UpdateGemPrice(50_000);
+            }
+
             equipButton.SetActive(false);
             buyButton.SetActive(true);
         }
@@ -338,6 +344,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Reset body sprite
         (drillToCopy.GetChild(1).GetComponent<Image>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
         
+        long surgePrice = 40_000;
+        long cryoPrice = 100_000;
         // Show preview of driller with this drill
         if (DrillUsesAnimation()) {
             drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = boreUIDrills[index];
@@ -354,6 +362,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             } 
             // Doesn't own and not equpped
             else {
+                if (boreUIDrills[index].name.Contains("Surge")) {
+                    UpdateGemPrice(surgePrice);
+                } else if (boreUIDrills[index].name.Contains("Cryo")) {
+                    UpdateGemPrice(cryoPrice);
+                }
+
                 equipButton.SetActive(false);
                 buyButton.SetActive(true);
             }
@@ -361,7 +375,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = null;
             drillToCopy.GetChild(2).GetComponent<Image>().sprite = allNormalDrills[drillerController.drillTypeIndex][index];
 
-            if (GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name).Item1 == allNormalDrills[drillerController.drillTypeIndex][index]) {
+            if (GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name).drillSprite == allNormalDrills[drillerController.drillTypeIndex][index]) {
                 equipButton.SetActive(false);
                 buyButton.SetActive(false);
             } 
@@ -370,8 +384,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 equipButton.SetActive(true);
                 buyButton.SetActive(false);
             } 
-            // Doesn't own and not equpped
+            // Doesn't own and not equipped
             else {
+                if (allNormalDrills[drillerController.drillTypeIndex][index].name.Contains("Surge")) {
+                    UpdateGemPrice(surgePrice);
+                } else if (allNormalDrills[drillerController.drillTypeIndex][index].name.Contains("Cryo")) {
+                    UpdateGemPrice(cryoPrice);
+                }
+
                 equipButton.SetActive(false);
                 buyButton.SetActive(true);
             }
@@ -381,6 +401,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Rehighlight equipped options to be blue, in case it was made green or white
         HighlightEquippedOptions(DrillUsesAnimation());
+    }
+
+    private void UpdateGemPrice(long newPrice) {
+        gemPrice = newPrice;
+        gemPriceText.text = playerState.FormatPrice(gemPrice);
     }
 
     private void HighlightEquippedOptions(bool usesAnimatedDrill) {
@@ -424,6 +449,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 drillerController.GetComponent<Animator>().runtimeAnimatorController = null;
 
                 // Add new customization
+                // For animations we could find the SpriteRenderer animator controller instead of the Image one
+                // But the only difference in the name is " UI", so just use this and replace it
                 UpdateCustomizationDictionary(spriteTransform.GetComponent<Animator>().runtimeAnimatorController.name.Replace(" UI", ""), true);
             } else {
                 UpdateCustomizationDictionary(spriteTransform.GetComponent<Image>().sprite.name, true);
