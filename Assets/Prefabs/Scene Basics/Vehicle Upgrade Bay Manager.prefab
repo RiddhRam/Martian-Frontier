@@ -82,14 +82,23 @@ MonoBehaviour:
   - {fileID: 9100000, guid: 1b8195c84b07e423f8e4bae61c61bab9, type: 2}
   - {fileID: 9100000, guid: 61163f213ab064da3becfbc219427633, type: 2}
   - {fileID: 9100000, guid: dbee3f287d9b5438ca0e972a131cdd7d, type: 2}
+  boreUIDrills:
+  - {fileID: 9100000, guid: 5d5652c47341543728425b96f92f3135, type: 2}
+  - {fileID: 9100000, guid: 77763849878564b52a055cae3e1397a9, type: 2}
+  - {fileID: 9100000, guid: 93386050cc3194ebd815cc45ec8f94eb, type: 2}
   drillerController: {fileID: 0}
   upgradeBayPanel: {fileID: 0}
-  bodyImage: {fileID: 0}
-  drillImage: {fileID: 0}
-  frontWheels: {fileID: 0}
+  garageBodyImages: []
+  garageDrillImages: []
+  displayPanel: {fileID: 0}
+  customizationsButtonImage: {fileID: 0}
+  upgradesButtonImage: {fileID: 0}
+  bodyOutlines: []
+  drillOutlines: []
   uIDelegation: {fileID: 0}
   playerState: {fileID: 0}
   joystickMovement: {fileID: 0}
+  garageDelegator: {fileID: 0}
 --- !u!212 &6521921964771852846
 SpriteRenderer:
   m_ObjectHideFlags: 0
