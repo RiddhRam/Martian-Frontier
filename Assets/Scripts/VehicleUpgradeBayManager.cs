@@ -182,7 +182,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return (boreUIDrills[0], boreDrills[0], 0);
         }
 
-        string bodySpriteName = vehicleCustomizations[drillName].body;
+        string bodySpriteName = vehicleCustomizations[drillName].drill;
 
         for (int i = 0; i != boreUIDrills.Length; i++) {
             if (bodySpriteName == boreUIDrills[i].name) {
@@ -201,7 +201,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return (allNormalDrills[drillTypeIndex][0], 0);
         }
 
-        string bodySpriteName = vehicleCustomizations[drillName].body;
+        string bodySpriteName = vehicleCustomizations[drillName].drill;
 
         for (int i = 0; i != allNormalDrills[drillTypeIndex].Length; i++) {
             if (bodySpriteName == allNormalDrills[drillTypeIndex][i].name) {
@@ -407,7 +407,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         if (customizationsOwned.Contains(name)) {
-            Debug.Log("Found!");
             return true;
         }
 
@@ -436,6 +435,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         equipButton.SetActive(false);
 
         MatchGarageDisplayToDrill(drillerController.drillerIndex);
+        GenerateCustomizationsDisplays();
     }
 
     private void UpdateCustomizationDictionary(string customization, bool isDrill) {
