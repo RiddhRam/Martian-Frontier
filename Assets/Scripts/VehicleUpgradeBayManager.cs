@@ -120,6 +120,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return;
         }
 
+        // Ignore if the Rigidbody2D is essentially stationary, this means the game just loaded
+        var rb2d = collision.attachedRigidbody;
+        if (rb2d != null && rb2d.velocity.sqrMagnitude < 0.01f)
+            return;
+
         uIDelegation.HideAll();
 
         // Get rid of last vehicle display and create new one that matches the current vehicle
