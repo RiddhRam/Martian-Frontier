@@ -265,7 +265,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Update stats
         materialsSold += change;
-        dailyChallengeDelegator.SoldOres(change);
         playerState.NewMaterialsSold(change, isNPC);
 
         // Should never be less than 0

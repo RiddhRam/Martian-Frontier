@@ -285,20 +285,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         UpdateDisplay();
     }
 
-    public void SoldOres(int quantity) {
-        for (int i = 0; i != selectedChallenges.Length; i++) {
-            if (i == 0 && (superChallengeTimer == superChallengeStartTimer || superChallengeTimer == 0)) {
-                continue;
-            }
-            if (selectedChallenges[i] != 5) {
-                continue;
-            }
-            challengeProgress[i] += quantity;
-        }
-
-        UpdateDisplay();
-    }
-
     public void CollectReward(int challengeIndex) {
         if (challengeProgress[challengeIndex] != challengeValues[challengeIndex]) {
             return;
@@ -320,9 +306,9 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public void AddOreBasedOnTier(int challengeIndex) {
         string[] oreList;
 
-        if (playerState.GetHighestDrillTier() == 1) {
+        if (playerState.GetRecommendedDrillTier() == 1) {
             oreList = mineRenderer.GetTier1OreNames();
-        } else if (playerState.GetHighestDrillTier() == 2) {
+        } else if (playerState.GetRecommendedDrillTier() == 2) {
             oreList = mineRenderer.GetTier2OreNames();
         } else {
             oreList = mineRenderer.GetTier3OreNames();
@@ -341,7 +327,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             } 
         }
 
-        int highestDrillTier = playerState.GetHighestDrillTier();
+        int highestDrillTier = playerState.GetRecommendedDrillTier();
 
         for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
             gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>().UpdateCashAmount(baseCashAmountForGemPurchase[i] * BigInteger.Pow(100, (-1 + highestDrillTier )));

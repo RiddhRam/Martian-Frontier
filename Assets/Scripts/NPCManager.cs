@@ -386,7 +386,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         yield return new WaitUntil(() => mineRenderer.coopMineLoaded);
 
         PlacePlayer();
-        highestDrillTier = playerState.GetHighestDrillTier();
+        highestDrillTier = playerState.GetRecommendedDrillTier();
 
         // Uncomment when recording
         if (mapRecordingMode.enabled) {
@@ -488,7 +488,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
                 nPCEmptyTimer = 0;
             }
 
-            highestDrillTier = playerState.GetHighestDrillTier();
+            highestDrillTier = playerState.GetRecommendedDrillTier();
         }
     }
 
