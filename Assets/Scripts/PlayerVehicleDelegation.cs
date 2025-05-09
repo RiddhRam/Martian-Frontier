@@ -93,6 +93,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         slider.maxValue = drillerController.endurance;
         vehicleUpgradeBayManager.drillerController = drillerController;
+        vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
        
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }

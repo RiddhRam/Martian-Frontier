@@ -153,6 +153,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
     }
 
+    public void MatchPlayerDrillToDrill() {
+
+        // Match drill
+        if (DrillUsesAnimation()) {
+            (_, drillerController.GetComponent<Animator>().runtimeAnimatorController, _) = GetDrillAnimator(drillerController.transform.parent.name);
+        } 
+        else {
+            (drillerController.GetComponent<SpriteRenderer>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, drillerController.transform.parent.name);
+        }
+
+        // Match body
+        (drillerController.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
+    }
+
     // Find the selected body sprite the user chose
     private (Sprite bodySprite, int spriteIndex) GetBodySprite(int drillerIndex, string drillName) {
 
@@ -184,7 +198,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         string bodySpriteName = vehicleCustomizations[drillName].drill;
 
-        for (int i = 0; i != boreUIDrills.Length; i++) {
+        for (int i = 0; i != boreDrills.Length; i++) {
             if (bodySpriteName == boreDrills[i].name) {
                 return (boreUIDrills[i], boreDrills[i], i);
             }
@@ -463,6 +477,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         MatchGarageDisplayToDrill(drillerController.drillerIndex);
         GenerateCustomizationsDisplays();
+
+        MatchPlayerDrillToDrill();
     }
 
     private void UpdateCustomizationDictionary(string customization, bool isDrill) {
