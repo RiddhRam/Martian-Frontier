@@ -112,8 +112,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         analyticsDelegator.UpgradeVehicle(vehicleName, newLevel);
     }*/
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
+    void OnTriggerEnter2D(Collider2D collision) {
         // Only the player vehicle can open the UI panel on their local game
         // Also only the drill can activate this pad, not the body
         if (!collision.transform.parent.parent.name.Contains("Player Vehicle") || !collision.GetComponent<DrillerController>()) {

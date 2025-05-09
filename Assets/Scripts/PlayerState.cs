@@ -28,6 +28,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userGems;
     private BigInteger gemsEarned;
     private BigInteger userCredits;
+    private float highestMined;
     private List<string> vehiclesOwned = new();
 
     [SerializeField] private RefineryController refineryController;
@@ -165,7 +166,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             }
             
             vehiclesOwned.Add(objectBeingPurchased.name);
-            UpdateHighestDrillTier();
+
             dataPersistenceManager.SaveGame();
             analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
@@ -199,6 +200,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateCreditDisplays();
 
         dataPersistenceManager.SaveGame();
+    }
+
+    public void UpdateHighestMined(float newMineAmount) {
+        if (newMineAmount > highestMined) {
+            highestMined = newMineAmount;
+        }
+    }
+
+    public float GetHighestMined() {
+        return highestMined;
     }
 
     // Validate and add XP
@@ -287,19 +298,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         return false;
     }
-
-    public void UpdateHighestDrillTier() {
-        for (int i = 0; i != drillers.Length; i++) {
-            if (!CheckVehicleOwnerShip(drillers[i].name)) {
-                continue;
-            }
-
-            if (drillers[i].transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier() > highestDrillTier) {
-                highestDrillTier = drillers[i].transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
-                dailyChallengeDelegator.ScaleAllTiers();
-            }
-        }
-    }
     
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
@@ -382,11 +380,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         this.userCredits = BigInteger.Parse(data.userCredits);
 
-        loaded = true;
+        this.highestMined = data.highestMined;
 
-        if (!specialGameMode) {
-            UpdateHighestDrillTier();
-        }
+        loaded = true;
 
         analyticsDelegator = AnalyticsDelegator.Instance;
 
@@ -410,6 +406,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.userGems = this.userGems.ToString();
         data.gemsEarned = this.gemsEarned.ToString();
         data.userCredits = this.userCredits.ToString();
+        data.highestMined = this.highestMined;
     }
 
     private void UpdateXPDisplays() {

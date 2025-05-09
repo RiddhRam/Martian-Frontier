@@ -123,7 +123,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int centerY;
     int radius;
     int oreToPlace;
-    int oreIndex;
     int minOreIndex;
     int maxOreIndex;
     int oreCount;
@@ -210,6 +209,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         for (int i = 0; i != tierThresholds.Length; i++) {
             if (i == tierThresholds.Length - 1) {
                 oresPerTier[i] = tileValues.Length - tierThresholds[i] - 1;
+                sum += oresPerTier[i];
                 break;
             }
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
@@ -272,8 +272,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             CreateTiles(i);
         }
 
-        /* Uncomment this too to log the quantity of each ore
-        for (int i = 0; i != oresCount.Length; i++) {
+        // Uncomment this too to log the quantity of each ore
+        /*for (int i = 0; i != oresCount.Length; i++) {
             Debug.Log(i + ": " + oresCount[i]);
         } */
 
@@ -463,7 +463,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
             // and also uncomment oresCount integer array above
             
-            /*oreIndex = 0;
+            /*int oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++) {
                isBaseTile = false;
 
@@ -484,6 +484,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 oreIndex++;
             }
+
             oresCount[oreIndex]++;*/
 
             for (int x = -radius; x <= radius; x++)
@@ -523,7 +524,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         oreCount = maxOreIndex - minOreIndex + 1;
 
         // Calculate the probability weights based on depth
-        depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
+        depthFactor = Mathf.Clamp01((chunkRow - 14 * level - 1) / 13f);  // Lower 13f to make the rarity change faster, increase to change it slower
         weights = new float[oreCount];
         totalWeight = 0f;
 

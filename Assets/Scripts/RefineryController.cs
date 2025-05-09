@@ -28,7 +28,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     // 5 Mins
     private const int initialTimer = 180;
     // The cash made during the current refinery timer, resets to 0 when mine resets
-    long cashMadeThisMine;
+    float cashMadeThisMine;
 
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
@@ -156,9 +156,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
         if (adDelegator.lobbyAdDisplay) {
-            StartCoroutine(adDelegator.TryShowLobbyReward(cashMadeThisMine));
+            StartCoroutine(adDelegator.TryShowLobbyReward((long) cashMadeThisMine));
         }
 
+        playerState.UpdateHighestMined(cashMadeThisMine);
         cashMadeThisMine = 0;
 
         if (nPCManager) {
@@ -286,7 +287,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateCashText() {
-        cashMadeThisMineText.text = "$" + playerState.FormatPrice(cashMadeThisMine);
+        cashMadeThisMineText.text = "$" + playerState.FormatPrice((long) cashMadeThisMine);
     }
 
     public void PlaySaleNoise() {

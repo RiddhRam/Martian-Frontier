@@ -7,6 +7,7 @@ public class GameDataString
     public string blocksMined;
     public string materialsSold;
     public string moneyEarned;
+    public string highestMined;
     public string playerPos;
     public string playerRotation;
     public string vehiclesOwned;
@@ -57,61 +58,5 @@ public class GameDataString
     public string oreBlasterSuperChallengeTimer;
 
     public GameDataString() {
-        this.userCash = null;
-        this.userXP = null;
-        this.playerPos = null;
-        this.playerRotation = null;
-        this.blocksMined = null;
-        this.materialsSold = null;
-        this.moneyEarned = null;
-        this.vehiclesOwned = null;
-        this.currentVehicle = null;
-
-        this.refineryTimer = null;
-        this.destroyedTilemapsTileValues = null;
-        this.revealedTilemapsTileValues = null;        
-        this.seed = null;
-        this.highestRow = null;
-        this.mineInitialization = null;
-
-        this.finishedTutorial = null;
-        this.askedForReview = null;
-        this.lastChallengeDate = null;
-        this.challengeProgress = null;
-        this.challengeCollection = null;
-        this.superChallengeTimer = null;
-        this.userGems = null;
-        this.gemsEarned = null;
-        this.currentOresMined = null;
-        this.gemRewardsToCollect = null;
-        this.tutorialScreenIndex = null;
-
-        this.vehicleUpgradeLevels = null;
-        this.vehicleCustomizations = null;
-        this.customizationsOwned = null;
-
-        this.materialProfitMultipliers = null;
-        this.cratesAvailable = null;
-        this.progressToNextCrate = null;
-        this.currentCoopVehicle = null;
-        this.rewardAdTimer = null;
-        this.cooldownTimer = null;
-        this.equippedPowers = null;
-        this.powerUpgradeLevels = null;
-
-        this.userCredits = null;
-        this.twoDayIntervals = null;
-
-        this.magnetHaulerUpgrades = null;
-        this.magnetHaulerAdTimer = null;
-        this.magnetHaulerChallengeProgress = null;
-        this.magnetHaulerChallengeCollection = null;
-        this.magnetHaulerSuperChallengeTimer = null;
-
-        this.oreBlasterUpgrades = null;
-        this.oreBlasterAdTimer = null;
-        this.oreBlasterChallengeProgress = null;
-        this.oreBlasterChallengeCollection = null;
-        this.oreBlasterSuperChallengeTimer = null;
     }
 }

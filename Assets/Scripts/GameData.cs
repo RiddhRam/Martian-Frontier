@@ -13,6 +13,7 @@ public class GameData
     public string blocksMined;
     public string materialsSold;
     public string moneyEarned;
+    public float highestMined;
     public Vector3 playerPos;
     public float playerRotation;
     public List<string> vehiclesOwned;
@@ -73,6 +74,10 @@ public class GameData
         this.blocksMined = "0";
         this.materialsSold = "0";
         this.moneyEarned = "0";
+
+        // This is just so the supply crates rewards and other things aren't too low
+        this.highestMined = 5_000;
+        
         this.vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
         this.currentVehicle = "GRINDER";
 
