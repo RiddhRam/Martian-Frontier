@@ -335,9 +335,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Doesn't own and not equipped
         else {
             if (allBodies[drillerController.drillerIndex][index].name.Contains("Surge")) {
-                UpdateGemPrice(20_000);
+                UpdateGemPrice(30_000);
             } else if (allBodies[drillerController.drillerIndex][index].name.Contains("Cryo")) {
-                UpdateGemPrice(50_000);
+                UpdateGemPrice(75_000);
             }
 
             equipButton.SetActive(false);
@@ -363,8 +363,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Reset body sprite
         (drillToCopy.GetChild(1).GetComponent<Image>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
         
-        long surgePrice = 40_000;
-        long cryoPrice = 100_000;
+        long surgePrice = 60_000;
+        long cryoPrice = 150_000;
         // Show preview of driller with this drill
         if (DrillUsesAnimation()) {
             drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController = boreUIDrills[index];
