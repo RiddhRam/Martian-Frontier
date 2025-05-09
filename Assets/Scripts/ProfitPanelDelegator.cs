@@ -14,10 +14,9 @@ public class ProfitPanelDelegator : MonoBehaviour
     public TextMeshProUGUI adBoostText;
     public TextMeshProUGUI adBoostTimer;
     public TextMeshProUGUI levelBoostText;
-    public TextMeshProUGUI rebirthBoostText;
     public TextMeshProUGUI profitBoostText;
     private string activePanel = "Ores";
-    private long rebirthPrice = 15_000_000_000;
+
     private int timer = 50;
 
     void Start() {
@@ -48,7 +47,6 @@ public class ProfitPanelDelegator : MonoBehaviour
         }
 
         levelBoostText.text = refineryController.GetLevelProfitMultiplier().ToString() + "x";
-        rebirthBoostText.text = refineryController.GetRebirthProfitMultiplier().ToString() + "x";
         profitBoostText.text = refineryController.GetProfitBoostMultiplier().ToString() + "x";
     }
 

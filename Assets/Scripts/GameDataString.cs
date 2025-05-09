@@ -18,7 +18,7 @@ public class GameDataString
     public string seed;
     public string highestRow;
     public string mineInitialization;
-    public string rebirthProfitMultiplier;
+
     public string finishedTutorial;
     public string askedForReview;
     public string lastChallengeDate;
@@ -73,7 +73,7 @@ public class GameDataString
         this.seed = null;
         this.highestRow = null;
         this.mineInitialization = null;
-        this.rebirthProfitMultiplier = null;
+
         this.finishedTutorial = null;
         this.askedForReview = null;
         this.lastChallengeDate = null;

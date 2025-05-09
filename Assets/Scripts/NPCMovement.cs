@@ -20,11 +20,10 @@ public class NPCMovement : MonoBehaviour
 
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
-    public TextMeshProUGUI rebirthText;
+    public TextMeshProUGUI rebirthText; // Used to hold rebirth counter but now holds level, that's why its called rebirth text
     public Canvas worldSpaceCanvas;
 
     public int rebirthLevel;
-
     public int drillTier;
     public bool stopMoving;
 

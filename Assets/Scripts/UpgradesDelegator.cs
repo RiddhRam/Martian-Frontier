@@ -433,13 +433,23 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powerIconImage.gameObject.SetActive(true);
     }
 
-    public void UpdatePowerVisibility(int rebirths) {
+    public void UpdatePowerVisibility(int level) {
         
         foreach (var power in powers) {
-            if (power.MinLevelRequired > rebirths) {
+            if (power.MinLevelRequired > level) {
+                // Already enabled
+                if (!powerPanels[power.Index].activeSelf) {
+                    continue;
+                }
+
                 powerPanels[power.Index].SetActive(false);
                 powerLockedPanels[power.Index].SetActive(true);
             } else {
+                // Already disabled
+                if (powerPanels[power.Index].activeSelf) {
+                    continue;
+                }
+
                 powerPanels[power.Index].SetActive(true);
                 powerLockedPanels[power.Index].SetActive(false);
             }
@@ -478,7 +488,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 3, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
         powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 5, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
         powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 8, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
-        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 11, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
+        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 30, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
 
         int powerIndex = 0;
 
@@ -500,7 +510,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         StartCoroutine(StartCooldownTimer(cooldownTimer));
 
-        UpdatePowerVisibility((int) Mathf.Round(data.rebirthProfitMultiplier / 0.01f));
+        UpdatePowerVisibility((int) Mathf.Round(playerState.GetUserLevel()));
     }
 
     public void SaveData(ref GameData data)

@@ -36,7 +36,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     [SerializeField] private int[] materialPrices;
     [SerializeField] private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
-    [SerializeField] private float rebirthProfitMultiplier = 0;
+
     public Transform largeFogOfWar;
 
     public AudioDelegator audioDelegator;
@@ -381,34 +381,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return levelProfitMultiplier;
     }
 
-    public void SetRebirthProfitMultiplier(float newRebirthMultiplier) {
-        // Have to round due to floating point errors
-        rebirthProfitMultiplier = Mathf.Round(newRebirthMultiplier * 100f) / 100f;
-    }
-
-    public float GetRebirthProfitMultiplier() {
-        return rebirthProfitMultiplier;
-    }
-
     public float GetProfitBoostMultiplier() {
         return upgradesDelegator.profitMultiplier;
     }
 
     public float GetTotalProfitMultiplier() {
         // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier + rebirthProfitMultiplier + upgradesDelegator.profitMultiplier;
+        float multiplier = profitMultiplier + levelProfitMultiplier + upgradesDelegator.profitMultiplier;
 
         return Mathf.Round(multiplier * 100f) / 100f;
     }
 
-    public void PlayerRebirth() {
-
-        if (resetMineCoroutine != null) {
-            StopCoroutine(resetMineCoroutine);
-        }
-        if (increaseBatteryCoroutine != null) {
-            StopCoroutine(increaseBatteryCoroutine);
-        }
-        resetMineCoroutine = StartCoroutine(ResetMine());
-    }
 }

@@ -50,7 +50,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     // How many npc haulers are active
     private int haulers = 0;
     private int highestDrillTier = 1;
-    private int playerRebirths = 0;
+
     private int npcCount;
     public bool drillingNeeded = false;
 
@@ -200,16 +200,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex] = npcs[npcIndex].GetComponent<NPCMovement>();
         nPCMovements[npcIndex].npcIndex = npcIndex;
         nPCMovements[npcIndex].nPCManager = this;
-        nPCMovements[npcIndex].rebirthLevel = seedRandom.Next(playerRebirths - 2, playerRebirths + 5);
+
         nPCMovements[npcIndex].npcNameText.text = nPCNames[npcIndex];
         nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
         nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
 
-        // Clamp to be higher than -1
-        if (nPCMovements[npcIndex].rebirthLevel < 0) {
-            nPCMovements[npcIndex].rebirthLevel = 0;
-        }
-
+        
         nPCMovements[npcIndex].rebirthText.text = nPCMovements[npcIndex].rebirthLevel.ToString();
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
@@ -391,8 +387,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         PlacePlayer();
         highestDrillTier = playerState.GetHighestDrillTier();
-
-        playerRebirths = playerState.GetRebirths();
 
         // Uncomment when recording
         if (mapRecordingMode.enabled) {

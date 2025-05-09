@@ -227,18 +227,6 @@ public class AnalyticsDelegator : MonoBehaviour
             new Parameter("Cash_Count", cashCount));
     }
 
-    public void Rebirth(int level) {
-        if (!isInitialized) {
-            return;
-        }
-        CustomEvent myEvent = new CustomEvent("Rebirth") {
-            {"Rebirth_Level", level},
-        };
-        AnalyticsService.Instance.RecordEvent(myEvent);
-        AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Rebirth", new Parameter("Rebirth_Level", level));
-    }
-
     public void OpenTutorialUIPanel(string name) {
         if (!isInitialized) {
             return;

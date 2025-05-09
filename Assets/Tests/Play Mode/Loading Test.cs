@@ -159,7 +159,6 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.crateRewardNoWifi.name, "No Internet");
         Assert.AreEqual(adDelegator.leaderboardTabButtons.name, "Tab Buttons");
         Assert.AreEqual(adDelegator.leaderboardCashPanel.name, "Ore Tournament");
-        Assert.AreEqual(adDelegator.leaderboardVehiclesPanel.name, "Rebirths Tournament");
         Assert.AreEqual(adDelegator.originalSpeed, 0);
         Assert.False(adDelegator.speedBoostActive);
         Assert.AreEqual(adDelegator.dataPersistenceManager.name, "Data Persistence Manager");
@@ -230,9 +229,7 @@ public class LoadingTest
 
         Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(leaderboardDelegator.oreTournamentPanel.name, "Ore Tournament");
-        Assert.AreEqual(leaderboardDelegator.rebirthTournamentPanel.name, "Rebirths Tournament");
         Assert.AreEqual(leaderboardDelegator.oreTournamentButton.name, "ORES");
-        Assert.AreEqual(leaderboardDelegator.rebirthTournamentButton.name, "REBIRTHS");
         Assert.AreEqual(leaderboardDelegator.collectReward.name, "Collect Reward");
         Assert.True(leaderboardDelegator.collectRewardMessage.name.Contains("CONGRATULATIONS"));
         Assert.AreEqual(leaderboardDelegator.collectRewardText.name, "Reward Amount");
@@ -243,14 +240,10 @@ public class LoadingTest
         }
 
         Assert.AreEqual(leaderboardDelegator.oreTierText.name, "Tier Name");
-        Assert.AreEqual(leaderboardDelegator.rebirthsTierText.name, "Tier Name");
         Assert.AreEqual(leaderboardDelegator.tournamentTimer.name, "Tournament Timer");
         Assert.AreEqual(leaderboardDelegator.oreNextTierText.name, "NEXT TIER");
         Assert.AreEqual(leaderboardDelegator.oreLastTierText.name, "LAST TIER");
-        Assert.AreEqual(leaderboardDelegator.rebirthsNextTierText.name, "NEXT TIER");
-        Assert.AreEqual(leaderboardDelegator.rebirthsLastTierText.name, "LAST TIER");
         Assert.AreEqual(leaderboardDelegator.oreTierImage.name, "Tier Image");
-        Assert.AreEqual(leaderboardDelegator.rebirthsTierImage.name, "Tier Image");
         Assert.AreEqual(leaderboardDelegator.lastUpdateText.name, "Last Update Timer");
 
         int playerDisplayLength = 10;
@@ -261,24 +254,12 @@ public class LoadingTest
         Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreImages.Length);
         Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreBars.Length);
 
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerNameTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsScoreTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsRewardTextMeshes.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerScoreImages.Length);
-        Assert.AreEqual(playerDisplayLength, leaderboardDelegator.rebirthsPlayerScoreBars.Length);
-
         for (int i = 0; i != playerDisplayLength; i++) {
             Assert.True(leaderboardDelegator.orePlayerNameTextMeshes[i]);
             Assert.True(leaderboardDelegator.oreScoreTextMeshes[i]);
             Assert.True(leaderboardDelegator.oreRewardTextMeshes[i]);
             Assert.True(leaderboardDelegator.orePlayerScoreImages[i]);
             Assert.True(leaderboardDelegator.orePlayerScoreBars[i]);
-
-            Assert.True(leaderboardDelegator.rebirthsPlayerNameTextMeshes[i]);
-            Assert.True(leaderboardDelegator.rebirthsScoreTextMeshes[i]);
-            Assert.True(leaderboardDelegator.rebirthsRewardTextMeshes[i]);
-            Assert.True(leaderboardDelegator.rebirthsPlayerScoreImages[i]);
-            Assert.True(leaderboardDelegator.rebirthsPlayerScoreBars[i]);
         }
 
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
@@ -311,8 +292,6 @@ public class LoadingTest
 
         Assert.AreEqual(refineryController.GetInitialBattery(), 200);
 
-        Assert.AreEqual(refineryController.GetRebirthProfitMultiplier(), 0);
-
         Assert.AreEqual(refineryController.largeFogOfWar.gameObject.name, "Large Fog Of War");
         Assert.AreEqual(refineryController.audioDelegator.gameObject.name, "Audio Delegator");
         Assert.AreEqual(refineryController.dataPersistenceManager.gameObject.name, "Data Persistence Manager");
@@ -340,7 +319,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Team", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Rebirth Panel", "Garage Panel", "Go To Team Panel", "Premium Shop Panel", "Teleport Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Team", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Garage Panel", "Go To Team Panel", "Premium Shop Panel", "Teleport Panel", "Settings Panel" };
         for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
@@ -362,7 +341,6 @@ public class LoadingTest
         Assert.AreEqual(profitPanelDelegator.adBoostText.name, "Ad Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostTimer.name, "Timer");
         Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");
-        Assert.AreEqual(profitPanelDelegator.rebirthBoostText.name, "Rebirth Boost Text");
 
         // Garage Panel
         playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();

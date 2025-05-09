@@ -204,30 +204,23 @@ public class DataPersistenceManager : MonoBehaviour
     public bool CompareGameData(GameData gameData) {
         // true = use new save (cloud save or something else)
         // false = use current save
-        
-        // If cloud save has higher rebirth use the cloud save, else use local save
-        if (gameData.rebirthProfitMultiplier > this.gameData.rebirthProfitMultiplier) {
+
+        // Keep one with most XP 
+        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
             this.gameData = gameData;
             return true;
         }
-        // If less than, return, other wise, they are equal so we look for a tie breaker
-        if (gameData.rebirthProfitMultiplier < this.gameData.rebirthProfitMultiplier) {
+        if (BigInteger.Parse(gameData.userXP) < BigInteger.Parse(this.gameData.userXP)) {
             return false;
         }
 
-        // Keep one with most cash, if rebirth is equal
+        // Keep one with most cash if xp is equal
         if (BigInteger.Parse(gameData.userCash) > BigInteger.Parse(this.gameData.userCash)) {
             this.gameData = gameData;
             return true;
         }
         if (BigInteger.Parse(gameData.userCash) < BigInteger.Parse(this.gameData.userCash)) {
             return false;
-        }
-
-        // Keep one with most XP if cash and rebirth is equal
-        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
-            this.gameData = gameData;
-            return true;
         }
 
         // Keep one with most gems if others all equal

@@ -10,15 +10,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] cashDisplays;
     public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
-    public GameObject[] rebirthDisplays;
+
     public GameObject[] creditDisplays;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
-    public GameObject lockedRebirthPanel;
-    public GameObject lowTierTextReason;
-    public GameObject notSoloTextReason;
-    public GameObject rebirthPanel;
-    public Image rebirthIcon;
+
 
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
@@ -33,7 +29,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger gemsEarned;
     private BigInteger userCredits;
     private List<string> vehiclesOwned = new();
-    [SerializeField] private float rebirthProfitMultiplier;
+
     [SerializeField] private RefineryController refineryController;
     [SerializeField] private DataPersistenceManager dataPersistenceManager;
     [SerializeField] private UIDelegation uIDelegation;
@@ -43,6 +39,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
+
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
     [SerializeField] private GameObject cashTextGO;
@@ -57,15 +54,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField]
     private GameObject ResetMineButton;
 
-    int baseXP; 
-    int increment; 
-    int level; 
-    BigInteger remainingXP;
     float profitMultiplier;
-    float calculatedValue;
-    float xpSliderValue;
+
     string levelString;
-    private long rebirthPrice = 15_000_000_000;
 
     public bool loaded = false;
     bool specialGameMode = false;
@@ -212,9 +203,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
-        // objectReason can be something the user dropped off or rebirth
-
         userXP += amountToAddXP;
+
+        upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
     }
 
     // Make sure user has enough money to buy something
@@ -308,21 +299,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
                 dailyChallengeDelegator.ScaleAllTiers();
             }
         }
-
-        if (highestDrillTier >= 3) {
-            if (notSinglePlayerScene) {
-                lowTierTextReason.SetActive(false);
-                notSoloTextReason.SetActive(true);
-                return;
-            }
-            lockedRebirthPanel.SetActive(false);
-            rebirthPanel.SetActive(true);
-            rebirthIcon.color = new(1, 0, 0);
-        } else {
-            lockedRebirthPanel.SetActive(true);
-            rebirthPanel.SetActive(false);
-            rebirthIcon.color = new(1, 1, 1);
-        }
     }
     
     // Update all UI elements that show the user's money
@@ -402,7 +378,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.materialsSold = BigInteger.Parse(data.materialsSold);
         this.moneyEarned = BigInteger.Parse(data.moneyEarned);
         this.vehiclesOwned = data.vehiclesOwned;
-        this.rebirthProfitMultiplier = data.rebirthProfitMultiplier;
         this.userGems = BigInteger.Parse(data.userGems);
         this.gemsEarned = BigInteger.Parse(data.gemsEarned);
         this.userCredits = BigInteger.Parse(data.userCredits);
@@ -410,7 +385,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         loaded = true;
 
         if (!specialGameMode) {
-            refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
             UpdateHighestDrillTier();
         }
 
@@ -422,7 +396,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
        
         UpdateCashDisplays();
         UpdateGemDisplays();
-        UpdateRebirthDisplays();
         UpdateXPDisplays();
         UpdateCreditDisplays();
     }
@@ -434,12 +407,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.materialsSold = this.materialsSold.ToString();
         data.moneyEarned = this.moneyEarned.ToString();
         data.vehiclesOwned = this.vehiclesOwned;
-        data.rebirthProfitMultiplier = this.rebirthProfitMultiplier;
         data.userGems = this.userGems.ToString();
         data.gemsEarned = this.gemsEarned.ToString();
         data.userCredits = this.userCredits.ToString();
-
-        
     }
 
     private void UpdateXPDisplays() {
@@ -447,23 +417,16 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             return;
         }
 
-        baseXP = 500; // XP needed for level 0 to 1
-        increment = 500; // Additional XP per level
-        level = 0; // Start at level 0
-        remainingXP = userXP; // Start with total user XP
-
-        while (remainingXP >= baseXP + level * increment) {
-            remainingXP -= baseXP + level * increment;
-            level++;
-        }
+        float userLevel = GetUserLevel();
+        int level = (int) userLevel;
 
         profitMultiplier = refineryController.GetLevelProfitMultiplier();
-        calculatedValue = level * 0.01f;
 
+        float calculatedValue = level * 0.01f;
         // For each level, add 1% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);
 
-        xpSliderValue = (float) ((double) remainingXP/(baseXP + level * increment));
+        float xpSliderValue = userLevel - level;
         levelString = level.ToString();
         for (int i = 0; i != xpDisplays.Length; i++) {
             xpDisplaysSliders[i].value = xpSliderValue;
@@ -471,59 +434,28 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void Rebirth() {
-        if (!VerifyEnoughCash(rebirthPrice)) {
-            uIDelegation.ShowError("NOT ENOUGH CASH!");
-            return;
+    public float GetUserLevel() {
+        const int baseXP = 500; // XP needed for level 0 to 1
+        const int increment = 500; // Additional XP per level
+        int currentLevel = 0; // Start at level 0
+        BigInteger remainingXP = userXP; // Start with total user XP
+
+        while (remainingXP >= baseXP + currentLevel * increment) {
+            remainingXP -= baseXP + currentLevel * increment;
+            currentLevel++;
         }
 
-        rebirthProfitMultiplier += 0.01f;
-        
-        userXP = 0;
-        userCash = 0;
-        vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
+        float percentageToNextLevel = (float) ((double) remainingXP/(baseXP + currentLevel * increment));
 
-        upgradesDelegator.SwapPower(0);
-        upgradesDelegator.UpdatePowerVisibility(GetRebirths());
-
-        GameObject newVehicle = garagePanel.GetComponent<GarageDelegator>().drillers[0];
-        
-        playerVehicleDelegation.SwitchVehicle(newVehicle);
-        playerVehicleDelegation.currentCoopVehicle = "GRINDER";
-
-        // Switch vehicle, then reset mine, to get rid of all materials for sure,
-        // because the haulers will drop everything
-        refineryController.PlayerRebirth();
-        refineryController.SetRebirthProfitMultiplier(rebirthProfitMultiplier);
-        dataPersistenceManager.SaveGame();
-
-        leaderboardDelegator.AddRebirthScore(1);
-        
-        analyticsDelegator.Rebirth((int) Mathf.Round(rebirthProfitMultiplier / 0.01f));
-
-        UpdateCashDisplays();
-        UpdateRebirthDisplays();
-        UpdateXPDisplays();
+        return currentLevel + percentageToNextLevel;
     }
 
-    private void UpdateRebirthDisplays() {
-        string rebirthText = GetRebirths().ToString();
-
-        for (int i = 0; i != rebirthDisplays.Length; i++) {
-            rebirthDisplays[i].GetComponent<TextMeshProUGUI>().text = rebirthText;
-        }
-    }
- 
     public int GetHighestDrillTier() {
         return highestDrillTier;
     }
 
     public BigInteger GetBlocksMined() {
         return blocksMined;
-    }
-
-    public int GetRebirths() {
-        return (int) Mathf.Round(rebirthProfitMultiplier / 0.01f);
     }
 
     public void RewardPlayerWithGems(int amount, string message = null) {

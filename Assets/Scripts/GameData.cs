@@ -25,7 +25,7 @@ public class GameData
     public int seed;
     public int highestRow;
     public int mineInitialization;
-    public float rebirthProfitMultiplier;
+
     public bool finishedTutorial;
     public bool askedForReview;
     public int lastChallengeDate;
@@ -92,7 +92,7 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
-        this.rebirthProfitMultiplier = 0;
+
         this.finishedTutorial = false;
         this.askedForReview = false;
         this.lastChallengeDate = (int) (DateTime.UtcNow.Date - new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
