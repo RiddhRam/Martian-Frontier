@@ -17,7 +17,7 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
-    [SerializeField] private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
+    private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
 
     [SerializeField] private long price;
     [SerializeField] private float profitMultiplier;
@@ -165,10 +165,14 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
+                // When speed = 10, timeSinceLastMine is between 0.02 to 0.08
+                // When speed = 5, timeSinceLastMine is between 0.02 and 0.2f
+                // Clamp to not be higher than 0.12f to reduce the benefits of higher speed otherwise its too good
+                timeSinceLastMine = Mathf.Clamp(timeSinceLastMine, 0, 0.12f);
+
                 // Time factor makes it so faster drills go farther than slower drills with the same endurance
                 // 7.5f = 10 / 1.5
-                // 1.5 = heatCooldownDelay, but not sure where the 10 comes from. 
-                // Maybe on average the mining happens once every 5 frames and 5/50 = 1/10
+                // 1.5 = heatCooldownDelay, 10 because on average the mining happens once every 5 frames at 50 fps (5/50 = 1/10)
                 float timeFactor = Mathf.Clamp01(timeSinceLastMine / heatCooldownDelay) * 7.5f;
 
                 // After a short break in mining, the time factor becomes very large, causing the heat progress bar to jump, so clamp to 1
@@ -190,7 +194,6 @@ public class DrillerController : MonoBehaviour
         }
 
         highestTierDrilled = 0;
-
     }
 
     public void ErrorWhenDrilling(string error, params object[] args) {
