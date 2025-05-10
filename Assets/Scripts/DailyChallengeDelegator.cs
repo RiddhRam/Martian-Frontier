@@ -18,14 +18,13 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject superChallengeStartButtonTextGO;
     public GameObject superChallengeSliderGO;
     public GameObject superChallengeTimerTextGO;
-    public GameObject[] gemCashPurchasePanels;
 
     private System.Random rng;
     private AnalyticsDelegator analyticsDelegator;
     private TextMeshProUGUI dailyTimerText;
     public MineRenderer mineRenderer;
     public PlayerState playerState;
-    private readonly int[]  baseCashAmountForGemPurchase = {45_000, 100_000, 250_000, 600_000};
+
     public GameObject challengeNoticeIcon;
     private Image[] challengeStatusIcons = new Image[6];
     private TextMeshProUGUI[] challengeTextMeshes = new TextMeshProUGUI[6];
@@ -326,13 +325,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 AddOreBasedOnTier(i);
             } 
         }
-
-        int highestDrillTier = playerState.GetRecommendedDrillTier();
-
-        for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
-            gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>().UpdateCashAmount(baseCashAmountForGemPurchase[i] * BigInteger.Pow(100, (-1 + highestDrillTier )));
-        }
-
     }
 
     public void StartSuperChallenge() {

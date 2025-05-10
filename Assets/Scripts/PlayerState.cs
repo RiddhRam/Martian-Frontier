@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
@@ -10,8 +11,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] cashDisplays;
     public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
-
     public GameObject[] creditDisplays;
+    public GameObject[] gemCashPurchasePanels;
     public GameObject garagePanel;
     public GameObject materialProfitPanel;
 
@@ -205,6 +206,18 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void UpdateHighestMined(float newMineAmount) {
         if (newMineAmount > highestMined) {
             highestMined = newMineAmount;
+            UpdateGemCashPurchasePanels();
+        }
+    }
+
+    public void UpdateGemCashPurchasePanels() {
+        // 1800 gems saves you 2 mins but giving you the same amount as the highest mined value you achieved
+        // its a float so it doesnt get rounded down if there's a decimal
+        const float mainGemPrice = 1800;
+
+        for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
+            GemCashPurchasePanel gemCashPurchasePanel = gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>();
+            gemCashPurchasePanel.UpdateCashAmount(RoundToSignificantDigits(highestMined * (gemCashPurchasePanel.gemPrice / mainGemPrice), 2));
         }
     }
 
@@ -364,6 +377,18 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return price.ToString();
     }
 
+    public BigInteger RoundToSignificantDigits(float num, int n)
+    {
+        if (num == 0)
+            return 0;
+
+        double d = Math.Ceiling(Math.Log10(num < 0 ? -num : num));
+        int power = n - (int)d;
+        double magnitude = Math.Pow(10, power);
+        double shifted = Math.Round(num * magnitude);
+        return (BigInteger) (shifted / magnitude);
+    }
+
     public void LoadData(GameData data) {
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
@@ -394,6 +419,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         UpdateGemDisplays();
         UpdateXPDisplays();
         UpdateCreditDisplays();
+        UpdateGemCashPurchasePanels();
     }
 
     public void SaveData(ref GameData data) {

@@ -200,12 +200,6 @@ public class LoadingTest
         Assert.AreEqual(dailyChallengeDelegator.superChallengeStartButtonTextGO.name, "START");
         Assert.AreEqual(dailyChallengeDelegator.superChallengeSliderGO.name, "Super Challenge Progress");
         Assert.AreEqual(dailyChallengeDelegator.superChallengeTimerTextGO.name, "Super Challenge Timer");
-        
-        Assert.AreEqual(4, dailyChallengeDelegator.gemCashPurchasePanels.Length);
-
-        for (int i = 0; i != 4; i++) {
-            Assert.True(dailyChallengeDelegator.gemCashPurchasePanels[i].activeSelf);
-        }
 
         Assert.AreEqual(dailyChallengeDelegator.challengeNoticeIcon.name, "Challenge Notice Icon");
 
