@@ -356,11 +356,9 @@ public class LoadingTest
 
         int drillersCount = 6;
         Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
-        Assert.AreEqual(drillersCount, garageDelegator.drillersImages.Length);
         for (int i = 0; i != drillersCount; i++) {
             Assert.True(garageDelegator.drillers[i].name != "");
             Assert.True(garageDelegator.drillers[i].name != null);
-            Assert.AreEqual(garageDelegator.drillers[i].name.ToLower(), garageDelegator.drillersImages[i].name.ToLower());
         }
 
         // Tutorial

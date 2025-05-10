@@ -54,7 +54,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public GameObject buyButton;
     public TextMeshProUGUI gemPriceText;
 
-    long gemPrice;
+    long customizationGemPrice;
+
+    [Header("Upgrades Display")]
+    public Slider heatUpgradeSlider;
+    public Slider coolUpgradeSlider;
+
+    public TextMeshProUGUI heatUpgradePriceText;
+    public TextMeshProUGUI coolUpgradePriceText;
 
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
@@ -62,9 +69,40 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public JoystickMovement joystickMovement;
     public GarageDelegator garageDelegator;
 
-    private SerializableDictionary<string, int> vehicleUpgradeLevels;
+    private SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
+
+    const int heatBonusPerLevel = 10; // 10 endurance per level
+
+    const int coolTimesPerSecond = 50; // 50 fps
+    const float coolPerFrame = 0.12f; // 0.12f * 50 = 6 second per level
+
+    // 50-level curve: 1 000 → 3 000 000, total ≈ 21 107 700
+    private static readonly int[] upgradeHeatPrices = new int[]
+    {
+        1000, 1300, 1700, 2100, 2800,
+        3500, 4100, 4800, 5600, 6500,
+        7600, 8900, 10400, 12100, 14100,
+        16400, 19100, 22300, 26000, 30300,
+        35300, 41100, 47900, 55900, 65100,
+        75900, 88500, 103100, 120200, 140100,
+        163300, 190300, 221800, 258600, 301400,
+        351300, 409400, 477200, 556200, 648300,
+        755600, 880700, 1_026_500, 1_196_500, 1_394_600,
+        1_625_500, 1_894_600, 2_208_300, 2_573_900, 3_000_000
+    };
+
+    // 50-level curve: 1 000 → 500 000, total ≈ 5 000 600
+    private static readonly int[] upgradeCoolPrices = new int[]
+    {
+        1000, 1200, 1300, 1500, 1800, 2100, 2400, 2700, 3200, 3700,
+        4200, 4900, 5600, 6500, 7500, 8700, 10000, 11600, 13400, 15500,
+        17900, 20600, 23800, 27500, 31800, 36700, 42400, 48900, 56500, 65300,
+        75400, 83300, 91900, 101500, 112000, 123700, 136500, 150700, 166400, 183700,
+        202800, 223900, 247200, 272900, 301300, 332700, 367300, 405400, 447600, 494200
+    };
+
 
     /*public void OnUpgradeButtonClick (string vehicleName, Transform upgradeButton, TextMeshProUGUI level, TextMeshProUGUI profit) {
         int gemPrice = upgradeGemPrices[GetVehicleLevel(vehicleName)];
@@ -126,10 +164,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         uIDelegation.HideAll();
 
+        // Customizations
         // Get rid of last vehicle display and create new one that matches the current vehicle
         DestroyPreviousVehicleDisplay();
         CreateNewVehicleDisplay();
         GenerateCustomizationsDisplays();
+
+        // Upgrades
+        UpdateUpgradeDetails();
 
         uIDelegation.RevealElement(upgradeBayPanel);
         // Stop player from moving;
@@ -142,10 +184,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         Transform driller = garageDelegator.drillers[drillerIndex].transform;
 
+        // Get and setbody sprite
         (bodySprite, _) = GetBodySprite(drillerIndex, driller.name);
-        DrillerController currentDrillerController = driller.GetChild(1).GetComponent<DrillerController>();
         
         garageBodyImages[drillerIndex].sprite = bodySprite;
+
+        // Get and set driller controller / animator
+        DrillerController currentDrillerController = driller.GetChild(1).GetComponent<DrillerController>();
         
         drillAnimator = currentDrillerController.GetComponent<Animator>();
 
@@ -155,6 +200,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         else {
             (garageDrillImages[drillerIndex].sprite, _) = GetDrillSprite(currentDrillerController.drillTypeIndex, driller.name);
         }
+
+        // Get and set heat limit
+        int heat = GetHeatLimit(currentDrillerController);
+        garageDrillImages[drillerIndex].transform.parent.parent.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = heat.ToString();
     }
 
     public void MatchPlayerDrillToDrill() {
@@ -169,6 +218,34 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Match body
         (drillerController.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
+
+        // Used so we can get the base values
+        DrillerController originalDrillerController = garageDelegator.drillers[drillerController.drillerIndex].transform.GetChild(1).GetComponent<DrillerController>();
+        
+        drillerController.endurance = GetHeatLimit(originalDrillerController);
+        drillerController.SetCoolRate(GetCoolRate(originalDrillerController));
+    }
+
+    private int GetDrillUpgradeLevel(string drillName, string upgradeType) {
+        if (!vehicleUpgradeLevels.ContainsKey(drillName)) {
+            return 0;
+        }
+
+        if (upgradeType == "Cooldown") {
+            return vehicleUpgradeLevels[drillName].coolLevel;
+        }
+
+        return vehicleUpgradeLevels[drillName].heatLevel;
+    }
+
+    private int GetHeatLimit(DrillerController originalDrillerController) {
+        // 10 endurance per level
+        return originalDrillerController.endurance + (heatBonusPerLevel * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat"));
+    }
+
+    private float GetCoolRate(DrillerController originalDrillerController) {
+        // 6 per level (0.12f per update, and 50fps)
+        return originalDrillerController.GetCoolRate() + (coolPerFrame * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Cooldown"));
     }
 
     // Find the selected body sprite the user chose
@@ -334,9 +411,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Doesn't own and not equipped
         else {
             if (allBodies[drillerController.drillerIndex][index].name.Contains("Surge")) {
-                UpdateGemPrice(30_000);
+                UpdateCustomizationGemPrice(30_000);
             } else if (allBodies[drillerController.drillerIndex][index].name.Contains("Cryo")) {
-                UpdateGemPrice(75_000);
+                UpdateCustomizationGemPrice(75_000);
             }
 
             equipButton.SetActive(false);
@@ -381,9 +458,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             // Doesn't own and not equpped
             else {
                 if (boreUIDrills[index].name.Contains("Surge")) {
-                    UpdateGemPrice(surgePrice);
+                    UpdateCustomizationGemPrice(surgePrice);
                 } else if (boreUIDrills[index].name.Contains("Cryo")) {
-                    UpdateGemPrice(cryoPrice);
+                    UpdateCustomizationGemPrice(cryoPrice);
                 }
 
                 equipButton.SetActive(false);
@@ -405,9 +482,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             // Doesn't own and not equipped
             else {
                 if (allNormalDrills[drillerController.drillTypeIndex][index].name.Contains("Surge")) {
-                    UpdateGemPrice(surgePrice);
+                    UpdateCustomizationGemPrice(surgePrice);
                 } else if (allNormalDrills[drillerController.drillTypeIndex][index].name.Contains("Cryo")) {
-                    UpdateGemPrice(cryoPrice);
+                    UpdateCustomizationGemPrice(cryoPrice);
                 }
 
                 equipButton.SetActive(false);
@@ -421,9 +498,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         HighlightEquippedOptions(DrillUsesAnimation());
     }
 
-    private void UpdateGemPrice(long newPrice) {
-        gemPrice = newPrice;
-        gemPriceText.text = playerState.FormatPrice(gemPrice);
+    private void UpdateCustomizationGemPrice(long newPrice) {
+        customizationGemPrice = newPrice;
+        gemPriceText.text = FormatPrice(customizationGemPrice);
     }
 
     private void HighlightEquippedOptions(bool usesAnimatedDrill) {
@@ -499,13 +576,28 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         vehicleCustomizations[drillerController.transform.parent.name].body = customization;
     }
 
+    private void UpdateUpgradesDictionary(int upgrade, string type) {
+        // Make a new one if non existent and initialize to 0
+        if (!vehicleUpgradeLevels.ContainsKey(drillerController.transform.parent.name)) {
+            vehicleUpgradeLevels[drillerController.transform.parent.name] = new VehicleUpgrade(0, 0);
+        }
+
+        // Change by amount
+        if (type == "Cooldown") {
+            vehicleUpgradeLevels[drillerController.transform.parent.name].coolLevel += upgrade;
+            return;
+        }
+
+        vehicleUpgradeLevels[drillerController.transform.parent.name].heatLevel += upgrade;
+    }
+
     public void PurchaseCustomization() {
-        if (!playerState.VerifyEnoughGems(gemPrice)) {
+        if (!playerState.VerifyEnoughGems(customizationGemPrice)) {
             uIDelegation.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
-        playerState.SubtractGems(gemPrice);
+        playerState.SubtractGems(customizationGemPrice);
 
         string customizationName;
 
@@ -528,6 +620,52 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         buyButton.SetActive(false);
 
         EquipCustomization();
+    }
+
+    public void PurchaseUpgrade(string type) {
+
+        // Find upgrade price
+        long upgradePrice;
+
+        if (type == "Cooldown") {
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
+        } else {
+            upgradePrice = upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+        }
+        
+        // Transact amount
+        if (!playerState.VerifyEnoughCash(upgradePrice)) {
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
+            return;
+        }
+
+        playerState.SubtractCash(upgradePrice);
+
+        // Increment by one
+        if (type == "Cooldown") {
+            UpdateUpgradesDictionary(1, "Cooldown");
+        } else {
+            UpdateUpgradesDictionary(1, "Heat");
+        }
+
+        // Update displays and drill
+        MatchGarageDisplayToDrill(drillerController.drillerIndex);
+        MatchPlayerDrillToDrill();
+        UpdateUpgradeDetails();
+    }
+
+    public void UpdateUpgradeDetails() {
+        // Update heat limit
+        heatUpgradeSlider.value = drillerController.endurance;
+        heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = drillerController.endurance.ToString();
+
+        heatUpgradePriceText.text = "$" + FormatPrice(upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")]);
+
+        // Update cool rate
+        coolUpgradeSlider.value = drillerController.GetCoolRate() * coolTimesPerSecond;
+        coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
+
+        coolUpgradePriceText.text = "$" + FormatPrice(upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")]);
     }
 
     public bool DrillUsesAnimation() {
@@ -586,5 +724,27 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             upgradesButtonImage.color = new(1, 0, 0, 1);
             upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);
         }
+    }
+
+    public string FormatPrice(long price)
+    {
+        if (price >= 1_000_000_000)
+        {
+            // Truncate to 2 decimal places and format with "B"
+            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
+        }
+        else if (price >= 1_000_000)
+        {
+            // Truncate to 2 decimal places and format with "M"
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 2 decimal places and format with "K"
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
     }
 }

@@ -26,7 +26,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     [SerializeField] private int refineryTimer;
     // 5 Mins
-    private const int initialTimer = 180;
+    private const int initialTimer = 120;
     // The cash made during the current refinery timer, resets to 0 when mine resets
     float cashMadeThisMine;
 

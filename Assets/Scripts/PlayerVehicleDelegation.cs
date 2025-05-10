@@ -88,10 +88,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
         
-        drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
         drillerController.playerVehicleDelegation = this;
 
-        slider.maxValue = drillerController.endurance;
         vehicleUpgradeBayManager.drillerController = drillerController;
         vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
        
@@ -157,6 +155,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     // Check to see if this vehicle was merged into another in a previous update
     public (string secondaryName, bool checkSecondaryName) GetMergedVehicleName(string vehicleName) {
 
+        // Neither of these 4 are in the game anymore, just here as a demonstration
         if (vehicleName.Contains("TURBO TANKER")) {
             return ("HEAVY", true);
         } else if (vehicleName.Contains("HEAVY")) {
@@ -203,8 +202,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(float heat) {
-        slider.value = heat;
+    public void UpdateOverheatSlider(float heatPercentage) {
+        slider.value = heatPercentage;
     }
 
 }

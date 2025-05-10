@@ -43,7 +43,8 @@ public class FileDataHandler
             // Deserialize the data from the json back into the C# object
             loadedData = ParseJson(dataToLoad, useEncryption);
         }  
-        catch {
+        catch (Exception ex) {
+            Debug.LogError("Loading error: " + ex.Message);
         }
         
         return loadedData;
@@ -140,6 +141,19 @@ public class FileDataHandler
                 value = "{" + value + "}";
 
                 SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(value);
+                correspondingField.SetValue(tempData, vehicleData);
+            }
+            else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
+                if (useEncryption) {
+                    value = EncryptDecrypt(value, true);
+                }
+
+                // Same as below intDictData
+                // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
+                value = "{" + value + "}";
+
+                SerializableDictionary<string, VehicleUpgrade> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleUpgrade>>(value);
                 correspondingField.SetValue(tempData, vehicleData);
             }
             else if (fieldType == typeof(SerializableDictionary<string, int>)) {
@@ -333,10 +347,24 @@ public class FileDataHandler
 
                 jsonBuilder.Append("]\",\n");
             }
-            else if (fieldValue is SerializableDictionary<string, VehicleCustomization> materialDictionaryArray) {
+            else if (fieldValue is SerializableDictionary<string, VehicleCustomization> customizationDictionary) {
 
-                // Same as intDictionaryArray
-                string json = JsonUtility.ToJson(materialDictionaryArray);
+                // Same as intDictionaryArray below
+                string json = JsonUtility.ToJson(customizationDictionary);
+                json = json.Trim('{', '}');
+                json = json.Replace("\"", "%22");
+                json = "\"[" + json + "]\"";
+
+                if (useEncryption) {
+                    json = EncryptDecrypt(json, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
+            }
+            else if (fieldValue is SerializableDictionary<string, VehicleUpgrade> upgradeDictionary) {
+
+                // Same as intDictionaryArray below
+                string json = JsonUtility.ToJson(upgradeDictionary);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
                 json = "\"[" + json + "]\"";

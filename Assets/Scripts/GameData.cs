@@ -40,7 +40,7 @@ public class GameData
     public long gemRewardsToCollect;
     public int tutorialScreenIndex;
 
-    public SerializableDictionary<string, int> vehicleUpgradeLevels;
+    public SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
@@ -78,10 +78,10 @@ public class GameData
         // This is just so the supply crates rewards and other things aren't too low
         this.highestMined = 5_000;
         
-        this.vehiclesOwned = new List<string> { "GRINDER", "STUBBY" };
+        this.vehiclesOwned = new List<string> { "GRINDER" };
         this.currentVehicle = "GRINDER";
 
-        this.refineryTimer = 180;
+        this.refineryTimer = 120;
         // SEARCH FOR [42] TO FIND ALL OCCURRENCES OF THE LENGTH, THERE MAY BE MORE IN DEPTH STUFF IN MineRenderer.cs
         this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];
         this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];

@@ -17,6 +17,8 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
+    [SerializeField] private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
+
     [SerializeField] private long price;
     [SerializeField] private float profitMultiplier;
 
@@ -42,7 +44,6 @@ public class DrillerController : MonoBehaviour
     // Endurance
     private float drillHeat = 0;
     private const float heatCooldownDelay = 1.5f;
-    private const float coolRate = 0.5f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 
@@ -93,7 +94,7 @@ public class DrillerController : MonoBehaviour
         lastErrorCounter = errorCounter;
 
         if (!isNPC) {
-            playerVehicleDelegation.UpdateOverheatSlider(drillHeat);
+            playerVehicleDelegation.UpdateOverheatSlider(drillHeat / endurance);
         }
 
         if (drillHeat < endurance) {
@@ -239,6 +240,14 @@ public class DrillerController : MonoBehaviour
     public void SetProfitMultiplier(float newProfitMultiplier) {
         this.profitMultiplier = newProfitMultiplier;
     }
+
+    public float GetCoolRate() {
+        return coolRate;
+    }
+
+    public void SetCoolRate(float newRate) {
+        coolRate = newRate;
+    }  
 
     public void PlayAudio() {
         if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {
