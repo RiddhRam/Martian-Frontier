@@ -184,7 +184,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         Transform driller = garageDelegator.drillers[drillerIndex].transform;
 
-        // Get and setbody sprite
+        // Get and set body sprite
         (bodySprite, _) = GetBodySprite(drillerIndex, driller.name);
         
         garageBodyImages[drillerIndex].sprite = bodySprite;
@@ -659,13 +659,38 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         heatUpgradeSlider.value = drillerController.endurance;
         heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = drillerController.endurance.ToString();
 
-        heatUpgradePriceText.text = "$" + FormatPrice(upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")]);
+        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
+        // If max level
+        if (heatLevel >= upgradeHeatPrices.Length) {
+            heatUpgradePriceText.transform.parent.GetComponent<Button>().interactable = false;
+            heatUpgradePriceText.transform.parent.GetComponent<Image>().color = new(1, 0, 0);
 
+            heatUpgradePriceText.text = "MAX";
+        } else {
+            heatUpgradePriceText.transform.parent.GetComponent<Button>().interactable = true;
+            heatUpgradePriceText.transform.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+
+            heatUpgradePriceText.text = "$" + FormatPrice(upgradeHeatPrices[heatLevel]);
+        }
+        
         // Update cool rate
         coolUpgradeSlider.value = drillerController.GetCoolRate() * coolTimesPerSecond;
         coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
 
-        coolUpgradePriceText.text = "$" + FormatPrice(upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")]);
+        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
+        // If max level
+        if (coolLevel >= upgradeCoolPrices.Length) {
+            coolUpgradePriceText.transform.parent.GetComponent<Button>().interactable = false;
+            coolUpgradePriceText.transform.parent.GetComponent<Image>().color = new(1, 0, 0);
+
+            coolUpgradePriceText.text = "MAX";
+        } else {
+            coolUpgradePriceText.transform.parent.GetComponent<Button>().interactable = true;
+            coolUpgradePriceText.transform.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+
+            coolUpgradePriceText.text = "$" + FormatPrice(upgradeCoolPrices[coolLevel]);
+        }
+
     }
 
     public bool DrillUsesAnimation() {
