@@ -227,6 +227,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add XP
     public void AddXP(int amountToAddXP) {
+        // About 3500XP is gained per round (last calculcated May 10 2025)
         userXP += amountToAddXP;
 
         upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
