@@ -390,6 +390,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
 
+        if (data.vehiclesOwned.Contains("STUBBY")) {
+            Debug.Log("Beta Player");
+        }
+
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
         }
