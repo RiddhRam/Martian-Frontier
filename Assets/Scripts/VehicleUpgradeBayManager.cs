@@ -293,7 +293,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         rt.offsetMax = new(0, rt.offsetMax.y);
 
         Vector2 pos = rt.anchoredPosition;
-        pos.y = -850f;
+        pos.y = -1500f;
         rt.anchoredPosition = pos;
     }
 
