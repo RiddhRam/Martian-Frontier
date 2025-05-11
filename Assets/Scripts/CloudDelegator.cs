@@ -326,6 +326,11 @@ public class CloudDelegator : MonoBehaviour
             
             GameData gameData = dataPersistenceManager.ParseJson(jsonData);
 
+            // If player is from the beta and has not collected their reward, don't load data from the cloud
+            if (PlayerPrefs.GetInt("Beta") == 200) {
+                return;
+            }
+
             if (dataPersistenceManager.CompareGameData(gameData)) {
                 loadingScreen.loadedItems = 0;
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
