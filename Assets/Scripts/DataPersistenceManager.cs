@@ -3,6 +3,7 @@ using UnityEngine;
 using System;
 using System.Numerics;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 public class DataPersistenceManager : MonoBehaviour
 {
@@ -74,6 +75,23 @@ public class DataPersistenceManager : MonoBehaviour
 
     public void NewGame() {
         this.gameData = new GameData();
+    }
+
+    public async void ResetBetaPlayer() {
+        // Reset game
+        NewGame();
+
+        // Make sure cloud save is overwritten too
+        cloudDelegator.wroteToCloud = false;
+        SaveGame(false);
+        
+        while (!cloudDelegator.wroteToCloud)
+        {
+            await Task.Delay(100);
+        }
+
+        // Restart game
+        SceneManager.LoadScene("Loading Screen");
     }
 
     public void LoadGame() {
@@ -197,6 +215,7 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public GameData ParseJson(string webData) {
+        Debug.Log("Web parse");
         return dataHandler.ParseJson(webData, false);
     }
 

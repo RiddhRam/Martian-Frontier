@@ -95,6 +95,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Mine until the time runs out
             else if (tutorialScreenIndex == 4) {
                 refineryController.refineryTimer = 30;
+
+                playerMessage.SetActive(true);
+                // flash 3 times
+                yield return StartCoroutine(FlashMessage(playerMessage, 3, 0.4f));
+                // Ensure it stays active
                 playerMessage.SetActive(true);
 
                 // Wait until timer reaches 0, or starts to reset and goes above 30
@@ -207,6 +212,15 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             
             // Wait until the next frame
             yield return null;
+        }
+    }
+
+    private IEnumerator FlashMessage(GameObject msg, int flashes, float interval) {
+        for (int i = 0; i < flashes; i++) {
+            msg.SetActive(false);
+            yield return new WaitForSeconds(interval);
+            msg.SetActive(true);
+            yield return new WaitForSeconds(interval);
         }
     }
 

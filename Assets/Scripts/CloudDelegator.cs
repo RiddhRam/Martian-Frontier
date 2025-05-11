@@ -34,6 +34,7 @@ public class CloudDelegator : MonoBehaviour
     bool attemptedLogIn = false;
     private readonly int currentVersionNumber = 105;
     private bool notSinglePlayerScene = false;
+    public bool wroteToCloud = false;
 
     async void Awake() {
         await UnityServices.InitializeAsync();
@@ -276,7 +277,7 @@ public class CloudDelegator : MonoBehaviour
         }
         
 
-        //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
+        Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
     }
 
     private IEnumerator AutoSaveCoroutine() {
@@ -289,7 +290,9 @@ public class CloudDelegator : MonoBehaviour
 
     public async Task SaveGameDataToCloud() {
 
+        wroteToCloud = false;
         if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
+            wroteToCloud = true;
             return;
         }
 
@@ -299,6 +302,7 @@ public class CloudDelegator : MonoBehaviour
         try
         {
             await CloudSaveService.Instance.Files.Player.SaveAsync("GameSave.json", new MemoryStream(jsonBytes));            
+            wroteToCloud = true;
         }
         catch (Exception e)
         {

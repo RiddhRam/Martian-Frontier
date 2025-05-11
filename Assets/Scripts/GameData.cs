@@ -66,6 +66,9 @@ public class GameData
     public bool[] oreBlasterChallengeCollection;
     public int oreBlasterSuperChallengeTimer;
 
+    // the first version (android bundle) id that this player last played on. Can also be found in CloudDelegator.cs
+    public int id;
+
     public GameData() {
         this.userCash = "1000";
         this.userXP = "0";
@@ -137,5 +140,6 @@ public class GameData
         this.oreBlasterChallengeProgress = new int[6];
         this.oreBlasterChallengeCollection = new bool[6];
         this.oreBlasterSuperChallengeTimer = 1200;
+        this.id = 105;
     }
 }

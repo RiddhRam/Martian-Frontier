@@ -167,9 +167,10 @@ public class FileDataHandler
                         correspondingField.SetValue(tempData, deserializedValue);
                     } 
                     else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
+                        Debug.Log(strValue);
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
                         strValue = "{" + strValue + "}";
 
                         SerializableDictionary<string, VehicleUpgrade> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleUpgrade>>(strValue);
@@ -179,7 +180,7 @@ public class FileDataHandler
 
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
                         strValue = "{" + strValue + "}";
 
                         SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(strValue);
@@ -188,7 +189,7 @@ public class FileDataHandler
                     else if (fieldType == typeof(SerializableDictionary<string, int>)) {
                         // Same as above
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
                         strValue = "{" + strValue + "}";
 
                         SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(strValue);
@@ -227,9 +228,7 @@ public class FileDataHandler
                     // If field is corrupted, then the user most likely finished the tutorial already, since game is most likely
                     // to be corrupted when the map is intense, and its usually only intense after you pass the tutorial
                     if (fieldType == typeof(bool)) {
-                        Debug.Log("Bool type");
                         correspondingField.SetValue(tempData, true);
-                        Debug.Log("Success");
                     }
                 }
             }
@@ -345,7 +344,7 @@ public class FileDataHandler
                 string json = JsonUtility.ToJson(customizationDictionary);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
-                json = "\"[" + json + "]\"";
+                json = "[" + json + "]";
 
                 if (useEncryption) {
                     json = EncryptDecrypt(json, true);
@@ -359,26 +358,29 @@ public class FileDataHandler
                 string json = JsonUtility.ToJson(upgradeDictionary);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
-                json = "\"[" + json + "]\"";
+                json = "[" + json + "]";
 
                 if (useEncryption) {
                     json = EncryptDecrypt(json, true);
                 }
 
-                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");                
             }
             // For upgrade arrays
             else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray) {
                 string json = JsonUtility.ToJson(intDictionaryArray);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
-                json = "\"[" + json + "]\"";
+                json = "[" + json + "]";
 
                 if (useEncryption) {
                     json = EncryptDecrypt(json, true);
                 }
 
+                // If using encryption we need to add quotation marks, otherwise no need
                 jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
+
             }
             else if (fieldValue is List<string>) {
                 List<string> value = (List<string>) fieldValue;

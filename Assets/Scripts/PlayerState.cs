@@ -53,8 +53,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     private bool notSinglePlayerScene;
 
-    [SerializeField]
-    private GameObject ResetMineButton;
+    [SerializeField] private GameObject ResetMineButton;
+    [SerializeField] private GameObject betaScreen;
 
     float profitMultiplier;
 
@@ -389,9 +389,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
-
+        // Only players from the beta will have this (this was one of the defaults, along with GRINDER I)
         if (data.vehiclesOwned.Contains("STUBBY")) {
-            Debug.Log("Beta Player");
+            // Set this so we know when the game restarts
+            PlayerPrefs.SetInt("Beta", 200);
+            Debug.Log("Resetting beta");
+            dataPersistenceManager.ResetBetaPlayer();
+            return;
+        }
+
+        // We previously found this was a beta player
+        if (PlayerPrefs.GetInt("Beta") == 200) {
+            Debug.Log("Show beta");
+            betaScreen.SetActive(true);
         }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
@@ -512,6 +522,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public BigInteger GetUserCredits() {
         return userCredits;
+    }
+
+    public void CollectBetaReward() {
+        // Cannot be used again
+        PlayerPrefs.SetInt("Beta", 0);
+        AddGems(800_000);
+
+        betaScreen.SetActive(false);
     }
 
     // For development only
