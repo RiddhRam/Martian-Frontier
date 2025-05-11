@@ -483,7 +483,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         this.powerUpgradeLevels = data.powerUpgradeLevels;
 
         powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
-        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 5, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
         powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 10, false, false, "", 0, 0, () => {}));
         powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 25, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
         powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 40, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));

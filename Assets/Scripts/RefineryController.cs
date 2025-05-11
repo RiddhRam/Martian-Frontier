@@ -332,16 +332,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         this.refineryTimer = data.refineryTimer;
         
-        // If refinery timer does not equal initial timer, there are 2 cases
-        if (this.refineryTimer != initialTimer) {
-            // Case 1: Player left game while mine was resetting, so just reset the mine properly this time
-            if (data.mineInitialization == 0) {
-                resetMineCoroutine = StartCoroutine(ResetMine());
-            } 
-            // Case 2: Player left the game while refinery timer was counting down, so continue countdown
-            else {
-                StartRefineryCountdown(refineryTimer);
-            }
+        // Two cases when opening the game
+        // Case 1: Player left game while mine was resetting, or never initialized, so just reset the mine properly this time
+        if (data.mineInitialization == 0) {
+            resetMineCoroutine = StartCoroutine(ResetMine());
+        } 
+        // Case 2: Player left the game while refinery timer was counting down, so continue countdown
+        else {
+            StartRefineryCountdown(refineryTimer);
         }
 
         UpdateRefineryProgressBars();

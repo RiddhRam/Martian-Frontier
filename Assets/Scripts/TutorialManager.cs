@@ -38,24 +38,24 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private IEnumerator DisplayTutorial()
     {
         ResetMine.SetActive(false);
-        Debug.Log("Hide mine");
-        // Player cannot destroy materials during tutorial
-        //destroyMaterial.preventDestruction = true;
 
-        // Wait for the loading screen to be destroyed
+        // Wait for the loading screen to be deactivated
         yield return new WaitUntil(() => !loadingScreen.activeSelf);
 
-        while (tutorialScreenIndex <= 8)
+        while (tutorialScreenIndex <= 10)
         {
             analyticsDelegator.TutorialStep(tutorialScreenIndex);
 
+            // Load mine
             if (tutorialScreenIndex == 0) {
                 playerVehicleDelegation.blockSwitching = true;
                 TellPlayerToMove();
 
                 yield return new WaitUntil(() => refineryController.mineRenderer.mineInitialization != 0);
 
-            } else if (tutorialScreenIndex == 1) {
+            } 
+            // Go into mine
+            else if (tutorialScreenIndex == 1) {
                 playerVehicleDelegation.blockSwitching = true;
 
                 enterMineArrow.SetActive(true);
@@ -68,7 +68,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     StopCoroutine(arrowAnimation);
                 }
 
-            } else if (tutorialScreenIndex == 2) {
+            } 
+            // Use survey radar
+            else if (tutorialScreenIndex == 2) {
                 playerVehicleDelegation.blockSwitching = true;
                 playerMovement.stopMoving = true;
 
@@ -88,114 +90,19 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     StopCoroutine(arrowAnimation);
                 }
                 
-            } else if (tutorialScreenIndex == 3) {
+            } 
+            // Mine revealed ores
+            else if (tutorialScreenIndex == 3) {
                 playerVehicleDelegation.blockSwitching = true;
                 TellPlayerToMove();
-                //yield return new WaitUntil(() => uncollectedMaterialsDelegator.materialCount > 10);
-
-            } else if (tutorialScreenIndex == 4) {
-                playerVehicleDelegation.blockSwitching = true;
-                playerMovement.stopMoving = true;
-
-                garageDelegator.blockPanelSwitching = false;
-
-                //garageDelegator.ActivatePanel("Haulers");
-                garageDelegator.openedGarage = false;
-
-                garageArrow.SetActive(true);
-                bottomControls.transform.GetChild(0).gameObject.SetActive(false);
-                bottomControls.transform.GetChild(1).gameObject.SetActive(true);
-                TutorialUIParent.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(garageArrow, 30));
-
-                yield return new WaitUntil(() => garageDelegator.openedGarage);
-
-                garageDelegator.blockPanelSwitching = true;
-
-                TutorialUIParent.SetActive(false);
-                garageArrow.SetActive(false);
-                if (arrowAnimation != null) {
-                    StopCoroutine(arrowAnimation);
-                }
-                
-            } else if (tutorialScreenIndex == 5) {
-                
-                playerVehicleDelegation.blockSwitching = false;
-                // In case reloading game
-                /*if (garageDelegator.activePanel != "Haulers") {
-                    tutorialScreenIndex = 4;
-                    continue;
-                }*/
-
-                Coroutine flashButton = StartCoroutine(garageDelegator.FlashDeployButton());
-
-                yield return new WaitUntil(() => !garageDelegator.gameObject.activeSelf);
-
-                if (flashButton != null) {
-                    StopCoroutine(flashButton);
-                }
-
-                // Player closed panel without deploying the hauler
-                /*if (playerVehicleDelegation.vehicleType != "Hauler") {
-                    tutorialScreenIndex = 4;
-                    continue;
-                }*/
-
-            } else if (tutorialScreenIndex == 6) {
-                playerVehicleDelegation.blockSwitching = true;
-                playerMovement.stopMoving = false;
-
-                enterMineArrow.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
-
-                TellPlayerToMove();
-
-                yield return new WaitUntil(() => IsInTheMine(playerMovement.transform.position.y));
-
-                enterMineArrow.SetActive(false);
-                if (arrowAnimation != null) {
-                    StopCoroutine(arrowAnimation);
-                }
-                
-            } else if (tutorialScreenIndex == 7) {
-                //Vector3 newPos = uncollectedMaterialsDelegator.GetRandomMaterialLocation(1) + new Vector3(0, 6, 0);
-                // Mine didn't load properly yet
-                // uncollectedMaterialsDelegator.GetRandomMaterialLocation(1) returns (0, -6, 0) then we add (0, 6, 0) which gives (0, 0,0 )
-                /*if (Vector3.Distance(newPos, new(0, 0, 0)) < 0.2f) {
-                    tutorialScreenIndex = 6;
-                    yield return new WaitForSeconds(2f);
-                    continue;
-                }
-
-                enterMineArrow.transform.position = newPos;*/
-                enterMineArrow.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
-
-                //yield return new WaitUntil(() => playerVehicleDelegation.haulerController3.GetTotalMaterialCount() > 0);
-
-                enterMineArrow.SetActive(false);
-                if (arrowAnimation != null) {
-                    StopCoroutine(arrowAnimation);
-                }
-            } else if (tutorialScreenIndex == 8) {
-                enterMineArrow.transform.position = Vector3.zero;
-                enterMineArrow.transform.eulerAngles = new(0, 0, 0f);
-                enterMineArrow.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
-
-                yield return new WaitUntil(() => playerState.materialsSold > 0);
-
-                enterMineArrow.SetActive(false);
-                if (arrowAnimation != null) {
-                    StopCoroutine(arrowAnimation);
-                }
-            }
+                yield return new WaitUntil(() => playerState.materialsSold > 10);
+            } 
 
             tutorialScreenIndex++;
         }
 
         ResetMine.SetActive(true);
-        Debug.Log("Show mine");
+
         //destroyMaterial.preventDestruction = false;
         playerVehicleDelegation.blockSwitching = false;
         garageDelegator.blockPanelSwitching = false;
@@ -205,7 +112,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         finishedTutorial = true;
 
         try {
-            playerState.RewardPlayerWithGems(1000, "YOU FINISHED THE TUTORIAL!");
+            playerState.RewardPlayerWithGems(5000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
             
             // Switch back to first driller and reset mine
