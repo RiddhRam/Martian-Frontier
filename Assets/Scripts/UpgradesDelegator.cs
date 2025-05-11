@@ -436,22 +436,15 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void UpdatePowerVisibility(int level) {
-        
-        foreach (var power in powers) {
-            if (power.MinLevelRequired > level) {
-                // Already enabled
-                if (!powerPanels[power.Index].activeSelf) {
-                    continue;
-                }
 
+        foreach (var power in powers) {
+            // Disable if minimum level is higher than level
+            if (power.MinLevelRequired > level) {
                 powerPanels[power.Index].SetActive(false);
                 powerLockedPanels[power.Index].SetActive(true);
-            } else {
-                // Already disabled
-                if (powerPanels[power.Index].activeSelf) {
-                    continue;
-                }
-
+            } 
+            // Enable otherwise
+            else {
                 powerPanels[power.Index].SetActive(true);
                 powerLockedPanels[power.Index].SetActive(false);
             }
@@ -512,7 +505,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         StartCoroutine(StartCooldownTimer(cooldownTimer));
 
-        UpdatePowerVisibility((int) Mathf.Round(playerState.GetUserLevel()));
+        UpdatePowerVisibility((int) playerState.GetUserLevel());
     }
 
     public void SaveData(ref GameData data)

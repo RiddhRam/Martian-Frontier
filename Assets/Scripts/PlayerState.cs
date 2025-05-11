@@ -225,14 +225,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return highestMined;
     }
 
-    // Validate and add XP
-    public void AddXP(int amountToAddXP) {
-        // About 3500XP is gained per round (last calculcated May 10 2025)
-        userXP += amountToAddXP;
-
-        upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
-    }
-
     // Make sure user has enough money to buy something
     public bool VerifyEnoughCash(GameObject objectBeingPurchased) {
         // objectBeingPurchased is some upgrade or vehicle being bought
@@ -274,13 +266,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void NewBlockMined(int oresMined, int amount) {
-
+        int userLevel = (int) GetUserLevel();
         // Gain 1 xp for mining a block, but gain 4 additional for mining an ore
         // Total 5 xp for mining an ore
         userXP += 4 * oresMined + amount;
         supplyCrateDelegator.ChangeProgressToNextCrate(amount);
 
         UpdateXPDisplays();
+
+        // If player leveled up update power visibility
+        int newLevel = (int) GetUserLevel();
+        if (newLevel > userLevel) {
+            upgradesDelegator.UpdatePowerVisibility(newLevel);
+        }
     
         blocksMined += amount;
     }
