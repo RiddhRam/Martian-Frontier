@@ -144,7 +144,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         UpdateCashText();
 
-        if (materialsSold >= 300 && !askedForReview && doneLoading) {
+        if (materialsSold >= 1000 && !askedForReview && doneLoading) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
             
@@ -338,7 +338,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             resetMineCoroutine = StartCoroutine(ResetMine());
         } 
         // Case 2: Player left the game while refinery timer was counting down, so continue countdown
-        else {
+        else if (refineryTimer != initialTimer) {
             StartRefineryCountdown(refineryTimer);
         }
 

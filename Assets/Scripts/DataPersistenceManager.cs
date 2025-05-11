@@ -39,9 +39,9 @@ public class DataPersistenceManager : MonoBehaviour
         }
         instance = this;
 
-        // Don't encrypt when using the editor, go debugging purposes
+        // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
-            useEncryption = false;
+            //useEncryption = false;
         }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {

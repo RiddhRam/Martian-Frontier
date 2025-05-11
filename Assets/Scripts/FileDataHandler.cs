@@ -130,45 +130,6 @@ public class FileDataHandler
 
                 correspondingField.SetValue(tempData, newArray);
             } 
-            else if (fieldType == typeof(SerializableDictionary<string, VehicleCustomization>)) {
-                if (useEncryption) {
-                    value = EncryptDecrypt(value, true);
-                }
-
-                // Same as below intDictData
-                // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
-                value = "{" + value + "}";
-
-                SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(value);
-                correspondingField.SetValue(tempData, vehicleData);
-            }
-            else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
-                if (useEncryption) {
-                    value = EncryptDecrypt(value, true);
-                }
-
-                // Same as below intDictData
-                // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
-                value = "{" + value + "}";
-
-                SerializableDictionary<string, VehicleUpgrade> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleUpgrade>>(value);
-                correspondingField.SetValue(tempData, vehicleData);
-            }
-            else if (fieldType == typeof(SerializableDictionary<string, int>)) {
-                if (useEncryption) {
-                    value = EncryptDecrypt(value, true);
-                }
-
-                // Same as above materialManagerData
-                // Trim the outer [ ] and also turn the url encoding back to quotation marks
-                value = value.Substring(1, value.Length - 2).Replace("%22", "\"");
-                value = "{" + value + "}";
-
-                SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(value);
-                correspondingField.SetValue(tempData, intDictData);
-            }
             // value is a string, and we need to convert it to the right type
             else {
                 try {
@@ -205,6 +166,34 @@ public class FileDataHandler
                         List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     } 
+                    else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
+                        // Same as below intDictData
+                        // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = "{" + strValue + "}";
+
+                        SerializableDictionary<string, VehicleUpgrade> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleUpgrade>>(strValue);
+                        correspondingField.SetValue(tempData, vehicleData);
+                    }
+                    else if (fieldType == typeof(SerializableDictionary<string, VehicleCustomization>)) {
+
+                        // Same as below intDictData
+                        // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = "{" + strValue + "}";
+
+                        SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(strValue);
+                        correspondingField.SetValue(tempData, vehicleData);
+                    }
+                    else if (fieldType == typeof(SerializableDictionary<string, int>)) {
+                        // Same as above
+                        // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                        strValue = strValue.Substring(2, strValue.Length - 4).Replace("%22", "\"");
+                        strValue = "{" + strValue + "}";
+
+                        SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(strValue);
+                        correspondingField.SetValue(tempData, intDictData);
+                    }
                     else if (fieldType == typeof(int)) {
                         int newInt = int.Parse(strValue);
                         correspondingField.SetValue(tempData, newInt);
@@ -233,11 +222,14 @@ public class FileDataHandler
                         correspondingField.SetValue(tempData, convertedValue);
                     }
                 }
-                catch {
+                catch (Exception ex) {
+                    Debug.LogError(field.Name + ": " + ex.Message);
                     // If field is corrupted, then the user most likely finished the tutorial already, since game is most likely
                     // to be corrupted when the map is intense, and its usually only intense after you pass the tutorial
                     if (fieldType == typeof(bool)) {
+                        Debug.Log("Bool type");
                         correspondingField.SetValue(tempData, true);
+                        Debug.Log("Success");
                     }
                 }
             }
@@ -359,7 +351,7 @@ public class FileDataHandler
                     json = EncryptDecrypt(json, true);
                 }
 
-                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
+                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
             }
             else if (fieldValue is SerializableDictionary<string, VehicleUpgrade> upgradeDictionary) {
 
@@ -373,7 +365,7 @@ public class FileDataHandler
                     json = EncryptDecrypt(json, true);
                 }
 
-                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
+                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
             }
             // For upgrade arrays
             else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray) {
@@ -386,7 +378,7 @@ public class FileDataHandler
                     json = EncryptDecrypt(json, true);
                 }
 
-                jsonBuilder.Append($"  \"{field.Name}\": {json},\n");
+                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
             }
             else if (fieldValue is List<string>) {
                 List<string> value = (List<string>) fieldValue;
@@ -494,7 +486,8 @@ public class FileDataHandler
         try {
             ParseJson(dataToStore, useEncryption);
             gameDataValid = true;
-        } catch {
+        } catch (Exception ex) {
+            Debug.LogError("Couldnt verify game integrity: " + ex.Message);
             gameDataValid = false;
             return false;
         }
