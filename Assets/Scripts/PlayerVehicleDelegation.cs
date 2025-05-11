@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
-    public GameObject UI;
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
@@ -14,7 +13,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private float loadRotate;
 
     [Header("Other Scripts")]
-    public MineRenderer mineRenderer;
     public AdDelegator adDelegator;
     public AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
@@ -24,7 +22,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
 
     // For tutorial
-    public bool blockSwitching = false;
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
 
@@ -32,11 +29,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     [SerializeField] private Slider slider;
 
     public void SwitchVehicle(GameObject newVehicle) {
-
-        if (blockSwitching) {
-            UI.GetComponent<UIDelegation>().ShowError("FINISH THE TUTORIAL FIRST");
-            return;
-        }
 
         GameObject oldVehicle = transform.GetChild(0).gameObject;
 

@@ -15,15 +15,9 @@ public class GarageDelegator : MonoBehaviour
 
     public GameObject[] drillers;
 
-    public bool openedGarage = false;
-
     public PlayerState playerState;
     public PlayerVehicleDelegation playerVehicleDelegation;
-    public AnalyticsDelegator analyticsDelegator;
     public UIDelegation uIDelegation;
-
-    private Image stubbyImage;
-    public bool blockPanelSwitching;
 
     void Start() {
         // Drillers
@@ -64,34 +58,6 @@ public class GarageDelegator : MonoBehaviour
 
     private DrillerController GetDrillerController(int index) {
         return drillers[index].transform.GetChild(1).GetComponent<DrillerController>();
-    }
-
-    public IEnumerator FlashDeployButton() {
-
-        Color originalColor = stubbyImage.color;
-        Color darkColor = originalColor * 0.7f;
-
-        float duration = 0.5f; // time to go from original to dark and back
-        float t = 0f;
-        bool goingDarker = true;
-
-        while (true)
-        {
-            t += Time.deltaTime / duration;
-
-            if (goingDarker)
-                stubbyImage.color = Color.Lerp(originalColor, darkColor, t);
-            else
-                stubbyImage.color = Color.Lerp(darkColor, originalColor, t);
-
-            if (t >= 1f)
-            {
-                t = 0f;
-                goingDarker = !goingDarker;
-            }
-
-            yield return null;
-        }
     }
 
     public void BuyVehicle (Transform panelPurchasingFrom) {

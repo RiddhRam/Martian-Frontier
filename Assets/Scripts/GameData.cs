@@ -67,7 +67,7 @@ public class GameData
     public int oreBlasterSuperChallengeTimer;
 
     public GameData() {
-        this.userCash = "0";
+        this.userCash = "1000";
         this.userXP = "0";
         this.playerPos = new(0, 3, 0);
         this.playerRotation = 180;

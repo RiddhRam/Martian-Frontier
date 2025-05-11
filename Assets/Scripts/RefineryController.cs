@@ -24,7 +24,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public AudioClip oreSaleSoundEffect;
     public AudioClip batteryRechargeSoundEffect;
 
-    [SerializeField] private int refineryTimer;
+    public int refineryTimer;
     // 5 Mins
     private const int initialTimer = 120;
     // The cash made during the current refinery timer, resets to 0 when mine resets

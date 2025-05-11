@@ -365,7 +365,6 @@ public class LoadingTest
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
 
         // Player Vehicle
-        Assert.AreEqual(playerVehicleDelegation.UI.name, "UI");
         Assert.AreEqual(playerVehicleDelegation.currentVehicle, "GRINDER I");
         Assert.AreEqual(playerVehicleDelegation.garageDelegator.name, "Garage Panel");
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER I");
@@ -529,11 +528,8 @@ public class LoadingTest
         Assert.False(tutorialManager.premiumShopNoticeIcon.gameObject.activeSelf);
         Assert.False(tutorialManager.supplyCrateDelegator.crateNoticeIcon.gameObject.activeSelf);
 
-        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-
         yield return null;
 
-        Assert.True(tutorialManager.newScreen == null);
         Assert.False(tutorialUIParent.activeSelf);
 
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
@@ -571,8 +567,6 @@ public class LoadingTest
 
         Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
 
-        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-
         GameObject bottomControls = tutorialManager.bottomControls;
 
         Assert.True(bottomControls.activeSelf);
@@ -583,8 +577,6 @@ public class LoadingTest
         yield return null;
         yield return null;
 
-        //Assert.True(tutorialManager.openedGarage);
-        Assert.True(tutorialManager.newScreen == null);
         Assert.False(tutorialUIParent.activeSelf);
 
         Assert.True(bottomControls.transform.GetChild(0).gameObject.activeSelf);
@@ -605,13 +597,6 @@ public class LoadingTest
         Assert.AreEqual(2, tutorialManager.tutorialScreenIndex);
         Assert.False(garagePanel.activeSelf);
 
-        Assert.True(tutorialManager.oreRefineryCanvas.activeSelf);
-        Assert.AreEqual(tutorialManager.newScreen.transform.parent, tutorialUIParent.transform.GetChild(0));
-
-        yield return null;
-
-        Assert.False(tutorialManager.oreRefineryCanvas.activeSelf);
-        Assert.True(tutorialManager.newScreen == null);
         Assert.False(tutorialUIParent.activeSelf);
 
         yield return null;

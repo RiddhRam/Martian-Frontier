@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -69,6 +70,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public JoystickMovement joystickMovement;
     public GarageDelegator garageDelegator;
 
+    [Header("For Tutorial")]
+    public bool flashButton;
+    public Image closeButtonImage;
+
     private SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
@@ -129,6 +134,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         UpdateUpgradeDetails();
 
         uIDelegation.RevealElement(upgradeBayPanel);
+
         // Stop player from moving;
         joystickMovement.joystickVec = Vector2.zero;
     }
@@ -704,6 +710,62 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             upgradesButtonImage.color = new(1, 0, 0, 1);
             upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);
         }
+    }
+
+    // For tutorial
+    public void FlashUpgradeButton() {
+        flashButton = true;
+        Image heatUpgradeButtonImage = heatUpgradePriceText.transform.parent.GetComponent<Image>();
+
+        Color originalColor = heatUpgradeButtonImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(heatUpgradeButtonImage, originalColor, darkColor));
+    }
+
+    public void FlashCloseButton() {
+        flashButton = true;
+
+        Color originalColor = closeButtonImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
+    }
+
+    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor) {
+        float duration = 0.5f; // time to go from original to dark and back
+        float t = 0f;
+        bool goingDarker = true;
+
+        while (flashButton)
+        {
+            t += Time.deltaTime / duration;
+
+            if (goingDarker)
+                buttonImage.color = Color.Lerp(originalColor, darkColor, t);
+            else
+                buttonImage.color = Color.Lerp(darkColor, originalColor, t);
+
+            if (t >= 1f)
+            {
+                t = 0f;
+                goingDarker = !goingDarker;
+            }
+
+            yield return null;
+        }
+
+        buttonImage.color = originalColor;
+    }
+
+    public bool BoughtOneUpgrade() {
+        foreach (var key in vehicleUpgradeLevels.Keys) {
+            if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public string FormatPrice(long price)
