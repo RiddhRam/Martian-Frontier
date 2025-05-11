@@ -67,7 +67,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public bool scannedForOres = false;
 
-    private readonly int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
+    // Length: 20
+    // Sum: 1,459,100
+    private readonly int[] upgradeGemPrices = { 4000, 5000, 6300, 7900, 9900, 12000, 16000, 20000, 25000, 31000, 39000, 49000, 61000, 77000, 96000, 120000, 150000, 190000, 240000, 300000 };
 
     void Start()
     {

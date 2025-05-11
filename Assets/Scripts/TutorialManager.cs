@@ -164,7 +164,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         finishedTutorial = true;
 
         try {
-            playerState.RewardPlayerWithGems(5000, "YOU FINISHED THE TUTORIAL!");
+            playerState.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
             
             // Switch back to first driller and reset mine
