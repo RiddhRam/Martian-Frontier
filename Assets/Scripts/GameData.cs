@@ -73,7 +73,8 @@ public class GameData
     public int id;
 
     public GameData() {
-        this.userCash = "1000";
+        // Starter cash
+        this.userCash = "10000";
         this.userXP = "0";
         this.playerPos = new(0, 3, 0);
         this.playerRotation = 180;
