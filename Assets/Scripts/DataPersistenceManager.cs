@@ -239,7 +239,15 @@ public class DataPersistenceManager : MonoBehaviour
         // The current save has to go first for this one, otherwise it gets stuck in a loop
         // If Beta key == 200, then the player already was recognized so just reward them with the current save
         // If bp == 2, then the player was previously recognized as a beta player
+
         if (this.gameData.vehiclesOwned.Contains("STUBBY") || this.gameData.bp == 2 || PlayerPrefs.GetInt("Beta") == 200) {
+
+            // Case: Other game data is also from the beta, just like the current one
+            // If the other one has more xp, use that, otherwise use this.
+            if (gameData.bp == 2 && BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
+                this.gameData = gameData;
+                return true;
+            }
             this.gameData.bp = 2;
             return false;
         }
