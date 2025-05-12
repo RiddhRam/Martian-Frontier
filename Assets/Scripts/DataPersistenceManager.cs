@@ -82,8 +82,19 @@ public class DataPersistenceManager : MonoBehaviour
         NewGame();
 
         DirectlyWriteSave();
+
+        // Make sure player isn't signing in
+        while (cloudDelegator.doingSigninProcess)
+            await Task.Yield();
+
         // Make sure cloud save is overwritten too
         await cloudDelegator.SaveGameDataToCloud();
+
+        // Still make sure they aren't signing in just in case
+        while (cloudDelegator.doingSigninProcess)
+            await Task.Yield();
+
+        cloudDelegator.TempSignOut();
 
         // Restart game
         SceneManager.LoadScene("Loading Screen");
@@ -218,10 +229,13 @@ public class DataPersistenceManager : MonoBehaviour
     public bool CompareGameData(GameData gameData) {
         // true = use new save (cloud save or something else)
         // false = use current save
+        
+        // If player is from the beta and has not collected their reward, don't load data from the cloud
 
         // Keep the game save with the older stuff. STUBBY was from the beta, so the player will receive a reward
         // The current save has to go first for this one, otherwise it gets stuck in a loop
-        if (this.gameData.vehiclesOwned.Contains("STUBBY")) {
+        // If Beta key == 200, then the player already was recognized so just reward them with the current save
+        if (this.gameData.vehiclesOwned.Contains("STUBBY") || PlayerPrefs.GetInt("Beta") == 200) {
             return false;
         }
         if (gameData.vehiclesOwned.Contains("STUBBY")) {

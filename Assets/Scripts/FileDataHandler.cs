@@ -167,7 +167,6 @@ public class FileDataHandler
                         correspondingField.SetValue(tempData, deserializedValue);
                     } 
                     else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
-                        Debug.Log(strValue);
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
                         strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
