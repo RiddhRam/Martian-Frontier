@@ -42,7 +42,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
-            useEncryption = false;
+            //useEncryption = false;
         }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
@@ -218,6 +218,16 @@ public class DataPersistenceManager : MonoBehaviour
     public bool CompareGameData(GameData gameData) {
         // true = use new save (cloud save or something else)
         // false = use current save
+
+        // Keep the game save with the older stuff. STUBBY was from the beta, so the player will receive a reward
+        // The current save has to go first for this one, otherwise it gets stuck in a loop
+        if (this.gameData.vehiclesOwned.Contains("STUBBY")) {
+            return false;
+        }
+        if (gameData.vehiclesOwned.Contains("STUBBY")) {
+            this.gameData = gameData;
+            return true;
+        }
 
         // Keep one with most XP 
         if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {

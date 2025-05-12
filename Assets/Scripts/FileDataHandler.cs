@@ -229,6 +229,12 @@ public class FileDataHandler
                     // to be corrupted when the map is intense, and its usually only intense after you pass the tutorial
                     if (fieldType == typeof(bool)) {
                         correspondingField.SetValue(tempData, true);
+                    } else if (field == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
+                        correspondingField.SetValue(tempData, new());
+                    } else if (field == typeof(SerializableDictionary<string, VehicleCustomization>)) {
+                        correspondingField.SetValue(tempData, new());
+                    } else if (field == typeof(SerializableDictionary<string, int>)) {
+                        correspondingField.SetValue(tempData, new());
                     }
                 }
             }
