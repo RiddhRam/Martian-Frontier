@@ -42,7 +42,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
-            //useEncryption = false;
+            useEncryption = false;
         }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
