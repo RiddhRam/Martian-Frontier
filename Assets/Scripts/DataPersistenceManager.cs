@@ -57,7 +57,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
-        
+
         if (adConsent) {
             adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
             return;
@@ -225,7 +225,6 @@ public class DataPersistenceManager : MonoBehaviour
     }
 
     public GameData ParseJson(string webData) {
-        Debug.Log("Web parse");
         return dataHandler.ParseJson(webData, false);
     }
 

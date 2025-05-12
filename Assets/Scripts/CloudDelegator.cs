@@ -302,7 +302,7 @@ public class CloudDelegator : MonoBehaviour
 
     public async Task SaveGameDataToCloud() {
 
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn || true) {
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
         }
 
