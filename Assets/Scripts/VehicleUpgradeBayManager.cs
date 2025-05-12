@@ -69,6 +69,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
     public JoystickMovement joystickMovement;
     public GarageDelegator garageDelegator;
+    public PlayerVehicleDelegation playerVehicleDelegation;
+    public bool loaded = false;
 
     [Header("For Tutorial")]
     public bool flashButton;
@@ -686,6 +688,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         for (int i = 0; i != garageDelegator.drillers.Length; i++) {
             MatchGarageDisplayToDrill(i);
         }
+
+        // In production this loads after PlayerVehicleDelegation for some reason, whichever loads second should call the function
+        if (playerVehicleDelegation.loaded) {
+            MatchPlayerDrillToDrill();
+        }
+
+        loaded = true;
     }
 
     public void SaveData(ref GameData data)

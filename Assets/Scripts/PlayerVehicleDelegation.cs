@@ -18,6 +18,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public NPCManager nPCManager;
     public GarageDelegator garageDelegator;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
+    public bool loaded = false;
 
     private bool notSinglePlayerScene = false;
 
@@ -83,7 +84,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         drillerController.playerVehicleDelegation = this;
 
         vehicleUpgradeBayManager.drillerController = drillerController;
-        vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
+
+        // In production this loads before the upgrade bay for some reason, whichever loads second should call the function
+        if (vehicleUpgradeBayManager.loaded) {
+            vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
+        }
        
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
@@ -94,6 +99,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             notSinglePlayerScene = true;
             FindVehicle(currentCoopVehicle);
+            loaded = true;
             return;
         }
 
@@ -110,6 +116,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Bypasses first if statement in SwitchVehicle
         loading = true;
         FindVehicle(currentVehicle);
+        loaded = true;
     }
 
     // ONLY USED WHEN LOADING

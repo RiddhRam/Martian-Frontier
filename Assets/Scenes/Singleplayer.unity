@@ -26476,6 +26476,7 @@ MonoBehaviour:
   nPCManager: {fileID: 0}
   garageDelegator: {fileID: 648771415}
   vehicleUpgradeBayManager: {fileID: 8101979660548351021}
+  loaded: 0
   firstTimePlaying: 0
   slider: {fileID: 97286647}
 --- !u!114 &1012335954
@@ -36571,6 +36572,10 @@ PrefabInstance:
       propertyPath: bodyOutlines.Array.size
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
+      propertyPath: playerVehicleDelegation
+      value: 
+      objectReference: {fileID: 1012335949}
     - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
       propertyPath: drillOutlines.Array.size
       value: 3
