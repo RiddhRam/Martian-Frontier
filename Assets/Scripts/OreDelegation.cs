@@ -48,20 +48,8 @@ public class OreDelegation : MonoBehaviour
     }
 
     public void PrepareGrid() {
-        // Track number of items in each tier, to dynamically resize content height based on rows
-        int[] tierItems = new int[3];
-
-        // track current tier
-        int tier = 0;
-        // track index of current tier
-        int counter = 0;
 
         for (int i = 0; i != materialNames.Length; i++) {
-
-            if (counter >= oresPerTier[0]) {
-                counter = 0;
-                tier++;
-            }
 
             long price = materialPrices[i];
 
@@ -77,9 +65,6 @@ public class OreDelegation : MonoBehaviour
             panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
             panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i];
             panelTransform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[i];
-            
-            counter++;
-            tierItems[tier]++;
         }
 
         int rows = 3;
@@ -90,7 +75,7 @@ public class OreDelegation : MonoBehaviour
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
     }
 
-    // Clear grid when closing, then reprepare it in case user changes language
+    // Clear grid when closing, then reprepare it when opening in case user changes language
     public void ClearGrid() {
         int childCount = contentGO.transform.childCount;
 
