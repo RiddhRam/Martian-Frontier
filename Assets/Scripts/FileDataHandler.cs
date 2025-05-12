@@ -243,6 +243,7 @@ public class FileDataHandler
     }
 
     public async Task SaveAsync(GameData data) {
+        Debug.Log("ASYNC 2 BP: " + data.bp);
         string fullPath = Path.Combine(dataDirPath, dataFileName);
         string tempPath = fullPath + ".tmp";
 
@@ -254,6 +255,7 @@ public class FileDataHandler
 
             // Make sure game data is valid
             if (!VerifyGameDataIntegrity(dataToStore)) {
+                Debug.LogError("No game integrity");
                 return;
             }
 
@@ -262,6 +264,8 @@ public class FileDataHandler
             using (StreamWriter writer = new StreamWriter(stream)) {
                 await writer.WriteAsync(dataToStore);
             }
+
+            Debug.Log("ASYNC 2 BP: " + data.bp);
 
             // Replace the original file with the temporary file
             // If the original file exists, replace it. Otherwise, move the temp file.
@@ -277,6 +281,7 @@ public class FileDataHandler
     }
 
     public void Save(GameData data) {
+        Debug.Log("SYNC 1 BP: " + data.bp);
         string fullPath = Path.Combine(dataDirPath, dataFileName);
         string tempPath = fullPath + ".tmp";
 
@@ -288,6 +293,7 @@ public class FileDataHandler
 
             // Make sure game data is valid
             if (!VerifyGameDataIntegrity(dataToStore)) {
+                Debug.LogError("No game integrity");
                 return;
             }
 
@@ -296,6 +302,8 @@ public class FileDataHandler
             using (StreamWriter writer = new StreamWriter(stream)) {
                 writer.Write(dataToStore);
             }
+
+            Debug.Log("SYNC 2 BP: " + data.bp);
 
             // Replace the original file with the temporary file
             // If the original file exists, replace it. Otherwise, move the temp file.

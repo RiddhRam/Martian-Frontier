@@ -57,6 +57,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
+        
         if (adConsent) {
             adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
             return;
@@ -80,6 +81,9 @@ public class DataPersistenceManager : MonoBehaviour
     public async void ResetBetaPlayer() {
         // Reset game
         NewGame();
+
+        // Recognize as beta player
+        this.gameData.bp = 2;
 
         DirectlyWriteSave();
 
@@ -235,10 +239,12 @@ public class DataPersistenceManager : MonoBehaviour
         // Keep the game save with the older stuff. STUBBY was from the beta, so the player will receive a reward
         // The current save has to go first for this one, otherwise it gets stuck in a loop
         // If Beta key == 200, then the player already was recognized so just reward them with the current save
-        if (this.gameData.vehiclesOwned.Contains("STUBBY") || PlayerPrefs.GetInt("Beta") == 200) {
+        // If bp == 2, then the player was previously recognized as a beta player
+        if (this.gameData.vehiclesOwned.Contains("STUBBY") || this.gameData.bp == 2 || PlayerPrefs.GetInt("Beta") == 200) {
+            this.gameData.bp = 2;
             return false;
         }
-        if (gameData.vehiclesOwned.Contains("STUBBY")) {
+        if (gameData.vehiclesOwned.Contains("STUBBY") || gameData.bp == 2) {
             this.gameData = gameData;
             return true;
         }
