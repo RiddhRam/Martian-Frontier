@@ -42,7 +42,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
-            //useEncryption = false;
+            useEncryption = false;
         }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
@@ -81,14 +81,9 @@ public class DataPersistenceManager : MonoBehaviour
         // Reset game
         NewGame();
 
+        DirectlyWriteSave();
         // Make sure cloud save is overwritten too
-        cloudDelegator.wroteToCloud = false;
-        SaveGame(false);
-        
-        while (!cloudDelegator.wroteToCloud)
-        {
-            await Task.Delay(100);
-        }
+        await cloudDelegator.SaveGameDataToCloud();
 
         // Restart game
         SceneManager.LoadScene("Loading Screen");
