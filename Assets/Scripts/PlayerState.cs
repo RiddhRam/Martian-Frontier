@@ -464,8 +464,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         profitMultiplier = refineryController.GetLevelProfitMultiplier();
 
-        float calculatedValue = level * 0.01f;
-        // For each level, add 1% to the profit multiplier
+        float calculatedValue = level * 0.005f;
+        // For each level, add 0.5% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);
 
         float xpSliderValue = userLevel - level;

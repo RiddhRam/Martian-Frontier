@@ -395,7 +395,6 @@ public class LoadingTest
             Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialNames[i] + " High Res");
         }
 
-        Assert.AreEqual(oreDelegation.oreMaterialTierPanel.name, "Ore Material Tier Panel");
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
         Assert.AreEqual(oreDelegation.contentGO.name, "Content");
 

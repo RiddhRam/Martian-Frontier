@@ -4,6 +4,7 @@ using UnityEngine.UI;
 
 public class OreDelegation : MonoBehaviour
 {
+    public RefineryController refineryController;
     public string[] materialNames;
     public GameObject[] materials;
     // The price of each material, before boosts
@@ -11,7 +12,6 @@ public class OreDelegation : MonoBehaviour
     [SerializeField]
     private int[] materialPrices;
     public Sprite[] materialHighResSprites;
-    public GameObject oreMaterialTierPanel;
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
     private int[] oresPerTier;
@@ -62,13 +62,13 @@ public class OreDelegation : MonoBehaviour
             panelTransform.localScale = new(1, 1, 1);
 
             // Set the name and price
-            panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(price);
+            panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice((long) (price * refineryController.GetTotalProfitMultiplier()));
             panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i];
             panelTransform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[i];
         }
 
         int rows = 3;
-        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows;
+        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 200;
         
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
         // Resize the scroll view content height to fit the rows using the height of all panels
@@ -90,35 +90,15 @@ public class OreDelegation : MonoBehaviour
     
     private string FormatPrice(long price)
     {
-        if (price >= 1_000_000_000_000_000_000)
+        if (price >= 1_000_000)
         {
-            // Truncate to 3 decimal places and format with "Qu"
-            return (Mathf.Floor(price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Qu";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "Q"
-            return (Mathf.Floor(price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.###") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "T"
-            return (Mathf.Floor(price / 1_000_000_000_000f * 1000) / 1000).ToString("0.###") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor(price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
+            // Truncate to 2 decimal places and format with "M"
+            return (Mathf.Floor(price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
         }
         else if (price >= 1_000)
         {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
+            // Truncate to 2 decimal places and format with "K"
+            return (Mathf.Floor(price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
         }
 
         // Return the original price as a string for smaller numbers

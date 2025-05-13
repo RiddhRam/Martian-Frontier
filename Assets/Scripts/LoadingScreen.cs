@@ -42,7 +42,7 @@ public class LoadingScreen : MonoBehaviour
 
         Total as of Apr 29 2025: 14 || 13
         14 || 13 for coop local
-        Last check: Apr 29 2025
+        Last check: May 13 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second
