@@ -298,7 +298,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Move to upgrade bay panel
         drillToCopy.SetParent(displayPanel);
-        drillToCopy.localScale = new(3, 3, 3);
+        drillToCopy.localScale = new(2f, 2f, 2f);
         
         // Reposition
         RectTransform rt = drillToCopy.GetComponent<RectTransform>();
@@ -306,7 +306,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         rt.offsetMax = new(0, rt.offsetMax.y);
 
         Vector2 pos = rt.anchoredPosition;
-        pos.y = -1500f;
+        pos.y = -1400f;
         rt.anchoredPosition = pos;
     }
 
