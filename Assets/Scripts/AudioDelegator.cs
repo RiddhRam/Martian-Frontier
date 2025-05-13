@@ -12,14 +12,6 @@ public class AudioDelegator : MonoBehaviour
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<AudioDelegator>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(AudioDelegator));
-                    _instance = go.AddComponent<AudioDelegator>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

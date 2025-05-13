@@ -16,14 +16,6 @@ public class DataPersistenceManager : MonoBehaviour
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<DataPersistenceManager>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(DataPersistenceManager));
-                    _instance = go.AddComponent<DataPersistenceManager>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

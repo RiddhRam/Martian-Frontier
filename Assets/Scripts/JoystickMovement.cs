@@ -13,14 +13,6 @@ public class JoystickMovement : MonoBehaviour
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<JoystickMovement>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(JoystickMovement));
-                    _instance = go.AddComponent<JoystickMovement>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

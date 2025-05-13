@@ -25,14 +25,6 @@ public class CloudDelegator : MonoBehaviour
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<CloudDelegator>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(CloudDelegator));
-                    _instance = go.AddComponent<CloudDelegator>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

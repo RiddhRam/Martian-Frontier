@@ -19,14 +19,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<DailyChallengeDelegator>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(DailyChallengeDelegator));
-                    _instance = go.AddComponent<DailyChallengeDelegator>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

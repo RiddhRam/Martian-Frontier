@@ -18,14 +18,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<AdDelegator>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(AdDelegator));
-                    _instance = go.AddComponent<AdDelegator>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }

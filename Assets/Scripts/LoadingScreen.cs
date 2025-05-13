@@ -13,14 +13,6 @@ public class LoadingScreen : MonoBehaviour
             {
                 // Try to find an existing one in the scene
                 _instance = FindObjectOfType<LoadingScreen>();
-
-                // If none exists, create a new GameObject and attach this component to it
-                if (_instance == null)
-                {
-                    var go = new GameObject(nameof(LoadingScreen));
-                    _instance = go.AddComponent<LoadingScreen>();
-                    DontDestroyOnLoad(go);  // optional: persist across scene loads
-                }
             }
             return _instance;
         }
