@@ -6,11 +6,32 @@ using UnityEngine.SceneManagement;
 using System.Threading.Tasks;
 
 public class DataPersistenceManager : MonoBehaviour
-{
+{    
+    private static DataPersistenceManager _instance;
+    public static DataPersistenceManager Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<DataPersistenceManager>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(DataPersistenceManager));
+                    _instance = go.AddComponent<DataPersistenceManager>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
 
     [Header("File Storage Config")]
     public string fileName;
-    public CloudDelegator cloudDelegator;
+    private CloudDelegator cloudDelegator;
     private bool useEncryption = true;
 
     private GameData gameData = new();
@@ -24,8 +45,6 @@ public class DataPersistenceManager : MonoBehaviour
 
     private bool notSinglePlayerScene = false;
 
-    public static DataPersistenceManager instance {get; private set; }
-
     // If this is false, then don't save the game
     // Helps improve game data integrity
     //
@@ -35,10 +54,7 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void Awake() {
 
-        if (instance != null) {
-            Debug.LogError("Found more than one data persistence manager");
-        }
-        instance = this;
+        cloudDelegator = CloudDelegator.Instance;
 
         // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
@@ -120,7 +136,7 @@ public class DataPersistenceManager : MonoBehaviour
             }
 
             try {
-                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
             } catch {
             }
         }

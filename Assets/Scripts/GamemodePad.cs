@@ -4,8 +4,13 @@ public class GamemodePad : MonoBehaviour
 {
     [SerializeField] UIDelegation uIDelegation;
     [SerializeField] TutorialManager tutorialManager;
-    [SerializeField] JoystickMovement joystickMovement;
+    JoystickMovement joystickMovement;
     [SerializeField] GameObject gamemodeScreen;
+
+    void Awake()
+    {
+        joystickMovement = JoystickMovement.Instance;
+    }
 
     void OnTriggerEnter2D(Collider2D collision) {
 

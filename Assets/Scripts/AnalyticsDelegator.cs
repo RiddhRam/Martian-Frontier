@@ -9,20 +9,23 @@ using UnityEngine.SceneManagement;
 public class AnalyticsDelegator : MonoBehaviour
 {
     private Firebase.FirebaseApp app;
-    public static AnalyticsDelegator Instance;
+    private static AnalyticsDelegator _instance;
+    public static AnalyticsDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<AnalyticsDelegator>();
+            }
+            return _instance;
+        }
+    }
     private bool isInitialized = false;
 
     private float sceneStartRealtime;
     private string currentScene;
-
-    void Awake()
-    {
-        if (Instance != null && Instance != this) {
-            Destroy(this);
-        } else {
-            Instance = this;
-        }
-    }
 
     async void Start() {
         // Disable analytics in editor and development

@@ -8,7 +8,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
 {
     public PlayerState playerState;
     public UIDelegation uIDelegation;
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public SupplyCrateDelegator supplyCrateDelegator;
     
     private IStoreController storeController;
@@ -16,6 +16,11 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
     public BundleIAPPanel[] bundleIAPPanels;
     public TextMeshProUGUI[] priceTexts;
     public GameObject thankYouScreen;
+
+    void Awake()
+    {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     void Start() {
         var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());

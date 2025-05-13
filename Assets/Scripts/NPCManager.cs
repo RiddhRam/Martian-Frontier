@@ -7,48 +7,35 @@ using UnityEngine.UI;
 
 public class NPCManager : MonoBehaviour, IDataPersistence
 {
-    [SerializeField]
-    private GameObject npcPrefab;
+    [SerializeField] private GameObject npcPrefab;
 
-    [SerializeField]
-    private Transform[] spawnPoints;
-    [SerializeField]
-    private bool[] spawnPointTaken;
-    [SerializeField]
-    private TextMeshProUGUI[] spawnPointNameTexts;
+    [SerializeField] private Transform[] spawnPoints;
+    [SerializeField] private bool[] spawnPointTaken;
+    [SerializeField] private TextMeshProUGUI[] spawnPointNameTexts;
 
-    [SerializeField]
-    private Sprite[] mapIcons;
-    [SerializeField]
-    public GameObject mapIconPrefab;
-    [SerializeField]
-    private Sprite drillerIcon;
-    [SerializeField]
-    private Sprite haulerIcon;
+    [SerializeField] private Sprite[] mapIcons;
+    [SerializeField] public GameObject mapIconPrefab;
+    [SerializeField] private Sprite drillerIcon;
+    [SerializeField] private Sprite haulerIcon;
 
-    [SerializeField]
-    private Transform playerVehicle;
+    [SerializeField] private Transform playerVehicle;
     private Vector3 playerSpawnPoint;
 
-    [SerializeField]
-    private GameObject[] npcs;
+    [SerializeField] private GameObject[] npcs;
     private NavMeshAgent[] navMeshAgents;
     private Vector3[] npcSpawnPoints;
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
 
     // How long the npcs play for
-    [SerializeField]
-    private int[] nPCTimeRemaining;
-    [SerializeField]
-    private int nPCEmptyTimer = 0;
-    private int haulerCheckTimer = 0;
+    [SerializeField] private int[] nPCTimeRemaining;
+    [SerializeField] private int nPCEmptyTimer = 0;
+
     private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
     // Helps prevent race conditions with NPCMovement and LiveManageSession()
     private bool[] transitioningVehicle;
 
     // How many npc haulers are active
-    private int haulers = 0;
     private int highestDrillTier = 1;
 
     private int npcCount;
@@ -59,22 +46,16 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int minNPCRNG = 0;
 
     public MineRenderer mineRenderer;
-    [SerializeField]
-    private PlayerState playerState;
-    [SerializeField]
-    private GarageDelegator garageDelegator;
-    [SerializeField]
-    private GameObject lostInternetScreen;
-    [SerializeField]
-    private MapRecordingMode mapRecordingMode;
-    [SerializeField]
-    private Button toggleCamera;
+    [SerializeField] private PlayerState playerState;
+    public GarageDelegator garageDelegator;
+    [SerializeField] private GameObject lostInternetScreen;
+    [SerializeField] private MapRecordingMode mapRecordingMode;
+    [SerializeField] private Button toggleCamera;
 
     private bool waitingInLobby = false;
 
     private readonly int sessionUpdateTimer = 5;
     private readonly int[] drillerTierThresholds = {5, 11, 17};
-    private readonly int[] haulerThresholds = {9, 13, 19};
     private readonly string[] botNames = {
         "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum", 
         "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
@@ -406,7 +387,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
         } catch {
         }
 

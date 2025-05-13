@@ -27,9 +27,9 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     private int magnetHaulerAdTimer = 0;
 
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
-    public CloudDelegator cloudDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
+    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public OreMagnetRoundManager oreMagnetRoundManager;
     public UIDelegation uIDelegation;
@@ -42,6 +42,13 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool adShowing = false;
+
+    void Awake()
+    {
+        cloudDelegator = CloudDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -276,9 +283,6 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
     }
 
@@ -416,9 +420,6 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 

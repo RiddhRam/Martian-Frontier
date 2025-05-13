@@ -19,9 +19,14 @@ public class ProfitPanelDelegator : MonoBehaviour
 
     private int timer = 50;
 
+    void Awake()
+    {
+        adDelegator = AdDelegator.Instance;
+    }
+    
     void Start() {
+        
         refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
-        adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
     }
 
     void FixedUpdate() {

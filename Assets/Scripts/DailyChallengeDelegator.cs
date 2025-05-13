@@ -6,11 +6,32 @@ using UnityEngine.Localization.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections;
-using System.Numerics;
 using UnityEngine.Localization.Tables;
 
 public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 {
+    private static DailyChallengeDelegator _instance;
+    public static DailyChallengeDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<DailyChallengeDelegator>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(DailyChallengeDelegator));
+                    _instance = go.AddComponent<DailyChallengeDelegator>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     public GameObject dailyTimer;
     public GameObject challengePanel;
     public GameObject[] challengeButtons;
@@ -67,6 +88,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     }
 
     void Awake() {
+        analyticsDelegator = AnalyticsDelegator.Instance;
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
 
         for (int i = 0; i != challengeButtons.Length; i++) {
@@ -83,8 +105,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     }
 
     void Initialize() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
+    
         if (lastChallengeDate == TimeSinceBirthday()) {
             LoadChallenges();
         } else {

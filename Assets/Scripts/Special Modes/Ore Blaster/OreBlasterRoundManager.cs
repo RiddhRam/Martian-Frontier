@@ -23,10 +23,12 @@ public class OreBlasterRoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource UISoundEffects;
     [SerializeField] private AudioClip roundEndSoundEffect;
-    [SerializeField] private AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
 
     void Start()
     {
+        audioDelegator = AudioDelegator.Instance;
+        
         oreBlaster.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
     }

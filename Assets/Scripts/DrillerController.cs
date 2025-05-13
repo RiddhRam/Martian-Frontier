@@ -10,10 +10,8 @@ public class DrillerController : MonoBehaviour
     private MineRenderer mineRenderer;
     private JoystickMovement joystickMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
-    [SerializeField]
-    private float playerSpeed;
-    [SerializeField]
-    private int drillTier;
+    [SerializeField] private float playerSpeed;
+    [SerializeField] private int drillTier;
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
@@ -71,9 +69,11 @@ public class DrillerController : MonoBehaviour
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
+        // DO NOT CHANGE THIS UNLESS DRILLER PREFAB STRUCTURE OR PLAYER STRUCTURE CHANGES
         try {
             joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
         } catch {
+            // if failed, then its not the local main player
             isNPC = true;
             return;
         }
@@ -81,7 +81,7 @@ public class DrillerController : MonoBehaviour
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        audioDelegator = AudioDelegator.Instance;
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
     }
 

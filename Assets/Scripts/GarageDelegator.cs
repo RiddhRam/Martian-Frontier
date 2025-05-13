@@ -4,6 +4,7 @@ using TMPro;
 
 public class GarageDelegator : MonoBehaviour
 {
+
     public Transform drillersContent;
     public GameObject drillerDisplayPanel;
     private TextMeshProUGUI[] heatLimitTexts;

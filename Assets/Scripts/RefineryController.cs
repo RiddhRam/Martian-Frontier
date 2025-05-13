@@ -39,12 +39,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     public Transform largeFogOfWar;
 
-    public AudioDelegator audioDelegator;
-    public DataPersistenceManager dataPersistenceManager;
+    private AudioDelegator audioDelegator;
+    private DataPersistenceManager dataPersistenceManager;
     public GameObject playerVehicle;
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public MineRenderer mineRenderer;
-    public DailyChallengeDelegator dailyChallengeDelegator;
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
     public UpgradesDelegator upgradesDelegator;
@@ -53,7 +52,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
-    public AdDelegator adDelegator;
+    private AdDelegator adDelegator;
 
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
@@ -63,11 +62,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
 
     void Awake() {
-        materialPrices = mineRenderer.GetComponent<OreDelegation>().GetMaterialPrices();
-    }
-
-    void Start() {
+        adDelegator = AdDelegator.Instance;
+        audioDelegator = AudioDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
         analyticsDelegator = AnalyticsDelegator.Instance;
+        
+        materialPrices = mineRenderer.GetComponent<OreDelegation>().GetMaterialPrices();
     }
 
     void OnTriggerEnter2D(Collider2D collision)

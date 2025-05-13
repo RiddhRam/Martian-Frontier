@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 
 public class AdConsent : MonoBehaviour
 {
-    public DataPersistenceManager dataPersistenceManager;
 
     void Awake()
     {

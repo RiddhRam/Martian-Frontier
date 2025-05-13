@@ -61,6 +61,8 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     }
 
     void Awake() {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+        
         for (int i = 0; i != challengeButtons.Length; i++) {
             challengeStatusIcons[i] = challengeButtons[i].transform.GetChild(0).GetChild(0).GetComponent<Image>();
             challengeTextMeshes[i] = challengeButtons[i].transform.GetChild(0).GetChild(1).GetChild(0).GetComponent<TextMeshProUGUI>();
@@ -75,9 +77,6 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     }
 
     void Initialize() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
-
         GenerateChallenges(true);
     }
 

@@ -23,7 +23,12 @@ public class OreMagnetRoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource UISoundEffects;
     [SerializeField] private AudioClip roundEndSoundEffect;
-    [SerializeField] private AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+    }
 
     void Start()
     {

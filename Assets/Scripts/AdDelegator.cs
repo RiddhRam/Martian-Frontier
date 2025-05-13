@@ -6,10 +6,31 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.SceneManagement;
 using GoogleMobileAds.Mediation.UnityAds.Api;
-using System.Numerics;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
 {
+    private static AdDelegator _instance;
+    public static AdDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<AdDelegator>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(AdDelegator));
+                    _instance = go.AddComponent<AdDelegator>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     private string _adUnitId = "unused";
     public GameObject adButton;
     public TextMeshProUGUI visionText;
@@ -50,9 +71,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private long lobbyRewardAmount;
     private int lobbyRewardTimer;
 
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
-    public CloudDelegator cloudDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
+    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
@@ -69,6 +90,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool disableAds = false;
     private bool adShowing = false;
     private System.Random rng = new();
+
+    void Awake()
+    {
+        cloudDelegator = CloudDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -570,9 +598,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 

@@ -17,18 +17,22 @@ public class SettingsDelegator : MonoBehaviour
     public GameObject accountButton;
     public GameObject accountPanel;
 
-    private GameObject audioDelegator;
     private bool musicEnabled;
     private bool soundFXEnabled;
+    private AudioDelegator audioDelegator;
     private AnalyticsDelegator analyticsDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
     {
-        audioDelegator = GameObject.Find("Audio Delegator");
         languageDropdown.GetComponent<LanguageDelegator>().settingsDelegator = gameObject;
-        analyticsDelegator = AnalyticsDelegator.Instance;
         UpdateBools();
 
         // Get the Toggle components
@@ -57,15 +61,14 @@ public class SettingsDelegator : MonoBehaviour
     }
 
     public void UpdateBools() {
-        AudioDelegator audioDelegatorScript = audioDelegator.GetComponent<AudioDelegator>();
 
         musicEnabled = GetPlayerPrefBool("Music");
         UpdateToggleColors(musicToggle.GetComponent<Toggle>(), musicEnabled);
-        audioDelegatorScript.UpdateMusicVolume(musicEnabled);
+        audioDelegator.UpdateMusicVolume(musicEnabled);
 
         soundFXEnabled = GetPlayerPrefBool("SoundFX");
         UpdateToggleColors(soundFXToggle.GetComponent<Toggle>(), soundFXEnabled);
-        audioDelegatorScript.soundFXEnabled = soundFXEnabled;
+        audioDelegator.soundFXEnabled = soundFXEnabled;
     }
 
     private void UpdateToggleColors(Toggle toggle, bool value) {
@@ -141,10 +144,7 @@ public class SettingsDelegator : MonoBehaviour
         if (upgradesDelegator) {
             upgradesDelegator.UpdateAllPowerPanels();
         }
-        
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
+
         analyticsDelegator.SelectLanguage(language);
         PlayerPrefs.SetString("Language", language); // Save the selected language
     }

@@ -45,6 +45,11 @@ public class PlayerMovement : MonoBehaviour
     private Coroutine floatingTextCoroutine;
     const float fadeDuration = 0.5f;
 
+    void Awake()
+    {
+        joystickMovement = JoystickMovement.Instance;
+    }
+
     // Start is called before the first frame update
     void Start()
     {

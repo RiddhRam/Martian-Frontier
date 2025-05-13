@@ -6,27 +6,9 @@ using UnityEngine.TestTools;
 using UnityEngine.UI;
 using TMPro;
 using System.Threading.Tasks;
-using UnityEngine.AI;
 
 public class LoadingTest
 {
-    PlayerState playerState;
-    AdDelegator adDelegator;
-    SettingsDelegator settingsDelegator;
-    RefineryController refineryController;
-    UIDelegation uIDelegation;
-    JoystickMovement joystickMovement;
-    ProfitPanelDelegator profitPanelDelegator;
-    PlayerVehicleDelegation playerVehicleDelegation;
-    GarageDelegator garageDelegator;
-    TutorialManager tutorialManager;
-    GameObject loadingScreen;
-    LoadingScreen loadingScreenScript;
-    CustomAdScreen customAdScreen;
-    GameObject playerVehicle;
-    PlayerMovement playerMovement;
-    MineRenderer mineRenderer;
-    OreDelegation oreDelegation;
 
     public async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed) {
         // Face the direction of movement
@@ -81,8 +63,8 @@ public class LoadingTest
         yield return null;
 
         // Loading Screen
-        loadingScreen = GameObject.Find("Loading Screen");
-        loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
+        GameObject loadingScreen = GameObject.Find("Loading Screen");
+        LoadingScreen loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
@@ -96,10 +78,8 @@ public class LoadingTest
         yield return null;
         
         // Player State
-        playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
+        PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
-        Assert.False(playerState.garagePanel.activeSelf);
-        Assert.AreEqual(playerState.garagePanel.name, "Garage Panel");
         Assert.False(playerState.materialProfitPanel.activeSelf);
         Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
 
@@ -122,12 +102,11 @@ public class LoadingTest
         }
 
         // Other
-        Assert.AreEqual(GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().soundFXEnabled, true);
+        Assert.AreEqual(AudioDelegator.Instance.soundFXEnabled, true);
 
         // Data Persistence Manager
-        DataPersistenceManager dataPersistenceManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
+        DataPersistenceManager dataPersistenceManager = DataPersistenceManager.Instance;
         Assert.AreEqual(dataPersistenceManager.fileName, "ryd");
-        Assert.AreEqual(dataPersistenceManager.cloudDelegator.name, "Cloud Delegator");
         Assert.False(dataPersistenceManager.adConsent);
 
         // Sound Holder
@@ -142,7 +121,7 @@ public class LoadingTest
         Assert.AreEqual(soundHolder.drillBlockVolumes[2], 0.1, 0.001);
 
         // Ads
-        adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
+        AdDelegator adDelegator = AdDelegator.Instance;
         
         Assert.True(adDelegator.adButton.activeSelf);
         Assert.AreEqual(adDelegator.movementJoystick.name, "Movement Joystick");
@@ -159,15 +138,12 @@ public class LoadingTest
         Assert.AreEqual(adDelegator.leaderboardCashPanel.name, "Ore Tournament");
         Assert.AreEqual(adDelegator.originalSpeed, 0);
         Assert.False(adDelegator.speedBoostActive);
-        Assert.AreEqual(adDelegator.dataPersistenceManager.name, "Data Persistence Manager");
-        Assert.AreEqual(adDelegator.analyticsDelegator.name, "Analytics Delegator");
-        Assert.AreEqual(adDelegator.cloudDelegator.name, "Cloud Delegator");
         Assert.AreEqual(adDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(adDelegator.refineryController.name, "Refinery Controller");
         Assert.AreEqual(adDelegator.supplyCrateDelegator.name, "Supply Crates Delegator");
 
         // Settings
-        settingsDelegator = GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>();
+        SettingsDelegator settingsDelegator = GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>();
 
         Assert.AreEqual(settingsDelegator.UIDelegation.name, "UI");
         Assert.AreEqual(settingsDelegator.musicToggle.name, "Music Toggle");
@@ -180,7 +156,7 @@ public class LoadingTest
         Assert.AreEqual(settingsDelegator.accountPanel.name, "Account Panel");
 
         // Daily Challenge Delegator
-        DailyChallengeDelegator dailyChallengeDelegator = GameObject.Find("Daily Challenge Delegator").GetComponent<DailyChallengeDelegator>();
+        DailyChallengeDelegator dailyChallengeDelegator = DailyChallengeDelegator.Instance;
 
         Assert.AreEqual(dailyChallengeDelegator.mineRenderer.gameObject.name, "Mine");
         Assert.AreEqual(dailyChallengeDelegator.playerState.gameObject.name, "PlayerState");
@@ -202,7 +178,7 @@ public class LoadingTest
         Assert.AreEqual(dailyChallengeDelegator.challengeNoticeIcon.name, "Challenge Notice Icon");
 
         // Daily Challenge Delegator
-        CloudDelegator cloudDelegator = GameObject.Find("Cloud Delegator").GetComponent<CloudDelegator>();
+        CloudDelegator cloudDelegator = CloudDelegator.Instance;
 
         Assert.AreEqual(cloudDelegator.userNameText.name, "USERNAME");
         Assert.AreEqual(cloudDelegator.loginPanel.name, "Log In");
@@ -212,12 +188,9 @@ public class LoadingTest
         Assert.AreEqual(cloudDelegator.newName.name, "New Name");
         Assert.AreEqual(cloudDelegator.forceUpdate.name, "Force Update");
         Assert.AreEqual(settingsDelegator.UIDelegation.name, "UI");
-        Assert.AreEqual(cloudDelegator.dataPersistenceManager.name, "Data Persistence Manager");
-        Assert.AreEqual(cloudDelegator.loadingScreen.name, "Loading Screen");
-        Assert.AreEqual(cloudDelegator.leaderboardDelegator.name, "Leaderboard Delegator");
 
         // Leaderboard Delegator
-        LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
+        LeaderboardDelegator leaderboardDelegator = LeaderboardDelegator.Instance;
 
         Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
         Assert.AreEqual(leaderboardDelegator.oreTournamentPanel.name, "Ore Tournament");
@@ -256,7 +229,7 @@ public class LoadingTest
         Assert.AreEqual(0, leaderboardDelegator.gemRewardsToCollect);
 
         // Refinery Controller
-        refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
+        RefineryController refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
 
         Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
         Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
@@ -284,16 +257,12 @@ public class LoadingTest
         Assert.AreEqual(refineryController.GetInitialTimer(), 120);
 
         Assert.AreEqual(refineryController.largeFogOfWar.gameObject.name, "Large Fog Of War");
-        Assert.AreEqual(refineryController.audioDelegator.gameObject.name, "Audio Delegator");
-        Assert.AreEqual(refineryController.dataPersistenceManager.gameObject.name, "Data Persistence Manager");
         Assert.AreEqual(refineryController.playerVehicle.name, "Player Vehicle");
-        Assert.AreEqual(refineryController.analyticsDelegator.gameObject.name, "Analytics Delegator");
         Assert.AreEqual(refineryController.mineRenderer.gameObject.name, "Mine");
-        Assert.AreEqual(refineryController.dailyChallengeDelegator.gameObject.name, "Daily Challenge Delegator");
         Assert.AreEqual(refineryController.fogOfWarSprite.gameObject.name, "Large Fog Of War");
 
         // UI Delegation
-        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
 
         Assert.AreEqual(uIDelegation.mapCamera.name, "Map Camera");
         Assert.AreEqual(uIDelegation.mapCameraView.name, "Map Camera View");
@@ -317,13 +286,13 @@ public class LoadingTest
         }
 
         // Joystick Movement
-        joystickMovement = GameObject.Find("Movement Joystick").GetComponent<JoystickMovement>();
+        JoystickMovement joystickMovement = JoystickMovement.Instance;
 
         Assert.AreEqual(joystickMovement.joystick.name, "Joystick Center");
         Assert.AreEqual(joystickMovement.joystickBG.name, "Joystick Background");
 
         // Material Profit Panel
-        profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
+        ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
 
         Assert.AreEqual(profitPanelDelegator.oresButton.name, "ORES");
         Assert.AreEqual(profitPanelDelegator.oresPanel.name, "Ore Material Panel");
@@ -335,8 +304,8 @@ public class LoadingTest
         Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");
 
         // Garage Panel
-        playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
-        garageDelegator = playerVehicleDelegation.garageDelegator.GetComponent<GarageDelegator>();
+        PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
+        GarageDelegator garageDelegator = playerState.garageDelegator;
 
         Assert.AreEqual(garageDelegator.drillersContent.name, "Content");
         Assert.AreEqual(garageDelegator.drillerDisplayPanel.name, "Drill Display Panel");
@@ -352,31 +321,29 @@ public class LoadingTest
         }
 
         // Tutorial
-        tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
+        TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
         Assert.AreEqual("Bottom Controls", tutorialManager.bottomControls.name);
 
         // Custom Ad Screen
-        customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
+        CustomAdScreen customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
 
         // Player Vehicle
         Assert.AreEqual(playerVehicleDelegation.currentVehicle, "GRINDER");
-        Assert.AreEqual(playerVehicleDelegation.garageDelegator.name, "Garage Panel");
         Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER");
 
-        playerVehicle = GameObject.Find("Player Vehicle");
+        GameObject playerVehicle = GameObject.Find("Player Vehicle");
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
 
-        playerMovement = playerVehicle.GetComponent<PlayerMovement>();
+        PlayerMovement playerMovement = playerVehicle.GetComponent<PlayerMovement>();
         Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);
-        Assert.True(playerMovement.joystickMovement != null);
         Assert.False(playerMovement.freezeCamera);
 
         yield return null;
 
         // Mine Renderer
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());
         Assert.AreEqual(mineRenderer.playerStateScript, playerState);
         Assert.AreEqual(mineRenderer.largeFogOfWar.name, "Large Fog Of War");
@@ -412,7 +379,7 @@ public class LoadingTest
         Assert.AreEqual(4, mineRenderer.maxVeinRadius);
 
 
-        oreDelegation = mineRenderer.GetComponent<OreDelegation>();
+        OreDelegation oreDelegation = mineRenderer.GetComponent<OreDelegation>();
         int materialCount = 9;
         Assert.AreEqual(materialCount, oreDelegation.materialNames.Length);
         Assert.AreEqual(materialCount, oreDelegation.materials.Length);
@@ -432,9 +399,6 @@ public class LoadingTest
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
         Assert.AreEqual(oreDelegation.contentGO.name, "Content");
 
-        leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
-        Assert.AreEqual(leaderboardDelegator.playerState.name, "PlayerState");
-
         yield return null;
     }
 
@@ -443,10 +407,10 @@ public class LoadingTest
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
         // Refinery Controller
-        refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
+        RefineryController refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
         Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
         Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Refinery Controller");
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
@@ -489,7 +453,7 @@ public class LoadingTest
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
         }
 
-        uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
 
         Assert.False(uIDelegation.mapCamera.activeSelf);
         Assert.False(uIDelegation.mapCamera.GetComponent<MapRecordingMode>().enabled);
@@ -526,7 +490,7 @@ public class LoadingTest
 
         Assert.False(tutorialUIParent.activeSelf);
 
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
 
         Transform playerVehicle = GameObject.Find("Player Vehicle").transform;
@@ -617,7 +581,7 @@ public class LoadingTest
 
         Assert.AreEqual(4, tutorialManager.tutorialScreenIndex);
 
-        LeaderboardDelegator leaderboardDelegator = GameObject.Find("Leaderboard Delegator").GetComponent<LeaderboardDelegator>();
+        LeaderboardDelegator leaderboardDelegator = LeaderboardDelegator.Instance;
         Assert.AreEqual(1000, leaderboardDelegator.gemRewardsToCollect);
 
         GameObject rewardMessage = GameObject.Find("Collect Reward").transform.GetChild(0).gameObject;
@@ -637,7 +601,7 @@ public class LoadingTest
         Assert.True(tutorialManager.supplyCrateDelegator.crateNoticeIcon.gameObject.activeSelf);
 
 
-        Assert.True(GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>().GetGameData().finishedTutorial);
+        Assert.True(DataPersistenceManager.Instance.GetGameData().finishedTutorial);
 
     }
 

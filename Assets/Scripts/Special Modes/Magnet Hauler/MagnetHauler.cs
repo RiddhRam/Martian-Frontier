@@ -27,6 +27,11 @@ public class MagnetHauler : MonoBehaviour
     [SerializeField] private Material defaultMaterial;
     readonly float multplier = 360f / 50;
 
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+    }
+
     void Start() {
         lineRenderer = GetComponent<LineRenderer>();
 
@@ -44,7 +49,6 @@ public class MagnetHauler : MonoBehaviour
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         orePickUpSoundEffect = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().oreSaleSoundEffect;
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
 
         // Do this so front wheels are found
         PlayerMovement playerMovement = transform.parent.GetComponent<PlayerMovement>();

@@ -5,16 +5,11 @@ using UnityEngine.UI;
 
 public class SessionDelegator : MonoBehaviour
 {
-    [SerializeField]
     private DataPersistenceManager dataPersistenceManager;
-    [SerializeField]
     private CloudDelegator cloudDelegator;
-    [SerializeField]
-    private TutorialManager tutorialManager;
-    [SerializeField]
-    private GameObject lockedUntilDoneTutorial;
-    [SerializeField]
-    private GameObject loadingScreen;
+    [SerializeField] private TutorialManager tutorialManager;
+    [SerializeField] private GameObject lockedUntilDoneTutorial;
+    [SerializeField] private GameObject loadingScreen;
     private AnalyticsDelegator analyticsDelegator;
 
     public string minigameName;
@@ -22,10 +17,16 @@ public class SessionDelegator : MonoBehaviour
     public Image teamButtonImage;
     public Image minigameButtonImage;
 
+    void Awake()
+    {
+        cloudDelegator = CloudDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
+
     void Start()
     {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
+       
         if (!tutorialManager) {
             return;
         }

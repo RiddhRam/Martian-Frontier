@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public PlayerState playerState;
     public PlayerMovement playerMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -32,6 +32,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject premiumShopNoticeIcon;
 
     private Coroutine arrowAnimation;
+
+    void Awake()
+    {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     private IEnumerator DisplayTutorial()
     {

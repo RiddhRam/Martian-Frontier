@@ -13,8 +13,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private float loadRotate;
 
     [Header("Other Scripts")]
-    public AdDelegator adDelegator;
-    public AnalyticsDelegator analyticsDelegator;
+    private AdDelegator adDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
     public GarageDelegator garageDelegator;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
@@ -28,6 +28,12 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     [Header("Visual")]
     [SerializeField] private Slider slider;
+
+    void Awake()
+    {
+        adDelegator = AdDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     public void SwitchVehicle(GameObject newVehicle) {
 
@@ -94,6 +100,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
         this.currentCoopVehicle = data.currentCoopVehicle;
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {

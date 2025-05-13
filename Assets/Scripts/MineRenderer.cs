@@ -10,8 +10,7 @@ using UnityEngine.Tilemaps;
 public class MineRenderer : MonoBehaviour, IDataPersistence
 {
     // Have to change through hierarchy not through here
-    [SerializeField]
-    private int visionRadius;
+    [SerializeField] private int visionRadius;
     public GameObject largeFogOfWar;
     public GameObject generationTriggers;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
@@ -64,13 +63,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
 
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
+    private LoadingScreen loadingScreen;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
-    public DailyChallengeDelegator dailyChallengeDelegator;
+    private DailyChallengeDelegator dailyChallengeDelegator;
     public UpgradesDelegator upgradesDelegator;
     public RefineryController refineryController;
-    public AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
 
     private Dictionary<string, int> quantities = new();
     //public int[] oresCount;
@@ -163,6 +163,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Called before Start
     void Awake()
     {
+        loadingScreen = LoadingScreen.Instance;
+        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
+        audioDelegator = AudioDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+
         totalColumns = mapHalfLength * 2 / gridSize.x;
         totalRowsForFunc = totalRows - 1;
         totalColumnsForFunc = totalColumns - 1;
@@ -289,9 +295,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineInitialization = 2;
         SaveGame();
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.InitializeMine(highestRow);
     }
 
@@ -946,7 +949,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         coopMineLoaded = true;
 
         try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
         } catch {
         }
     }
@@ -981,7 +984,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         if (currentCloudLoadState == cloudLoading) {
             cloudLoading = true;
             try {
-                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
             } catch {
             }
         }

@@ -16,6 +16,28 @@ using UnityEngine.SceneManagement;
 
 public class CloudDelegator : MonoBehaviour
 {
+    private static CloudDelegator _instance;
+    public static CloudDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<CloudDelegator>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(CloudDelegator));
+                    _instance = go.AddComponent<CloudDelegator>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     public TMP_Text userNameText;
     public GameObject loginPanel, userPanel;
     public GameObject askToLogOut;
@@ -25,9 +47,9 @@ public class CloudDelegator : MonoBehaviour
     public GameObject forceUpdate;
 
     public UIDelegation uIDelegation;
-    public DataPersistenceManager dataPersistenceManager;
-    public LoadingScreen loadingScreen;
-    public LeaderboardDelegator leaderboardDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private LoadingScreen loadingScreen;
+    private LeaderboardDelegator leaderboardDelegator;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
@@ -38,6 +60,9 @@ public class CloudDelegator : MonoBehaviour
     public bool doingSigninProcess = false;
 
     async void Awake() {
+        loadingScreen = LoadingScreen.Instance;
+        leaderboardDelegator = LeaderboardDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
 
         await UnityServices.InitializeAsync();
         PlayerAccountService.Instance.SignedIn += SignedIn;
@@ -368,7 +393,7 @@ public class CloudDelegator : MonoBehaviour
     // Just so it gets factor into Loading
     private void IncrementLoadedItems() {
         try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
         } catch {
         }
     } 

@@ -13,6 +13,28 @@ using UnityEngine.UI;
 
 public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
+    private static LeaderboardDelegator _instance;
+    public static LeaderboardDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<LeaderboardDelegator>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(LeaderboardDelegator));
+                    _instance = go.AddComponent<LeaderboardDelegator>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     public PlayerState playerState;
 
     public GameObject oreTournamentPanel;

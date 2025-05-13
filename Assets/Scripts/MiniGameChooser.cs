@@ -70,9 +70,8 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
     private void ResetMiniGameData() {
 
         playerState.ResetCredits();
-
-        var dataManager = GameObject.Find("Data Persistence Manager").GetComponent<DataPersistenceManager>();
-        ref GameData gameData = ref dataManager.GetGameDataRef();
+        
+        ref GameData gameData = ref DataPersistenceManager.Instance.GetGameDataRef();
 
         gameData.magnetHaulerUpgrades.Clear();
         gameData.magnetHaulerAdTimer = 0;

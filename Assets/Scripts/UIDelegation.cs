@@ -23,9 +23,14 @@ public class UIDelegation : MonoBehaviour
     public int[] materialPrices;
 
     private GameCameraController mainCameraController;
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
- 
+
+    void Awake()
+    {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
+
     void Start()
     {
         mainCameraController = Camera.main.GetComponent<GameCameraController>();

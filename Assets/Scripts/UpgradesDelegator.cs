@@ -23,7 +23,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private GameObject[] powerLockedPanels;
 
 
-    [SerializeField] private AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
     [SerializeField] private AudioSource powerUpAudioSource;
     [SerializeField] private AudioClip[] powerUpAudioClips;
     [SerializeField] private float[] audioVolumes;
@@ -71,13 +71,17 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     // Sum: 1,459,100
     private readonly int[] upgradeGemPrices = { 4000, 5000, 6300, 7900, 9900, 12000, 16000, 20000, 25000, 31000, 39000, 49000, 61000, 77000, 96000, 120000, 150000, 190000, 240000, 300000 };
 
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
+
     void Start()
     {
         ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
         materials = oreDelegation.materials;
-        
-        analyticsDelegator = AnalyticsDelegator.Instance;
     }
     // Increase Vision
     public int visionBoost;

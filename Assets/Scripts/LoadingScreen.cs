@@ -4,6 +4,28 @@ using System.Collections;
 
 public class LoadingScreen : MonoBehaviour
 {
+    private static LoadingScreen _instance;
+    public static LoadingScreen Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<LoadingScreen>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(LoadingScreen));
+                    _instance = go.AddComponent<LoadingScreen>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     public GameObject bufferCircle;
     public Slider progressBar;
 

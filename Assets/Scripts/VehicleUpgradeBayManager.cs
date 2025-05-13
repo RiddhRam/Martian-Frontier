@@ -67,7 +67,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    public JoystickMovement joystickMovement;
+    private JoystickMovement joystickMovement;
     public GarageDelegator garageDelegator;
     public PlayerVehicleDelegation playerVehicleDelegation;
     public bool loaded = false;
@@ -111,6 +111,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         75400, 83300, 91900, 101500, 112000, 123700, 136500, 150700, 166400, 183700,
         202800, 223900, 247200, 272900, 301300, 332700, 367300, 405400, 447600, 494200
     };
+
+    void Awake()
+    {
+        joystickMovement = JoystickMovement.Instance;
+    }
 
     void OnTriggerEnter2D(Collider2D collision) {
         // Only the player vehicle can open the UI panel on their local game
@@ -666,6 +671,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+        
         allBodies = new Sprite[][]
         {
             grinderBodies,

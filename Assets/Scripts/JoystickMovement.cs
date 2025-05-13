@@ -4,6 +4,28 @@ using UnityEngine.EventSystems;
 public class JoystickMovement : MonoBehaviour
 {
 
+    private static JoystickMovement _instance;
+    public static JoystickMovement Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<JoystickMovement>();
+
+                // If none exists, create a new GameObject and attach this component to it
+                if (_instance == null)
+                {
+                    var go = new GameObject(nameof(JoystickMovement));
+                    _instance = go.AddComponent<JoystickMovement>();
+                    DontDestroyOnLoad(go);  // optional: persist across scene loads
+                }
+            }
+            return _instance;
+        }
+    }
+
     public GameObject joystick;
     public GameObject joystickBG;
     public Vector2 joystickVec;

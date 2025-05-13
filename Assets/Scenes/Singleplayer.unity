@@ -1579,18 +1579,13 @@ MonoBehaviour:
   materialPrices: 
   profitMultiplier: 1
   largeFogOfWar: {fileID: 1438017627}
-  audioDelegator: {fileID: 178773787}
-  dataPersistenceManager: {fileID: 244266721}
   playerVehicle: {fileID: 1012335945}
-  analyticsDelegator: {fileID: 1743240306}
   mineRenderer: {fileID: 1093208307}
-  dailyChallengeDelegator: {fileID: 875091222}
   tutorialManager: {fileID: 1423374344}
   nPCManager: {fileID: 0}
   upgradesDelegator: {fileID: 153313349}
   playerMovement: {fileID: 1012335947}
   fogOfWarSprite: {fileID: 1438017628}
-  adDelegator: {fileID: 405986135}
 --- !u!61 &422203784
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1826,7 +1821,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4e6bb5b1edebb4bcb8c08ccb56a22f2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  adDelegator: {fileID: 405986135}
 --- !u!61 &448347536
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -26382,7 +26376,6 @@ GameObject:
   - component: {fileID: 1012335947}
   - component: {fileID: 1012335948}
   - component: {fileID: 1012335949}
-  - component: {fileID: 1012335954}
   m_Layer: 3
   m_Name: Player Vehicle
   m_TagString: Untagged
@@ -26471,30 +26464,12 @@ MonoBehaviour:
   currentVehicle: 
   currentCoopVehicle: 
   playerVehicle: {fileID: 0}
-  adDelegator: {fileID: 405986135}
-  analyticsDelegator: {fileID: 1743240306}
   nPCManager: {fileID: 0}
   garageDelegator: {fileID: 648771415}
   vehicleUpgradeBayManager: {fileID: 8101979660548351021}
   loaded: 0
   firstTimePlaying: 0
   slider: {fileID: 97286647}
---- !u!114 &1012335954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1012335945}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20060a9910e984c50b7f445a27d64f56, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  mainCamera: {fileID: 1910334187}
-  joystickMovement: {fileID: 1828223861}
-  depthTracker: {fileID: 469771645}
-  playerSpeed: 5
 --- !u!1 &1016199296
 GameObject:
   m_ObjectHideFlags: 0
@@ -27540,7 +27515,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fa62b2002edcf4868b42fcce77cd4175, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  analyticsDelegator: {fileID: 1743240306}
   playerState: {fileID: 276248154}
   playerMovement: {fileID: 1012335947}
   playerVehicleDelegation: {fileID: 1012335949}
@@ -29906,8 +29880,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f056a3bc20f954262b00dde0a5b06929, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataPersistenceManager: {fileID: 244266721}
-  cloudDelegator: {fileID: 779610164}
   tutorialManager: {fileID: 1423374344}
   lockedUntilDoneTutorial: {fileID: 1939186720}
   loadingScreen: {fileID: 457367999}
@@ -30156,6 +30128,10 @@ PrefabInstance:
       propertyPath: ResetMineButton
       value: 
       objectReference: {fileID: 1364814341}
+    - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
+      propertyPath: garageDelegator
+      value: 
+      objectReference: {fileID: 648771415}
     - target: {fileID: 233449230909227957, guid: 17c8fdcaf7ed8457ca284bc97ec59484, type: 3}
       propertyPath: lowTierTextReason
       value: 
@@ -34936,7 +34912,7 @@ PrefabInstance:
       objectReference: {fileID: 153313349}
     - target: {fileID: 6953400917129435992, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 409.99997
+      value: 410
       objectReference: {fileID: 0}
     - target: {fileID: 6960198271401229344, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -35566,6 +35542,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8585953033734531206, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -43.390015
+      objectReference: {fileID: 0}
     - target: {fileID: 8597413433380286758, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -35851,6 +35831,10 @@ PrefabInstance:
       propertyPath: mult
       value: 4
       objectReference: {fileID: 0}
+    - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
+      propertyPath: unknownTile
+      value: 
+      objectReference: {fileID: 11400000, guid: 1115d6848c39c4d72af9b190849d5994, type: 2}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: mineValueText
       value: 
@@ -36558,7 +36542,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uIDelegation: {fileID: 319486926}
   tutorialManager: {fileID: 1423374344}
-  joystickMovement: {fileID: 1828223861}
   gamemodeScreen: {fileID: 1041991031}
 --- !u!1001 &8101979660548351017
 PrefabInstance:

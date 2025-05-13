@@ -13,7 +13,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject[] creditDisplays;
     public GameObject[] gemCashPurchasePanels;
-    public GameObject garagePanel;
     public GameObject materialProfitPanel;
 
 
@@ -33,14 +32,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private List<string> vehiclesOwned = new();
 
     [SerializeField] private RefineryController refineryController;
-    [SerializeField] private DataPersistenceManager dataPersistenceManager;
+    private DataPersistenceManager dataPersistenceManager;
     [SerializeField] private UIDelegation uIDelegation;
-    [SerializeField] private AnalyticsDelegator analyticsDelegator;
-    [SerializeField] private DailyChallengeDelegator dailyChallengeDelegator;
-    [SerializeField] private LeaderboardDelegator leaderboardDelegator;
+    private AnalyticsDelegator analyticsDelegator;
+    private DailyChallengeDelegator dailyChallengeDelegator;
+    private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
+    public GarageDelegator garageDelegator;
 
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
@@ -68,6 +68,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     const int miningSaveInterval = 100;
 
     void Awake() {
+        leaderboardDelegator = LeaderboardDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
+        
         // Credits are used for special game modes
         if (creditDisplays.Length > 0) {
             specialGameMode = true;
@@ -81,8 +86,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         }
 
-        if (garagePanel) {
-            drillers = garagePanel.GetComponent<GarageDelegator>().drillers;
+        if (garageDelegator) {
+            drillers = garageDelegator.drillers;
         }
     }
 
@@ -419,8 +424,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.highestMined = data.highestMined;
 
         loaded = true;
-
-        analyticsDelegator = AnalyticsDelegator.Instance;
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             ResetMineButton.SetActive(false);

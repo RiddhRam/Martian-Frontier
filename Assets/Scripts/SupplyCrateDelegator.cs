@@ -18,7 +18,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI[] crateDisplays;
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
     public TextMeshProUGUI crateExtractionPercentageText;
@@ -30,7 +30,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI blocksNeededMiniBarText;
     public TextMeshProUGUI blocksNeededMainBarText;
 
-    public AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
     public AudioClip crateUnlockSoundEffect;
     public AudioSource UISoundEffects;
 
@@ -42,12 +42,17 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public bool disableAds = false;
 
-
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
     private readonly int blocksNeededToDestroy = 5000;
 
     public bool adWatchedAlready = false;
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     public void UpdateBlocksNeededBars() {
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
