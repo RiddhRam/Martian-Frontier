@@ -32,7 +32,7 @@ public class CloudDelegator : MonoBehaviour
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 107;
+    private readonly int currentVersionNumber = 108;
 
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
