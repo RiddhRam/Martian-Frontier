@@ -393,14 +393,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         if (data.vehiclesOwned.Contains("STUBBY")) {
             // Set this so we know when the game restarts
             PlayerPrefs.SetInt("Beta", 200);
-            Debug.Log("Resetting beta");
             dataPersistenceManager.ResetBetaPlayer();
             return;
         }
 
         // We previously found this was a beta player
         if (PlayerPrefs.GetInt("Beta") == 200) {
-            Debug.Log("Show beta");
             betaScreen.SetActive(true);
         }
 
@@ -426,6 +424,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             ResetMineButton.SetActive(false);
+        }
+
+        // Called from this load function and upgrades delegator, whichever loads second works
+        if (upgradesDelegator) {
+            upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
         }
        
         UpdateCashDisplays();
