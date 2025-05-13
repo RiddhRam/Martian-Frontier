@@ -293,16 +293,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
-    public void SetRefineryBattery(int newValue) {
-        refineryTimer = newValue;
-        UpdateRefineryProgressBars();
-    }
-
-    public int GetRefineryBattery() {
+    public int GetRefineryTimer() {
         return refineryTimer;
     }
 
-    public int GetInitialBattery() {
+    public int GetInitialTimer() {
         return initialTimer;
     }
 

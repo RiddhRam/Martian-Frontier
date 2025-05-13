@@ -1,12 +1,9 @@
 using UnityEngine.UI;
 using UnityEngine;
 using TMPro;
-using System.Collections;
 
 public class GarageDelegator : MonoBehaviour
 {
-    public GameObject drillersButton;
-    public GameObject drillersPanel;
     public Transform drillersContent;
     public GameObject drillerDisplayPanel;
     private TextMeshProUGUI[] heatLimitTexts;

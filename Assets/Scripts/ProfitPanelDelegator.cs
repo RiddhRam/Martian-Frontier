@@ -20,7 +20,7 @@ public class ProfitPanelDelegator : MonoBehaviour
     private int timer = 50;
 
     void Start() {
-        refineryController = GameObject.Find("Ore Refinery Dropoff").GetComponent<RefineryController>();
+        refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
         adDelegator = GameObject.Find("Ad Delegator").GetComponent<AdDelegator>();
     }
 

@@ -32,9 +32,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     public TextMeshPro lobbyAdRewardAmountText;
     public TextMeshPro lobbyAdRewardTimerText;
 
-    public GameObject leaderboardTabButtons;
     public GameObject leaderboardCashPanel;
-    public GameObject leaderboardVehiclesPanel;
     private bool cashPanelWasOpen = true;
 
     private RewardedAd rewardedAd;
@@ -501,8 +499,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             changeNameButton.SetActive(true);
             deleteAccountButton.SetActive(true);
             leaderboardCashPanel.SetActive(cashPanelWasOpen);
-            leaderboardVehiclesPanel.SetActive(!cashPanelWasOpen);
-            leaderboardTabButtons.SetActive(true);
             leaderboardNoWifi.SetActive(false);
             
 
@@ -537,8 +533,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         deleteAccountButton.SetActive(false);
         cashPanelWasOpen = leaderboardCashPanel.activeSelf;
         leaderboardCashPanel.SetActive(false);
-        leaderboardVehiclesPanel.SetActive(false);
-        leaderboardTabButtons.SetActive(false);
         leaderboardNoWifi.SetActive(true);
         
         if (!disableAds) {

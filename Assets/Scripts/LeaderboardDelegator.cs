@@ -16,7 +16,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
 
     public GameObject oreTournamentPanel;
-    public GameObject oreTournamentButton;
 
     public GameObject collectReward;
     public TextMeshProUGUI collectRewardMessage;
