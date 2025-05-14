@@ -216,9 +216,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void UpdateGemCashPurchasePanels() {
-        // 1800 gems saves you 2 mins but giving you the same amount as the highest mined value you achieved
+        // 4000 gems saves you 2 mins by giving you the same amount as the highest mined value you achieved
         // its a float so it doesnt get rounded down if there's a decimal
-        const float mainGemPrice = 1800;
+        const float mainGemPrice = 4000;
 
         for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
             GemCashPurchasePanel gemCashPurchasePanel = gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>();
