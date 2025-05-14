@@ -41,7 +41,7 @@ public class GarageDelegator : MonoBehaviour
             // Otherwise show the price
             else {
                 long price = GetDrillerController(i).GetPrice();
-                panel.GetChild(2).GetChild(0).GetComponent<TextMeshProUGUI>().text = "$" + playerState.FormatPrice(price);
+                panel.GetChild(2).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerState.FormatPrice(price);
             }
         }
     }

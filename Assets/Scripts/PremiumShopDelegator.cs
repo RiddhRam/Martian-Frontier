@@ -17,8 +17,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
     public TextMeshProUGUI[] priceTexts;
     public GameObject thankYouScreen;
 
-    void Awake()
-    {
+    void Awake() {
         analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
@@ -50,8 +49,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         analyticsDelegator.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
     }
 
-    public void PurchaseGemProduct(string productId)
-    {
+    public void PurchaseGemProduct(string productId) {
         Debug.Log($"Attempting to purchase: {productId}");
         
         if (storeController == null)
@@ -82,8 +80,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         storeController.InitiatePurchase(product);
     }
 
-    public void OnInitialized(IStoreController controller, IExtensionProvider extensions)
-    {
+    public void OnInitialized(IStoreController controller, IExtensionProvider extensions) {
         try {
             storeController = controller;
 
@@ -107,13 +104,11 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         }
     }
 
-    public void OnInitializeFailed(InitializationFailureReason error)
-    {
+    public void OnInitializeFailed(InitializationFailureReason error) {
         Debug.Log("IAP Initialization Failed: " + error);
     }
 
-    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
-    {
+    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args) {
         string productId = args.purchasedProduct.definition.id;
         Debug.Log("Processing purchase for product: " + productId);
         
@@ -178,24 +173,21 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         return PurchaseProcessingResult.Complete;
     }
 
-    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
-    {
+    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason) {
         Debug.Log("Purchase Failed: " + failureReason);
         if (uIDelegation != null) {
             uIDelegation.ShowError("Purchase Failed: " + failureReason);
         }
     }
 
-    public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription)
-    {
+    public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription) {
         Debug.Log("Purchase Failed: " + failureDescription);
         if (uIDelegation != null) {
             uIDelegation.ShowError("Purchase Failed: " + failureDescription.message);
         }
     }
 
-    public void OnInitializeFailed(InitializationFailureReason error, string message)
-    {
+    public void OnInitializeFailed(InitializationFailureReason error, string message) {
         Debug.Log("IAP Initialization Failed: " + error + " - " + message);
     }
 }

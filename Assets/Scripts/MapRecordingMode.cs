@@ -132,7 +132,7 @@ public class MapRecordingMode : MonoBehaviour
             return;
         }
 
-        cashEarnedValueText.text = "$" + FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
+        cashEarnedValueText.text = FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
     }
 
     private IEnumerator GlowText() {

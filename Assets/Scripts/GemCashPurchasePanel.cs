@@ -8,13 +8,13 @@ public class GemCashPurchasePanel : MonoBehaviour
     public int gemPrice;
 
     public void Start() {
-        transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(cashAmount);
+        UpdateCashAmount(cashAmount);
         transform.GetChild(2).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(gemPrice);
     }
 
     public void UpdateCashAmount(BigInteger newCashAmount) {
         cashAmount = newCashAmount;
-        transform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice(cashAmount);
+        transform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(cashAmount);
     }
 
     private string FormatPrice(BigInteger price)

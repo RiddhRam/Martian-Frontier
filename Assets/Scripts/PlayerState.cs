@@ -318,7 +318,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     
     // Update all UI elements that show the user's money
     public void UpdateCashDisplays() {
-        string cashText = "$" + FormatPrice(userCash);
+        string cashText = FormatPrice(userCash);
 
         for (int i = 0; i != cashDisplays.Length; i++) {
             cashDisplays[i].GetComponent<TextMeshProUGUI>().text = cashText;
@@ -548,6 +548,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void FreeMoneyUpdate() {
         freeMoneyToAdd = (int) cashSlider.value;
 
-        cashText.text = "$" + FormatPrice(freeMoneyToAdd);
+        cashText.text = FormatPrice(freeMoneyToAdd);
     }
 }

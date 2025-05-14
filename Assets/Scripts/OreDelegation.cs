@@ -62,7 +62,7 @@ public class OreDelegation : MonoBehaviour
             panelTransform.localScale = new(1, 1, 1);
 
             // Set the name and price
-            panelTransform.GetChild(1).GetComponent<TextMeshProUGUI>().text = "$" + FormatPrice((long) (price * refineryController.GetTotalProfitMultiplier()));
+            panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice((long) (price * refineryController.GetTotalProfitMultiplier()));
             panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i];
             panelTransform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[i];
         }

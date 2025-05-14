@@ -286,7 +286,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateCashText() {
-        cashMadeThisMineText.text = "$" + playerState.FormatPrice((long) cashMadeThisMine);
+        cashMadeThisMineText.text = playerState.FormatPrice((long) cashMadeThisMine);
     }
 
     public void PlaySaleNoise() {
