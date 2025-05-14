@@ -387,12 +387,15 @@ public class LoadingTest
         Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
 
         string[] materialNames = new string[] {"Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium"};
+        string[] materialHighResSpriteNames = new string[] {"Level 1 Ore Spritesheet High Res_0", "Level 1 Ore Spritesheet High Res_1", "Level 1 Ore Spritesheet High Res_2", 
+                                                "Level 2 Ore Spritesheet High Res_2", "Level 2 Ore Spritesheet High Res_1", "Level 2 Ore Spritesheet High Res_0", 
+                                                "Level 3 Ore Spritesheet High Res_2", "Level 3 Ore Spritesheet High Res_1", "Level 3 Ore Spritesheet High Res_0"};
         int[] materialPrices = new int[] {75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000};
         for (int i = 0; i != materialCount; i++) {
             Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
             Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
             Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
-            Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialNames[i] + " High Res");
+            Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialHighResSpriteNames[i]);
         }
 
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
