@@ -630,15 +630,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
         // If max level
         if (heatLevel >= upgradeHeatPrices.Length) {
-            heatUpgradePriceText.transform.parent.GetComponent<Button>().interactable = false;
-            heatUpgradePriceText.transform.parent.GetComponent<Image>().color = new(1, 0, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
+            heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             heatUpgradePriceText.text = "MAX";
         } else {
-            heatUpgradePriceText.transform.parent.GetComponent<Button>().interactable = true;
-            heatUpgradePriceText.transform.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
 
-            heatUpgradePriceText.text = "$" + FormatPrice(upgradeHeatPrices[heatLevel]);
+            heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
+            heatUpgradePriceText.text = FormatPrice(upgradeHeatPrices[heatLevel]);
         }
         
         // Update cool rate
@@ -648,15 +650,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
         // If max level
         if (coolLevel >= upgradeCoolPrices.Length) {
-            coolUpgradePriceText.transform.parent.GetComponent<Button>().interactable = false;
-            coolUpgradePriceText.transform.parent.GetComponent<Image>().color = new(1, 0, 0);
+            coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
+            coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
+            coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             coolUpgradePriceText.text = "MAX";
         } else {
-            coolUpgradePriceText.transform.parent.GetComponent<Button>().interactable = true;
-            coolUpgradePriceText.transform.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
+            coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
 
-            coolUpgradePriceText.text = "$" + FormatPrice(upgradeCoolPrices[coolLevel]);
+            coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
+            coolUpgradePriceText.text = FormatPrice(upgradeCoolPrices[coolLevel]);
         }
 
     }

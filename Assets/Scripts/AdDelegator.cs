@@ -408,7 +408,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         lobbyRewardAmount = rewardAmount;
-        lobbyAdRewardAmountText.text = "$" + playerState.FormatPrice(lobbyRewardAmount);
+        lobbyAdRewardAmountText.text = FormatPrice(lobbyRewardAmount);
 
         lobbyRewardTimer = 30;
         lobbyAdDisplay.SetActive(true);
@@ -687,5 +687,24 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             LoadRewardedAd("Lobby");
         }
     }
+
+    public string FormatPrice(long price)
+    {
+
+        if (price >= 1_000_000)
+        {
+            // Truncate to 2 decimal places and format with "M"
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+        }
+        else if (price >= 1_000)
+        {
+            // Truncate to 2 decimal places and format with "K"
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+        }
+
+        // Return the original price as a string for smaller numbers
+        return price.ToString();
+    }
+
 
 }
