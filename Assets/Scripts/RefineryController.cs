@@ -161,6 +161,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         playerState.UpdateHighestMined(cashMadeThisMine);
         cashMadeThisMine = 0;
+        cashMadeThisMineText.text = "0";
 
         if (nPCManager) {
             StartCoroutine(nPCManager.WaitInLobby());
