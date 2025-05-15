@@ -111,10 +111,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 playerMessage.SetActive(true);
 
                 // Warn the user about drill heat at about this point
-                yield return new WaitUntil(() => refineryController.refineryTimer == 16);
+                yield return new WaitUntil(() => refineryController.refineryTimer == 17);
 
                 // Enable overheat tip
                 TutorialUIParent.SetActive(true);
+                overHeatTip.SetActive(true);
+                // flash 3 times
+                yield return StartCoroutine(FlashMessage(overHeatTip, 3, 0.4f));
+                // Ensure it stays active
                 overHeatTip.SetActive(true);
 
                 // Wait until timer reaches 0, or starts to reset and goes above 30

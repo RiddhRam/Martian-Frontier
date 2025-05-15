@@ -68,8 +68,29 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     public bool scannedForOres = false;
 
     // Length: 20
-    // Sum: 1,459,100
-    private readonly int[] upgradeGemPrices = { 4000, 5000, 6300, 7900, 9900, 12000, 16000, 20000, 25000, 31000, 39000, 49000, 61000, 77000, 96000, 120000, 150000, 190000, 240000, 300000 };
+    // Sum: 10,406,800
+    private readonly int[] upgradeCashPrices = {
+        5000,
+        7000,
+        9800,
+        14000,
+        19000,
+        27000,
+        38000,
+        53000,
+        74000,
+        100000,
+        140000,
+        200000,
+        280000,
+        400000,
+        560000,
+        780000,
+        1100000,
+        1500000,
+        2100000,
+        3000000
+    };
 
     void Awake()
     {
@@ -328,12 +349,12 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         int powerLevel = GetPowerLevel(powerName);
 
-        if (!playerState.VerifyEnoughGems(powers[powerIndex].Prices[powerLevel])) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+        if (!playerState.VerifyEnoughCash(powers[powerIndex].Prices[powerLevel])) {
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
             return;
         }
 
-        playerState.SubtractGems(powers[powerIndex].Prices[powerLevel]);
+        playerState.SubtractCash(powers[powerIndex].Prices[powerLevel]);
         powerUpgradeLevels[powerName] = powerLevel + 1;
         SetUpgradePriceAndLevel(powerIndex);
 
@@ -481,13 +502,13 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         this.equippedPowers = data.equippedPowers;
         this.powerUpgradeLevels = data.powerUpgradeLevels;
 
-        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
-        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 5, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
+        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeCashPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeCashPrices, powerIconsWhite[1], 3, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
         powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 10, false, false, "", 0, 0, () => {}));
-        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 25, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
-        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 40, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
-        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 60, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
-        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 80, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
+        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeCashPrices, null, 20, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
+        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeCashPrices, null, 30, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
+        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeCashPrices, null, 40, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
+        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 5000, 80000, 250000, 700000, 1200000, 1900000, 2000000 }, null, 50, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
 
         int powerIndex = 0;
 
