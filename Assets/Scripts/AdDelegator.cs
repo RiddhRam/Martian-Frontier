@@ -568,7 +568,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         displayStatus = false;
     }
 
-    private void RewardBoost(int? totalTime = 240) {
+    private void RewardBoost(int? totalTime = 180) {
 
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();

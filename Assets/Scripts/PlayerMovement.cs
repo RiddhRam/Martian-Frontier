@@ -39,6 +39,7 @@ public class PlayerMovement : MonoBehaviour
     // Details above the player
     [SerializeField] private Transform sliderCanvas;
     [SerializeField] private TextMeshProUGUI cashEarnedText;
+    [SerializeField] private SpriteRenderer cashIconSpriteRenderer;
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
     private long cashToShow;
@@ -53,7 +54,7 @@ public class PlayerMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(HoldProgressBarStill());
+        StartCoroutine(HoldCanvasStill());
         
         stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
@@ -197,8 +198,38 @@ public class PlayerMovement : MonoBehaviour
     }
 
     private IEnumerator ShowFloatingText() {
+
+        // Show text and icon
+        cashEarnedText.text = FormatPrice(cashToShow);
+        float alphaValue = 1;
+        cashEarnedText.alpha = alphaValue;
+        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+
+        // Wait 2 seconds
+        yield return new WaitForSecondsRealtime(2);
+
+        // Fade text and icon out
+        float time = 0f;
+        while (time < fadeDuration)
+        {
+            time += Time.deltaTime;
+            alphaValue = Mathf.Lerp(1f, 0f, time / fadeDuration);
+            cashEarnedText.alpha = alphaValue;
+            cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+            yield return null;
+        }
+
+        // Ensure it’s fully invisible
+        alphaValue = 0;
+        cashEarnedText.alpha = alphaValue;
+        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+        // Reset for next time
+        cashToShow = 0;   
+    }
+
+    /*private IEnumerator ShowFloatingText() {
         // Show text
-        cashEarnedText.text = "+$" + FormatPrice(cashToShow);
+        cashEarnedText.text = FormatPrice(cashToShow);
         cashEarnedText.alpha = 1;
 
         // Wait 2 seconds
@@ -210,6 +241,7 @@ public class PlayerMovement : MonoBehaviour
         {
             t += Time.deltaTime;
             cashEarnedText.alpha = Mathf.Lerp(1f, 0f, t / fadeDuration);
+            cashIconSpriteRenderer.color = new(1, 1, 1, t / fadeDuration);
             yield return null;
         }
 
@@ -217,9 +249,9 @@ public class PlayerMovement : MonoBehaviour
         cashEarnedText.alpha = 0f;   
         // Reset for next time
         cashToShow = 0;   
-    }
+    }*/
 
-    private IEnumerator HoldProgressBarStill() {
+    private IEnumerator HoldCanvasStill() {
         
         if (sliderCanvas == null) {
             Debug.Log("No canvas found");
@@ -243,20 +275,15 @@ public class PlayerMovement : MonoBehaviour
 
     public string FormatPrice(long price)
     {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
+        if (price >= 1_000_000)
         {
             // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.#") + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.#") + "K";
         }
 
         // Return the original price as a string for smaller numbers
