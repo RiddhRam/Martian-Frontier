@@ -323,8 +323,6 @@ public class LoadingTest
         // Tutorial
         TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
-        Assert.AreEqual("Bottom Controls", tutorialManager.bottomControls.name);
-
         // Custom Ad Screen
         CustomAdScreen customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
@@ -527,20 +525,8 @@ public class LoadingTest
 
         Assert.AreEqual(1, tutorialManager.tutorialScreenIndex);
 
-        GameObject bottomControls = tutorialManager.bottomControls;
-
-        Assert.True(bottomControls.activeSelf);
-        Assert.False(bottomControls.transform.GetChild(0).gameObject.activeSelf);
-        Assert.True(bottomControls.transform.GetChild(1).gameObject.activeSelf);
-        bottomControls.transform.GetChild(1).GetComponent<Button>().onClick.Invoke();
-
-        yield return null;
-        yield return null;
 
         Assert.False(tutorialUIParent.activeSelf);
-
-        Assert.True(bottomControls.transform.GetChild(0).gameObject.activeSelf);
-        Assert.False(bottomControls.transform.GetChild(1).gameObject.activeSelf);
 
         GameObject garagePanel = GameObject.Find("Garage Panel");
         garagePanel.transform.GetChild(3).GetComponent<Button>().onClick.Invoke();

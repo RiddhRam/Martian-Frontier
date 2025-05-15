@@ -101,7 +101,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         728_300, 845_500, 981_600, 1_139_500, 1_500_000
     };
 
-
     // 50-level curve: 1 000 → 500 000, total ≈ 5 000 600
     private static readonly int[] upgradeCoolPrices = new int[]
     {
@@ -111,6 +110,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         75400, 83300, 91900, 101500, 112000, 123700, 136500, 150700, 166400, 183700,
         202800, 223900, 247200, 272900, 301300, 332700, 367300, 405400, 447600, 494200
     };
+
+    private Coroutine heatValueTextCoroutine;
+    private Coroutine coolValueTextCoroutine;
 
     void Awake()
     {
@@ -610,24 +612,31 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         playerState.SubtractCash(upgradePrice);
 
         // Increment by one
-        if (type == "Cooldown") {
-            UpdateUpgradesDictionary(1, "Cooldown");
-        } else {
-            UpdateUpgradesDictionary(1, "Heat");
-        }
+        UpdateUpgradesDictionary(1, type);
 
         // Update displays and drill
         MatchGarageDisplayToDrill(drillerController.drillerIndex);
         MatchPlayerDrillToDrill();
-        UpdateUpgradeDetails();
+        UpdateUpgradeDetails(type);
     }
 
-    public void UpdateUpgradeDetails() {
+    public void UpdateUpgradeDetails(string flashPower = null) {
         // Update heat limit
         heatUpgradeSlider.value = drillerController.endurance;
-        heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = drillerController.endurance.ToString();
+
+        TextMeshProUGUI heatValueText =  heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        heatValueText.text = drillerController.endurance.ToString();
+
+        if (flashPower == "Heat") {
+            // Flash text
+            if (heatValueTextCoroutine != null) {
+                StopCoroutine(heatValueTextCoroutine);
+            }
+            heatValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(heatValueText));
+        }
 
         int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
+        
         // If max level
         if (heatLevel >= upgradeHeatPrices.Length) {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -645,8 +654,18 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         
         // Update cool rate
         coolUpgradeSlider.value = drillerController.GetCoolRate() * coolTimesPerSecond;
-        coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
 
+        TextMeshProUGUI coolValueText =  coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        coolValueText.text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
+
+        if (flashPower == "Cooldown") {
+            // Flash text
+            if (coolValueTextCoroutine != null) {
+                StopCoroutine(coolValueTextCoroutine);
+            }
+            coolValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(coolValueText));
+        }
+        
         int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
         // If max level
         if (coolLevel >= upgradeCoolPrices.Length) {
@@ -749,6 +768,28 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         Color darkColor = originalColor * 0.7f;
 
         StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
+    }
+
+    private IEnumerator FlashUpgradeValueText(TextMeshProUGUI valueText) {
+        Color start = new(9/255f, 176/255f, 9/255f);
+        Color target = Color.black;
+
+        valueText.color = start;
+
+        // Wait 1 seconds
+        yield return new WaitForSecondsRealtime(1);
+
+        // Transition from white to black
+        float time = 0f;
+        while (time < 0.5f)
+        {
+            time += Time.unscaledDeltaTime;
+            valueText.color = Color.Lerp(start, target, time / 0.5f);
+            yield return null;
+        }
+
+        // Ensure it’s fully invisible
+        valueText.color = target;
     }
 
     private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor) {
