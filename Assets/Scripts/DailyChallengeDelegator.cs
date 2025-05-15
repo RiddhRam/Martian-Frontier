@@ -278,25 +278,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         UpdateDisplay();
     }
 
-    public void PurchasedVehicle(int vehicle) {
-        // 0 = its a driller
-        // 1 = its a hauler
-
-        for (int i = 0; i != selectedChallenges.Length; i++) {
-            if (selectedChallenges[i] != 3 && selectedChallenges[i] != 4) {
-                continue;
-            }
-
-            // 3 if driller
-            // 4 if hauler
-            if (selectedChallenges[i] == 3 + vehicle) {
-                challengeProgress[i]++;
-            }
-        }
-
-        UpdateDisplay();
-    }
-
     public void CollectReward(int challengeIndex) {
         if (challengeProgress[challengeIndex] != challengeValues[challengeIndex]) {
             return;

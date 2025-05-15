@@ -10,32 +10,34 @@ using System.Threading.Tasks;
 public class LoadingTest
 {
 
-    public async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed) {
+    private async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed)
+    {
         // Face the direction of movement
         Vector3 direction = (targetPosition - playerVehicle.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
         playerVehicle.rotation = Quaternion.Euler(0, 0, angle);
 
-        while (Vector3.Distance(playerVehicle.position, targetPosition) > 0.02f) {
+        while (Vector3.Distance(playerVehicle.position, targetPosition) > 0.02f)
+        {
             playerVehicle.position = Vector3.MoveTowards(playerVehicle.position, targetPosition, speed * Time.deltaTime);
-            // Await a delay of roughly 16 milliseconds (~1/60s)
-            await Task.Delay(16);
+            await Task.Yield();
         }
     }
 
     [UnityTest]
-    public IEnumerator TestPlaceHolderScreen() {
+    public IEnumerator TestPlaceHolderScreen()
+    {
         // Load the Loading Screen scene
         AsyncOperation asyncLoad = SceneManager.LoadSceneAsync("Loading Screen");
-        
+
         // Wait for the scene to finish loading
         yield return new WaitUntil(() => asyncLoad.isDone);
-        
+
         // Start a timer
         float timeout = 5.0f;
         float timer = 0.0f;
         bool loadedSingleplayer = false;
-        
+
         // Wait until either Singleplayer scene is loaded or timeout occurs
         while (timer < timeout)
         {
@@ -45,11 +47,11 @@ public class LoadingTest
                 loadedSingleplayer = true;
                 break;
             }
-            
+
             timer += Time.deltaTime;
             yield return null;
         }
-        
+
         // Assert that Singleplayer was loaded within the timeout period
         Assert.IsTrue(loadedSingleplayer, "Failed to load Singleplayer scene within " + timeout + " seconds");
     }
@@ -76,7 +78,7 @@ public class LoadingTest
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
-        
+
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
@@ -85,19 +87,22 @@ public class LoadingTest
 
         int cashDisplayCount = 6;
         Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
-        for (int i = 0; i != cashDisplayCount; i++) {
+        for (int i = 0; i != cashDisplayCount; i++)
+        {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
         int gemDisplayCount = 5;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
-        for (int i = 0; i != gemDisplayCount; i++) {
+        for (int i = 0; i != gemDisplayCount; i++)
+        {
             Assert.True(playerState.gemDisplays[i].activeSelf);
         }
 
         int xpDisplayCount = 3;
         Assert.AreEqual(xpDisplayCount, playerState.xpDisplays.Length);
-        for (int i = 0; i != xpDisplayCount; i++) {
+        for (int i = 0; i != xpDisplayCount; i++)
+        {
             Assert.True(playerState.xpDisplays[i].activeSelf);
         }
 
@@ -122,7 +127,7 @@ public class LoadingTest
 
         // Ads
         AdDelegator adDelegator = AdDelegator.Instance;
-        
+
         Assert.True(adDelegator.adButton.activeSelf);
         Assert.AreEqual(adDelegator.movementJoystick.name, "Movement Joystick");
         Assert.AreEqual(adDelegator.tutorial.name, "Tutorial");
@@ -166,7 +171,8 @@ public class LoadingTest
         int challengeLengths = 6;
         Assert.AreEqual(challengeLengths, dailyChallengeDelegator.challengeButtons.Length);
 
-        for (int i = 0; i != challengeLengths; i++) {
+        for (int i = 0; i != challengeLengths; i++)
+        {
             Assert.True(dailyChallengeDelegator.challengeButtons[i].activeSelf);
         }
 
@@ -199,7 +205,8 @@ public class LoadingTest
         Assert.AreEqual(leaderboardDelegator.collectRewardText.name, "Reward Amount");
 
         Assert.AreEqual(3, leaderboardDelegator.tierSprites.Length);
-        for (int i = 0; i != 3; i++) {
+        for (int i = 0; i != 3; i++)
+        {
             Assert.True(leaderboardDelegator.tierSprites[i]);
         }
 
@@ -218,7 +225,8 @@ public class LoadingTest
         Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreImages.Length);
         Assert.AreEqual(playerDisplayLength, leaderboardDelegator.orePlayerScoreBars.Length);
 
-        for (int i = 0; i != playerDisplayLength; i++) {
+        for (int i = 0; i != playerDisplayLength; i++)
+        {
             Assert.True(leaderboardDelegator.orePlayerNameTextMeshes[i]);
             Assert.True(leaderboardDelegator.oreScoreTextMeshes[i]);
             Assert.True(leaderboardDelegator.oreRewardTextMeshes[i]);
@@ -244,7 +252,8 @@ public class LoadingTest
         int refineryProgressCount = 2;
         bool[] refineryActiveValues = { true, false };
         Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
-        for (int i = 0; i != refineryProgressCount; i++) {
+        for (int i = 0; i != refineryProgressCount; i++)
+        {
             Assert.True(refineryController.refineryProgressSliders[i].name.Contains("Refinery Progress Slider - "));
             Assert.AreEqual(refineryActiveValues[i], refineryController.refineryProgressSliders[i].transform.parent.gameObject.activeSelf);
         }
@@ -267,10 +276,11 @@ public class LoadingTest
         Assert.AreEqual(uIDelegation.mapCamera.name, "Map Camera");
         Assert.AreEqual(uIDelegation.mapCameraView.name, "Map Camera View");
 
-        string[] primaryElementNames = { "Important Info", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom"};
+        string[] primaryElementNames = { "Important Info", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom" };
         int primaryElementCount = 6;
         Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
-        for (int i = 0; i != primaryElementCount; i++) {
+        for (int i = 0; i != primaryElementCount; i++)
+        {
             Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
         }
 
@@ -281,7 +291,8 @@ public class LoadingTest
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
         string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Garage Panel", "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
-        for (int i = 0; i != safeAreaChildrenNames.Length; i++) {
+        for (int i = 0; i != safeAreaChildrenNames.Length; i++)
+        {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
 
@@ -315,7 +326,8 @@ public class LoadingTest
 
         int drillersCount = 6;
         Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
-        for (int i = 0; i != drillersCount; i++) {
+        for (int i = 0; i != drillersCount; i++)
+        {
             Assert.True(garageDelegator.drillers[i].name != "");
             Assert.True(garageDelegator.drillers[i].name != null);
         }
@@ -352,10 +364,11 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.GetTotalRows(), 42);
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
-        Color[] tileColours = { new(), new(185/255f, 185/255f, 185/255f, 1), new(252/255f, 236/255f, 114/255f, 1), new(170/255f, 77/255f, 58/255f, 1), new(), new(244/255f, 244/255f, 244/255f, 1), new(128/255f, 130/255f, 130/255f, 1), new(51/255f, 81/255f, 155/255f, 1), new(), new(155/255f, 155/255f, 155/255f, 1), new(147/255f, 183/255f, 220/255f, 1), new(155/255f, 160/255f, 24/255f, 1) };
+        Color[] tileColours = { new(), new(185 / 255f, 185 / 255f, 185 / 255f, 1), new(252 / 255f, 236 / 255f, 114 / 255f, 1), new(170 / 255f, 77 / 255f, 58 / 255f, 1), new(), new(244 / 255f, 244 / 255f, 244 / 255f, 1), new(128 / 255f, 130 / 255f, 130 / 255f, 1), new(51 / 255f, 81 / 255f, 155 / 255f, 1), new(), new(155 / 255f, 155 / 255f, 155 / 255f, 1), new(147 / 255f, 183 / 255f, 220 / 255f, 1), new(155 / 255f, 160 / 255f, 24 / 255f, 1) };
         Assert.AreEqual(tileNames.Length, mineRenderer.tileValues.Length);
         Assert.AreEqual(tileColours.Length, mineRenderer.tileColours.Length);
-        for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
+        for (int i = 0; i != mineRenderer.tileValues.Length; i++)
+        {
             Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
             Assert.AreEqual(tileColours[i], mineRenderer.tileColours[i]);
         }
@@ -363,12 +376,13 @@ public class LoadingTest
         Assert.True(mineRenderer.GetSeed() == 0);
         Assert.AreEqual(mineRenderer.highestRow, 0);
         Assert.AreEqual(mineRenderer.mineInitialization, 0);
-        Assert.AreEqual(new int[] {0, 4, 8}, mineRenderer.tierThresholds);
-        Assert.AreEqual(new int[] {3, 3, 3}, mineRenderer.oresPerTier);
+        Assert.AreEqual(new int[] { 0, 4, 8 }, mineRenderer.tierThresholds);
+        Assert.AreEqual(new int[] { 3, 3, 3 }, mineRenderer.oresPerTier);
 
         Transform generationTriggers = mineRenderer.transform.GetChild(2);
-        for (int i = 0; i != generationTriggers.childCount; i++) {
-            Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
+        for (int i = 0; i != generationTriggers.childCount; i++)
+        {
+            Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i + 5) + ")");
         }
 
         Assert.AreEqual(1, mineRenderer.minVeinCount);
@@ -384,12 +398,13 @@ public class LoadingTest
         Assert.AreEqual(materialCount, oreDelegation.GetMaterialPrices().Length);
         Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
 
-        string[] materialNames = new string[] {"Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium"};
-        string[] materialHighResSpriteNames = new string[] {"Level 1 Ore Spritesheet High Res_0", "Level 1 Ore Spritesheet High Res_1", "Level 1 Ore Spritesheet High Res_2", 
-                                                "Level 2 Ore Spritesheet High Res_2", "Level 2 Ore Spritesheet High Res_1", "Level 2 Ore Spritesheet High Res_0", 
+        string[] materialNames = new string[] { "Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium" };
+        string[] materialHighResSpriteNames = new string[] {"Level 1 Ore Spritesheet High Res_0", "Level 1 Ore Spritesheet High Res_1", "Level 1 Ore Spritesheet High Res_2",
+                                                "Level 2 Ore Spritesheet High Res_2", "Level 2 Ore Spritesheet High Res_1", "Level 2 Ore Spritesheet High Res_0",
                                                 "Level 3 Ore Spritesheet High Res_2", "Level 3 Ore Spritesheet High Res_1", "Level 3 Ore Spritesheet High Res_0"};
-        int[] materialPrices = new int[] {75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000};
-        for (int i = 0; i != materialCount; i++) {
+        int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
+        for (int i = 0; i != materialCount; i++)
+        {
             Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
             Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
             Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
@@ -420,7 +435,8 @@ public class LoadingTest
 
         int refineryProgressCount = 2;
         Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
-        for (int i = 0; i != refineryProgressCount; i++) {
+        for (int i = 0; i != refineryProgressCount; i++)
+        {
             Transform refineryControllerTransform = refineryController.refineryProgressSliders[i].transform;
             Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "2:00");
         }
@@ -438,19 +454,21 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
 
         string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
-        for (int i = 0; i != mineRenderer.tileValues.Length; i++) {
+        for (int i = 0; i != mineRenderer.tileValues.Length; i++)
+        {
             Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
         }
 
         Assert.True(mineRenderer.GetSeed() != 0);
         Assert.AreEqual(mineRenderer.highestRow, 4);
         Assert.AreEqual(mineRenderer.mineInitialization, 2);
-        Assert.AreEqual(new int[] {0, 4, 8}, mineRenderer.tierThresholds);
-        Assert.AreEqual(new int[] {3, 3, 3}, mineRenderer.oresPerTier);
+        Assert.AreEqual(new int[] { 0, 4, 8 }, mineRenderer.tierThresholds);
+        Assert.AreEqual(new int[] { 3, 3, 3 }, mineRenderer.oresPerTier);
 
         Transform generationTriggers = mineRenderer.transform.GetChild(3);
-        for (int i = 0; i != generationTriggers.childCount; i++) {
-            Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i+5) + ")");
+        for (int i = 0; i != generationTriggers.childCount; i++)
+        {
+            Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i + 5) + ")");
         }
 
         UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
@@ -462,21 +480,14 @@ public class LoadingTest
     }
 
     [UnityTest]
-    public IEnumerator D_FinishTutorial() {
+    public IEnumerator D_FinishTutorial()
+    {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
 
-        GameObject loadingScreen = null;
+        Task waitForLoadingScreen = WaitForLoadingScreen();
+        yield return new WaitUntil(() => waitForLoadingScreen.IsCompleted);
 
-        try {
-            loadingScreen = GameObject.Find("Loading Screen");
-        } catch {
-        }
-
-        if (loadingScreen != null) {
-            yield return new WaitUntil(() => !loadingScreen.activeSelf);
-        }
-        
         yield return new WaitForSeconds(0.3f);
 
         TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
@@ -500,15 +511,16 @@ public class LoadingTest
             Debug.LogError("Player Vehicle not found!");
         }
 
-        Vector3 targetPosition =  new(1, -2);
-        float speed = 10f; 
+        Vector3 targetPosition = new(1, -2);
+        float speed = 10f;
 
         // Create a Task and wait until it's completed
         Task driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
         // Handle any exceptions that might have occurred
-        if (driveTask.IsFaulted && driveTask.Exception != null) {
+        if (driveTask.IsFaulted && driveTask.Exception != null)
+        {
             Debug.LogError($"Drive task failed: {driveTask.Exception.InnerException?.Message}");
         }
 
@@ -562,7 +574,7 @@ public class LoadingTest
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
 
-        targetPosition =  new(0, 4);
+        targetPosition = new(0, 4);
 
         driveTask = DriveTowards(playerVehicle, targetPosition, speed);
         yield return new WaitUntil(() => driveTask.IsCompleted);
@@ -594,8 +606,123 @@ public class LoadingTest
     }
 
     [UnityTest]
-    public IEnumerator E_DeployVehicles() {
+    public IEnumerator E_VerifyGarage()
+    {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
+
+        Task waitForLoadingScreen = WaitForLoadingScreen();
+        yield return new WaitUntil(() => waitForLoadingScreen.IsCompleted);
+
+        Transform garagePanel = GetUIPanel("Garage Panel").transform;
+        GarageDelegator garageDelegator = garagePanel.GetComponent<GarageDelegator>();
+        Transform drillersContent = garagePanel.GetChild(2).GetChild(0).GetChild(0).GetChild(0);
+        Transform playerVehicle = GameObject.Find("Player Vehicle").transform;
+
+        for (int i = 0; i != drillersContent.childCount; i++)
+        {
+            Transform childTransform = drillersContent.GetChild(i);
+            // Open garage
+            ClickBottomControl("Garage Button", "Garage Panel");
+
+            yield return null;
+
+            // Make sure it's enabled
+            Assert.True(childTransform.gameObject.activeSelf);
+            Assert.True(childTransform.name == garageDelegator.drillers[i].name);
+
+            // Make sure stats match (except for heat limit, that's handled by ugprade bay)
+            DrillerController drillerController = garageDelegator.drillers[i].transform.GetChild(1).GetComponent<DrillerController>();
+            Assert.True(drillerController.drillerIndex == i);
+            Assert.True(drillerController.width.ToString() == childTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text);
+            Assert.True(drillerController.GetPlayerSpeed() == childTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value);
+
+            // Click deploy button, whether purchased or not
+            childTransform.GetChild(3).GetComponent<Button>().onClick.Invoke();
+
+            yield return null;
+
+            // Make sure the right vehicle is deployed
+            Assert.False(garagePanel.gameObject.activeSelf);
+            ClickBottomControl("Garage Button", "Garage Panel");
+
+            Assert.True(playerVehicle.GetChild(0).name.Contains(childTransform.name));
+        }
+
     }
+
+    private void ClickBottomControl(string buttonName, string panelName)
+    {
+        Transform bottomControlParent = GameObject.Find("UI").transform.GetChild(0).GetChild(7).GetChild(4);
+
+        bool foundButton = false;
+        for (int i = 0; i != bottomControlParent.childCount; i++)
+        {
+            if (buttonName != bottomControlParent.GetChild(i).name)
+            {
+                continue;
+            }
+
+            foundButton = true;
+            // Click the right one
+            Assert.True(bottomControlParent.GetChild(i).gameObject.activeSelf);
+            bottomControlParent.GetChild(i).GetComponent<Button>().onClick.Invoke();
+            break;
+        }
+
+        // Something was found
+        Assert.True(foundButton);
+
+        // ALl primary elements closed
+        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
+        for (int i = 0; i != uIDelegation.primaryElements.Length; i++)
+        {
+            Assert.False(uIDelegation.primaryElements[i].activeSelf);
+        }
+
+        // Make sure the panel opened
+        Assert.NotNull(GetUIPanel(panelName));
+        Assert.True(GetUIPanel(panelName));
+    }
+
+    private GameObject GetUIPanel(string panelName)
+    {
+        Transform safeArea = GameObject.Find("UI").transform.GetChild(0);
+
+        for (int i = 0; i != safeArea.childCount; i++)
+        {
+            if (panelName != safeArea.GetChild(i).name)
+            {
+                continue;
+            }
+
+            return safeArea.GetChild(i).gameObject;
+        }
+
+        return null;
+    }
+
+    private async Task WaitForLoadingScreen()
+    {
+        GameObject loadingScreen = null;
+
+        // Sometimes the game loads too fast
+        try
+        {
+            loadingScreen = GameObject.Find("Loading Screen");
+        }
+        catch
+        {
+        }
+
+        if (loadingScreen != null)
+        {
+            // Poll until it's inactive
+            while (loadingScreen.activeSelf)
+            {
+                await Task.Yield();
+            }
+        }
+    }
+
 }

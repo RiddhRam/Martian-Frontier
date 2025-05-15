@@ -163,7 +163,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             if (objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>()) {
                 vehicleType = "Driller";
                 tier = objectBeingPurchased.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
-                dailyChallengeDelegator.PurchasedVehicle(0);
             }
 
             // If it's a hauler or driller, it won't be null
