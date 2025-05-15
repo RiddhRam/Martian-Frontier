@@ -83,13 +83,13 @@ public class LoadingTest
         Assert.False(playerState.materialProfitPanel.activeSelf);
         Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
 
-        int cashDisplayCount = 5;
+        int cashDisplayCount = 6;
         Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
         for (int i = 0; i != cashDisplayCount; i++) {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 6;
+        int gemDisplayCount = 5;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++) {
             Assert.True(playerState.gemDisplays[i].activeSelf);
