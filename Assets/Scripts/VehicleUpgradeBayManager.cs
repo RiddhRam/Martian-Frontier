@@ -734,7 +734,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // For tutorial
     public void FlashUpgradeButton() {
         flashButton = true;
-        Image heatUpgradeButtonImage = heatUpgradePriceText.transform.parent.GetComponent<Image>();
+        Image heatUpgradeButtonImage = heatUpgradePriceText.transform.parent.parent.GetComponent<Image>();
 
         Color originalColor = heatUpgradeButtonImage.color;
         Color darkColor = originalColor * 0.7f;

@@ -47,6 +47,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         while (tutorialScreenIndex <= 7)
         {
+            Debug.Log(tutorialScreenIndex);
             
             analyticsDelegator.TutorialStep(tutorialScreenIndex);
 
