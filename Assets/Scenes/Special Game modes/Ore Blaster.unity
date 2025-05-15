@@ -1063,17 +1063,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 3219125822991801688, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &154680184 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8137136246832204738, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &165361376
 GameObject:
   m_ObjectHideFlags: 0
@@ -1614,17 +1603,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 2a054e8bb0f0e440a9064017a115feca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &325421892 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 300957847929901278, guid: 92a8ed77f944b4a2ab5dcb16c6847972, type: 3}
-  m_PrefabInstance: {fileID: 7087937064856202617}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 58e5dcab475bf4e9f999cef40a829f01, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &343376602
@@ -2472,7 +2450,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: mine all the credits
+  m_text: MINE ALL THE CREDITS
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
   m_sharedMaterial: {fileID: 7644994493081772370, guid: 7fc82c419d8cd42ac91f0890ad4be546, type: 2}
@@ -2505,11 +2483,11 @@ MonoBehaviour:
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 17
+  m_fontStyle: 16
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 4096
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 5
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -10334,9 +10312,6 @@ MonoBehaviour:
   deleteAccountButton: {fileID: 166596436}
   doubleConvertRewardButton: {fileID: 0}
   convertRewardNoWifi: {fileID: 0}
-  dataPersistenceManager: {fileID: 244266721}
-  analyticsDelegator: {fileID: 1743240306}
-  cloudDelegator: {fileID: 779610164}
   playerState: {fileID: 276248154}
   oreBlasterRoundManager: {fileID: 1644249866}
   oreBlasterUpgrades: {fileID: 1528658659}
@@ -17933,6 +17908,7 @@ MonoBehaviour:
   freezeCamera: 0
   sliderCanvas: {fileID: 54319045}
   cashEarnedText: {fileID: 0}
+  cashIconSpriteRenderer: {fileID: 0}
 --- !u!50 &1012335948
 Rigidbody2D:
   serializedVersion: 4
@@ -18128,7 +18104,6 @@ MonoBehaviour:
   playerMovement: {fileID: 1012335947}
   oreBlaster: {fileID: 1012335949}
   explosionController: {fileID: 1694052094}
-  audioDelegator: {fileID: 325421892}
   powerUpAudioSource: {fileID: 1369472231}
   powerUpAudioClip: {fileID: 8300000, guid: 911be54d0e8364864862ce6e73d829a1, type: 3}
 --- !u!50 &1019996278
@@ -18206,7 +18181,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   uIDelegation: {fileID: 319486926}
   tutorialManager: {fileID: 0}
-  joystickMovement: {fileID: 1828223861}
   gamemodeScreen: {fileID: 1041991031}
 --- !u!61 &1023661114
 BoxCollider2D:
@@ -19375,7 +19349,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1333755067}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 5b6a471dc8ade44ea96b362ab3912169, type: 3}
   m_Name: 
@@ -21145,7 +21119,6 @@ MonoBehaviour:
   roundInProgress: 0
   UISoundEffects: {fileID: 1115867116}
   roundEndSoundEffect: {fileID: 8300000, guid: 423070bcc934d4d4ca81d21c4d758fd8, type: 3}
-  audioDelegator: {fileID: 325421892}
 --- !u!1 &1656717086
 GameObject:
   m_ObjectHideFlags: 0
@@ -22384,8 +22357,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f056a3bc20f954262b00dde0a5b06929, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dataPersistenceManager: {fileID: 244266721}
-  cloudDelegator: {fileID: 779610164}
   tutorialManager: {fileID: 0}
   lockedUntilDoneTutorial: {fileID: 0}
   loadingScreen: {fileID: 457367999}
@@ -28638,7 +28609,7 @@ PrefabInstance:
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: mineValueText
       value: 
-      objectReference: {fileID: 154680184}
+      objectReference: {fileID: 0}
     - target: {fileID: 5397357773619342391, guid: 2e3dd66bf204b45619262a39fe382750, type: 3}
       propertyPath: oreDelegation
       value: 

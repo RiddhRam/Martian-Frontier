@@ -151,7 +151,7 @@ public class DrillerController : MonoBehaviour
         else {
             minedSomething = false;
 
-            ErrorWhenDrilling("DRILL OVERHEATED!");
+            ErrorWhenDrilling("WAIT FOR DRILL TO COOL DOWN!");
         }
 
         if (isNPC) {

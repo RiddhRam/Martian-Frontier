@@ -777,7 +777,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         valueText.color = start;
 
         // Wait 1 seconds
-        yield return new WaitForSecondsRealtime(1);
+        yield return new WaitForSecondsRealtime(0.5f);
 
         // Transition from white to black
         float time = 0f;

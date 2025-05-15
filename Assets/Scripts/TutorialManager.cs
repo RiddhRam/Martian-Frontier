@@ -17,7 +17,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
 
     public Slider playerHeatSlider;
-    public Slider tutorialHeatSlider;
 
     public GameObject ResetMine;
     public GameObject TutorialUIParent;
@@ -26,6 +25,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public RectTransform movementJoystick;
     public GameObject playerMessage;
     public GameObject vehicleUpgradeBayPanel;
+    public GameObject overHeatTip;
 
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
@@ -35,7 +35,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject premiumShopNoticeIcon;
 
     private Coroutine arrowAnimation;
-    private Coroutine matchCoroutine;
 
     void Awake()
     {
@@ -78,7 +77,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             } 
             // Use survey radar
             else if (tutorialScreenIndex == 2) {
-                playerMovement.stopMoving = true;
 
                 // In case player already activated power
                 upgradesDelegator.cooldownTimer = 0;
@@ -100,7 +98,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Mine revealed ores
             else if (tutorialScreenIndex == 3) {
                 TellPlayerToMove();
-                yield return new WaitUntil(() => playerState.materialsSold > 10);
+                yield return new WaitUntil(() => playerState.materialsSold > 1);
             }
             // Mine until the time runs out
             else if (tutorialScreenIndex == 4) {
@@ -115,22 +113,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 // Warn the user about drill heat at about this point
                 yield return new WaitUntil(() => refineryController.refineryTimer == 16);
 
-                // Enable tutorial slider, which overlays the tutorial screen
-                matchCoroutine = StartCoroutine(MatchHeatDrillToPlayerDrill());
+                // Enable overheat tip
                 TutorialUIParent.SetActive(true);
-                tutorialHeatSlider.gameObject.SetActive(true);
-
-                Debug.Log("WATCH YOUR HEAT!!!");
+                overHeatTip.SetActive(true);
 
                 // Wait until timer reaches 0, or starts to reset and goes above 30
                 yield return new WaitUntil(() => refineryController.refineryTimer == 0 || refineryController.refineryTimer > 30);
-
-                // Disable slider
-                if (matchCoroutine != null) {
-                    StopCoroutine(matchCoroutine);
-                }
                 TutorialUIParent.SetActive(false);
-                tutorialHeatSlider.gameObject.SetActive(false);
+                overHeatTip.SetActive(false);
             }
             // Go to the vehicle upgrade bay
             else if (tutorialScreenIndex == 5) {
@@ -220,13 +210,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         for (int i = 0; i != movementJoystick.childCount; i++) {
             movementJoystick.GetChild(i).transform.localPosition = new(0, -540);
             movementJoystick.GetChild(i).gameObject.SetActive(true);
-        }
-    }
-
-    private IEnumerator MatchHeatDrillToPlayerDrill() {
-        while (true) {
-            tutorialHeatSlider.value = playerHeatSlider.value;
-            yield return null;
         }
     }
 
