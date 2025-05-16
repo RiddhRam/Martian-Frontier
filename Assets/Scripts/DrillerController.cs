@@ -180,7 +180,7 @@ public class DrillerController : MonoBehaviour
                     timeFactor = 1;
                 }
 
-                float heatToAdd = (int) Mathf.Pow(highestTierDrilled, 3) * timeFactor;
+                float heatToAdd = (int) Mathf.Pow(highestTierDrilled, 4) * timeFactor;
                 
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
             }

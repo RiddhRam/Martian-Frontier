@@ -188,7 +188,8 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             challengeStatusIcons[i].transform.parent.parent.GetComponent<Button>().interactable = true;
         }
 
-        // Super challenge has increased rewards
+        // Super challenge has increased rewards and difficulty (higher goal and limited time)
+        challengeValues[0] = (int) (1.5f * challengeValues[0]);
         rewardAmounts[0] *= 2;
         // COMPLETE ALL DAILY CHALLENGES
         selectedChallenges[5] = 0;

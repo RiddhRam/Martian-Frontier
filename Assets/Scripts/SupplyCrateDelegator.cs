@@ -161,11 +161,11 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
         // Randomly choose reward amounts
         // Cash reward is based on the highest value of ores the player mined in a single mine
-        int minReward = (int) (playerState.GetHighestMined() * 0.2);
-        int maxReward = (int) (playerState.GetHighestMined() * 0.3f);
+        int minReward = (int) (playerState.GetHighestMined() * 0.1f);
+        int maxReward = (int) (playerState.GetHighestMined() * 0.2f);
 
         cashRewardAmount = (int) (random.Next(minReward, maxReward) * (1 + upgradesDelegator.crateMultiplier));
-        gemRewardAmount = (int) (random.Next(600, 1300) * (1 + upgradesDelegator.crateMultiplier));
+        gemRewardAmount = (int) (random.Next(600, 1200) * (1 + upgradesDelegator.crateMultiplier));
 
         if (openAll) {
             cashRewardAmount *= cratesAvailable;
