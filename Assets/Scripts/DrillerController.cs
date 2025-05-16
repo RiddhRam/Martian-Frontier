@@ -41,7 +41,7 @@ public class DrillerController : MonoBehaviour
 
     // Endurance
     private float drillHeat = 0;
-    private const float heatCooldownDelay = 1.5f;
+    private const float heatCooldownDelay = 0.25f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 
@@ -165,31 +165,21 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                // When speed = 10, timeSinceLastMine is between 0.02 to 0.08
-                // When speed = 5, timeSinceLastMine is between 0.02 and 0.2f
-                // Clamp to not be higher than 0.12f to reduce the benefits of higher speed otherwise its too good
-                timeSinceLastMine = Mathf.Clamp(timeSinceLastMine, 0, 0.12f);
+                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 4) * 0.34f;
 
-                // Time factor makes it so faster drills go farther than slower drills with the same endurance
-                // 7.5f = 10 / 1.5
-                // 1.5 = heatCooldownDelay, 10 because on average the mining happens once every 5 frames at 50 fps (5/50 = 1/10)
-                float timeFactor = Mathf.Clamp01(timeSinceLastMine / heatCooldownDelay) * 7.5f;
-
-                // After a short break in mining, the time factor becomes very large, causing the heat progress bar to jump, so clamp to 1
-                if (timeFactor > 1) {
-                    timeFactor = 1;
-                }
-
-                float heatToAdd = (int) Mathf.Pow(highestTierDrilled, 4) * timeFactor;
-                
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+            }
+            else
+            {
+                Debug.Log("COoling");
             }
 
             lastMineTime = Time.time;
         } else {
+            // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                drillHeat = Mathf.Max(0, (int) (drillHeat - coolRate));
+                drillHeat = Mathf.Max(0, (int)(drillHeat - coolRate));
             }
         }
 
