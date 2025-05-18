@@ -18,6 +18,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
+    public RefineryUpgradePad refineryUpgradePad;
     public bool loaded = false;
 
     private bool notSinglePlayerScene = false;
@@ -100,21 +101,24 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
 
         this.currentCoopVehicle = data.currentCoopVehicle;
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
             FindVehicle(currentCoopVehicle);
             loaded = true;
             return;
         }
 
-        if (!data.finishedTutorial) {
+        if (!data.finishedTutorial)
+        {
             firstTimePlaying = true;
         }
-        
+
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
@@ -123,39 +127,51 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
-        FindVehicle(currentVehicle);
+        int index = FindVehicle(currentVehicle);
         loaded = true;
+
+        // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
+        int nextIndex = (index + 1) % vehicleUpgradeBayManager.drillUIPositions.Length;
+        refineryUpgradePad.SetProceedPanel(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING
-    public void FindVehicle(string vehicleName) {
+    // Returns the index of the vehicle, and switches vehicle automatically
+    public int FindVehicle(string vehicleName)
+    {
 
         (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
 
         // Iterate through all vehicles and find which vehicle it is
 
         // If wasn't a hauler then it's a driller
-        for (int i = 0; i != drillers.Length; i++) {
-            if (!vehicleName.Contains(drillers[i].name)) {
-                if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
-                    
+        for (int i = 0; i != drillers.Length; i++)
+        {
+            if (!vehicleName.Contains(drillers[i].name))
+            {
+                if (!(checkSecondaryName && vehicleName.Contains(secondaryName)))
+                {
+
                     continue;
                 }
             }
 
             SwitchVehicle(drillers[i]);
-            if (!notSinglePlayerScene) {
+            if (!notSinglePlayerScene)
+            {
                 playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             }
 
-            return;
+            return i;
         }
 
         // If it reaches here, no vehicle was found, so we just set the player to use the first drill
         SwitchVehicle(drillers[0]);
-        if (!notSinglePlayerScene) {
+        if (!notSinglePlayerScene)
+        {
             playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
         }
+        return 0;
     }
 
     // Check to see if this vehicle was merged into another in a previous update
