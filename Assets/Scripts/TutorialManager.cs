@@ -9,7 +9,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
     public PlayerMovement playerMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
-    public GarageDelegator garageDelegator;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
     public SessionDelegator sessionDelegator;
@@ -193,8 +192,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             playerState.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
             
-            // Switch back to first driller and reset mine
-            playerVehicleDelegation.SwitchVehicle(garageDelegator.drillers[0]);
+            // Reset mine
             refineryController.CallResetMineFromButton();
 
             analyticsDelegator.FinishTutorial();

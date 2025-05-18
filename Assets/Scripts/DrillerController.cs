@@ -15,6 +15,9 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
+
+    // Just a place holder
+    // Real value is set by vehicle upgrade bay upon spawning in
     private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
 
     [SerializeField] private long price;
@@ -165,13 +168,9 @@ public class DrillerController : MonoBehaviour
             // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 4) * 0.34f;
+                float heatToAdd = Mathf.Pow(highestTierDrilled, 4) * 0.34f;
 
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
-            }
-            else
-            {
-                Debug.Log("COoling");
             }
 
             lastMineTime = Time.time;
@@ -179,7 +178,7 @@ public class DrillerController : MonoBehaviour
             // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                drillHeat = Mathf.Max(0, (int)(drillHeat - coolRate));
+                drillHeat = Mathf.Max(0, drillHeat - coolRate);
             }
         }
 

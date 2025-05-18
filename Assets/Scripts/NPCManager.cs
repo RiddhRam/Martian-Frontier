@@ -47,7 +47,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public MineRenderer mineRenderer;
     [SerializeField] private PlayerState playerState;
-    public GarageDelegator garageDelegator;
     [SerializeField] private GameObject lostInternetScreen;
     [SerializeField] private MapRecordingMode mapRecordingMode;
     [SerializeField] private Button toggleCamera;
@@ -207,9 +206,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         int index = seedRandom.Next(min, max);
-        
+
         // If its a Specter, drop the index by one. I haven't retested it yet
-        if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
+        /*if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
             index--;
         }
         // If its a grinder, increment index. They are small and slow, not good for the NPC algorithm which needs fast or wide drills (mostly wide)
@@ -217,7 +216,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             index++;
         }
 
-        vehicle = Instantiate(garageDelegator.drillers[index]);
+        vehicle = Instantiate(garageDelegator.drillers[index]);*/
+        vehicle = null;
 
         nPCMovements[npcIndex].drillTier = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
 

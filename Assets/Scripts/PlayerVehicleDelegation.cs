@@ -5,6 +5,9 @@ using UnityEngine.UI;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
+    [Header("Vehicle")]
+    public GameObject[] drillers;
+
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
@@ -16,7 +19,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private AdDelegator adDelegator;
     private AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
-    public GarageDelegator garageDelegator;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
     public bool loaded = false;
 
@@ -132,9 +134,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
 
         // Iterate through all vehicles and find which vehicle it is
-
-        // If wasn't a hauler then it's a driller
-        GameObject[] drillers = garageDelegator.GetDrillers();
         for (int i = 0; i != drillers.Length; i++) {
             if (!vehicleName.Contains(drillers[i].name)) {
                 if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {

@@ -40,7 +40,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
-    public GarageDelegator garageDelegator;
 
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
@@ -49,7 +48,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI cashText;
     private Slider[] xpDisplaysSliders;
     private TextMeshProUGUI[] xpDisplaysText;
-    private GameObject[] drillers;
 
     private bool notSinglePlayerScene;
 
@@ -84,10 +82,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         for (int i = 0; i != xpDisplays.Length; i++) {
             xpDisplaysSliders[i] = xpDisplays[i].GetComponent<Slider>();
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        }
-
-        if (garageDelegator) {
-            drillers = garageDelegator.drillers;
         }
     }
 
@@ -372,17 +366,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return price.ToString();
     }
 
-    public BigInteger RoundToSignificantDigits(float num, int n)
+    public static BigInteger RoundToSignificantDigits(float num, int n)
     {
-        if (num == 0)
-            return 0;
+        if (num == 0) return 0;
 
-        double d = Math.Ceiling(Math.Log10(num < 0 ? -num : num));
-        int power = n - (int)d;
+        double d       = Math.Ceiling(Math.Log10(Math.Abs(num)));
+        int    power   = n - (int)d;
         double magnitude = Math.Pow(10, power);
-        double shifted = Math.Round(num * magnitude);
-        return (BigInteger) (shifted / magnitude);
+        double shifted   = Math.Round(num * magnitude);
+
+        // Round *again* after dividing, then cast
+        return (BigInteger)Math.Round(shifted / magnitude, MidpointRounding.AwayFromZero);
     }
+
 
     public void LoadData(GameData data) {
         // Only players from the beta will have this (this was one of the defaults, along with GRINDER I)
@@ -499,7 +495,13 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return blocksMined;
     }
 
-    public void RewardPlayerWithGems(int amount, string message = null) {
+    public BigInteger GetMaterialsSold()
+    {
+        return materialsSold;
+    }
+
+    public void RewardPlayerWithGems(int amount, string message = null)
+    {
 
         leaderboardDelegator.gemRewardsToCollect += amount;
         leaderboardDelegator.CheckForRewards(message);

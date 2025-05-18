@@ -61,6 +61,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
 
+    public TextMeshProUGUI blockText;
+    public TextMeshProUGUI oreText;
+
     void Awake() {
         adDelegator = AdDelegator.Instance;
         audioDelegator = AudioDelegator.Instance;
@@ -94,11 +97,18 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private IEnumerator RefineryCountdown(int timer) {
         refineryTimer = timer;
 
-        while (refineryTimer > 0) {
+        int blocksMined = (int) playerState.GetBlocksMined();
+        int materialsSold = (int) playerState.GetMaterialsSold();
+
+        while (refineryTimer > 0)
+        {
             UpdateRefineryProgressBars();
             yield return new WaitForSecondsRealtime(1f);
             refineryTimer--;
         }
+
+        blockText.text = (playerState.GetBlocksMined() - blocksMined).ToString();
+        oreText.text = (playerState.GetMaterialsSold() - materialsSold).ToString();
 
         PlaySaleNoise();
 

@@ -316,24 +316,6 @@ public class LoadingTest
 
         // Garage Panel
         PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
-        GarageDelegator garageDelegator = playerState.garageDelegator;
-
-        Assert.AreEqual(garageDelegator.drillersContent.name, "Content");
-        Assert.AreEqual(garageDelegator.drillerDisplayPanel.name, "Drill Display Panel");
-        Assert.AreEqual(garageDelegator.playerState.gameObject.name, "PlayerState");
-        Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
-        Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
-
-        int drillersCount = 6;
-        Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
-        for (int i = 0; i != drillersCount; i++)
-        {
-            Assert.True(garageDelegator.drillers[i].name != "");
-            Assert.True(garageDelegator.drillers[i].name != null);
-        }
-
-        // Tutorial
-        TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
         // Custom Ad Screen
         CustomAdScreen customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
@@ -602,52 +584,6 @@ public class LoadingTest
 
 
         Assert.True(DataPersistenceManager.Instance.GetGameData().finishedTutorial);
-
-    }
-
-    [UnityTest]
-    public IEnumerator E_VerifyGarage()
-    {
-        SceneManager.LoadScene("Singleplayer");
-        yield return null;
-
-        Task waitForLoadingScreen = WaitForLoadingScreen();
-        yield return new WaitUntil(() => waitForLoadingScreen.IsCompleted);
-
-        Transform garagePanel = GetUIPanel("Garage Panel").transform;
-        GarageDelegator garageDelegator = garagePanel.GetComponent<GarageDelegator>();
-        Transform drillersContent = garagePanel.GetChild(2).GetChild(0).GetChild(0).GetChild(0);
-        Transform playerVehicle = GameObject.Find("Player Vehicle").transform;
-
-        for (int i = 0; i != drillersContent.childCount; i++)
-        {
-            Transform childTransform = drillersContent.GetChild(i);
-            // Open garage
-            ClickBottomControl("Garage Button", "Garage Panel");
-
-            yield return null;
-
-            // Make sure it's enabled
-            Assert.True(childTransform.gameObject.activeSelf);
-            Assert.True(childTransform.name == garageDelegator.drillers[i].name);
-
-            // Make sure stats match (except for heat limit, that's handled by ugprade bay)
-            DrillerController drillerController = garageDelegator.drillers[i].transform.GetChild(1).GetComponent<DrillerController>();
-            Assert.True(drillerController.drillerIndex == i);
-            Assert.True(drillerController.width.ToString() == childTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text);
-            Assert.True(drillerController.GetPlayerSpeed() == childTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value);
-
-            // Click deploy button, whether purchased or not
-            childTransform.GetChild(3).GetComponent<Button>().onClick.Invoke();
-
-            yield return null;
-
-            // Make sure the right vehicle is deployed
-            Assert.False(garagePanel.gameObject.activeSelf);
-            ClickBottomControl("Garage Button", "Garage Panel");
-
-            Assert.True(playerVehicle.GetChild(0).name.Contains(childTransform.name));
-        }
 
     }
 
