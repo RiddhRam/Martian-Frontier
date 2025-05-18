@@ -217,6 +217,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         vehicle = Instantiate(garageDelegator.drillers[index]);*/
+
         vehicle = null;
 
         nPCMovements[npcIndex].drillTier = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();

@@ -35,7 +35,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private DataPersistenceManager dataPersistenceManager;
     [SerializeField] private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
-    private DailyChallengeDelegator dailyChallengeDelegator;
     private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
@@ -69,7 +68,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         leaderboardDelegator = LeaderboardDelegator.Instance;
         analyticsDelegator = AnalyticsDelegator.Instance;
         dataPersistenceManager = DataPersistenceManager.Instance;
-        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
         
         // Credits are used for special game modes
         if (creditDisplays.Length > 0) {
@@ -366,19 +364,17 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return price.ToString();
     }
 
-    public static BigInteger RoundToSignificantDigits(float num, int n)
+    public BigInteger RoundToSignificantDigits(float num, int n)
     {
-        if (num == 0) return 0;
+        if (num == 0)
+            return 0;
 
-        double d       = Math.Ceiling(Math.Log10(Math.Abs(num)));
-        int    power   = n - (int)d;
+        double d = Math.Ceiling(Math.Log10(num < 0 ? -num : num));
+        int power = n - (int)d;
         double magnitude = Math.Pow(10, power);
-        double shifted   = Math.Round(num * magnitude);
-
-        // Round *again* after dividing, then cast
-        return (BigInteger)Math.Round(shifted / magnitude, MidpointRounding.AwayFromZero);
+        double shifted = Math.Round(num * magnitude);
+        return (BigInteger) (shifted / magnitude);
     }
-
 
     public void LoadData(GameData data) {
         // Only players from the beta will have this (this was one of the defaults, along with GRINDER I)
@@ -495,13 +491,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return blocksMined;
     }
 
-    public BigInteger GetMaterialsSold()
-    {
-        return materialsSold;
-    }
-
-    public void RewardPlayerWithGems(int amount, string message = null)
-    {
+    public void RewardPlayerWithGems(int amount, string message = null) {
 
         leaderboardDelegator.gemRewardsToCollect += amount;
         leaderboardDelegator.CheckForRewards(message);

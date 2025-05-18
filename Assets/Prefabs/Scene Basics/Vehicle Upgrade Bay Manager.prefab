@@ -88,8 +88,13 @@ MonoBehaviour:
   - {fileID: 9100000, guid: 93386050cc3194ebd815cc45ec8f94eb, type: 2}
   drillerController: {fileID: 0}
   upgradeBayPanel: {fileID: 0}
-  garageBodyImages: []
-  garageDrillImages: []
+  drillUIPositions:
+  - {fileID: 5909788846806655625, guid: 8ada178ac58414fc08395fc88233998a, type: 3}
+  - {fileID: 7592012237566772067, guid: e9284f7cc6e4a42f98427369fedb86ec, type: 3}
+  - {fileID: 8287762817872767327, guid: e4900b17dbfe14cb78fe24e0c3146e93, type: 3}
+  - {fileID: 317654178605630105, guid: b143115f84b86495eb0d6a5592cd6d1e, type: 3}
+  - {fileID: 540197792599650953, guid: f321c6eb8e2c441ebb738c729a5f2127, type: 3}
+  - {fileID: 5832318685398606077, guid: 0e18dc77121f74242b40ac759c4d9de5, type: 3}
   displayPanel: {fileID: 0}
   customizationsButtonImage: {fileID: 0}
   upgradesButtonImage: {fileID: 0}
@@ -104,8 +109,11 @@ MonoBehaviour:
   coolUpgradePriceText: {fileID: 0}
   uIDelegation: {fileID: 0}
   playerState: {fileID: 0}
-  joystickMovement: {fileID: 0}
   garageDelegator: {fileID: 0}
+  playerVehicleDelegation: {fileID: 0}
+  loaded: 0
+  flashButton: 0
+  closeButtonImage: {fileID: 0}
 --- !u!212 &6521921964771852846
 SpriteRenderer:
   m_ObjectHideFlags: 0

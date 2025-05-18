@@ -81,6 +81,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool firstTimePlaying = false;
     private bool disableAds = false;
     private bool adShowing = false;
+    private System.Random rng = new();
 
     void Awake()
     {
@@ -567,7 +568,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         displayStatus = false;
     }
 
-    private void RewardBoost(int? totalTime = 18000) {
+    private void RewardBoost(int? totalTime = 180) {
 
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
@@ -693,12 +694,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (price >= 1_000_000)
         {
             // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.#") + "M";
+            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.#") + "K";
+            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
         }
 
         // Return the original price as a string for smaller numbers

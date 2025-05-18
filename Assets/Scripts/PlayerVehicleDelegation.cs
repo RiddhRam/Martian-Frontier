@@ -1,13 +1,11 @@
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
-    [Header("Vehicle")]
+    [Header("Vehicles")]
     public GameObject[] drillers;
-
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
@@ -94,7 +92,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         vehicleUpgradeBayManager.drillerController = drillerController;
 
         // In production this loads before the upgrade bay for some reason, whichever loads second should call the function
-        if (vehicleUpgradeBayManager.loaded) {
+        if (vehicleUpgradeBayManager.loaded)
+        {
             vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
         }
        
@@ -134,6 +133,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
 
         // Iterate through all vehicles and find which vehicle it is
+
+        // If wasn't a hauler then it's a driller
         for (int i = 0; i != drillers.Length; i++) {
             if (!vehicleName.Contains(drillers[i].name)) {
                 if (!(checkSecondaryName && vehicleName.Contains(secondaryName))) {
