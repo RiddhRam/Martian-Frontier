@@ -647,13 +647,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        this.rewardAdTimer = data.rewardAdTimer;
-
-        if (rewardAdTimer > 0) {
-            // Reward
-            RewardBoost(rewardAdTimer);
-        }
-
         if (!data.finishedTutorial) {
             firstTimePlaying = true;
         }
@@ -663,8 +656,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (disableAds) {
             return;
         }
-        
-        data.rewardAdTimer= this.rewardAdTimer;
     }
 
     private void FillEmptyAdSlots() {

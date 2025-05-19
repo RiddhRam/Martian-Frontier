@@ -44,24 +44,22 @@ public class GameData
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
-
     public float[] materialProfitMultipliers;
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
-    public int rewardAdTimer;
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
     public string userCredits;
     public int twoDayIntervals;
+
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
-    public int magnetHaulerAdTimer;
     public int[] magnetHaulerChallengeProgress;
     public bool[] magnetHaulerChallengeCollection;
     public int magnetHaulerSuperChallengeTimer;
+
     public SerializableDictionary<string, int> oreBlasterUpgrades;
-    public int oreBlasterAdTimer;
     public int[] oreBlasterChallengeProgress;
     public bool[] oreBlasterChallengeCollection;
     public int oreBlasterSuperChallengeTimer;
@@ -125,7 +123,6 @@ public class GameData
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER";
-        this.rewardAdTimer = 0;
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
@@ -134,13 +131,11 @@ public class GameData
         this.twoDayIntervals = 0;
 
         this.magnetHaulerUpgrades = new();
-        this.magnetHaulerAdTimer = 0;
         this.magnetHaulerChallengeProgress = new int[6];
         this.magnetHaulerChallengeCollection = new bool[6];
         this.magnetHaulerSuperChallengeTimer = 1200;
 
         this.oreBlasterUpgrades = new();
-        this.oreBlasterAdTimer = 0;
         this.oreBlasterChallengeProgress = new int[6];
         this.oreBlasterChallengeCollection = new bool[6];
         this.oreBlasterSuperChallengeTimer = 1200;

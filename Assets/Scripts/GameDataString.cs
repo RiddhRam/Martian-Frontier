@@ -40,19 +40,19 @@ public class GameDataString
     public string cratesAvailable;
     public string progressToNextCrate;
     public string currentCoopVehicle;
-    public string rewardAdTimer;
+
     public string cooldownTimer;
     public string equippedPowers;
     public string powerUpgradeLevels;
     public string userCredits;
     public string twoDayIntervals;
+
     public string magnetHaulerUpgrades;
-    public string magnetHaulerAdTimer;
     public string magnetHaulerChallengeProgress;
     public string magnetHaulerChallengeCollection;
     public string magnetHaulerSuperChallengeTimer;
+
     public string oreBlasterUpgrades;
-    public string oreBlasterAdTimer;
     public string oreBlasterChallengeProgress;
     public string oreBlasterChallengeCollection;
     public string oreBlasterSuperChallengeTimer;

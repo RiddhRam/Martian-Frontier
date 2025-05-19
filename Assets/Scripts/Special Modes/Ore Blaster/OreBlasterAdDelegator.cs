@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
-public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
+public class OreBlasterAdDelegator : MonoBehaviour
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
@@ -468,20 +468,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         playerMovement.SetSpeed(7);
         yield break;
-    }
-
-    public void LoadData(GameData data) {
-
-        this.oreBlasterAdTimer = data.oreBlasterAdTimer;
-
-        if (oreBlasterAdTimer > 0) {
-            // Reward
-            RewardBoost(oreBlasterAdTimer);
-        }
-    }
-
-    public void SaveData(ref GameData data) {        
-        data.oreBlasterAdTimer = this.oreBlasterAdTimer;
     }
 
     private void FillEmptyAdSlots() {
