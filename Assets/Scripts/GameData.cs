@@ -26,6 +26,7 @@ public class GameData
     public int seed;
     public int highestRow;
     public int mineInitialization;
+    public int mineCount;
 
     public bool finishedTutorial;
     public bool askedForReview;
@@ -102,6 +103,7 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
+        this.mineCount = 1;
 
         this.finishedTutorial = false;
         this.askedForReview = false;

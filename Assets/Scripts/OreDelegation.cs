@@ -1,33 +1,27 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.Tilemaps;
 
 public class OreDelegation : MonoBehaviour
 {
-    public RefineryController refineryController;
+    private MineRenderer mineRenderer;
     public string[] materialNames;
-    public GameObject[] materials;
     // The price of each material, before boosts
     // Aligns with materialCount's index from HaulerController
-    [SerializeField]
-    private int[] materialPrices;
+    [SerializeField] private int[] materialPrices;
     public Sprite[] materialHighResSprites;
+    public TileBase[] oreTileValues;
+    public Color[] oreTileColours;
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
     private int[] oresPerTier;
     // Lowercase verion of materialNames
-    private string[] oreNames;
     private bool[] isOre;
 
     void Awake() {
-        oreNames = new string[materials.Length];
-        for (int i = 0; i != materials.Length; i++) {
-            oreNames[i] = materials[i].name;
-        }
-    }
-
-    void Start() {
-        oresPerTier = GameObject.Find("Mine").GetComponent<MineRenderer>().oresPerTier;
+        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        oresPerTier = mineRenderer.oresPerTier;
 
         int tileCount = oresPerTier.Length;
 
@@ -49,7 +43,7 @@ public class OreDelegation : MonoBehaviour
 
     public void PrepareGrid() {
 
-        for (int i = 0; i != materialNames.Length; i++) {
+        for (int i = 0; i != mineRenderer.selectedMaterialNames.Length; i++) {
 
             long price = materialPrices[i];
 
@@ -61,10 +55,11 @@ public class OreDelegation : MonoBehaviour
 
             panelTransform.localScale = new(1, 1, 1);
 
+            string oreName =  mineRenderer.selectedMaterialNames[i];
             // Set the name and price
-            panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice((long) (price * refineryController.GetTotalProfitMultiplier()));
-            panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = materialNames[i];
-            panelTransform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[i];
+            panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(price);
+            panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = oreName;
+            panelTransform.GetChild(3).GetComponent<Image>().sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
         }
 
         int rows = 3;
@@ -87,7 +82,19 @@ public class OreDelegation : MonoBehaviour
     public int[] GetMaterialPrices() {
         return materialPrices;
     }
-    
+
+    public int GetOriginalTileIndexByName(string oreName)
+    {
+        for (int i = 0; i != materialNames.Length; i++) {
+            if (materialNames[i] == oreName) {
+                return i;
+            }
+        }
+
+        // Shouldnt reach here
+        return 0;
+    }
+
     private string FormatPrice(long price)
     {
         if (price >= 1_000_000)
@@ -103,21 +110,6 @@ public class OreDelegation : MonoBehaviour
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
-    }
-
-    public string[] GetOreNames() {
-        return oreNames;
-    }
-
-    public int GetTileIndexByName(string name) {
-        for (int i = 0; i != materialNames.Length; i++) {
-            if (materialNames[i] == name) {
-                return i;
-            }
-        }
-
-        // Shouldnt reach here
-        return 0;
     }
 
     public bool VerifyIfOre(int tileIndex) {

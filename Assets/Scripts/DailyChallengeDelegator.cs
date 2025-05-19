@@ -96,7 +96,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         superChallengeStartButtonText = superChallengeStartButtonTextGO.GetComponent<TextMeshProUGUI>();
     }
 
-    void Initialize() {
+    public void Initialize() {
     
         if (lastChallengeDate == TimeSinceBirthday()) {
             LoadChallenges();
@@ -370,18 +370,22 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+        // Initialization happens in mine renderer, this just loads the data
         this.lastChallengeDate = data.lastChallengeDate;
         this.challengeProgress = data.challengeProgress;
         this.challengeCollection = data.challengeCollection;
         this.superChallengeTimer = data.superChallengeTimer;
-        Initialize();
 
-        for (int i = 0; i != challengeCollection.Length; i++) {
-            if (challengeCollection[i]) {
+        // Don't let players collect a reward if already collected
+        for (int i = 0; i != challengeCollection.Length; i++)
+        {
+            if (challengeCollection[i])
+            {
                 challengeStatusIcons[i].transform.parent.parent.GetComponent<Button>().interactable = false;
                 challengeCollection[i] = true;
 
-                if (i == 0) {
+                if (i == 0)
+                {
                     superChallengeStartButtonGO.SetActive(false);
                 }
             }

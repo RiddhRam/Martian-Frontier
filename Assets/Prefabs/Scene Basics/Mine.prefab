@@ -226,14 +226,17 @@ MonoBehaviour:
   oresMinedText: {fileID: 0}
   totalRows: 42
   generatedRows: 
+  selectedMaterialNames: []
   seed: 0
   highestRow: 0
   mineInitialization: 0
+  mineCount: 0
   tierThresholds: 000000000000000000000000
   oresPerTier: 000000000000000000000000
   oreDelegation: {fileID: 3812123160642750527}
   upgradesDelegator: {fileID: 0}
   refineryController: {fileID: 0}
+  refineryUpgradePad: {fileID: 0}
   vacuumPrefab: {fileID: 2675737178741110276, guid: adb4b10c2d2be4a4fb92a7bb8b595014, type: 3}
   orePickUpAudioClip: {fileID: 8300000, guid: 2e6eaed26280b466c98ae5c604794c75, type: 3}
   orePickUpSequenceAudioSource: {fileID: 0}
@@ -257,7 +260,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8b2f553e820b4922a453d12c19e7183, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  refineryController: {fileID: 0}
   materialNames:
   - LIMESTONE
   - SULFUR
@@ -268,27 +270,45 @@ MonoBehaviour:
   - PLATINUM
   - LITHIUM
   - URANIUM
-  materials:
-  - {fileID: 6711909364478728060, guid: 1a26670d6a8f54f7c81fc46772e0ac71, type: 3}
-  - {fileID: 7003855559659621168, guid: 509ba637d3c894eb699adc2fec86c843, type: 3}
-  - {fileID: 5836944365000543928, guid: 142ceec66bd614b03b91a376cac47757, type: 3}
-  - {fileID: 5836944365000543928, guid: b3642841da8fb48b3b3b5bcc0038b462, type: 3}
-  - {fileID: 5836944365000543928, guid: e9b8d758f0318425c9b6a7b0e5707b3a, type: 3}
-  - {fileID: 5836944365000543928, guid: 4546eacb64e5849968c840e4bb6c6c0c, type: 3}
-  - {fileID: 5836944365000543928, guid: 6508e04474db84b8aa1ca33d7ed9bfb3, type: 3}
-  - {fileID: 5836944365000543928, guid: ccf69e92d60fb4c80b93e06339e632b9, type: 3}
-  - {fileID: 5836944365000543928, guid: b9f437ff417e8489b8f3880781bd3006, type: 3}
+  - SHADOW
+  - ICE SHARD
+  - FIRE STONE
+  - VINTERRA
+  - GLACIRITE
+  - INFERNITE
   materialPrices: 4b000000c80000002c010000bc020000780500006c070000c409000088130000581b0000
   materialHighResSprites:
-  - {fileID: 1733580303, guid: 2b2e5c5205da74a2687b2bdaccf43e38, type: 3}
-  - {fileID: 329643515, guid: 2b2e5c5205da74a2687b2bdaccf43e38, type: 3}
-  - {fileID: -1042652442, guid: 2b2e5c5205da74a2687b2bdaccf43e38, type: 3}
-  - {fileID: 1630829119, guid: 581f13599f9cf467a81b1b4aca84526f, type: 3}
-  - {fileID: -1297569704, guid: 581f13599f9cf467a81b1b4aca84526f, type: 3}
-  - {fileID: -1342950017, guid: 581f13599f9cf467a81b1b4aca84526f, type: 3}
-  - {fileID: -1673396887, guid: 1861809a984ab467da96a3adbaf60164, type: 3}
-  - {fileID: -808795174, guid: 1861809a984ab467da96a3adbaf60164, type: 3}
-  - {fileID: 1464214131, guid: 1861809a984ab467da96a3adbaf60164, type: 3}
+  - {fileID: -1341558570, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1948187861, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1110426123, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1741469975, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -472361319, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1863208591, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1780597473, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1147050654, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -678537340, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -633153481, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -328842411, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1874294402, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1247914427, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 269632143, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1208692826, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  oreTileValues:
+  - {fileID: 11400000, guid: 7b77928c428994777bc8b4b8c51472c4, type: 2}
+  - {fileID: 11400000, guid: 8cb0ad98557234ad8967efe88fef3d0c, type: 2}
+  - {fileID: 11400000, guid: 66d209b30dd674276a66d146ba80bfc7, type: 2}
+  - {fileID: 11400000, guid: ff6d52df4c0ad410faed54f7dc64dfff, type: 2}
+  - {fileID: 11400000, guid: c09c9b9189b2f4e0a9ff9ed44cb459b3, type: 2}
+  - {fileID: 11400000, guid: f02f649e18fd14006b948bc2d055f02f, type: 2}
+  - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
+  - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
+  - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  - {fileID: 11400000, guid: 0ec035aacff6c4b4b91e7e2c909de4df, type: 2}
+  - {fileID: 11400000, guid: 6c7fbae7c6557444f9c8f7ef6d811dc4, type: 2}
+  - {fileID: 11400000, guid: 4b89325b1271d41389bc6c30e9a56a08, type: 2}
+  - {fileID: 11400000, guid: 01d550ce734894f53a02ebc474f87706, type: 2}
+  - {fileID: 11400000, guid: 5089783e78cb34db79eb68143897d5f7, type: 2}
+  - {fileID: 11400000, guid: deb7e453378f74891bb96364fcba8777, type: 2}
   oreMaterialPanel: {fileID: 1576754601292561084, guid: 6948a1657298e44e485bfdf22c99e437, type: 3}
   contentGO: {fileID: 0}
 --- !u!1 &8153990519332188789

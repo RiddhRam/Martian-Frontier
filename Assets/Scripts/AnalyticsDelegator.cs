@@ -140,16 +140,16 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Ad_Watch_Attempt", new Parameter("Reward", reward));
     }
 
-    public void OpenUIPanel(string name) {
+    public void OpenUIPanel(string panelName) {
         if (!isInitialized) {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Open_UI_Panel") {
-            {"Panel", name}
+            {"Panel", panelName}
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Open_UI_Panel", new Parameter("Panel", name));
+        FirebaseAnalytics.LogEvent("Open_UI_Panel", new Parameter("Panel", panelName));
     }
 
     public void ShowError(string error) {
@@ -230,16 +230,16 @@ public class AnalyticsDelegator : MonoBehaviour
             new Parameter("Cash_Count", cashCount));
     }
 
-    public void OpenTutorialUIPanel(string name) {
+    public void OpenTutorialUIPanel(string panelName) {
         if (!isInitialized) {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Open_Tutorial_UI_Panel") {
-            {"Panel", name}
+            {"Panel", panelName}
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Open_Tutorial_UI_Panel", new Parameter("Panel", name));
+        FirebaseAnalytics.LogEvent("Open_Tutorial_UI_Panel", new Parameter("Panel", panelName));
     }
 
     public void SelectLanguage(string language) {

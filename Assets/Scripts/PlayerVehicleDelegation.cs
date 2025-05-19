@@ -132,7 +132,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
         int nextIndex = (index + 1) % vehicleUpgradeBayManager.drillUIPositions.Length;
-        refineryUpgradePad.SetProceedPanel(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
+        refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING

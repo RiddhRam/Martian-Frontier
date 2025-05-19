@@ -283,15 +283,15 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Set body
         (drillToCopy.GetChild(1).GetComponent<Image>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
 
-        string name = drillerController.transform.parent.name;
+        string drillName = drillerController.transform.parent.name;
         // Set drill
         if (DrillUsesAnimation())
         {
-            (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(name);
+            (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(drillName);
         }
         else
         {
-            (drillToCopy.GetChild(2).GetComponent<Image>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, name);
+            (drillToCopy.GetChild(2).GetComponent<Image>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, drillName);
         }
 
     }
@@ -475,13 +475,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         equippedDrillOutline.effectColor = new(35/255f, 35/255f, 1);
     }
 
-    private bool PlayerOwnsCustomization(string name) {
+    private bool PlayerOwnsCustomization(string drillName) {
         // Vertex is free
-        if (name.ToLower().Contains("vertex")) {
+        if (drillName.ToLower().Contains("vertex")) {
             return true;
         }
 
-        if (customizationsOwned.Contains(name)) {
+        if (customizationsOwned.Contains(drillName)) {
             return true;
         }
 

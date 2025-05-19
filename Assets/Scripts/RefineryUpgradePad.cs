@@ -5,7 +5,9 @@ using UnityEngine.UI;
 // Is also the controller for the upgrade panel
 public class RefineryUpgradePad : MonoBehaviour
 {
+    [Header("Scripts")]
     [SerializeField] UIDelegation uIDelegation;
+    [SerializeField] MineRenderer mineRenderer;
     [SerializeField] OreDelegation oreDelegation;
     JoystickMovement joystickMovement;
     [SerializeField] GameObject refineryScreen;
@@ -17,6 +19,11 @@ public class RefineryUpgradePad : MonoBehaviour
     public GameObject orePanel;
     public Image proceedTabButton;
     public GameObject proceedPanel;
+
+    [Header("Proceed Panel")]
+    public TextMeshProUGUI mineCounter;
+    public TextMeshProUGUI upgradeRequirement;
+    public Button proceedButton;
 
     void Awake()
     {
@@ -81,7 +88,7 @@ public class RefineryUpgradePad : MonoBehaviour
         currentTab = newTab;
     }
 
-    public void SetProceedPanel(GameObject nextDrill)
+    public void SetProceedPanelVehicle(GameObject nextDrill)
     {
         Transform nextDrillTransform = Instantiate(nextDrill).transform;
 
@@ -97,5 +104,10 @@ public class RefineryUpgradePad : MonoBehaviour
         Vector2 pos = rt.anchoredPosition;
         pos.y = -1100f;
         rt.anchoredPosition = pos;
+    }
+
+    public void SetProceedPanelRequirement(int mineCount)
+    {
+        
     }
 }

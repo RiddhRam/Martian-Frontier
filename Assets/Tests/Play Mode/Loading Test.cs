@@ -374,23 +374,30 @@ public class LoadingTest
 
 
         OreDelegation oreDelegation = mineRenderer.GetComponent<OreDelegation>();
-        int materialCount = 9;
+        int materialCount = 15;
         Assert.AreEqual(materialCount, oreDelegation.materialNames.Length);
-        Assert.AreEqual(materialCount, oreDelegation.materials.Length);
-        Assert.AreEqual(materialCount, oreDelegation.GetMaterialPrices().Length);
         Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
 
-        string[] materialNames = new string[] { "Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium" };
-        string[] materialHighResSpriteNames = new string[] {"Level 1 Ore Spritesheet High Res_0", "Level 1 Ore Spritesheet High Res_1", "Level 1 Ore Spritesheet High Res_2",
-                                                "Level 2 Ore Spritesheet High Res_2", "Level 2 Ore Spritesheet High Res_1", "Level 2 Ore Spritesheet High Res_0",
-                                                "Level 3 Ore Spritesheet High Res_2", "Level 3 Ore Spritesheet High Res_1", "Level 3 Ore Spritesheet High Res_0"};
-        int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
+        string[] materialNames = new string[] { "Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium", "Shadow", "Ice Shard", "Fire Stone", "Vinterra", "Glacirite", "Infernite" };
+        string[] materialHighResSpriteNames = new string[] {"Ore Spritesheet High Res_0", "Ore Spritesheet High Res_1", "Ore Spritesheet High Res_2",
+                                                "Ore Spritesheet High Res_5", "Ore Spritesheet High Res_4", "Ore Spritesheet High Res_3",
+                                                "Ore Spritesheet High Res_8", "Ore Spritesheet High Res_7", "Ore Spritesheet High Res_6",
+                                                "Ore Spritesheet High Res_11", "Ore Spritesheet High Res_10", "Ore Spritesheet High Res_9",
+                                                "Ore Spritesheet High Res_14", "Ore Spritesheet High Res_13", "Ore Spritesheet High Res_12"};
+
         for (int i = 0; i != materialCount; i++)
         {
             Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
-            Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
-            Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
             Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialHighResSpriteNames[i]);
+        }
+
+        // There's 15 in total but only 9 are actively used at once
+        int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
+        Assert.AreEqual(materialPrices.Length, oreDelegation.GetMaterialPrices().Length);
+
+        for (int i = 0; i != materialPrices.Length; i++)
+        {
+            Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
         }
 
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");

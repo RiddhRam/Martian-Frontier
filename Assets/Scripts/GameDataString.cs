@@ -19,6 +19,7 @@ public class GameDataString
     public string seed;
     public string highestRow;
     public string mineInitialization;
+    public string mineCount;
 
     public string finishedTutorial;
     public string askedForReview;

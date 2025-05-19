@@ -17,13 +17,13 @@ public class Powers
     public float UpgradeValue;
     private Action UpdateFunction;
 
-    public Powers(Action powerFunction, string name, string description,
+    public Powers(Action powerFunction, string powerName, string description,
                   int index, int[] prices, Sprite powerIconWhite, int minLevelRequired, 
                   bool isEquipped, bool isPassive, string mainValueKey, float level0Value,
                   float upgradeValue, Action updateFunction)
     {
         PowerFunction = powerFunction;
-        Name = name;
+        Name = powerName;
         Description = description;
         Index = index;
         Prices = prices;

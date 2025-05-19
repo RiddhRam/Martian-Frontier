@@ -32,8 +32,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private Color surveyRadarColor;
     [SerializeField] private Sprite[] powerIconsWhite;
 
-    private TileBase[] ores;
-    private GameObject[] materials;
     private OreDelegation oreDelegation;
     private AnalyticsDelegator analyticsDelegator;
 
@@ -100,9 +98,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     void Start()
     {
-        ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
-        materials = oreDelegation.materials;
     }
     // Increase Vision
     public int visionBoost;

@@ -18,8 +18,6 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public GameObject errorMessage;
-    private Sprite[] materialHighResSprites;
-    private string[] materialNames;
     public int[] materialPrices;
 
     private GameCameraController mainCameraController;
@@ -39,8 +37,7 @@ public class UIDelegation : MonoBehaviour
             Debug.Log("No ore delegation");
             return;
         }
-        materialNames = oreDelegation.materialNames;
-        materialHighResSprites = oreDelegation.materialHighResSprites;
+
         materialPrices = oreDelegation.GetMaterialPrices();
     }
 
