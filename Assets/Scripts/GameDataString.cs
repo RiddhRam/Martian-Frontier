@@ -20,6 +20,7 @@ public class GameDataString
     public string highestRow;
     public string mineInitialization;
     public string mineCount;
+    public string oreUpgrades;
 
     public string finishedTutorial;
     public string askedForReview;

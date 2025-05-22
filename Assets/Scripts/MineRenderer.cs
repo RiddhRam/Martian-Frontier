@@ -60,6 +60,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // 2 = initialized
     public int mineInitialization = 0;
     public int mineCount;
+    private SerializableDictionary<string, int> oreUpgrades;
 
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
@@ -77,6 +78,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private AudioDelegator audioDelegator;
 
     private Dictionary<string, int> quantities = new();
+
+    // Used to find the count of each ore in a mine
+    // search and uncomment everything related to "oresCount"
     //public int[] oresCount;
     
     [SerializeField] ParticleSystem vacuumPrefab;
@@ -272,17 +276,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
+        /*for (int i = 0; i != oresCount.Length; i++)
+        {
+            oresCount[i] = 0;
+        }*/
+
         CreateGenTriggers();
-        // Create first 4 rows
-        // Change to totalRows + 1 to create entire map
+        // Change limit to 5 to create first 4 rows
+        // Change limit to totalRows + 1 to create entire map
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
 
-        // Uncomment this too to log the quantity of each ore
-        /*for (int i = 0; i != oresCount.Length; i++) {
-            Debug.Log(i + ": " + oresCount[i]);
-        } */
+        // Uncomment this too to log the quantity of each ores, copy pastable into excel
+        /*string output = oresCount[0].ToString();
+        for (int i = 1; i != oresCount.Length; i++)
+        {
+            output += "\n" + oresCount[i].ToString();
+        }
+        Debug.Log(output);*/
 
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
@@ -465,9 +477,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // In order to see quantity of each ore in the mine
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
-            // and also uncomment oresCount integer array above
+            // and also search and uncomment everything related to "oresCount"
             
-            /*int oreIndex = 0;
+            int oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++) {
                isBaseTile = false;
 
@@ -489,7 +501,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 oreIndex++;
             }
 
-            oresCount[oreIndex]++;*/
+            //oresCount[oreIndex]++;
 
             for (int x = -radius; x <= radius; x++)
             {
@@ -924,8 +936,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return 0;
     }
 
-    public void LoadData(GameData data)
-    {
+    public void LoadData(GameData data) {
         // If there's already a coroutine running, stop it
         if (_loadDataCoroutine != null)
         {
@@ -1005,7 +1016,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // Take the first 9 indices as the chosen ones
-        List<int> chosen = indices.Take(oreDelegation.GetMaterialPrices().Length).ToList();
+        List<int> chosen = indices.Take(oreDelegation.GetOriginalMaterialPrices().Length).ToList();
 
         // If its the first mine, use the basic ores
         if (mineCount == 1)
@@ -1039,7 +1050,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         {
             LoadTiles();
         }
-        
+
+        // Initialize everything else
+        refineryUpgradePad.oreUpgrades = data.oreUpgrades;
         refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
         dailyChallengeDelegator.Initialize();
         
@@ -1078,6 +1091,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         data.mineInitialization = this.mineInitialization;
         data.currentOresMined = this.currentOresMined;
         data.mineCount = this.mineCount;
+        data.oreUpgrades = refineryUpgradePad.oreUpgrades;
     }
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {

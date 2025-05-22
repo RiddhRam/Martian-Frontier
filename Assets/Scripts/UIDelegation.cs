@@ -18,7 +18,6 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public GameObject errorMessage;
-    public int[] materialPrices;
 
     private GameCameraController mainCameraController;
     private AnalyticsDelegator analyticsDelegator;
@@ -37,8 +36,6 @@ public class UIDelegation : MonoBehaviour
             Debug.Log("No ore delegation");
             return;
         }
-
-        materialPrices = oreDelegation.GetMaterialPrices();
     }
 
     // Hide all base elements, and only used before opening a secondary element like the camera

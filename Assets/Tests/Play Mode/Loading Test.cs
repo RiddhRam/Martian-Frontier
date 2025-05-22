@@ -393,11 +393,11 @@ public class LoadingTest
 
         // There's 15 in total but only 9 are actively used at once
         int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
-        Assert.AreEqual(materialPrices.Length, oreDelegation.GetMaterialPrices().Length);
+        Assert.AreEqual(materialPrices.Length, oreDelegation.GetOriginalMaterialPrices().Length);
 
         for (int i = 0; i != materialPrices.Length; i++)
         {
-            Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
+            Assert.AreEqual(oreDelegation.GetOriginalMaterialPrices()[i], materialPrices[i]);
         }
 
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");

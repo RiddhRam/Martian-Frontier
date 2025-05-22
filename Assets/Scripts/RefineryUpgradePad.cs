@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,10 +8,15 @@ public class RefineryUpgradePad : MonoBehaviour
 {
     [Header("Scripts")]
     [SerializeField] UIDelegation uIDelegation;
-    [SerializeField] MineRenderer mineRenderer;
     [SerializeField] OreDelegation oreDelegation;
+    [SerializeField] PlayerState playerState;
     JoystickMovement joystickMovement;
     [SerializeField] GameObject refineryScreen;
+
+    [Header("Upgrades")]
+    // oreIndex: level
+    public SerializableDictionary<int, int> oreUpgrades;
+    private long[] originalMaterialPrices;
 
     [Header("Tab Delegation")]
     // The current panel showing in the refinery panel
@@ -28,6 +34,15 @@ public class RefineryUpgradePad : MonoBehaviour
     void Awake()
     {
         joystickMovement = JoystickMovement.Instance;
+
+        // Store this for reference later
+        int[] materialPrices = oreDelegation.GetOriginalMaterialPrices();
+        originalMaterialPrices = new long[materialPrices.Length];
+        // Convert to long
+        for (int i = 0; i != materialPrices.Length; i++)
+        {
+            originalMaterialPrices[i] = (long)materialPrices[i];
+        }
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -88,6 +103,7 @@ public class RefineryUpgradePad : MonoBehaviour
         currentTab = newTab;
     }
 
+    // Indicate next vehicle for unlock
     public void SetProceedPanelVehicle(GameObject nextDrill)
     {
         Transform nextDrillTransform = Instantiate(nextDrill).transform;
@@ -106,8 +122,73 @@ public class RefineryUpgradePad : MonoBehaviour
         rt.anchoredPosition = pos;
     }
 
+    // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount)
     {
+        proceedPanel.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
         
+        CheckIfProceedAvailable();
+    }
+
+    // If player meets upgrade requirement, hide requirement and show the proceed amount
+    public void CheckIfProceedAvailable()
+    {
+
+    }
+
+    public void PurchaseOreUpgrade(int oreIndex)
+    {
+        System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
+
+        if (!playerState.VerifyEnoughCash(price))
+        {
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
+            return;
+        }
+
+        playerState.SubtractCash(price);
+        UpgradeOre(oreIndex);
+        Debug.Log(oreIndex + ": " + GetOreUpgradeLevel(oreIndex));
+
+        // Redisplay the proper prices by clearing everything and generating again 
+        // inefficient, but it's very simple and performance isn't demanding here. Also player doesn't even notice
+        oreDelegation.ClearGrid();
+        oreDelegation.PrepareGrid();
+    }
+
+    private void UpgradeOre(int oreIndex)
+    {
+        if (oreUpgrades.ContainsKey(oreIndex))
+        {
+            oreUpgrades[oreIndex]++;
+            return;
+        }
+
+        oreUpgrades[oreIndex] = 1;
+    }
+
+    public double GetActualMaterialPrice(int oreIndex)
+    {
+        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+
+        return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, oreUpgradeLevel));
+    }
+
+    public double GetMaterialUpgradePrice(int oreIndex)
+    {
+        // Must mine 15 of the ore at its current price in order to upgrade once. On average this means 1 mine can give you 1-2 upgrades.
+        return GetActualMaterialPrice(oreIndex) * 15;
+    }
+
+    public int GetOreUpgradeLevel(int oreIndex)
+    {
+        // Hasn't been upgraded yet
+        if (!oreUpgrades.ContainsKey(oreIndex))
+        {
+            return 0;
+        }
+
+        // Has been upgraded
+        return oreUpgrades[oreIndex];
     }
 }

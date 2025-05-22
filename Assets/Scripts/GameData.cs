@@ -13,7 +13,7 @@ public class GameData
     public string blocksMined;
     public string materialsSold;
     public string moneyEarned;
-    public float highestMined;
+    public double highestMined;
     public Vector3 playerPos;
     public float playerRotation;
     public List<string> vehiclesOwned;
@@ -27,6 +27,8 @@ public class GameData
     public int highestRow;
     public int mineInitialization;
     public int mineCount;
+    // oreIndex: level
+    public SerializableDictionary<int, int> oreUpgrades;
 
     public bool finishedTutorial;
     public bool askedForReview;
@@ -104,6 +106,7 @@ public class GameData
         this.highestRow = 0;
         this.mineInitialization = 0;
         this.mineCount = 1;
+        this.oreUpgrades = new();
 
         this.finishedTutorial = false;
         this.askedForReview = false;

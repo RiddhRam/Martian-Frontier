@@ -28,12 +28,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     // 5 Mins
     private const int initialTimer = 120;
     // The cash made during the current refinery timer, resets to 0 when mine resets
-    float cashMadeThisMine;
+    double cashMadeThisMine;
 
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
 
-    [SerializeField] private int[] materialPrices;
     [SerializeField] private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
 
@@ -66,8 +65,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         audioDelegator = AudioDelegator.Instance;
         dataPersistenceManager = DataPersistenceManager.Instance;
         analyticsDelegator = AnalyticsDelegator.Instance;
-        
-        materialPrices = mineRenderer.GetComponent<OreDelegation>().GetMaterialPrices();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -257,10 +254,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public void SellOres(int[] materialsMined, bool isNPC) {
         // Track number of ores mined and cash earned
         int change = 0;
-        long cashToAdd = 0;
+        double cashToAdd = 0;
 
-        for (int i = 0; i != materialPrices.Length; i++) {
-            cashToAdd += materialPrices[i] * materialsMined[i];
+        for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
+        {
+            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
             change += materialsMined[i];
         }
 
@@ -287,7 +285,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateCashText() {
-        cashMadeThisMineText.text = playerState.FormatPrice((long) cashMadeThisMine);
+        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine);
     }
 
     public void PlaySaleNoise() {
@@ -380,9 +378,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public float GetTotalProfitMultiplier() {
-        // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier + upgradesDelegator.profitMultiplier;
 
+        // Not currently using levelProfitMultiplier
+        //float multiplier = profitMultiplier + levelProfitMultiplier + upgradesDelegator.profitMultiplier;
+        float multiplier = profitMultiplier + upgradesDelegator.profitMultiplier;
+
+        // Have to round due to floating point errors
         return Mathf.Round(multiplier * 100f) / 100f;
     }
 

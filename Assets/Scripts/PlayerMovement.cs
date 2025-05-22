@@ -42,7 +42,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private SpriteRenderer cashIconSpriteRenderer;
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
-    private long cashToShow;
+    private double cashToShow;
     private Coroutine floatingTextCoroutine;
     const float fadeDuration = 0.5f;
 
@@ -188,7 +188,7 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public void NewOreMined(long cashEarned) {
+    public void NewOreMined(double cashEarned) {
         cashToShow += cashEarned;
         
         if (floatingTextCoroutine != null) {
@@ -273,17 +273,17 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    public string FormatPrice(long price)
+    public string FormatPrice(double price)
     {
         if (price >= 1_000_000)
         {
             // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.#") + "M";
+            return (Math.Floor(price / 1_000_000 * 100d) / 100d).ToString("0.##") + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.#") + "K";
+            return (Math.Floor(price / 1_000 * 100d) / 100d).ToString("0.##") + "K";
         }
 
         // Return the original price as a string for smaller numbers

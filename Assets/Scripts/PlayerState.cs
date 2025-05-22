@@ -20,7 +20,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userCash;
     [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
-    private long savedAmountSubtract;
+    private BigInteger savedAmountSubtract;
     private BigInteger userXP;
     private BigInteger blocksMined;
     public BigInteger materialsSold;
@@ -28,7 +28,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userGems;
     private BigInteger gemsEarned;
     private BigInteger userCredits;
-    private float highestMined;
+    private double highestMined;
     private List<string> vehiclesOwned = new();
 
     [SerializeField] private RefineryController refineryController;
@@ -52,8 +52,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     [SerializeField] private GameObject ResetMineButton;
     [SerializeField] private GameObject betaScreen;
-
-    float profitMultiplier;
 
     string levelString;
 
@@ -95,10 +93,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd, bool fromMining = false) {
+    public void AddCash(double cashToAdd, bool fromMining = false) {
 
-        userCash += cashToAdd;
-        moneyEarned += cashToAdd;
+        userCash += new BigInteger(cashToAdd);
+        moneyEarned += new BigInteger(cashToAdd);
 
         UpdateCashDisplays();
 
@@ -172,7 +170,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     // For Refinery Upgrade
-    public void SubtractCash(long amountToSubtract) { 
+    public void SubtractCash(BigInteger amountToSubtract) { 
 
         if (amountToSubtract == savedAmountSubtract) {
             userCash -= amountToSubtract;
@@ -199,7 +197,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
-    public void UpdateHighestMined(float newMineAmount) {
+    public void UpdateHighestMined(double newMineAmount) {
         if (newMineAmount > highestMined) {
             highestMined = newMineAmount;
             UpdateGemCashPurchasePanels();
@@ -210,7 +208,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // 4000 gems saves you 1 mins by giving you half the amount as the highest mined value you achieved
         // its a float so it doesnt get rounded down if there's a decimal
         const float mainGemPrice = 4000;
-        float baseCashAmount = highestMined * 0.5f;
+        double baseCashAmount = highestMined * 0.5;
 
         for (int i = 0; i != gemCashPurchasePanels.Length; i++)
         {
@@ -219,7 +217,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
     }
 
-    public float GetHighestMined() {
+    public double GetHighestMined() {
         return highestMined;
     }
 
@@ -236,7 +234,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
     
     // For Refinery Upgrade
-    public bool VerifyEnoughCash(long price) {
+    public bool VerifyEnoughCash(BigInteger price) {
         savedAmountSubtract = price;
 
         if (userCash - savedAmountSubtract >= 0) {
@@ -364,7 +362,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return price.ToString();
     }
 
-    public BigInteger RoundToSignificantDigits(float num, int n)
+    public BigInteger RoundToSignificantDigits(double num, int n)
     {
         if (num == 0)
             return 0;
@@ -444,9 +442,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         float userLevel = GetUserLevel();
         int level = (int) userLevel;
-
-        profitMultiplier = refineryController.GetLevelProfitMultiplier();
-
+        
         float calculatedValue = level * 0.005f;
         // For each level, add 0.5% to the profit multiplier
         refineryController.SetLevelProfitMultiplier(calculatedValue);

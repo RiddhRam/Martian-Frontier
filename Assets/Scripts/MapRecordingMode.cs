@@ -156,11 +156,11 @@ public class MapRecordingMode : MonoBehaviour
     {
         if (price >= 1_000_000_000_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Qu";
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "ab";
         }
         else if (price >= 1_000_000_000_000_000)
         {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
+            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "aa";
         }
         else if (price >= 1_000_000_000_000)
         {
