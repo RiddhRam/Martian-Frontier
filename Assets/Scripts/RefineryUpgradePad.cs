@@ -9,16 +9,21 @@ public class RefineryUpgradePad : MonoBehaviour
     [Header("Scripts")]
     [SerializeField] UIDelegation uIDelegation;
     [SerializeField] OreDelegation oreDelegation;
-    [SerializeField] PlayerState playerState;
+    public PlayerState playerState;
     JoystickMovement joystickMovement;
-    [SerializeField] GameObject refineryScreen;
+    [SerializeField] AudioDelegator audioDelegator;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip oreUpgradeSound;
+    [SerializeField] AudioSource uIAudio;
 
     [Header("Upgrades")]
-    // oreIndex: level
+    // key: oreIndex, value: level
     public SerializableDictionary<int, int> oreUpgrades;
     private long[] originalMaterialPrices;
 
     [Header("Tab Delegation")]
+    [SerializeField] GameObject refineryScreen;
     // The current panel showing in the refinery panel
     private string currentTab = "Ores";
     public Image oreTabButton;
@@ -30,6 +35,9 @@ public class RefineryUpgradePad : MonoBehaviour
     public TextMeshProUGUI mineCounter;
     public TextMeshProUGUI upgradeRequirement;
     public Button proceedButton;
+
+    int requiredOreIndex;
+    int requiredOreUpgradeLevel;
 
     void Awake()
     {
@@ -109,23 +117,50 @@ public class RefineryUpgradePad : MonoBehaviour
         Transform nextDrillTransform = Instantiate(nextDrill).transform;
 
         // Move to panel and scale down
-        nextDrillTransform.SetParent(proceedPanel.transform);
-        nextDrillTransform.localScale = new(1.5f, 1.5f, 1.5f);
+        nextDrillTransform.SetParent(proceedPanel.transform.GetChild(1));
+        nextDrillTransform.localScale = new(0.8f, 0.8f, 0.8f);
 
-        // Reposition
+        // Update positioning
         RectTransform rt = nextDrillTransform.GetComponent<RectTransform>();
-        rt.offsetMin = new(0, rt.offsetMin.y);
-        rt.offsetMax = new(0, rt.offsetMax.y);
-
-        Vector2 pos = rt.anchoredPosition;
-        pos.y = -1100f;
-        rt.anchoredPosition = pos;
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = new(-rt.sizeDelta.x, 100);
     }
 
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount)
+    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer)
     {
-        proceedPanel.transform.GetChild(0).GetComponent<TextMeshProUGUI>().text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
+        mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
+
+        if (mineCount == 1)
+        {
+            requiredOreIndex = 0;
+            requiredOreUpgradeLevel = 10;
+        }
+        else if (mineCount == 2)
+        {
+            requiredOreIndex = 1;
+            requiredOreUpgradeLevel = 25;
+        }
+        else if (mineCount == 3)
+        {
+            requiredOreIndex = 5;
+            requiredOreUpgradeLevel = 50;
+        }
+        else if (mineCount >= 4)
+        {
+            requiredOreIndex = 8;
+            //requiredOreUpgradeLevel =
+
+            // Max level is currently 500
+            if (requiredOreUpgradeLevel > 500) {
+                requiredOreUpgradeLevel = 500;
+            }
+        }
+        
+        upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", mineRenderer.selectedMaterialNames[requiredOreIndex], requiredOreUpgradeLevel);
         
         CheckIfProceedAvailable();
     }
@@ -133,7 +168,10 @@ public class RefineryUpgradePad : MonoBehaviour
     // If player meets upgrade requirement, hide requirement and show the proceed amount
     public void CheckIfProceedAvailable()
     {
-
+        if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
+        {
+            proceedButton.interactable = true;
+        }
     }
 
     public void PurchaseOreUpgrade(int oreIndex)
@@ -149,11 +187,15 @@ public class RefineryUpgradePad : MonoBehaviour
         playerState.SubtractCash(price);
         UpgradeOre(oreIndex);
         Debug.Log(oreIndex + ": " + GetOreUpgradeLevel(oreIndex));
+        audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
 
         // Redisplay the proper prices by clearing everything and generating again 
         // inefficient, but it's very simple and performance isn't demanding here. Also player doesn't even notice
-        oreDelegation.ClearGrid();
-        oreDelegation.PrepareGrid();
+        /*oreDelegation.ClearGrid();
+        oreDelegation.PrepareGrid();*/
+        oreDelegation.UpdateOreMaterialPanelText(oreIndex);
+
+        CheckIfProceedAvailable();
     }
 
     private void UpgradeOre(int oreIndex)
@@ -171,13 +213,16 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
+        // Grows by 8% per level
         return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePrice(int oreIndex)
     {
-        // Must mine 15 of the ore at its current price in order to upgrade once. On average this means 1 mine can give you 1-2 upgrades.
-        return GetActualMaterialPrice(oreIndex) * 15;
+        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+
+        // Upgrade price outpaces the material price. Grows by 12% instead of 8%. Also starts at 12 times the current material price
+        return Math.Floor(GetActualMaterialPrice(oreIndex) * 12 * Math.Pow(1.12, oreUpgradeLevel));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)

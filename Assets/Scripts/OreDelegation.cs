@@ -20,6 +20,9 @@ public class OreDelegation : MonoBehaviour
     [Header("UI")]
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
+    private TextMeshProUGUI[] materialLevelTexts;
+    private TextMeshProUGUI[] materialPriceTexts;
+    private TextMeshProUGUI[] materialUpgradePriceTexts;
 
     private int[] oresPerTier;
     // Lowercase verion of materialNames
@@ -49,7 +52,12 @@ public class OreDelegation : MonoBehaviour
 
     public void PrepareGrid() {
 
-        for (int i = 0; i != mineRenderer.selectedMaterialNames.Length; i++)
+        int length = mineRenderer.selectedMaterialNames.Length;
+        materialLevelTexts = new TextMeshProUGUI[length];
+        materialPriceTexts = new TextMeshProUGUI[length];
+        materialUpgradePriceTexts = new TextMeshProUGUI[length];
+
+        for (int i = 0; i != length; i++)
         {
             GameObject newMaterialPanel = Instantiate(oreMaterialPanel);
             Transform panelTransform = newMaterialPanel.transform;
@@ -60,37 +68,39 @@ public class OreDelegation : MonoBehaviour
             panelTransform.localScale = new(1, 1, 1);
 
             string oreName = mineRenderer.selectedMaterialNames[i];
-            // Set the price, name and image
-            panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i));
-            panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(i));
+
+            // Set outline colour and top bar colour
+            panelTransform.GetChild(0).GetChild(0).GetComponent<Outline>().effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
+            panelTransform.GetChild(0).GetChild(1).GetComponent<Image>().color = oreTileColours[GetOriginalTileIndexByName(oreName)];
+
+            // Set the price, level, name, image and upgrade button
+            materialPriceTexts[i] = panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
+            materialPriceTexts[i].text = mineRenderer.refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i)));
+
+            materialLevelTexts[i] = panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>();
+            materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(i));
+
             panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
+
             panelTransform.GetChild(4).GetComponent<Image>().sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
 
-            // 500 is max level currently
-            if (mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(i) >= 500)
-            {
-                // Disable button if max
-                panelTransform.GetChild(5).GetComponent<Button>().interactable = false;
-                panelTransform.GetChild(5).GetComponent<Image>().color = new(1, 0, 0);
+            materialUpgradePriceTexts[i] = panelTransform.GetChild(5).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
 
-                // Hide price tag, show MAX text
-                panelTransform.GetChild(5).GetChild(0).gameObject.SetActive(false);
-                panelTransform.GetChild(5).GetChild(1).gameObject.SetActive(true);
-            }
-            else
-            {
-                // Add on click listener to button and save index in its own variable, otherwise it will keep a reference to i
-                int oreIndex = i;
-                panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => mineRenderer.refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
-                panelTransform.GetChild(5).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(mineRenderer.refineryUpgradePad.GetMaterialUpgradePrice(i));
-            }
-            
+            // Save as its own variable, otherwise it keeps a reference to the variable i
+            int oreIndex = i;
+            // Add onclick listener and hold button component
+            panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => mineRenderer.refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+            // Hold to purchase
+            HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
+            holdButton.SetAction(() => mineRenderer.refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+
+            UpdateOreMaterialPanelText(i);
         }
 
         int rows = 3;
-        // 200 = vertical padding
-        // (rows - 1) * 100 = spacing between each row
-        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 200 + ((rows - 1) * 100);
+        // 130 = vertical padding
+        // (rows - 1) * 200 = spacing between each row
+        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 130 + ((rows - 1) * 150);
         
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
         // Resize the scroll view content height to fit the rows using the height of all panels
@@ -103,6 +113,36 @@ public class OreDelegation : MonoBehaviour
 
         for (int i = 0; i != childCount; i++) {
             Destroy(contentGO.transform.GetChild(i).gameObject);
+        }
+    }
+
+    public void UpdateOreMaterialPanelText(int oreIndex)
+    {
+        materialPriceTexts[oreIndex].text = mineRenderer.refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(mineRenderer.refineryUpgradePad.GetActualMaterialPrice(oreIndex)));
+        materialLevelTexts[oreIndex].text = GetLocalizedValue("LEVEL {0}", mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(oreIndex));
+
+        Transform buttonTransform = materialUpgradePriceTexts[oreIndex].transform.parent.parent;
+        // 500 is max level currently
+        if (mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(oreIndex) >= 500)
+        {
+            // Disable button if max
+            buttonTransform.GetComponent<Button>().interactable = false;
+            buttonTransform.GetComponent<Image>().color = new(1, 0, 0);
+
+            // Hide price tag, show MAX text
+            buttonTransform.GetChild(0).gameObject.SetActive(false);
+            buttonTransform.GetChild(1).gameObject.SetActive(true);
+
+            // Destroy hold button component
+            if (buttonTransform.TryGetComponent(out HoldButton hold))
+            {
+                Destroy(hold);
+            }
+        }
+        else
+        {
+            // Update price text
+            materialUpgradePriceTexts[oreIndex].text = mineRenderer.refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(mineRenderer.refineryUpgradePad.GetMaterialUpgradePrice(oreIndex)));
         }
     }
 
@@ -125,48 +165,6 @@ public class OreDelegation : MonoBehaviour
 
     public bool VerifyIfOre(int tileIndex) {
         return isOre[tileIndex];
-    }
-
-    public string FormatPrice(double price)
-    {
-        if (price >= 1_000_000_000_000_000_000_000d)
-        {
-            // Truncate to 2 decimal places and format with "ac"
-            return (System.Math.Floor(price / 1_000_000_000_000_000_000_000d * 100d) / 100d).ToString("0.##") + "ac";
-        }
-        else if (price >= 1_000_000_000_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "ab"
-            return (System.Math.Floor(price / 1_000_000_000_000_000_000 * 100d) / 100d).ToString("0.##") + "ab";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "aa"
-            return (System.Math.Floor(price / 1_000_000_000_000_000 * 100d) / 100d).ToString("0.##") + "aa";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "T"
-            return (System.Math.Floor(price / 1_000_000_000_000 * 100d) / 100d).ToString("0.##") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "B"
-            return (System.Math.Floor(price / 1_000_000_000 * 100d) / 100d).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 2 decimal places and format with "M"
-            return (System.Math.Floor(price / 1_000_000 * 100d) / 100d).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 2 decimal places and format with "K"
-            return (System.Math.Floor(price / 1_000 * 100d) / 100d).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     public string GetLocalizedValue(string key, params object[] args)

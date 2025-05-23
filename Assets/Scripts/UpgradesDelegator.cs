@@ -488,7 +488,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
             upgradeButton.GetChild(0).GetChild(0).gameObject.SetActive(false);
             upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = "MAX";
         } else {
-            upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(power.Prices[powerLevel]);
+            upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerState.FormatPrice(power.Prices[powerLevel]);
         }
     }
 
@@ -534,28 +534,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         data.cooldownTimer = this.cooldownTimer;
         data.equippedPowers = this.equippedPowers;
         data.powerUpgradeLevels = this.powerUpgradeLevels;
-    }
-
-    public string FormatPrice(int price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     private string GetLocalizedValue(string key, params object[] args)

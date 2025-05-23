@@ -6,12 +6,12 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public GameObject mainCamera;
+    public PlayerState playerState;
     public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
     public bool stopMoving;
 
-    [SerializeField]
-    private float playerSpeed = 5f;
+    [SerializeField] private float playerSpeed = 5f;
     private readonly float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
@@ -200,7 +200,7 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator ShowFloatingText() {
 
         // Show text and icon
-        cashEarnedText.text = FormatPrice(cashToShow);
+        cashEarnedText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashToShow));
         float alphaValue = 1;
         cashEarnedText.alpha = alphaValue;
         cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
@@ -227,30 +227,6 @@ public class PlayerMovement : MonoBehaviour
         cashToShow = 0;   
     }
 
-    /*private IEnumerator ShowFloatingText() {
-        // Show text
-        cashEarnedText.text = FormatPrice(cashToShow);
-        cashEarnedText.alpha = 1;
-
-        // Wait 2 seconds
-        yield return new WaitForSecondsRealtime(2);
-
-        // Fade text out
-        float t = 0f;
-        while (t < fadeDuration)
-        {
-            t += Time.deltaTime;
-            cashEarnedText.alpha = Mathf.Lerp(1f, 0f, t / fadeDuration);
-            cashIconSpriteRenderer.color = new(1, 1, 1, t / fadeDuration);
-            yield return null;
-        }
-
-        // Ensure it’s fully invisible
-        cashEarnedText.alpha = 0f;   
-        // Reset for next time
-        cashToShow = 0;   
-    }*/
-
     private IEnumerator HoldCanvasStill() {
         
         if (sliderCanvas == null) {
@@ -271,23 +247,6 @@ public class PlayerMovement : MonoBehaviour
 
             yield return null;
         }
-    }
-
-    public string FormatPrice(double price)
-    {
-        if (price >= 1_000_000)
-        {
-            // Truncate to 2 decimal places and format with "M"
-            return (Math.Floor(price / 1_000_000 * 100d) / 100d).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 2 decimal places and format with "K"
-            return (Math.Floor(price / 1_000 * 100d) / 100d).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
 }

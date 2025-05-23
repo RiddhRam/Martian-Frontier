@@ -77,7 +77,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
             radiusPriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             radiusPriceText.text = "MAX";
         } else {
-            radiusPriceText.text = FormatPrice(upgradePrices[radiusLevel]);
+            radiusPriceText.text = playerState.FormatPrice(upgradePrices[radiusLevel]);
         }
         
         // Reload
@@ -93,7 +93,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
             reloadPriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             reloadPriceText.text = "MAX";
         } else {
-            reloadPriceText.text = FormatPrice(upgradePrices[reloadLevel]);
+            reloadPriceText.text = playerState.FormatPrice(upgradePrices[reloadLevel]);
         }
     }
 
@@ -130,28 +130,6 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         data.oreBlasterUpgrades = this.oreBlasterUpgrades;
-    }
-
-    public string FormatPrice(int price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     private string GetLocalizedValue(string key, params object[] args)

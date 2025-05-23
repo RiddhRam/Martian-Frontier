@@ -455,7 +455,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     private void UpdateCustomizationGemPrice(long newPrice) {
         customizationGemPrice = newPrice;
-        gemPriceText.text = FormatPrice(customizationGemPrice);
+        gemPriceText.text = playerState.FormatPrice(customizationGemPrice);
     }
 
     private void HighlightEquippedOptions(bool usesAnimatedDrill) {
@@ -631,7 +631,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            heatUpgradePriceText.text = FormatPrice(upgradeHeatPrices[heatLevel]);
+            heatUpgradePriceText.text = playerState.FormatPrice(upgradeHeatPrices[heatLevel]);
         }
         
         // Update cool rate
@@ -661,7 +661,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            coolUpgradePriceText.text = FormatPrice(upgradeCoolPrices[coolLevel]);
+            coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
         }
 
     }
@@ -804,27 +804,5 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         return false;
-    }
-
-    public string FormatPrice(long price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 }
