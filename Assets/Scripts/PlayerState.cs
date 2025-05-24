@@ -329,10 +329,28 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             gemDisplays[i].GetComponent<TextMeshProUGUI>().text = gemText;
         }
     }
+    
+    private void UpdateXPDisplays() {
+        if (specialGameMode) {
+            return;
+        }
+
+        float userLevel = GetUserLevel();
+        int level = (int) userLevel;
+        
+        float calculatedValue = level * 0.005f;
+        // For each level, add 0.5% to the profit multiplier
+        refineryController.SetLevelProfitMultiplier(calculatedValue);
+
+        float xpSliderValue = userLevel - level;
+        levelString = level.ToString();
+        for (int i = 0; i != xpDisplays.Length; i++) {
+            xpDisplaysSliders[i].value = xpSliderValue;
+            xpDisplaysText[i].text = levelString;
+        }
+    }
 
     // The FormatPrice in other places is slightly different. 
-    // Here we need to purposefully round down so the user doesn't 
-    // overestimate their money and buy something they can't afford
     public string FormatPrice(BigInteger price)
     {
         if (price >= 1_000_000_000_000_000)
@@ -351,7 +369,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             double value = Math.Floor((double)(price * 100) / (double)divisor) / 100d;
 
             // two-letter suffix: “aa”, “ab” … “zz”
-            int first  = group / 26;           // 0–25 → ‘a’–‘z’
+            int first = group / 26;           // 0–25 → ‘a’–‘z’
             int second = group % 26;
             if (first > 25) first = 25;        // clamp; beyond “zz” not supported
             char c1 = (char)('a' + first);
@@ -458,26 +476,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.highestMined = this.highestMined;
     }
 
-    private void UpdateXPDisplays() {
-        if (specialGameMode) {
-            return;
-        }
-
-        float userLevel = GetUserLevel();
-        int level = (int) userLevel;
-        
-        float calculatedValue = level * 0.005f;
-        // For each level, add 0.5% to the profit multiplier
-        refineryController.SetLevelProfitMultiplier(calculatedValue);
-
-        float xpSliderValue = userLevel - level;
-        levelString = level.ToString();
-        for (int i = 0; i != xpDisplays.Length; i++) {
-            xpDisplaysSliders[i].value = xpSliderValue;
-            xpDisplaysText[i].text = levelString;
-        }
-    }
-
     public float GetUserLevel() {
         const int baseXP = 500; // XP needed for level 0 to 1
         const int increment = 500; // Additional XP per level
@@ -540,8 +538,41 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         betaScreen.SetActive(false);
     }
 
+    public void ProceedToNextMine()
+    {
+        // Get game data ref
+        ref GameData data = ref dataPersistenceManager.GetGameDataRef();
+        GameData newGameData = new();
+
+        // Modify it directly and then save without calling on other scripts
+        // otherwise other scripts will overwrite the modificiations we make here
+        data.playerPos = newGameData.playerPos;
+        data.playerRotation = newGameData.playerRotation;
+        data.currentVehicle = playerVehicleDelegation.drillers[playerVehicleDelegation.GetNextVehicleIndex()].name;
+
+        data.highestMined = newGameData.highestMined;
+        data.refineryTimer = newGameData.refineryTimer;
+        
+        data.seed = newGameData.seed;
+        data.mineCount++;
+        data.mineInitialization = newGameData.mineInitialization;
+
+        data.vehicleUpgradeLevels = newGameData.vehicleUpgradeLevels;
+        data.oreUpgrades = newGameData.oreUpgrades;
+
+        data.userCash = newGameData.userCash;
+
+        data.cooldownTimer = newGameData.cooldownTimer;
+
+        // Save and reload
+        dataPersistenceManager.DirectlyWriteSave();
+        CloudDelegator.Instance.TempSignOut();
+        SceneManager.LoadScene("Loading Screen");
+    }
+
     // For development only
-    public void FreeMoney() {
+    public void FreeMoney()
+    {
         userCash += freeMoneyToAdd;
         UpdateCashDisplays();
         analyticsDelegator.TestEvent("Just testing");

@@ -127,24 +127,23 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
-        int index = FindVehicle(currentVehicle);
+        FindVehicle(currentVehicle);
         loaded = true;
 
         // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
-        int nextIndex = (index + 1) % vehicleUpgradeBayManager.drillUIPositions.Length;
+        int nextIndex = GetNextVehicleIndex();
         refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING
     // Returns the index of the vehicle, and switches vehicle automatically
-    public int FindVehicle(string vehicleName)
+    public int FindVehicle(string vehicleName, bool switchVehicle = true)
     {
 
         (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
 
         // Iterate through all vehicles and find which vehicle it is
 
-        // If wasn't a hauler then it's a driller
         for (int i = 0; i != drillers.Length; i++)
         {
             if (!vehicleName.Contains(drillers[i].name))
@@ -156,36 +155,56 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
                 }
             }
 
-            SwitchVehicle(drillers[i]);
-            if (!notSinglePlayerScene)
+            if (switchVehicle)
             {
-                playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+                SwitchVehicle(drillers[i]);
+                if (!notSinglePlayerScene)
+                {
+                    playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+                }
             }
+            
 
             return i;
         }
 
         // If it reaches here, no vehicle was found, so we just set the player to use the first drill
-        SwitchVehicle(drillers[0]);
-        if (!notSinglePlayerScene)
+        if (switchVehicle)
         {
-            playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+            SwitchVehicle(drillers[0]);
+            if (!notSinglePlayerScene)
+            {
+                playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+            }
         }
+        
         return 0;
     }
 
+    public int GetNextVehicleIndex()
+    {
+        return (FindVehicle(currentVehicle, false) + 1) % vehicleUpgradeBayManager.drillUIPositions.Length;
+    }
+
     // Check to see if this vehicle was merged into another in a previous update
-    public (string secondaryName, bool checkSecondaryName) GetMergedVehicleName(string vehicleName) {
+    public (string secondaryName, bool checkSecondaryName) GetMergedVehicleName(string vehicleName)
+    {
 
         // Neither of these 4 are in the game anymore, just here as a demonstration
-        if (vehicleName.Contains("TURBO TANKER")) {
+        if (vehicleName.Contains("TURBO TANKER"))
+        {
             return ("HEAVY", true);
-        } else if (vehicleName.Contains("HEAVY")) {
+        }
+        else if (vehicleName.Contains("HEAVY"))
+        {
             return ("TURBO TANKER", true);
-        } else if (vehicleName.Contains("DASH")) {
+        }
+        else if (vehicleName.Contains("DASH"))
+        {
             return ("STUBBY", true);
         }
-        else if (vehicleName.Contains("STUBBY")) {
+        else if (vehicleName.Contains("STUBBY"))
+        {
             return ("DASH", true);
         }
 

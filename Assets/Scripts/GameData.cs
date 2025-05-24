@@ -47,7 +47,6 @@ public class GameData
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
-    public float[] materialProfitMultipliers;
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
@@ -124,7 +123,6 @@ public class GameData
         this.vehicleCustomizations = new();
         this.customizationsOwned = new();
 
-        this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER";

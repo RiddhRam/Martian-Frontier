@@ -38,7 +38,6 @@ public class GameDataString
     public string vehicleCustomizations;
     public string customizationsOwned;
 
-    public string materialProfitMultipliers;
     public string cratesAvailable;
     public string progressToNextCrate;
     public string currentCoopVehicle;

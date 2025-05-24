@@ -34,10 +34,12 @@ public class RefineryUpgradePad : MonoBehaviour
     [Header("Proceed Panel")]
     public TextMeshProUGUI mineCounter;
     public TextMeshProUGUI upgradeRequirement;
+    public TextMeshProUGUI cashProceedAmountText;
     public Button proceedButton;
 
     int requiredOreIndex;
     int requiredOreUpgradeLevel;
+    double cashProceedAmount;
 
     void Awake()
     {
@@ -168,10 +170,42 @@ public class RefineryUpgradePad : MonoBehaviour
     // If player meets upgrade requirement, hide requirement and show the proceed amount
     public void CheckIfProceedAvailable()
     {
-        if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
+        // Requirement not met
+        if (GetOreUpgradeLevel(requiredOreIndex) < requiredOreUpgradeLevel)
         {
-            proceedButton.interactable = true;
+            return;
         }
+
+        proceedButton.interactable = true;
+        proceedButton.transform.GetChild(0).gameObject.SetActive(false);
+
+        // Show user cash amount required for uprade
+        upgradeRequirement.gameObject.SetActive(false);
+
+        cashProceedAmount = GetCashProceedAmount();
+        cashProceedAmountText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashProceedAmount));
+        cashProceedAmountText.transform.parent.gameObject.SetActive(true);
+    }
+
+    public void ProceedToNextVehicle()
+    {
+        if (cashProceedAmount == 0)
+        {
+            cashProceedAmount = GetCashProceedAmount();
+        }
+
+        if (!playerState.VerifyEnoughCash(new System.Numerics.BigInteger(cashProceedAmount)))
+        {
+            uIDelegation.ShowError("NOT ENOUGH CASH!");
+            //return;
+        }
+
+        // Player can proceed
+        playerState.ProceedToNextMine();
+    }
+
+    private double GetCashProceedAmount() {
+        return GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
     }
 
     public void PurchaseOreUpgrade(int oreIndex)
@@ -186,13 +220,10 @@ public class RefineryUpgradePad : MonoBehaviour
 
         playerState.SubtractCash(price);
         UpgradeOre(oreIndex);
-        Debug.Log(oreIndex + ": " + GetOreUpgradeLevel(oreIndex));
         audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
 
         // Redisplay the proper prices by clearing everything and generating again 
         // inefficient, but it's very simple and performance isn't demanding here. Also player doesn't even notice
-        /*oreDelegation.ClearGrid();
-        oreDelegation.PrepareGrid();*/
         oreDelegation.UpdateOreMaterialPanelText(oreIndex);
 
         CheckIfProceedAvailable();
@@ -217,12 +248,23 @@ public class RefineryUpgradePad : MonoBehaviour
         return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, oreUpgradeLevel));
     }
 
+    public double GetActualMaterialPriceAtLevel(int oreIndex, int level)
+    {
+        // Grows by 8% per level
+        return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, level));
+    }
+
     public double GetMaterialUpgradePrice(int oreIndex)
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
         // Upgrade price outpaces the material price. Grows by 12% instead of 8%. Also starts at 12 times the current material price
         return Math.Floor(GetActualMaterialPrice(oreIndex) * 12 * Math.Pow(1.12, oreUpgradeLevel));
+    }
+
+    public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
+    {
+        return Math.Floor(GetActualMaterialPriceAtLevel(oreIndex, level) * 12 * Math.Pow(1.12, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)
