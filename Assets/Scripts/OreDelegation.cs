@@ -123,7 +123,7 @@ public class OreDelegation : MonoBehaviour
 
         Transform buttonTransform = materialUpgradePriceTexts[oreIndex].transform.parent.parent;
         // 500 is max level currently
-        if (mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(oreIndex) >= 500)
+        if (mineRenderer.refineryUpgradePad.GetOreUpgradeLevel(oreIndex) >= mineRenderer.refineryUpgradePad.GetMaxOreLevel())
         {
             // Disable button if max
             buttonTransform.GetComponent<Button>().interactable = false;

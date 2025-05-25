@@ -21,6 +21,7 @@ public class RefineryUpgradePad : MonoBehaviour
     // key: oreIndex, value: level
     public SerializableDictionary<int, int> oreUpgrades;
     private long[] originalMaterialPrices;
+    private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500 };
 
     [Header("Tab Delegation")]
     [SerializeField] GameObject refineryScreen;
@@ -40,6 +41,9 @@ public class RefineryUpgradePad : MonoBehaviour
     int requiredOreIndex;
     int requiredOreUpgradeLevel;
     double cashProceedAmount;
+
+    const float orePriceMultiplierPerLevel = 1.08f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.2f;
 
     void Awake()
     {
@@ -136,34 +140,57 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
 
+        // 10
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
-            requiredOreUpgradeLevel = 10;
+            requiredOreUpgradeLevel = upgradeMilestones[0];
         }
+        // 25
         else if (mineCount == 2)
         {
             requiredOreIndex = 1;
-            requiredOreUpgradeLevel = 25;
+            requiredOreUpgradeLevel = upgradeMilestones[1];
         }
+        // 50
         else if (mineCount == 3)
         {
             requiredOreIndex = 5;
-            requiredOreUpgradeLevel = 50;
+            requiredOreUpgradeLevel = upgradeMilestones[2];
         }
         else if (mineCount >= 4)
         {
             requiredOreIndex = 8;
-            //requiredOreUpgradeLevel =
 
-            // Max level is currently 500
-            if (requiredOreUpgradeLevel > 500) {
-                requiredOreUpgradeLevel = 500;
+            // 100
+            if (mineCount == 4)
+            {
+                requiredOreUpgradeLevel = upgradeMilestones[4];
+            }
+            // 200
+            else if (mineCount == 5)
+            {
+                requiredOreUpgradeLevel = upgradeMilestones[6];
+            }
+            // 300
+            else if (mineCount == 6)
+            {
+                requiredOreUpgradeLevel = upgradeMilestones[8];
+            }
+            // 400
+            else if (mineCount == 7)
+            {
+                requiredOreUpgradeLevel = upgradeMilestones[9];
+            }
+            // 500
+            else if (mineCount >= 8)
+            {
+                requiredOreUpgradeLevel = upgradeMilestones[10];
             }
         }
-        
+
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", mineRenderer.selectedMaterialNames[requiredOreIndex], requiredOreUpgradeLevel);
-        
+
         CheckIfProceedAvailable();
     }
 
@@ -245,26 +272,61 @@ public class RefineryUpgradePad : MonoBehaviour
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
         // Grows by 8% per level
-        return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, oreUpgradeLevel));
+        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(oreUpgradeLevel));
     }
 
     public double GetActualMaterialPriceAtLevel(int oreIndex, int level)
     {
-        // Grows by 8% per level
-        return Math.Floor(originalMaterialPrices[oreIndex] * Math.Pow(1.08, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level));
+    }
+
+    public double GetOrePriceMultiplier(int level)
+    {
+        double multiplier = 1;
+
+        int lastMilestone = 0;
+
+        Debug.Log(level);
+
+        for (int i = 0; i != upgradeMilestones.Length; i++)
+        {
+            // If level passes the next milestone
+            if (level >= upgradeMilestones[i])
+            {
+                // Multiply from the last milestone up to 1 less than the next milestone
+                multiplier *= Math.Pow(orePriceMultiplierPerLevel, (upgradeMilestones[i] - 1) - lastMilestone);
+
+                // Double it because it reached the next milestone
+                multiplier *= 2;
+
+                // Set last milestone
+                lastMilestone = upgradeMilestones[i];
+            }
+            // If it doesn't
+            else
+            {
+                // Multiply from the last milestone up to the current level
+                multiplier *= Math.Pow(orePriceMultiplierPerLevel, level - lastMilestone);
+                break;
+            }
+        }
+
+        Debug.Log(multiplier);
+
+        return multiplier;
     }
 
     public double GetMaterialUpgradePrice(int oreIndex)
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
-        // Upgrade price outpaces the material price. Grows by 12% instead of 8%. Also starts at 12 times the current material price
-        return Math.Floor(GetActualMaterialPrice(oreIndex) * 12 * Math.Pow(1.12, oreUpgradeLevel));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 12 times the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * 12 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
     {
-        return Math.Floor(GetActualMaterialPriceAtLevel(oreIndex, level) * 12 * Math.Pow(1.12, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * 12 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)
@@ -277,5 +339,9 @@ public class RefineryUpgradePad : MonoBehaviour
 
         // Has been upgraded
         return oreUpgrades[oreIndex];
+    }
+
+    public int GetMaxOreLevel() {
+        return upgradeMilestones[upgradeMilestones.Length - 1];
     }
 }
