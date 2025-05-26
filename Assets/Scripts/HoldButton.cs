@@ -26,7 +26,6 @@ public class HoldButton : MonoBehaviour,
         yield return new WaitForSecondsRealtime(initialDelay);
         while (true)
         {
-            Debug.Log("Firing");
             Fire();
             yield return new WaitForSecondsRealtime(repeatRate);
         }

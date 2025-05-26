@@ -258,6 +258,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
         {
+            
+            if (materialsMined[i] <= 0)
+            {
+                continue;
+            }
+            
             cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
             change += materialsMined[i];
         }

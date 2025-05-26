@@ -246,14 +246,26 @@ public class RefineryUpgradePad : MonoBehaviour
         }
 
         playerState.SubtractCash(price);
+        // Get it before, then add one, in case there's a small delay and player is spam buying
+        int newLevel = GetOreUpgradeLevel(oreIndex) + 1;
         UpgradeOre(oreIndex);
-        audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
 
-        // Redisplay the proper prices by clearing everything and generating again 
-        // inefficient, but it's very simple and performance isn't demanding here. Also player doesn't even notice
-        oreDelegation.UpdateOreMaterialPanelText(oreIndex);
+        // If a milestone was reached, display a special effect, otherwise do nothing
+        bool reachedMilestone = false;
+        for (int i = 0; i != upgradeMilestones.Length; i++)
+        {
+            if (newLevel == upgradeMilestones[i])
+            {
+                reachedMilestone = true;
+                break;
+            }
+        }
+
+        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone);
 
         CheckIfProceedAvailable();
+
+        audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
     }
 
     private void UpgradeOre(int oreIndex)
@@ -286,8 +298,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
         int lastMilestone = 0;
 
-        Debug.Log(level);
-
         for (int i = 0; i != upgradeMilestones.Length; i++)
         {
             // If level passes the next milestone
@@ -310,8 +320,6 @@ public class RefineryUpgradePad : MonoBehaviour
                 break;
             }
         }
-
-        Debug.Log(multiplier);
 
         return multiplier;
     }
@@ -341,7 +349,50 @@ public class RefineryUpgradePad : MonoBehaviour
         return oreUpgrades[oreIndex];
     }
 
-    public int GetMaxOreLevel() {
+    public int GetNextOreMilestone(int oreIndex)
+    {
+        // Returns the next milestone for the ore to reach
+        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+
+        int milestone = upgradeMilestones[0];
+
+        // Start at 2nd index
+        for (int i = 1; i != upgradeMilestones.Length; i++)
+        {
+            // Check if smaller than the last milestone
+            if (oreUpgradeLevel < upgradeMilestones[i - 1])
+            {
+                break;
+            }
+
+            milestone = upgradeMilestones[i];
+        }
+
+        return milestone;
+    }
+
+    public int GetLastOreMilestone(int oreIndex)
+    {
+        // Returns the last milestone the ore reached
+        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+
+        int milestone = 0;
+
+        for (int i = 0; i != upgradeMilestones.Length; i++)
+        {
+            if (oreUpgradeLevel < upgradeMilestones[i])
+            {
+                break;
+            }
+
+            milestone = upgradeMilestones[i];
+        }
+
+        return milestone;
+    }
+
+    public int GetMaxOreLevel()
+    {
         return upgradeMilestones[upgradeMilestones.Length - 1];
     }
 }
