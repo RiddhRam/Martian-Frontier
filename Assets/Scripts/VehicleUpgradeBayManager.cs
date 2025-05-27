@@ -61,7 +61,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    private JoystickMovement joystickMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
     public bool loaded = false;
 
@@ -109,7 +108,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     void Awake()
     {
-        joystickMovement = JoystickMovement.Instance;
+        // Set heat button click listener and hold to purchase
+        Transform heatButton = heatUpgradePriceText.transform.parent.parent;
+        heatButton.GetComponent<Button>().onClick.AddListener(() => PurchaseUpgrade("Heat"));
+
+        HoldButton heatHoldButton = heatButton.gameObject.AddComponent<HoldButton>();
+        heatHoldButton.SetAction(() => PurchaseUpgrade("Heat"));
+
+        // Set cool button click listener and hold to purchase
+        Transform coolButton = coolUpgradePriceText.transform.parent.parent;
+        coolButton.GetComponent<Button>().onClick.AddListener(() => PurchaseUpgrade("Cooldown"));
+
+        HoldButton coolHoldButton = coolButton.gameObject.AddComponent<HoldButton>();
+        coolHoldButton.SetAction(() => PurchaseUpgrade("Cooldown"));
     }
 
     void OnTriggerEnter2D(Collider2D collision) {
@@ -137,7 +148,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         uIDelegation.RevealElement(upgradeBayPanel);
 
         // Stop player from moving;
-        joystickMovement.joystickVec = Vector2.zero;
+        JoystickMovement.Instance.joystickVec = Vector2.zero;
     }
 
     public void MatchPlayerDrillToDrill() {
@@ -576,21 +587,27 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         EquipCustomization();
     }
 
-    public void PurchaseUpgrade(string type) {
+    // Returns false if player can't afford upgrade, true otherwise
+    public bool PurchaseUpgrade(string type)
+    {
 
         // Find upgrade price
         long upgradePrice;
 
-        if (type == "Cooldown") {
+        if (type == "Cooldown")
+        {
             upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
-        } else {
+        }
+        else
+        {
             upgradePrice = upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
         }
-        
+
         // Transact amount
-        if (!playerState.VerifyEnoughCash(upgradePrice)) {
+        if (!playerState.VerifyEnoughCash(upgradePrice))
+        {
             uIDelegation.ShowError("NOT ENOUGH CASH!");
-            return;
+            return false;
         }
 
         playerState.SubtractCash(upgradePrice);
@@ -601,6 +618,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Update displays and drill
         MatchPlayerDrillToDrill();
         UpdateUpgradeDetails(type);
+
+        return true;
     }
 
     public void UpdateUpgradeDetails(string flashPower = null) {

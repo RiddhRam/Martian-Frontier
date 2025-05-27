@@ -9,13 +9,12 @@ public class HoldButton : MonoBehaviour,
                            IPointerExitHandler
 {
     /// <summary>Action executed while the pointer is held down.</summary>
-    public Action OnHold;
+    public Func<bool> OnHold;
     const float initialDelay = 0.8f;
     const float repeatRate   = 0.1f;
 
     Coroutine _loop;
 
-    bool heldDown = false;
 
     public void OnPointerDown(PointerEventData _) { _loop = StartCoroutine(HoldLoop()); }
     public void OnPointerUp  (PointerEventData _)   => StopHold();
@@ -23,15 +22,25 @@ public class HoldButton : MonoBehaviour,
 
     IEnumerator HoldLoop()
     {
+
         yield return new WaitForSecondsRealtime(initialDelay);
+
         while (true)
         {
-            Fire();
+            // If there was an issue with executing the function, then stop executing
+            if (!Fire())
+            {
+                yield break;
+            }
+
             yield return new WaitForSecondsRealtime(repeatRate);
         }
     }
 
-    void Fire() => OnHold?.Invoke();
+    bool Fire()
+    {
+        return OnHold.Invoke();
+    }
 
     void StopHold()
     {
@@ -42,6 +51,6 @@ public class HoldButton : MonoBehaviour,
         }
     }
 
-    /// <summary>Assign action at runtime if desired.</summary>
-    public void SetAction(Action action) => OnHold = action;
+    /// All function must return a bool
+    public void SetAction(Func<bool> action) => OnHold = action;
 }

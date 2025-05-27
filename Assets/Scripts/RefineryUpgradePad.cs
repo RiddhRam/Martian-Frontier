@@ -235,14 +235,15 @@ public class RefineryUpgradePad : MonoBehaviour
         return GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
     }
 
-    public void PurchaseOreUpgrade(int oreIndex)
+    // Returns false if player can't afford upgrade, true otherwise
+    public bool PurchaseOreUpgrade(int oreIndex)
     {
         System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
 
         if (!playerState.VerifyEnoughCash(price))
         {
             uIDelegation.ShowError("NOT ENOUGH CASH!");
-            return;
+            return false;
         }
 
         playerState.SubtractCash(price);
@@ -266,6 +267,8 @@ public class RefineryUpgradePad : MonoBehaviour
         CheckIfProceedAvailable();
 
         audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
+
+        return true;
     }
 
     private void UpgradeOre(int oreIndex)
@@ -328,13 +331,13 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
-        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 12 times the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * 12 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at half the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
     {
-        return Math.Floor(originalMaterialPrices[oreIndex] * 12 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)

@@ -23978,6 +23978,7 @@ GameObject:
   - component: {fileID: 243972812549380220}
   - component: {fileID: 3199516846991094060}
   - component: {fileID: 5233258070340828460}
+  - component: {fileID: 8531007756859009564}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -24086,19 +24087,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 243972812549380220}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: VehicleUpgradeBayManager, Scripts
-        m_MethodName: PurchaseUpgrade
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Cooldown
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5233258070340828460
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24113,6 +24102,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &8531007756859009564
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3760066538068842192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c0a78e79bc9042d58897e998fea7ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3797971321034650679
 GameObject:
   m_ObjectHideFlags: 0
@@ -59290,6 +59291,7 @@ GameObject:
   - component: {fileID: 2085151608341459785}
   - component: {fileID: 62203582716342936}
   - component: {fileID: 5804651699762327060}
+  - component: {fileID: 1048403668736435346}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -59398,19 +59400,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2085151608341459785}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: VehicleUpgradeBayManager, Scripts
-        m_MethodName: PurchaseUpgrade
-        m_Mode: 5
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: Heat
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &5804651699762327060
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -59425,6 +59415,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &1048403668736435346
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8973504000319152801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8c0a78e79bc9042d58897e998fea7ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8980263410755614014
 GameObject:
   m_ObjectHideFlags: 0
