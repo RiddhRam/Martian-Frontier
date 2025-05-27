@@ -173,8 +173,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     private int GetHeatLimit(DrillerController originalDrillerController) {
+        // Starts at 90
         // 10 endurance per level
-        return originalDrillerController.endurance + (heatBonusPerLevel * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat"));
+        return 90 + (heatBonusPerLevel * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat"));
     }
 
     private float GetCoolRate(DrillerController originalDrillerController) {

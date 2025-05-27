@@ -131,7 +131,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         loaded = true;
 
         // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
-        int nextIndex = GetNextVehicleIndex();
+        int nextIndex = GetNextVehicleIndex(data.mineCount);
         refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
@@ -181,9 +181,10 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return 0;
     }
 
-    public int GetNextVehicleIndex()
+    public int GetNextVehicleIndex(int mineCount)
     {
-        return (FindVehicle(currentVehicle, false) + 1) % vehicleUpgradeBayManager.drillUIPositions.Length;
+        // No need to do mineCount + 1, because mineCount is not zero indexed
+        return (mineCount) % vehicleUpgradeBayManager.drillUIPositions.Length;
     }
 
     // Check to see if this vehicle was merged into another in a previous update

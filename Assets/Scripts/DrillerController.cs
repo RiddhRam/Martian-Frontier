@@ -41,7 +41,7 @@ public class DrillerController : MonoBehaviour
 
     // Endurance
     private float drillHeat = 0;
-    private const float heatCooldownDelay = 0.25f;
+    private const float heatCooldownDelay = 0.5f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 
@@ -56,6 +56,9 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
+
+    float time = 0;
+    int count = 0;
 
     bool minedSomething;
     public bool isNPC = false;
@@ -161,17 +164,29 @@ public class DrillerController : MonoBehaviour
         // Drill overheat
         float timeSinceLastMine = Time.time - lastMineTime;
         
-        if (minedSomething) {
+        if (minedSomething)
+        {
             // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 4) * 0.34f;
+                // 0.34f = fixed coefficency
+                // 0.09f = average time since last mine for small drills. 
+                // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
+                // 0.17f / 0.09f = 1.88f which helps balance the larger drills
+                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 4) * 0.34f * (timeSinceLastMine / 0.09f);
 
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+
+                // Gives average time since last mine
+                /*time += timeSinceLastMine;
+                count++;
+                Debug.Log(time/count);*/
             }
 
             lastMineTime = Time.time;
-        } else {
+        }
+        else
+        {
             // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
