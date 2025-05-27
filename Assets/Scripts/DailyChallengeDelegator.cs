@@ -58,7 +58,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     // Related to the above challenge types
     // This will be multiplied to determine the goal the player needs to reach, 
     // then multiplied by the difficulty to determine the reward
-    private int[] baseGoalAmount = {5, 150, 80};
+    private int[] baseGoalAmount = {5, 250, 160};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
