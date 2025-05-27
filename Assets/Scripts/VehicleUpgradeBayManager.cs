@@ -590,7 +590,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // Returns false if player can't afford upgrade, true otherwise
     public bool PurchaseUpgrade(string type)
     {
-
         // Find upgrade price
         long upgradePrice;
 

@@ -402,8 +402,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(double rewardAmount) {
 
-        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is 0
-        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount <= 0) {
+        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is less than 1000
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount < 1000) {
             yield break;
         }
 
