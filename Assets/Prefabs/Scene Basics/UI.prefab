@@ -16788,9 +16788,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 1000
+  m_MaxValue: 55
   m_WholeNumbers: 1
-  m_Value: 0
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -23995,6 +23995,7 @@ GameObject:
   - component: {fileID: 3199516846991094060}
   - component: {fileID: 5233258070340828460}
   - component: {fileID: 8531007756859009564}
+  - component: {fileID: 2314338078919462425}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -24128,6 +24129,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c0a78e79bc9042d58897e998fea7ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &2314338078919462425
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3760066538068842192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &3797971321034650679
@@ -45318,9 +45331,9 @@ MonoBehaviour:
   m_HandleRect: {fileID: 0}
   m_Direction: 0
   m_MinValue: 0
-  m_MaxValue: 325
+  m_MaxValue: 55
   m_WholeNumbers: 1
-  m_Value: 0
+  m_Value: 5
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
@@ -47747,10 +47760,10 @@ RectTransform:
   - {fileID: 5173322568797854889}
   m_Father: {fileID: 1460200139386938639}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 319.45, y: 100}
+  m_AnchorMin: {x: 0, y: 1}
+  m_AnchorMax: {x: 0, y: 1}
+  m_AnchoredPosition: {x: 569.9623, y: -63.25125}
+  m_SizeDelta: {x: 340.93, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &128397628922537980
 MonoBehaviour:
@@ -59324,6 +59337,7 @@ GameObject:
   - component: {fileID: 62203582716342936}
   - component: {fileID: 5804651699762327060}
   - component: {fileID: 1048403668736435346}
+  - component: {fileID: 7737126877345405048}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -59457,6 +59471,18 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 8c0a78e79bc9042d58897e998fea7ef7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &7737126877345405048
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8973504000319152801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &8980263410755614014

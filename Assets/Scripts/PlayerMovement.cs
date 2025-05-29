@@ -200,7 +200,7 @@ public class PlayerMovement : MonoBehaviour
     private IEnumerator ShowFloatingText() {
 
         // Show text and icon
-        cashEarnedText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashToShow));
+        cashEarnedText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashToShow), 1);
         float alphaValue = 1;
         cashEarnedText.alpha = alphaValue;
         cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
@@ -240,8 +240,8 @@ public class PlayerMovement : MonoBehaviour
             float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
 
             // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 4.6f;
-            float y = Mathf.Cos(angle) * 4.6f;
+            float x = Mathf.Sin(angle) * 5.2f;
+            float y = Mathf.Cos(angle) * 5.2f;
 
             sliderCanvas.localPosition = new Vector3(x, y, 0);
 

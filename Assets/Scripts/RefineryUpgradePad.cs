@@ -15,13 +15,13 @@ public class RefineryUpgradePad : MonoBehaviour
 
     [Header("Audio")]
     [SerializeField] AudioClip oreUpgradeSound;
-    [SerializeField] AudioSource uIAudio;
+    [SerializeField] AudioSource oreSoundEffectsSource;
 
     [Header("Upgrades")]
     // key: oreIndex, value: level
     public SerializableDictionary<int, int> oreUpgrades;
     private long[] originalMaterialPrices;
-    private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250, 300, 400, 500 };
+    private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250, 300 };
 
     [Header("Tab Delegation")]
     [SerializeField] GameObject refineryScreen;
@@ -136,8 +136,7 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer)
-    {
+    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer) {
         mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
 
         // 10
@@ -173,19 +172,9 @@ public class RefineryUpgradePad : MonoBehaviour
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }
             // 300
-            else if (mineCount == 6)
+            else if (mineCount >= 6)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[8];
-            }
-            // 400
-            else if (mineCount == 7)
-            {
-                requiredOreUpgradeLevel = upgradeMilestones[9];
-            }
-            // 500
-            else if (mineCount >= 8)
-            {
-                requiredOreUpgradeLevel = upgradeMilestones[10];
             }
         }
 
@@ -203,13 +192,18 @@ public class RefineryUpgradePad : MonoBehaviour
             return;
         }
 
-        proceedButton.interactable = true;
+        cashProceedAmount = GetCashProceedAmount();
+
         proceedButton.transform.GetChild(0).gameObject.SetActive(false);
 
-        // Show user cash amount required for uprade
+        // Interactable if player can afford or not
+        ButtonAffordability buttonAffordability = proceedButton.GetComponent<ButtonAffordability>();
+        buttonAffordability.price = new System.Numerics.BigInteger(cashProceedAmount);
+        buttonAffordability.enabled = true;
+        
         upgradeRequirement.gameObject.SetActive(false);
 
-        cashProceedAmount = GetCashProceedAmount();
+        // Show user cash amount required for upgrade
         cashProceedAmountText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashProceedAmount));
         cashProceedAmountText.transform.parent.gameObject.SetActive(true);
     }
@@ -223,8 +217,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         if (!playerState.VerifyEnoughCash(new System.Numerics.BigInteger(cashProceedAmount)))
         {
-            uIDelegation.ShowError("NOT ENOUGH CASH!");
-            //return;
+            return;
         }
 
         // Player can proceed
@@ -242,7 +235,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
         if (!playerState.VerifyEnoughCash(price))
         {
-            uIDelegation.ShowError("NOT ENOUGH CASH!");
             return false;
         }
 
@@ -266,7 +258,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         CheckIfProceedAvailable();
 
-        audioDelegator.PlayAudio(uIAudio, oreUpgradeSound, 0.2f);
+        audioDelegator.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
 
         return true;
     }

@@ -351,8 +351,22 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     // The FormatPrice in other places is slightly different. 
-    public string FormatPrice(BigInteger price)
+    public string FormatPrice(BigInteger price, int decimalPoints = 2)
     {
+        string decimalTags = "0";
+
+        // needs this to indicate decimals
+        if (decimalPoints > 0)
+        {
+            decimalTags = "0.";
+        }
+
+        // Default is 2 if not specified
+        for (int i = 0; i != decimalPoints; i++)
+        {
+            decimalTags += "#"; // 1 # = 1 extra decimal point
+        }
+
         if (price >= 1_000_000_000_000_000)
         {
             // determine the 1000-power group
@@ -376,27 +390,27 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             char c2 = (char)('a' + second);
             string suffix = $"{c1}{c2}";
 
-            return value.ToString("0.##") + suffix;
+            return value.ToString(decimalTags) + suffix;
         }
         else if (price >= 1_000_000_000_000)
         {
             // Truncate to 2 decimal places and format with "T"
-            return (Mathf.Floor((float)price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
+            return (Mathf.Floor((float)price / 1_000_000_000_000f * 1000) / 1000).ToString(decimalTags) + "T";
         }
         else if (price >= 1_000_000_000)
         {
             // Truncate to 2 decimal places and format with "B"
-            return (Mathf.Floor((float)price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
+            return (Mathf.Floor((float)price / 1_000_000_000f * 1000) / 1000).ToString(decimalTags) + "B";
         }
         else if (price >= 1_000_000)
         {
             // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float)price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+            return (Mathf.Floor((float)price / 1_000_000f * 1000) / 1000).ToString(decimalTags) + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float)price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+            return (Mathf.Floor((float)price / 1_000f * 1000) / 1000).ToString(decimalTags) + "K";
         }
 
         // Return the original price as a string for smaller numbers

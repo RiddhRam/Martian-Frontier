@@ -173,6 +173,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
         increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialTimer));
 
+        Debug.LogFormat("MINED: {0}, SOLD: {1}", mineRenderer.currentOresMined, playerState.materialsSold);
+
         mineRenderer.currentOresMined = 0;
         mineRenderer.oresMinedText.text = "0";
 
@@ -291,7 +293,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateCashText() {
-        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine);
+        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine, 1);
     }
 
     public void PlaySaleNoise() {

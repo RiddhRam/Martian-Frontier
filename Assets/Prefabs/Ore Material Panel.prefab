@@ -719,6 +719,8 @@ GameObject:
   - component: {fileID: 3652763368426852589}
   - component: {fileID: 822450433362709898}
   - component: {fileID: 9096826574074838912}
+  - component: {fileID: 7234877981437941739}
+  - component: {fileID: 893396429221285748}
   m_Layer: 0
   m_Name: Upgrade BUTTON
   m_TagString: Untagged
@@ -855,6 +857,33 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.985
   shrinkSpeed: 10
+--- !u!114 &7234877981437941739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3244442637430749010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &893396429221285748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3244442637430749010}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3629894253646433275
 GameObject:
   m_ObjectHideFlags: 0

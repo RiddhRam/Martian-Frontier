@@ -62,7 +62,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public UIDelegation uIDelegation;
     public PlayerState playerState;
     public PlayerVehicleDelegation playerVehicleDelegation;
+    [SerializeField] AudioDelegator audioDelegator;
     public bool loaded = false;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip upgradeSound;
+    [SerializeField] AudioSource oreSoundEffectsSource;
 
     [Header("For Tutorial")]
     public bool flashButton;
@@ -72,35 +77,67 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
 
-    const int heatBonusPerLevel = 10; // 10 endurance per level
-
     const int coolTimesPerSecond = 50; // 50 fps
-    const float coolPerFrame = 0.12f; // 0.12f * 50 = 6 second per level
 
-    // 50-level curve: 5 000 → 1 500 000, total ≈ 10 118 400
-
-    private static readonly int[] upgradeHeatPrices = new int[]
+    // 50-level curve: 25 000 → 3 000 000 000
+    private static readonly uint[] upgradeHeatPrices = new uint[]
     {
-        5_000, 5_200, 5_300, 5_600, 5_800,
-        6_100, 6_400, 6_800, 7_300, 7_800,
-        8_400, 9_200, 10_000, 11_000, 12_100,
-        13_400, 15_000, 16_900, 19_100, 21_700,
-        24_700, 28_200, 32_200, 32_800, 38_000,
-        44_000, 50_800, 58_500, 67_400, 77_700,
-        89_600, 103_700, 120_000, 138_900, 160_700,
-        185_600, 215_500, 250_200, 290_500, 337_200,
-        345_300, 400_900, 465_400, 540_300, 627_300,
-        728_300, 845_500, 981_600, 1_139_500, 1_500_000
+        25_000,    32_000,    40_000,    51_000,    65_000,
+        82_000,   100_000,   130_000,   170_000,   210_000,
+        270_000,   350_000,   440_000,   560_000,   710_000,
+        900_000, 1_100_000, 1_400_000, 1_800_000, 2_300_000,
+        3_000_000, 3_800_000, 4_800_000, 6_100_000, 7_700_000,
+        9_800_000,12_000_000,16_000_000,20_000_000,25_000_000,
+        32_000_000,41_000_000,52_000_000,66_000_000,84_000_000,
+        110_000_000,130_000_000,170_000_000,220_000_000,280_000_000,
+        350_000_000,440_000_000,560_000_000,720_000_000,910_000_000,
+        1_200_000_000,1_500_000_000,1_900_000_000,
+        2_400_000_000,
+        3_000_000_000
     };
 
-    // 50-level curve: 1 000 → 500 000, total ≈ 5 000 600
+    // 51 values
+    private static readonly int[] upgradeHeatValues = new int[] {
+        90,    100,   110,   130,   140,
+        160,   180,   200,   220,   250,
+        280,   320,   350,   400,   440,
+        500,   560,   630,   700,   790,
+        880,   990,   1100,  1200,  1400,
+        1600,  1700,  2000,  2200,  2500,
+        2800,  3100,  3500,  3900,  4300,
+        4900,  5500,  6100,  6800,  7000,
+        7500,  8000,  8500, 9000, 9500,
+        10000, 12000, 14000, 16000, 18000, 21000
+    };
+
+    // 50-level curve: 10 000 → 1 500 000 000
     private static readonly int[] upgradeCoolPrices = new int[]
     {
-        1000, 1200, 1300, 1500, 1800, 2100, 2400, 2700, 3200, 3700,
-        4200, 4900, 5600, 6500, 7500, 8700, 10000, 11600, 13400, 15500,
-        17900, 20600, 23800, 27500, 31800, 36700, 42400, 48900, 56500, 65300,
-        75400, 83300, 91900, 101500, 112000, 123700, 136500, 150700, 166400, 183700,
-        202800, 223900, 247200, 272900, 301300, 332700, 367300, 405400, 447600, 494200
+        10_000,     13_000,     16_000,     21_000,     26_000,
+        34_000,     43_000,     55_000,     70_000,     89_000,
+        110_000,    150_000,    190_000,    240_000,    300_000,
+        380_000,    490_000,    620_000,    800_000,  1_000_000,
+        1_300_000,  1_700_000,  2_100_000,  2_700_000,  3_400_000,
+        4_400_000,  5_600_000,  7_100_000,  9_100_000, 12_000_000,
+        15_000_000, 19_000_000, 24_000_000, 31_000_000, 39_000_000,
+        50_000_000, 64_000_000, 81_000_000,100_000_000,130_000_000,
+        170_000_000,210_000_000,270_000_000,350_000_000,440_000_000,
+        570_000_000,720_000_000,920_000_000,1_200_000_000,1_500_000_000
+    };
+
+    // 51 values
+    private static readonly float[] upgradeCoolValues = new float[]
+    {
+        0.50f, 0.57f, 0.65f, 0.74f, 0.85f,
+        0.97f, 1.1f,  1.3f,  1.4f,  1.6f,
+        1.9f,  2.1f,  2.4f,  2.8f,  3.2f,
+        3.6f,  4.2f,  4.8f,  5.4f,  6.2f,
+        7.1f,  8.1f,  9.2f,  11f,   12f,
+        14f,   16f,   18f,   21f,   24f,
+        27f,   31f,   35f,   40f,   46f,
+        53f,   60f,   69f,   78f,   88f,
+        100f,  110f,  130f,  150f,  170f,
+        190f,  220f,  250f,  290f,  320f, 350f
     };
 
     private Coroutine heatValueTextCoroutine;
@@ -186,12 +223,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private int GetHeatLimit(DrillerController originalDrillerController) {
         // Starts at 90
         // 10 endurance per level
-        return 90 + (heatBonusPerLevel * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat"));
+        return upgradeHeatValues[GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat")];
     }
 
     private float GetCoolRate(DrillerController originalDrillerController) {
         // 6 per level (0.12f per update, and 50fps)
-        return originalDrillerController.GetCoolRate() + (coolPerFrame * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Cooldown"));
+        return upgradeCoolValues[GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Cooldown")];
     }
 
     // Find the selected body sprite the user chose
@@ -593,6 +630,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Find upgrade price
         long upgradePrice;
 
+        // Throws an out of bounds error when player uses hold to purchase, but doesn't matter because it doesn't break anything
         if (type == "Cooldown")
         {
             upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
@@ -605,7 +643,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Transact amount
         if (!playerState.VerifyEnoughCash(upgradePrice))
         {
-            uIDelegation.ShowError("NOT ENOUGH CASH!");
             return false;
         }
 
@@ -618,14 +655,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         MatchPlayerDrillToDrill();
         UpdateUpgradeDetails(type);
 
+        audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
+
         return true;
     }
 
     public void UpdateUpgradeDetails(string flashPower = null) {
-        // Update heat limit
-        heatUpgradeSlider.value = drillerController.endurance;
+        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
 
-        TextMeshProUGUI heatValueText =  heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        // Update heat limit
+        // Slider is offset by 6
+        heatUpgradeSlider.value = heatLevel + 6;
+
+        TextMeshProUGUI heatValueText = heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         heatValueText.text = drillerController.endurance.ToString();
 
         if (flashPower == "Heat") {
@@ -636,27 +678,32 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             heatValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(heatValueText));
         }
 
-        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
-        
         // If max level
-        if (heatLevel >= upgradeHeatPrices.Length) {
+        if (heatLevel >= upgradeHeatPrices.Length)
+        {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             heatUpgradePriceText.text = "MAX";
-        } else {
+        }
+        else
+        {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
-            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeHeatPrices[heatLevel];
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
             heatUpgradePriceText.text = playerState.FormatPrice(upgradeHeatPrices[heatLevel]);
         }
         
-        // Update cool rate
-        coolUpgradeSlider.value = drillerController.GetCoolRate() * coolTimesPerSecond;
+        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
 
-        TextMeshProUGUI coolValueText =  coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        // Update cool rate
+        // Slider is offset by 6
+        coolUpgradeSlider.value = coolLevel + 6;
+
+        TextMeshProUGUI coolValueText = coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         coolValueText.text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
 
         if (flashPower == "Cooldown") {
@@ -667,7 +714,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(coolValueText));
         }
         
-        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
         // If max level
         if (coolLevel >= upgradeCoolPrices.Length) {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -678,6 +724,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         } else {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[coolLevel];
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
             coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);

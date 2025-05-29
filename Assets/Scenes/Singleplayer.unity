@@ -889,7 +889,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 880, y: -1014.9317}
+  m_AnchoredPosition: {x: 880, y: -1014.93164}
   m_SizeDelta: {x: 1000, y: 611.69}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &228704947 stripped
@@ -27187,7 +27187,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 880, y: -1880.9626}
+  m_AnchoredPosition: {x: 880, y: -1880.9628}
   m_SizeDelta: {x: 1617.69, y: 326.71}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1087366065 stripped
@@ -28520,7 +28520,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 2.0898557, y: 0, z: 0, w: 0}
+  m_margin: {x: 1.4736118, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   _SortingLayer: 0
@@ -28837,6 +28837,7 @@ GameObject:
   - component: {fileID: 1541338336}
   - component: {fileID: 1541338335}
   - component: {fileID: 1541338334}
+  - component: {fileID: 1541338338}
   m_Layer: 5
   m_Name: PROCEED
   m_TagString: Untagged
@@ -28973,6 +28974,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1541338332}
   m_CullTransparentMesh: 1
+--- !u!114 &1541338338
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1541338332}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1559230167 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4541937841233656485, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -33697,10 +33710,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 621577271152151580, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      propertyPath: m_Value
-      value: 288
-      objectReference: {fileID: 0}
     - target: {fileID: 622194237310313137, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -34919,7 +34928,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2358057033184263987, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0
+      value: 0.09090909
       objectReference: {fileID: 0}
     - target: {fileID: 2358057033184263987, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -36123,7 +36132,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3934009443983573552, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
-      value: 0.288
+      value: 0.09090909
       objectReference: {fileID: 0}
     - target: {fileID: 3934009443983573552, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -41607,7 +41616,7 @@ MonoBehaviour:
   playerState: {fileID: 276248154}
   audioDelegator: {fileID: 178773787}
   oreUpgradeSound: {fileID: 8300000, guid: f898ee83a6a1d4995ba571e34e95b2da, type: 3}
-  uIAudio: {fileID: 421432858}
+  oreSoundEffectsSource: {fileID: 1683262029}
   oreUpgrades:
     keys: 
     values: 
@@ -41693,6 +41702,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 319486926}
     - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
+      propertyPath: audioDelegator
+      value: 
+      objectReference: {fileID: 178773787}
+    - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
       propertyPath: garageDelegator
       value: 
       objectReference: {fileID: 0}
@@ -41728,6 +41741,10 @@ PrefabInstance:
       propertyPath: heatUpgradePriceText
       value: 
       objectReference: {fileID: 1076626040}
+    - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
+      propertyPath: oreSoundEffectsSource
+      value: 
+      objectReference: {fileID: 1683262029}
     - target: {fileID: 7980692916062527447, guid: d62004763cd2a4a148b338b95bcdf9ef, type: 3}
       propertyPath: bodyOutlines.Array.size
       value: 3

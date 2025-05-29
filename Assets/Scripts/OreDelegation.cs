@@ -23,6 +23,8 @@ public class OreDelegation : MonoBehaviour
     [Header("UI")]
     public GameObject oreMaterialPanel;
     public GameObject contentGO;
+
+    // Track components of each ore panel
     private Outline[] orePanelOutlines;
     private Image[] orePanelOutlineBars;
     private TextMeshProUGUI[] materialLevelTexts;
@@ -30,6 +32,7 @@ public class OreDelegation : MonoBehaviour
     private TextMeshProUGUI[] materialUpgradePriceTexts;
     private Slider[] levelProgressBars;
     private RectTransform[] milestoneTransforms;
+    private ButtonAffordability[] buttonAffordabilities;
 
     private int[] oresPerTier;
     // Lowercase verion of materialNames
@@ -69,6 +72,7 @@ public class OreDelegation : MonoBehaviour
         materialUpgradePriceTexts = new TextMeshProUGUI[length];
         levelProgressBars = new Slider[length];
         milestoneTransforms = new RectTransform[length];
+        buttonAffordabilities = new ButtonAffordability[length];
 
         for (int i = 0; i != length; i++)
         {
@@ -109,6 +113,8 @@ public class OreDelegation : MonoBehaviour
             // Hold to purchase
             HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
             holdButton.SetAction(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+            // Button affordability
+            buttonAffordabilities[i] = panelTransform.GetChild(5).GetComponent<ButtonAffordability>();
 
             levelProgressBars[i] = panelTransform.GetChild(6).GetComponent<Slider>();
 
@@ -144,27 +150,37 @@ public class OreDelegation : MonoBehaviour
         materialLevelTexts[oreIndex].text = GetLocalizedValue("LEVEL {0}", refineryUpgradePad.GetOreUpgradeLevel(oreIndex));
 
         Transform buttonTransform = materialUpgradePriceTexts[oreIndex].transform.parent.parent;
+        Button button = buttonTransform.GetComponent<Button>();
+
+        System.Numerics.BigInteger newPrice = new(refineryUpgradePad.GetMaterialUpgradePrice(oreIndex));
+
+        // If player can't afford, make it disabled initially. Otherwise it will show up as interactable for a split second
+        button.interactable = !(newPrice > refineryUpgradePad.playerState.GetUserCash());
+        
         // 500 is max level currently
         if (refineryUpgradePad.GetOreUpgradeLevel(oreIndex) >= refineryUpgradePad.GetMaxOreLevel())
         {
-            // Disable button if max
-            buttonTransform.GetComponent<Button>().interactable = false;
-            buttonTransform.GetComponent<Image>().color = new(1, 0, 0);
-
             // Hide price tag, show MAX text
             buttonTransform.GetChild(0).gameObject.SetActive(false);
             buttonTransform.GetChild(1).gameObject.SetActive(true);
 
-            // Destroy hold button component
+            // Destroy hold button component, it may not have been added yet in some edge cases, that's why we do this
             if (buttonTransform.TryGetComponent(out HoldButton hold))
             {
                 Destroy(hold);
             }
+
+            Destroy(buttonAffordabilities[oreIndex]);
+
+            // Disable button if max
+            button.interactable = false;
+            buttonTransform.GetComponent<Image>().color = new(1, 0, 0);
         }
         else
         {
             // Update price text
-            materialUpgradePriceTexts[oreIndex].text = refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(refineryUpgradePad.GetMaterialUpgradePrice(oreIndex)));
+            materialUpgradePriceTexts[oreIndex].text = refineryUpgradePad.playerState.FormatPrice(newPrice);
+            buttonAffordabilities[oreIndex].price = newPrice;
         }
 
         int lastMilestone = refineryUpgradePad.GetLastOreMilestone(oreIndex);
