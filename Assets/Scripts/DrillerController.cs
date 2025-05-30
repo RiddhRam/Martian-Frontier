@@ -173,7 +173,7 @@ public class DrillerController : MonoBehaviour
                 // 0.09f = average time since last mine for small drills. 
                 // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
                 // 0.17f / 0.09f = 1.88f which helps balance the larger drills
-                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 4) * 0.34f * (timeSinceLastMine / 0.09f);
+                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
 
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
 
