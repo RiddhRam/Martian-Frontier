@@ -165,7 +165,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
-        playerVehicle.transform.SetPositionAndRotation(new(0, 3, 0), Quaternion.Euler(0, 0, 180));
+        playerVehicle.transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
 
         doneAnimation = false;
         if (increaseBatteryCoroutine != null) {

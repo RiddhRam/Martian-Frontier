@@ -64,7 +64,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerVehicle.name = playerVehicle.name[..^7];
 
         if (!notSinglePlayerScene) {
-            transform.SetPositionAndRotation(new(0, 3, 0), Quaternion.Euler(0, 0, 180));
+            transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
             currentVehicle = playerVehicle.name;

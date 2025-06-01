@@ -76,7 +76,7 @@ public class GameData
         // Starter cash
         this.userCash = "10000";
         this.userXP = "0";
-        this.playerPos = new(0, 3, 0);
+        this.playerPos = new(0, 10, 0);
         this.playerRotation = 180;
         this.blocksMined = "0";
         this.materialsSold = "0";
