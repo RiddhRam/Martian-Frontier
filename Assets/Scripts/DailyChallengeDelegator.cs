@@ -321,15 +321,24 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public void AddOreBasedOnTier(int challengeIndex) {
         string[] oreList;
 
-        if (playerState.GetRecommendedDrillTier() == 1) {
+        /*if (playerState.GetRecommendedDrillTier() == 1)
+        {
             oreList = mineRenderer.GetTier1OreNames();
-        } else if (playerState.GetRecommendedDrillTier() == 2) {
-            oreList = mineRenderer.GetTier2OreNames();
-        } else {
-            oreList = mineRenderer.GetTier3OreNames();
         }
+        else if (playerState.GetRecommendedDrillTier() == 2)
+        {
+            oreList = mineRenderer.GetTier2OreNames();
+        }
+        else
+        {
+            oreList = mineRenderer.GetTier3OreNames();
+        }*/
+
+        // Always use tier 2 for now
+        oreList = mineRenderer.GetTier2OreNames();
 
         rng = new System.Random(lastChallengeDate + challengeIndex);
+
         oreNeeded.Add(oreList[rng.Next(oreList.Length)]);
     }
  

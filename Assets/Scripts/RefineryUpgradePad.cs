@@ -21,7 +21,7 @@ public class RefineryUpgradePad : MonoBehaviour
     // key: oreIndex, value: level
     public SerializableDictionary<int, int> oreUpgrades;
     private long[] originalMaterialPrices;
-    private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250, 300 };
+    private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250 };
 
     [Header("Tab Delegation")]
     [SerializeField] GameObject refineryScreen;
@@ -43,7 +43,7 @@ public class RefineryUpgradePad : MonoBehaviour
     double cashProceedAmount;
 
     const float orePriceMultiplierPerLevel = 1.08f;
-    const float oreUpgradePriceMultiplierPerLevel = 1.2f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.17f;
 
     void Awake()
     {
@@ -171,10 +171,10 @@ public class RefineryUpgradePad : MonoBehaviour
             {
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }
-            // 300
+            // 250
             else if (mineCount >= 6)
             {
-                requiredOreUpgradeLevel = upgradeMilestones[8];
+                requiredOreUpgradeLevel = upgradeMilestones[7];
             }
         }
 

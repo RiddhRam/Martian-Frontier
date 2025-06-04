@@ -35,7 +35,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private AnalyticsDelegator analyticsDelegator;
     private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
-    [SerializeField] private UpgradesDelegator upgradesDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
 
     private int freeMoneyToAdd = 0;
@@ -267,12 +266,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         supplyCrateDelegator.ChangeProgressToNextCrate(amount);
 
         UpdateXPDisplays();
-
-        // If player leveled up update power visibility
-        int newLevel = (int) GetUserLevel();
-        if (newLevel > userLevel) {
-            upgradesDelegator.UpdatePowerVisibility(newLevel);
-        }
     
         blocksMined += amount;
     }
@@ -463,11 +456,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             ResetMineButton.SetActive(false);
-        }
-
-        // Called from this load function and upgrades delegator, whichever loads second works
-        if (upgradesDelegator) {
-            upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
         }
        
         UpdateCashDisplays();

@@ -50,9 +50,13 @@ public class GameData
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
+
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
+    // The number of powers unlocked by the player
+    public int powersUnlocked;
+
     public string userCredits;
     public int twoDayIntervals;
 
@@ -126,9 +130,11 @@ public class GameData
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER";
+        
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
+        this.powersUnlocked = 1;
         
         this.userCredits = "0";
         this.twoDayIntervals = 0;

@@ -45,6 +45,8 @@ public class GameDataString
     public string cooldownTimer;
     public string equippedPowers;
     public string powerUpgradeLevels;
+    public string powersUnlocked;
+
     public string userCredits;
     public string twoDayIntervals;
 

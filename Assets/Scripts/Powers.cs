@@ -9,7 +9,6 @@ public class Powers
     public int Index;
     public int[] Prices;
     public Sprite PowerIconWhite;
-    public int MinLevelRequired;
     public bool IsEquipped;
     public bool IsPassive;
     public string MainValueKey;
@@ -18,7 +17,7 @@ public class Powers
     private Action UpdateFunction;
 
     public Powers(Action powerFunction, string powerName, string description,
-                  int index, int[] prices, Sprite powerIconWhite, int minLevelRequired, 
+                  int index, int[] prices, Sprite powerIconWhite, 
                   bool isEquipped, bool isPassive, string mainValueKey, float level0Value,
                   float upgradeValue, Action updateFunction)
     {
@@ -28,7 +27,6 @@ public class Powers
         Index = index;
         Prices = prices;
         PowerIconWhite = powerIconWhite;
-        MinLevelRequired = minLevelRequired;
         IsEquipped = isEquipped;
         IsPassive = isPassive;
         MainValueKey = mainValueKey;
