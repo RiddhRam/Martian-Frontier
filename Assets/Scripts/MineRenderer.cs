@@ -1072,7 +1072,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Initialize everything else
         refineryUpgradePad.oreUpgrades = data.oreUpgrades;
-        refineryUpgradePad.SetProceedPanelRequirement(this.mineCount, this);
+        refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
         dailyChallengeDelegator.Initialize();
         
         if (currentCloudLoadState == cloudLoading)

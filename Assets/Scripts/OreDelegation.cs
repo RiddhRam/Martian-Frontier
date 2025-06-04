@@ -131,7 +131,7 @@ public class OreDelegation : MonoBehaviour
 
         int rows = 3;
         // 130 = vertical padding
-        // (rows - 1) * 200 = spacing between each row
+        // (rows - 1) * 150 = spacing between each row
         float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 130 + ((rows - 1) * 150);
         
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();

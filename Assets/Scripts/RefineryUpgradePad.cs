@@ -81,6 +81,9 @@ public class RefineryUpgradePad : MonoBehaviour
         if (rb2d != null && rb2d.velocity.sqrMagnitude < 0.01f)
             return;
 
+        // Update in case of translations
+        UpdateUpgradeRequirementText();
+
         uIDelegation.HideAll();
         oreDelegation.PrepareGrid();
         uIDelegation.RevealElement(refineryScreen);
@@ -143,9 +146,7 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer)
-    {
-        mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
+    public void SetProceedPanelRequirement(int mineCount) {
 
         // 10
         if (mineCount == 1)
@@ -186,9 +187,17 @@ public class RefineryUpgradePad : MonoBehaviour
             }
         }
 
-        upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", mineRenderer.selectedMaterialNames[requiredOreIndex], requiredOreUpgradeLevel);
+        UpdateUpgradeRequirementText();
 
         CheckIfProceedAvailable();
+    }
+
+    private void UpdateUpgradeRequirementText()
+    {
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        
+        mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineRenderer.mineCount);
+        upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", mineRenderer.selectedMaterialNames[requiredOreIndex], requiredOreUpgradeLevel);
     }
 
     // If player meets upgrade requirement, hide requirement and show the proceed amount
