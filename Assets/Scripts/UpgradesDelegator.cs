@@ -322,8 +322,13 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void Teleport(Vector3 newPosition) {
+        // Make sure rows are generated
+        mineRenderer.TriggerAllGenerationTriggersAbove(newPosition.y);
+
+        // Move player
         playerVehicle.position = new(newPosition.x, newPosition.y);
 
+        // Back to game
         uIDelegation.HideElement(teleportPanel);
         uIDelegation.RevealAll();
         uIDelegation.ToggleCamera();

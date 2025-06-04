@@ -41,7 +41,7 @@ public class DrillerController : MonoBehaviour
 
     // Endurance
     private float drillHeat = 0;
-    private const float heatCooldownDelay = 0.5f;
+    private const float heatCooldownDelay = 0.6f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 

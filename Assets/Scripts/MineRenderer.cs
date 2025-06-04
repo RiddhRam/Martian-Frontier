@@ -167,7 +167,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int seedInUse;
 
 
-    // Called before Start
     void Awake()
     {
         loadingScreen = LoadingScreen.Instance;
@@ -314,14 +313,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Places tiles in a 25x12 rectangle, starting from (-mapHalfLength, -5) and going to the right and downward
     public void CreateTiles(int chunkRow, bool setHighestRow = true)
     {
-        try {
+        chunkRow = System.Math.Clamp(chunkRow, 1, generatedRows.Length);
+
+        try
+        {
             Destroy(GameObject.Find("Generate Row (" + (chunkRow) + ")"));
-        } catch {
+        }
+        catch
+        {
         }
 
         for (int i = 1; i < chunkRow; i++) {
+
             // Verify previous tiles were created
-            if (!generatedRows[i]) {
+            if (!generatedRows[i])
+            {
                 CreateTiles(i, false);
             }
         }
@@ -390,15 +396,28 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         generatedRows[chunkRow - 1] = true;
     }
 
-    public void MoveFogOfWar(int rowLoaded) {
+    public void TriggerAllGenerationTriggersAbove(float y)
+    {
+        // Generate all rows up to that position if not already generated (will cause a lag spike)
+
+        // Offset to be 4 tilemaps lower because the generation triggers are offset by a little bit too
+        int tilemapY = (int)y - (4 * gridSize.y);
+        Vector2Int tilemapPos = CalculateTileMapPos(new(0, tilemapY));
+
+        CreateTiles(tilemapPos.y + 1);
+    }
+
+    public void MoveFogOfWar(int rowLoaded)
+    {
         // If the last row, send it very far down where it won't be seen at the edge of the map
-        if (rowLoaded == totalRows || genTrigTransform.childCount == 1) {
+        if (rowLoaded == totalRows || genTrigTransform.childCount == 1)
+        {
             largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
 
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded+ 1) * gridSize.y), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded + 1) * gridSize.y), 0);
     }
 
     public void LoadTiles() {
