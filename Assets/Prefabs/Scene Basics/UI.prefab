@@ -22050,6 +22050,7 @@ GameObject:
   - component: {fileID: 5563782058370755737}
   - component: {fileID: 2144720090258911098}
   - component: {fileID: 7744862638671756251}
+  - component: {fileID: 5584479060326607008}
   m_Layer: 5
   m_Name: Unlock Button
   m_TagString: Untagged
@@ -22186,6 +22187,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &5584479060326607008
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3535286654999418345}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3565762364890567732
 GameObject:
   m_ObjectHideFlags: 0
@@ -23739,6 +23755,7 @@ GameObject:
   - component: {fileID: 5233258070340828460}
   - component: {fileID: 8531007756859009564}
   - component: {fileID: 2314338078919462425}
+  - component: {fileID: 467647429165881436}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -23886,6 +23903,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &467647429165881436
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3760066538068842192}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3797971321034650679
 GameObject:
   m_ObjectHideFlags: 0
@@ -36618,6 +36650,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   teleportDisplay: {fileID: 1170648771160298526}
   mapCamera: {fileID: 0}
+  mineRenderer: {fileID: 0}
   upgradesDelegator: {fileID: 0}
   uIRectTransform: {fileID: 5995885103889452158}
   imageRectTransform: {fileID: 6046394522147437007}
@@ -50331,6 +50364,7 @@ GameObject:
   - component: {fileID: 8301001250077126081}
   - component: {fileID: 6960198271401229344}
   - component: {fileID: 1609387578552452055}
+  - component: {fileID: 4121597284517800422}
   m_Layer: 5
   m_Name: Buy
   m_TagString: Untagged
@@ -50466,6 +50500,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &4121597284517800422
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7681672555751708993}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &7708410275338306352
 GameObject:
   m_ObjectHideFlags: 0
@@ -53267,6 +53316,7 @@ GameObject:
   - component: {fileID: 3304011101358135144}
   - component: {fileID: 915610903487142364}
   - component: {fileID: 203141498821291640}
+  - component: {fileID: 2023969630614477075}
   m_Layer: 5
   m_Name: Equip
   m_TagString: Untagged
@@ -53402,6 +53452,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.95
   shrinkSpeed: 10
+--- !u!114 &2023969630614477075
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8000461670145733238}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8004398185249387843
 GameObject:
   m_ObjectHideFlags: 0
@@ -59029,6 +59094,7 @@ GameObject:
   - component: {fileID: 5804651699762327060}
   - component: {fileID: 1048403668736435346}
   - component: {fileID: 7737126877345405048}
+  - component: {fileID: 5797386100527885635}
   m_Layer: 5
   m_Name: Upgrade
   m_TagString: Untagged
@@ -59176,6 +59242,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bac357d3489a84789a5a83c2c4ac9923, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &5797386100527885635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8973504000319152801}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 0.5}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &8980263410755614014
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -44,6 +45,12 @@ public class RefineryUpgradePad : MonoBehaviour
 
     const float orePriceMultiplierPerLevel = 1.08f;
     const float oreUpgradePriceMultiplierPerLevel = 1.17f;
+
+    [Header("For Tutorial")]
+    public bool flashButton;
+    public Image closeButtonImage;
+    public Image limestoneUpgradeImage;
+    public Image proceedPanelButtonImage;
 
     void Awake()
     {
@@ -136,7 +143,8 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer) {
+    public void SetProceedPanelRequirement(int mineCount, MineRenderer mineRenderer)
+    {
         mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineCount);
 
         // 10
@@ -200,7 +208,7 @@ public class RefineryUpgradePad : MonoBehaviour
         ButtonAffordability buttonAffordability = proceedButton.GetComponent<ButtonAffordability>();
         buttonAffordability.price = new System.Numerics.BigInteger(cashProceedAmount);
         buttonAffordability.enabled = true;
-        
+
         upgradeRequirement.gameObject.SetActive(false);
 
         // Show user cash amount required for upgrade
@@ -224,7 +232,8 @@ public class RefineryUpgradePad : MonoBehaviour
         playerState.ProceedToNextMine();
     }
 
-    private double GetCashProceedAmount() {
+    private double GetCashProceedAmount()
+    {
         return GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
     }
 
@@ -389,5 +398,75 @@ public class RefineryUpgradePad : MonoBehaviour
     public int GetMaxOreLevel()
     {
         return upgradeMilestones[upgradeMilestones.Length - 1];
+    }
+
+    public void FlashCloseButton()
+    {
+        flashButton = true;
+
+        Color originalColor = closeButtonImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
+    }
+
+    public void FlashOreUpgradeButton()
+    {
+        flashButton = true;
+
+        Color originalColor = limestoneUpgradeImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(limestoneUpgradeImage, originalColor, darkColor));
+    }
+
+    public void FlashProceedPanelButton()
+    {
+        flashButton = true;
+
+        Color originalColor = proceedPanelButtonImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
+    }
+
+    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor)
+    {
+        float duration = 0.5f; // time to go from original to dark and back
+        float t = 0f;
+        bool goingDarker = true;
+
+        while (flashButton)
+        {
+            t += Time.deltaTime / duration;
+
+            // Darken
+            if (goingDarker)
+                buttonImage.color = Color.Lerp(originalColor, darkColor, t);
+            // Brighten
+            else
+                buttonImage.color = Color.Lerp(darkColor, originalColor, t);
+
+            if (t >= 1f)
+            {
+                t = 0f;
+                goingDarker = !goingDarker;
+            }
+
+            yield return null;
+        }
+
+        // Return to original colour
+        buttonImage.color = originalColor;
+    }
+    
+    public bool BoughtOneUpgrade() {
+        foreach (var key in oreUpgrades.Keys) {
+            if (oreUpgrades[key] > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }

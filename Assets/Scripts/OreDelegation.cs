@@ -122,6 +122,11 @@ public class OreDelegation : MonoBehaviour
 
             // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
             UpdateOreMaterialPanel(i, false, false);
+
+            if (i == 0)
+            {
+                refineryUpgradePad.limestoneUpgradeImage = newMaterialPanel.transform.GetChild(5).GetComponent<Image>();
+            }
         }
 
         int rows = 3;
