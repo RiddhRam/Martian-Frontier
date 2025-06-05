@@ -229,7 +229,10 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
         for (int i = 0; i != selectedChallenges.Length; i++) {
             if (selectedChallenges[i] == 2) {
-                oreName = oreNeeded[oreNeededCounter];
+                // For using random ores (set in AddOreBasedOnTier)
+                //oreName = oreNeeded[oreNeededCounter];
+                // For using the required ore to move to next level
+                oreName = mineRenderer.refineryUpgradePad.GetRequiredOreName();
                 oreNeededCounter++;
             }
 
@@ -272,7 +275,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         foreach (string key in quantities.Keys) {
 
             for (int i = 0; i != selectedChallenges.Length; i++) {
-                if (i == 0 && superChallengeTimer == superChallengeStartTimer) {
+                if (i == 0 && (superChallengeTimer == superChallengeStartTimer || superChallengeTimer == 0)) {
                     continue;
                 }
                 if (selectedChallenges[i] != 1 && selectedChallenges[i] != 2) {
@@ -283,10 +286,21 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                if (selectedChallenges[i] == 2 && oreNeeded[oreNeededCounter] == key) {
+                // For using random ores (set in AddOreBasedOnTier)
+                /*if (selectedChallenges[i] == 2 && oreNeeded[oreNeededCounter] == key)
+                {
                     challengeProgress[i] += quantities[key];
                     oreNeededCounter++;
-                } else if (selectedChallenges[i] == 2) {
+                }*/
+                // For using the required ore to move to next level
+
+                if (selectedChallenges[i] == 2 && mineRenderer.refineryUpgradePad.GetRequiredOreName() == key)
+                {
+                    challengeProgress[i] += quantities[key];
+                    oreNeededCounter++;
+                }
+                else if (selectedChallenges[i] == 2)
+                {
                     oreNeededCounter++;
                 }
             }

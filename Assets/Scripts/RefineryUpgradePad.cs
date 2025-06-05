@@ -197,7 +197,7 @@ public class RefineryUpgradePad : MonoBehaviour
         MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
         
         mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineRenderer.mineCount);
-        upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", mineRenderer.selectedMaterialNames[requiredOreIndex], requiredOreUpgradeLevel);
+        upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
     }
 
     // If player meets upgrade requirement, hide requirement and show the proceed amount
@@ -241,14 +241,12 @@ public class RefineryUpgradePad : MonoBehaviour
         playerState.ProceedToNextMine();
     }
 
-    private double GetCashProceedAmount()
-    {
+    private double GetCashProceedAmount() {
         return GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseOreUpgrade(int oreIndex)
-    {
+    public bool PurchaseOreUpgrade(int oreIndex) {
         System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
 
         if (!playerState.VerifyEnoughCash(price))
@@ -281,8 +279,7 @@ public class RefineryUpgradePad : MonoBehaviour
         return true;
     }
 
-    private void UpgradeOre(int oreIndex)
-    {
+    private void UpgradeOre(int oreIndex) {
         if (oreUpgrades.ContainsKey(oreIndex))
         {
             oreUpgrades[oreIndex]++;
@@ -407,6 +404,13 @@ public class RefineryUpgradePad : MonoBehaviour
     public int GetMaxOreLevel()
     {
         return upgradeMilestones[upgradeMilestones.Length - 1];
+    }
+
+    public string GetRequiredOreName()
+    {
+        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+
+        return mineRenderer.selectedMaterialNames[requiredOreIndex];
     }
 
     public void FlashCloseButton()
