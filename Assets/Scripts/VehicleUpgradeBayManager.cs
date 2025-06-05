@@ -96,7 +96,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     // 51 values
     private static readonly int[] upgradeHeatValues = new int[] {
-        70, 100, 120, 130, 150, 170, 200, 220, 250, 290,
+        60, 100, 120, 130, 150, 170, 200, 220, 250, 290,
         330, 380, 430, 490, 560, 630, 720, 820, 940, 1100,
         1200, 1400, 1600, 1800, 2000, 2300, 2600, 3000, 3400, 3900,
         4500, 5100, 5800, 6600, 7500, 8500, 9700, 11000, 13000, 14000,

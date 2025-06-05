@@ -13,7 +13,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject[] creditDisplays;
     public GameObject[] gemCashPurchasePanels;
-    public GameObject materialProfitPanel;
 
     // Can't serialize field on BigIntegers
     private BigInteger userCash;

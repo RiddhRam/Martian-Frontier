@@ -151,6 +151,6 @@ public class GameData
 
         this.bp = 0;
         
-        this.id = 111;
+        this.id = 112;
     }
 }

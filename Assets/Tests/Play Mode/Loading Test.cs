@@ -82,29 +82,28 @@ public class LoadingTest
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
-        Assert.False(playerState.materialProfitPanel.activeSelf);
-        Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
-
-        int cashDisplayCount = 6;
+        int cashDisplayCount = 5;
         Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
         for (int i = 0; i != cashDisplayCount; i++)
         {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 5;
+        int gemDisplayCount = 6;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++)
         {
             Assert.True(playerState.gemDisplays[i].activeSelf);
         }
 
-        int xpDisplayCount = 3;
+        int xpDisplayCount = 1;
         Assert.AreEqual(xpDisplayCount, playerState.xpDisplays.Length);
         for (int i = 0; i != xpDisplayCount; i++)
         {
             Assert.True(playerState.xpDisplays[i].activeSelf);
         }
+
+        Assert.AreEqual(0, playerState.creditDisplays.Length);
 
         // Other
         Assert.AreEqual(AudioDelegator.Instance.soundFXEnabled, true);
@@ -289,7 +288,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Garage Panel", "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {
@@ -303,7 +302,7 @@ public class LoadingTest
         Assert.AreEqual(joystickMovement.joystickBG.name, "Joystick Background");
 
         // Material Profit Panel
-        ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
+        /*ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
 
         Assert.AreEqual(profitPanelDelegator.oresButton.name, "ORES");
         Assert.AreEqual(profitPanelDelegator.oresPanel.name, "Ore Material Panel");
@@ -312,7 +311,7 @@ public class LoadingTest
         Assert.AreEqual(profitPanelDelegator.boostText.name, "Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostText.name, "Ad Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostTimer.name, "Timer");
-        Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");
+        Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");*/
 
         // Garage Panel
         PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
@@ -345,7 +344,7 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
         Assert.AreEqual(mineRenderer.GetTotalRows(), 42);
 
-        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Ore Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         Color[] tileColours = { new(), new(185 / 255f, 185 / 255f, 185 / 255f, 1), new(252 / 255f, 236 / 255f, 114 / 255f, 1), new(170 / 255f, 77 / 255f, 58 / 255f, 1), new(), new(244 / 255f, 244 / 255f, 244 / 255f, 1), new(128 / 255f, 130 / 255f, 130 / 255f, 1), new(51 / 255f, 81 / 255f, 155 / 255f, 1), new(), new(155 / 255f, 155 / 255f, 155 / 255f, 1), new(147 / 255f, 183 / 255f, 220 / 255f, 1), new(155 / 255f, 160 / 255f, 24 / 255f, 1) };
         Assert.AreEqual(tileNames.Length, mineRenderer.tileValues.Length);
         Assert.AreEqual(tileColours.Length, mineRenderer.tileColours.Length);
@@ -392,7 +391,7 @@ public class LoadingTest
         }
 
         // There's 15 in total but only 9 are actively used at once
-        int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
+        int[] materialPrices = new int[] { 75, 200, 300, 7500, 20000, 30000, 750000, 2000000, 3000000 };
         Assert.AreEqual(materialPrices.Length, oreDelegation.GetOriginalMaterialPrices().Length);
 
         for (int i = 0; i != materialPrices.Length; i++)
@@ -442,7 +441,7 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
 
-        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Ore Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         for (int i = 0; i != mineRenderer.tileValues.Length; i++)
         {
             Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
