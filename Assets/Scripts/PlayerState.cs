@@ -569,6 +569,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // Save and reload
         dataPersistenceManager.DirectlyWriteSave();
         CloudDelegator.Instance.TempSignOut();
+        
+        AnalyticsDelegator.Instance.Rebirth(data.mineCount);
+
         SceneManager.LoadScene("Loading Screen");
     }
 

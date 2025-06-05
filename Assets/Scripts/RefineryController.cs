@@ -48,14 +48,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public UpgradesDelegator upgradesDelegator;
     [SerializeField] PlayerMovement playerMovement;
 
-    private bool doneLoading = false;
+    public bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
     private AdDelegator adDelegator;
 
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
-    private Coroutine countdownCoroutine;
+    public Coroutine countdownCoroutine;
 
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;

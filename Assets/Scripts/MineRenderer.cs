@@ -313,6 +313,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Places tiles in a 25x12 rectangle, starting from (-mapHalfLength, -5) and going to the right and downward
     public void CreateTiles(int chunkRow, bool setHighestRow = true)
     {
+        // If countdown hasn't started, then start it (player teleported inside and bypassed the normal entrance)
+        if (refineryController.countdownCoroutine == null && refineryController.doneLoading && chunkRow >= 5)
+        {
+            refineryController.StartRefineryCountdown();
+        }
+
         chunkRow = System.Math.Clamp(chunkRow, 1, generatedRows.Length);
 
         try

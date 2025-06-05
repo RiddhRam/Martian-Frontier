@@ -13,6 +13,7 @@ public class RefineryUpgradePad : MonoBehaviour
     public PlayerState playerState;
     JoystickMovement joystickMovement;
     [SerializeField] AudioDelegator audioDelegator;
+    public MineRenderer mineRenderer;
 
     [Header("Audio")]
     [SerializeField] AudioClip oreUpgradeSound;
@@ -193,9 +194,7 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     private void UpdateUpgradeRequirementText()
-    {
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        
+    {        
         mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineRenderer.mineCount);
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
     }
@@ -276,6 +275,8 @@ public class RefineryUpgradePad : MonoBehaviour
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
 
+        AnalyticsDelegator.Instance.OreUpgrade(mineRenderer.selectedMaterialNames[oreIndex], newLevel, mineRenderer.mineCount);
+        
         return true;
     }
 
@@ -408,8 +409,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
     public string GetRequiredOreName()
     {
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-
         return mineRenderer.selectedMaterialNames[requiredOreIndex];
     }
 

@@ -79,19 +79,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     const int coolTimesPerSecond = 50; // 50 fps
 
-    // 50-level curve: 25 000 → 8 000 000 000 000 000 000
+    // 50-level curve: 12 000 → 4 000 000 000 000 000 000
     private static readonly ulong[] upgradeHeatPrices = new ulong[]
     {
-        25_000UL,    49_000UL,    98_000UL,     190_000UL,    380_000UL,
-        760_000UL,   1_500_000UL, 3_000_000UL,  5_800_000UL,  12_000_000UL,
-        23_000_000UL,45_000_000UL, 89_000_000UL, 180_000_000UL,350_000_000UL,
-        690_000_000UL,1_400_000_000UL,2_700_000_000UL,5_300_000_000UL,11_000_000_000UL,
-        21_000_000_000UL,41_000_000_000UL,81_000_000_000UL,160_000_000_000UL,320_000_000_000UL,
-        630_000_000_000UL,1_200_000_000_000UL,2_500_000_000_000UL,4_900_000_000_000UL,9_600_000_000_000UL,
-        19_000_000_000_000UL,38_000_000_000_000UL,74_000_000_000_000UL,150_000_000_000_000UL,290_000_000_000_000UL,
-        570_000_000_000_000UL,1_100_000_000_000_000UL,2_200_000_000_000_000UL,4_400_000_000_000_000UL,8_800_000_000_000_000UL,
-        17_000_000_000_000_000UL,34_000_000_000_000_000UL,68_000_000_000_000_000UL,130_000_000_000_000_000UL,260_000_000_000_000_000UL,
-        520_000_000_000_000_000UL,1_000_000_000_000_000_000UL,2_000_000_000_000_000_000UL,4_000_000_000_000_000_000UL,8_000_000_000_000_000_000UL
+        12_000UL,    24_000UL,    49_000UL,     95_000UL,      190_000UL,
+        380_000UL,   750_000UL,   1_500_000UL,  2_900_000UL,   6_000_000UL,
+        12_000_000UL,22_000_000UL,44_000_000UL, 90_000_000UL,   180_000_000UL,
+        340_000_000UL,700_000_000UL,1_400_000_000UL,2_600_000_000UL,5_500_000_000UL,
+        10_000_000_000UL,20_000_000_000UL,40_000_000_000UL,80_000_000_000UL,160_000_000_000UL,
+        320_000_000_000UL,600_000_000_000UL,1_200_000_000_000UL,2_400_000_000_000UL,4_800_000_000_000UL,
+        9_500_000_000_000UL,19_000_000_000_000UL,37_000_000_000_000UL,75_000_000_000_000UL,140_000_000_000_000UL,
+        280_000_000_000_000UL,550_000_000_000_000UL,1_100_000_000_000_000UL,2_200_000_000_000_000UL,4_400_000_000_000_000UL,
+        8_500_000_000_000_000UL,17_000_000_000_000_000UL,34_000_000_000_000_000UL,65_000_000_000_000_000UL,130_000_000_000_000_000UL,
+        260_000_000_000_000_000UL,500_000_000_000_000_000UL,1_000_000_000_000_000_000UL,2_000_000_000_000_000_000UL,4_000_000_000_000_000_000UL
     };
 
     // 51 values
@@ -103,19 +103,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         16000, 19000, 21000, 24000, 27000, 31000, 36000, 41000, 46000, 53000, 60000
     };
 
-    // 50-level curve: 10 000 → 4 000 000 000 000 000 000
+    // 50-level curve: 10 000 → 1 000 000 000 000 000 000
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
-        10_000UL,     20_000UL,     39_000UL,       78_000UL,       160_000UL,
-        310_000UL,    610_000UL,    1_200_000UL,    2_400_000UL,    4_800_000UL,
-        9_600_000UL,  19_000_000UL, 38_000_000UL,   75_000_000UL,   150_000_000UL,
-        300_000_000UL,590_000_000UL,1_200_000_000UL,2_300_000_000UL,4_600_000_000UL,
-        9_100_000_000UL,18_000_000_000UL,36_000_000_000UL,71_000_000_000UL,140_000_000_000UL,
-        280_000_000_000UL,560_000_000_000UL,1_100_000_000_000UL,2_200_000_000_000UL,4_400_000_000_000UL,
-        8_700_000_000_000UL,17_000_000_000_000UL,34_000_000_000_000UL,68_000_000_000_000UL,140_000_000_000_000UL,
-        270_000_000_000_000UL,530_000_000_000_000UL,1_100_000_000_000_000UL,2_100_000_000_000_000UL,4_200_000_000_000_000UL,
-        8_300_000_000_000_000UL,17_000_000_000_000_000UL,33_000_000_000_000_000UL,65_000_000_000_000_000UL,130_000_000_000_000_000UL,
-        260_000_000_000_000_000UL,510_000_000_000_000_000UL,1_000_000_000_000_000_000UL,2_000_000_000_000_000_000UL,4_000_000_000_000_000_000UL
+        2_500UL,            5_000UL,            9_500UL,           20_000UL,           40_000UL,
+        80_000UL,          150_000UL,          300_000UL,          600_000UL,        1_200_000UL,
+        2_400_000UL,       4_800_000UL,       9_500_000UL,      19_000_000UL,      38_000_000UL,
+        75_000_000UL,     150_000_000UL,     300_000_000UL,     600_000_000UL,   1_200_000_000UL,
+        2_300_000_000UL,   4_500_000_000UL,   9_000_000_000UL,  18_000_000_000UL,  35_000_000_000UL,
+    70_000_000_000UL,  140_000_000_000UL,  280_000_000_000UL,  550_000_000_000UL,1_100_000_000_000UL,
+    2_200_000_000_000UL,4_200_000_000_000UL,8_500_000_000_000UL,17_000_000_000_000UL,35_000_000_000_000UL,
+    70_000_000_000_000UL,140_000_000_000_000UL,280_000_000_000_000UL,550_000_000_000_000UL,1_000_000_000_000_000UL,
+    2_100_000_000_000_000UL,4_200_000_000_000_000UL,8_500_000_000_000_000UL,16_000_000_000_000_000UL,32_000_000_000_000_000UL,
+    65_000_000_000_000_000UL,130_000_000_000_000_000UL,250_000_000_000_000_000UL,500_000_000_000_000_000UL,1_000_000_000_000_000_000UL
     };
 
     // 51 values
@@ -627,7 +627,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
         else
         {
-            upgradePrice = upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
         }
 
         // Transact amount
@@ -646,6 +646,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         UpdateUpgradeDetails(type);
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
+
+        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
 
         return true;
     }
@@ -669,7 +671,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // If max level
-        if (heatLevel >= upgradeHeatPrices.Length)
+        if (heatLevel >= upgradeCoolPrices.Length)
         {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
@@ -681,10 +683,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
-            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeHeatPrices[heatLevel];
+            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[heatLevel];
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            heatUpgradePriceText.text = playerState.FormatPrice(upgradeHeatPrices[heatLevel]);
+            heatUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[heatLevel]);
         }
         
         int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
