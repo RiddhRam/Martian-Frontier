@@ -58,7 +58,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     // Related to the above challenge types
     // This will be multiplied to determine the goal the player needs to reach, 
     // then multiplied by the difficulty to determine the reward
-    private int[] baseGoalAmount = {5, 250, 160};
+    private int[] baseGoalAmount = {5, 250, 90};
     // Can be retrieved through seed generation
     private int[] selectedChallenges = new int[6];
     private int[] challengeValues = new int[6];
@@ -70,7 +70,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     private int[] challengeProgress = new int[6];
     private bool[] challengeCollection = new bool[6];
     private readonly int superChallengeStartTimer = 1200;
-    private int superChallengeTimer = 1200;
+    public int superChallengeTimer = 1200;
 
     private int initializeCount = 0;
     // initializeCount must be at least this number in order for daily challenges to initialize

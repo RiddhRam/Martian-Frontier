@@ -149,9 +149,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     void OnTriggerEnter2D(Collider2D collision) {
+
+        // Only the Player Trigger trigger can activate the pad, not the body or drill
         // Only the player vehicle can open the UI panel on their local game
-        // Also only the drill can activate this pad, not the body
-        if (!collision.transform.parent.parent.name.Contains("Player Vehicle") || !collision.GetComponent<DrillerController>()) {
+        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
+        {
             return;
         }
 

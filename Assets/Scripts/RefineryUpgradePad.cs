@@ -69,9 +69,9 @@ public class RefineryUpgradePad : MonoBehaviour
     void OnTriggerEnter2D(Collider2D collision)
     {
 
-        // Only the drill/hauler can activate this pad, not the body
+        // Only the Player Trigger trigger can activate the pad, not the body or drill
         // Only the player vehicle can open the UI panel on their local game
-        if (!(collision.GetComponent<DrillerController>() || !collision.transform.parent.parent.name.Contains("Player Vehicle")))
+        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
         {
             return;
         }
