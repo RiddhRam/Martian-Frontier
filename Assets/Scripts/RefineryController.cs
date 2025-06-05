@@ -89,6 +89,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator RefineryCountdown(int timer) {
+        // Wait for mine to load before continuing
+        // Sometimes refienry controller loads, then starts mine reset, and then mine loads while refinery thinks mine reset
+        yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
+
         refineryTimer = timer;
 
         while (refineryTimer > 0) {
