@@ -41,7 +41,7 @@ public class DrillerController : MonoBehaviour
 
     // Endurance
     private float drillHeat = 0;
-    private const float heatCooldownDelay = 1.5f;
+    private const float heatCooldownDelay = 0.6f;
     private float lastMineTime = -Mathf.Infinity;
     private int highestTierDrilled = 0;
 
@@ -56,6 +56,9 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
+
+    float time = 0;
+    int count = 0;
 
     bool minedSomething;
     public bool isNPC = false;
@@ -161,35 +164,33 @@ public class DrillerController : MonoBehaviour
         // Drill overheat
         float timeSinceLastMine = Time.time - lastMineTime;
         
-        if (minedSomething) {
+        if (minedSomething)
+        {
             // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                // When speed = 10, timeSinceLastMine is between 0.02 to 0.08
-                // When speed = 5, timeSinceLastMine is between 0.02 and 0.2f
-                // Clamp to not be higher than 0.12f to reduce the benefits of higher speed otherwise its too good
-                timeSinceLastMine = Mathf.Clamp(timeSinceLastMine, 0, 0.12f);
+                // 0.34f = fixed coefficency
+                // 0.09f = average time since last mine for small drills. 
+                // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
+                // 0.17f / 0.09f = 1.88f which helps balance the larger drills
+                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
 
-                // Time factor makes it so faster drills go farther than slower drills with the same endurance
-                // 7.5f = 10 / 1.5
-                // 1.5 = heatCooldownDelay, 10 because on average the mining happens once every 5 frames at 50 fps (5/50 = 1/10)
-                float timeFactor = Mathf.Clamp01(timeSinceLastMine / heatCooldownDelay) * 7.5f;
-
-                // After a short break in mining, the time factor becomes very large, causing the heat progress bar to jump, so clamp to 1
-                if (timeFactor > 1) {
-                    timeFactor = 1;
-                }
-
-                float heatToAdd = (int) Mathf.Pow(highestTierDrilled, 3) * timeFactor;
-                
                 drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+
+                // Gives average time since last mine
+                /*time += timeSinceLastMine;
+                count++;
+                Debug.Log(time/count);*/
             }
 
             lastMineTime = Time.time;
-        } else {
+        }
+        else
+        {
+            // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                drillHeat = Mathf.Max(0, (int) (drillHeat - coolRate));
+                drillHeat = Mathf.Max(0, (int)(drillHeat - coolRate));
             }
         }
 

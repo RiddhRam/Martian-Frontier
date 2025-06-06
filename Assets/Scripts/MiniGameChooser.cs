@@ -74,13 +74,11 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
         ref GameData gameData = ref DataPersistenceManager.Instance.GetGameDataRef();
 
         gameData.magnetHaulerUpgrades.Clear();
-        gameData.magnetHaulerAdTimer = 0;
         gameData.magnetHaulerChallengeProgress = new int[6];
         gameData.magnetHaulerChallengeCollection = new bool[6];
         gameData.magnetHaulerSuperChallengeTimer = 1200;
 
         gameData.oreBlasterUpgrades.Clear();
-        gameData.oreBlasterAdTimer = 0;
         gameData.oreBlasterChallengeProgress = new int[6];
         gameData.oreBlasterChallengeCollection = new bool[6];
         gameData.oreBlasterSuperChallengeTimer = 1200;

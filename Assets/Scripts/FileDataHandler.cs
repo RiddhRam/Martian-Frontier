@@ -185,7 +185,17 @@ public class FileDataHandler
                         SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(strValue);
                         correspondingField.SetValue(tempData, vehicleData);
                     }
-                    else if (fieldType == typeof(SerializableDictionary<string, int>)) {
+                    else if (fieldType == typeof(SerializableDictionary<int, int>)) {
+                        // Same as below intDictData
+                        // Trim the outer [ ] and also turn the url encoding back to quotation marks
+                        strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
+                        strValue = "{" + strValue + "}";
+
+                        SerializableDictionary<int, int> intDictData = JsonUtility.FromJson<SerializableDictionary<int, int>>(strValue);
+                        correspondingField.SetValue(tempData, intDictData);
+                    }
+                    else if (fieldType == typeof(SerializableDictionary<string, int>))
+                    {
                         // Same as above
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
                         strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
@@ -194,27 +204,33 @@ public class FileDataHandler
                         SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(strValue);
                         correspondingField.SetValue(tempData, intDictData);
                     }
-                    else if (fieldType == typeof(int)) {
+                    else if (fieldType == typeof(int))
+                    {
                         int newInt = int.Parse(strValue);
                         correspondingField.SetValue(tempData, newInt);
-                    } 
-                    else if (fieldType == typeof(bool)) {
+                    }
+                    else if (fieldType == typeof(bool))
+                    {
                         bool newBool = bool.Parse(strValue);
                         correspondingField.SetValue(tempData, newBool);
-                    } 
-                    else if (fieldType == typeof(int[])) {
+                    }
+                    else if (fieldType == typeof(int[]))
+                    {
                         int[] deserializedValue = JsonConvert.DeserializeObject<int[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
-                    else if (fieldType == typeof(float[])) {
+                    else if (fieldType == typeof(float[]))
+                    {
                         float[] deserializedValue = JsonConvert.DeserializeObject<float[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
-                    else if (fieldType == typeof(bool[])) {
+                    else if (fieldType == typeof(bool[]))
+                    {
                         bool[] deserializedValue = JsonConvert.DeserializeObject<bool[]>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
-                    else {
+                    else
+                    {
                         // Convert value to the corresponding field type
                         var convertedValue = Convert.ChangeType(strValue, fieldType);
 
@@ -373,12 +389,11 @@ public class FileDataHandler
                     json = EncryptDecrypt(json, true);
                 }
 
-
                 jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");                
             }
-            // For upgrade arrays
-            else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray) {
-                string json = JsonUtility.ToJson(intDictionaryArray);
+            else if (fieldValue is SerializableDictionary<int, int> intToIntDictionaryArray) {
+                // Same as intDictionaryArray below
+                string json = JsonUtility.ToJson(intToIntDictionaryArray);
                 json = json.Trim('{', '}');
                 json = json.Replace("\"", "%22");
                 json = "[" + json + "]";
@@ -387,52 +402,74 @@ public class FileDataHandler
                     json = EncryptDecrypt(json, true);
                 }
 
+                jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
+            }
+            // For upgrade arrays
+            else if (fieldValue is SerializableDictionary<string, int> intDictionaryArray)
+            {
+                string json = JsonUtility.ToJson(intDictionaryArray);
+                json = json.Trim('{', '}');
+                json = json.Replace("\"", "%22");
+                json = "[" + json + "]";
+
+                if (useEncryption)
+                {
+                    json = EncryptDecrypt(json, true);
+                }
+
                 // If using encryption we need to add quotation marks, otherwise no need
                 jsonBuilder.Append($"  \"{field.Name}\": \"{json}\",\n");
-
             }
-            else if (fieldValue is List<string>) {
-                List<string> value = (List<string>) fieldValue;
+            else if (fieldValue is List<string>)
+            {
+                List<string> value = (List<string>)fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 
                 // URL encode all quotation marks to make it safer for when we load the game
                 result = result.Replace("\"", "%22");
 
-                if (useEncryption) {
-                    result = EncryptDecrypt(result, true);
-                }
-
-                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
-            } 
-            else if (fieldValue is int[]) {
-                int[] value = (int[]) fieldValue;
-
-                string result = JsonConvert.SerializeObject(value);
-
-                if (useEncryption) {
+                if (useEncryption)
+                {
                     result = EncryptDecrypt(result, true);
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
             }
-            else if (fieldValue is float[]) {
-                float[] value = (float[]) fieldValue;
+            else if (fieldValue is int[])
+            {
+                int[] value = (int[])fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 
-                if (useEncryption) {
+                if (useEncryption)
+                {
                     result = EncryptDecrypt(result, true);
                 }
 
                 jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
             }
-            else if (fieldValue is bool[]) {
-                bool[] value = (bool[]) fieldValue;
+            else if (fieldValue is float[])
+            {
+                float[] value = (float[])fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 
-                if (useEncryption) {
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is bool[])
+            {
+                bool[] value = (bool[])fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
                     result = EncryptDecrypt(result, true);
                 }
 
@@ -441,9 +478,10 @@ public class FileDataHandler
             else
             {
                 string valueToUse = fieldValue.ToString();
-                
+
                 // Use encryption only if outside of editor
-                if (useEncryption) {
+                if (useEncryption)
+                {
                     valueToUse = EncryptDecrypt(valueToUse, true);
                 }
 

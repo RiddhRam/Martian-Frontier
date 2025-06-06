@@ -132,7 +132,7 @@ public class MapRecordingMode : MonoBehaviour
             return;
         }
 
-        cashEarnedValueText.text = FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
+        cashEarnedValueText.text = playerState.FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
     }
 
     private IEnumerator GlowText() {
@@ -150,38 +150,6 @@ public class MapRecordingMode : MonoBehaviour
 
         // Ensure the final color is exactly the target color
         mineValueText.color = endColor;
-    }
-
-    private string FormatPrice(System.Numerics.BigInteger price)
-    {
-        if (price >= 1_000_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Qu";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     [ContextMenu("Reset Camera")]

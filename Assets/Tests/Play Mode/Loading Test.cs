@@ -82,29 +82,28 @@ public class LoadingTest
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
-        Assert.False(playerState.materialProfitPanel.activeSelf);
-        Assert.AreEqual(playerState.materialProfitPanel.name, "Material Profit Panel");
-
-        int cashDisplayCount = 6;
+        int cashDisplayCount = 5;
         Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
         for (int i = 0; i != cashDisplayCount; i++)
         {
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 5;
+        int gemDisplayCount = 6;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++)
         {
             Assert.True(playerState.gemDisplays[i].activeSelf);
         }
 
-        int xpDisplayCount = 3;
+        int xpDisplayCount = 1;
         Assert.AreEqual(xpDisplayCount, playerState.xpDisplays.Length);
         for (int i = 0; i != xpDisplayCount; i++)
         {
             Assert.True(playerState.xpDisplays[i].activeSelf);
         }
+
+        Assert.AreEqual(0, playerState.creditDisplays.Length);
 
         // Other
         Assert.AreEqual(AudioDelegator.Instance.soundFXEnabled, true);
@@ -289,7 +288,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = uIDelegation.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Material Profit Panel", "Garage Panel", "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {
@@ -303,7 +302,7 @@ public class LoadingTest
         Assert.AreEqual(joystickMovement.joystickBG.name, "Joystick Background");
 
         // Material Profit Panel
-        ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
+        /*ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
 
         Assert.AreEqual(profitPanelDelegator.oresButton.name, "ORES");
         Assert.AreEqual(profitPanelDelegator.oresPanel.name, "Ore Material Panel");
@@ -312,28 +311,10 @@ public class LoadingTest
         Assert.AreEqual(profitPanelDelegator.boostText.name, "Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostText.name, "Ad Boost Text");
         Assert.AreEqual(profitPanelDelegator.adBoostTimer.name, "Timer");
-        Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");
+        Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");*/
 
         // Garage Panel
         PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
-        GarageDelegator garageDelegator = playerState.garageDelegator;
-
-        Assert.AreEqual(garageDelegator.drillersContent.name, "Content");
-        Assert.AreEqual(garageDelegator.drillerDisplayPanel.name, "Drill Display Panel");
-        Assert.AreEqual(garageDelegator.playerState.gameObject.name, "PlayerState");
-        Assert.AreEqual(garageDelegator.playerVehicleDelegation.name, "Player Vehicle");
-        Assert.AreEqual(garageDelegator.uIDelegation.name, "UI");
-
-        int drillersCount = 6;
-        Assert.AreEqual(drillersCount, garageDelegator.drillers.Length);
-        for (int i = 0; i != drillersCount; i++)
-        {
-            Assert.True(garageDelegator.drillers[i].name != "");
-            Assert.True(garageDelegator.drillers[i].name != null);
-        }
-
-        // Tutorial
-        TutorialManager tutorialManager = GameObject.Find("Tutorial Manager").GetComponent<TutorialManager>();
 
         // Custom Ad Screen
         CustomAdScreen customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
@@ -347,7 +328,7 @@ public class LoadingTest
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
 
         PlayerMovement playerMovement = playerVehicle.GetComponent<PlayerMovement>();
-        Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);
+        Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject.transform);
         Assert.False(playerMovement.freezeCamera);
 
         yield return null;
@@ -363,7 +344,7 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
         Assert.AreEqual(mineRenderer.GetTotalRows(), 42);
 
-        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Ore Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         Color[] tileColours = { new(), new(185 / 255f, 185 / 255f, 185 / 255f, 1), new(252 / 255f, 236 / 255f, 114 / 255f, 1), new(170 / 255f, 77 / 255f, 58 / 255f, 1), new(), new(244 / 255f, 244 / 255f, 244 / 255f, 1), new(128 / 255f, 130 / 255f, 130 / 255f, 1), new(51 / 255f, 81 / 255f, 155 / 255f, 1), new(), new(155 / 255f, 155 / 255f, 155 / 255f, 1), new(147 / 255f, 183 / 255f, 220 / 255f, 1), new(155 / 255f, 160 / 255f, 24 / 255f, 1) };
         Assert.AreEqual(tileNames.Length, mineRenderer.tileValues.Length);
         Assert.AreEqual(tileColours.Length, mineRenderer.tileColours.Length);
@@ -392,23 +373,30 @@ public class LoadingTest
 
 
         OreDelegation oreDelegation = mineRenderer.GetComponent<OreDelegation>();
-        int materialCount = 9;
+        int materialCount = 15;
         Assert.AreEqual(materialCount, oreDelegation.materialNames.Length);
-        Assert.AreEqual(materialCount, oreDelegation.materials.Length);
-        Assert.AreEqual(materialCount, oreDelegation.GetMaterialPrices().Length);
         Assert.AreEqual(materialCount, oreDelegation.materialHighResSprites.Length);
 
-        string[] materialNames = new string[] { "Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium" };
-        string[] materialHighResSpriteNames = new string[] {"Level 1 Ore Spritesheet High Res_0", "Level 1 Ore Spritesheet High Res_1", "Level 1 Ore Spritesheet High Res_2",
-                                                "Level 2 Ore Spritesheet High Res_2", "Level 2 Ore Spritesheet High Res_1", "Level 2 Ore Spritesheet High Res_0",
-                                                "Level 3 Ore Spritesheet High Res_2", "Level 3 Ore Spritesheet High Res_1", "Level 3 Ore Spritesheet High Res_0"};
-        int[] materialPrices = new int[] { 75, 200, 300, 700, 1400, 1900, 2500, 5000, 7000 };
+        string[] materialNames = new string[] { "Limestone", "Sulfur", "Iron", "Quartz", "Titanium", "Cobalt", "Platinum", "Lithium", "Uranium", "Shadow", "Ice Shard", "Fire Stone", "Vinterra", "Glacirite", "Infernite" };
+        string[] materialHighResSpriteNames = new string[] {"Ore Spritesheet High Res_0", "Ore Spritesheet High Res_1", "Ore Spritesheet High Res_2",
+                                                "Ore Spritesheet High Res_5", "Ore Spritesheet High Res_4", "Ore Spritesheet High Res_3",
+                                                "Ore Spritesheet High Res_8", "Ore Spritesheet High Res_7", "Ore Spritesheet High Res_6",
+                                                "Ore Spritesheet High Res_11", "Ore Spritesheet High Res_10", "Ore Spritesheet High Res_9",
+                                                "Ore Spritesheet High Res_14", "Ore Spritesheet High Res_13", "Ore Spritesheet High Res_12"};
+
         for (int i = 0; i != materialCount; i++)
         {
             Assert.AreEqual(oreDelegation.materialNames[i], materialNames[i].ToUpper());
-            Assert.AreEqual(oreDelegation.materials[i].name, materialNames[i]);
-            Assert.AreEqual(oreDelegation.GetMaterialPrices()[i], materialPrices[i]);
             Assert.AreEqual(oreDelegation.materialHighResSprites[i].name, materialHighResSpriteNames[i]);
+        }
+
+        // There's 15 in total but only 9 are actively used at once
+        int[] materialPrices = new int[] { 75, 200, 300, 7500, 20000, 30000, 750000, 2000000, 3000000 };
+        Assert.AreEqual(materialPrices.Length, oreDelegation.GetOriginalMaterialPrices().Length);
+
+        for (int i = 0; i != materialPrices.Length; i++)
+        {
+            Assert.AreEqual(oreDelegation.GetOriginalMaterialPrices()[i], materialPrices[i]);
         }
 
         Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
@@ -453,7 +441,7 @@ public class LoadingTest
         Assert.AreEqual(mineRenderer.unknownTile.name, "Unknown Tile");
         Assert.AreEqual(mineRenderer.generationTriggers.name, "GenerationTriggers");
 
-        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Rock Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
+        string[] tileNames = { "Level 1 Rock Rule Tile", "Limestone Ore Tile", "Sulfur Ore Tile", "Iron Ore Tile", "Level 2 Rock Rule Tile", "Quartz Ore Tile", "Titanium Ore Tile", "Cobalt Ore Tile", "Level 3 Rock Rule Tile", "Platinum Ore Tile", "Lithium Ore Tile", "Uranium Ore Tile" };
         for (int i = 0; i != mineRenderer.tileValues.Length; i++)
         {
             Assert.AreEqual(tileNames[i], mineRenderer.tileValues[i].name);
@@ -602,52 +590,6 @@ public class LoadingTest
 
 
         Assert.True(DataPersistenceManager.Instance.GetGameData().finishedTutorial);
-
-    }
-
-    [UnityTest]
-    public IEnumerator E_VerifyGarage()
-    {
-        SceneManager.LoadScene("Singleplayer");
-        yield return null;
-
-        Task waitForLoadingScreen = WaitForLoadingScreen();
-        yield return new WaitUntil(() => waitForLoadingScreen.IsCompleted);
-
-        Transform garagePanel = GetUIPanel("Garage Panel").transform;
-        GarageDelegator garageDelegator = garagePanel.GetComponent<GarageDelegator>();
-        Transform drillersContent = garagePanel.GetChild(2).GetChild(0).GetChild(0).GetChild(0);
-        Transform playerVehicle = GameObject.Find("Player Vehicle").transform;
-
-        for (int i = 0; i != drillersContent.childCount; i++)
-        {
-            Transform childTransform = drillersContent.GetChild(i);
-            // Open garage
-            ClickBottomControl("Garage Button", "Garage Panel");
-
-            yield return null;
-
-            // Make sure it's enabled
-            Assert.True(childTransform.gameObject.activeSelf);
-            Assert.True(childTransform.name == garageDelegator.drillers[i].name);
-
-            // Make sure stats match (except for heat limit, that's handled by ugprade bay)
-            DrillerController drillerController = garageDelegator.drillers[i].transform.GetChild(1).GetComponent<DrillerController>();
-            Assert.True(drillerController.drillerIndex == i);
-            Assert.True(drillerController.width.ToString() == childTransform.GetChild(6).GetChild(1).GetComponent<TextMeshProUGUI>().text);
-            Assert.True(drillerController.GetPlayerSpeed() == childTransform.GetChild(7).GetChild(1).GetComponent<Slider>().value);
-
-            // Click deploy button, whether purchased or not
-            childTransform.GetChild(3).GetComponent<Button>().onClick.Invoke();
-
-            yield return null;
-
-            // Make sure the right vehicle is deployed
-            Assert.False(garagePanel.gameObject.activeSelf);
-            ClickBottomControl("Garage Button", "Garage Panel");
-
-            Assert.True(playerVehicle.GetChild(0).name.Contains(childTransform.name));
-        }
 
     }
 

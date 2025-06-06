@@ -9,8 +9,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public PlayerState playerState;
     public PlayerMovement playerMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
-    public GarageDelegator garageDelegator;
     public RefineryController refineryController;
+    public RefineryUpgradePad refineryUpgradePad;
     public SupplyCrateDelegator supplyCrateDelegator;
     public SessionDelegator sessionDelegator;
     public UpgradesDelegator upgradesDelegator;
@@ -25,6 +25,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public RectTransform movementJoystick;
     public GameObject playerMessage;
     public GameObject vehicleUpgradeBayPanel;
+    public GameObject refineryUpgradeBayPanel;
+    public GameObject refineryProceedPanel;
     public GameObject overHeatTip;
 
     public bool finishedTutorial;
@@ -48,35 +50,39 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Wait for the loading screen to be deactivated
         yield return new WaitUntil(() => !loadingScreen.activeSelf);
 
-        while (tutorialScreenIndex <= 7)
+        while (tutorialScreenIndex <= 11)
         {
             Debug.Log(tutorialScreenIndex);
             
             analyticsDelegator.TutorialStep(tutorialScreenIndex);
 
             // Load mine
-            if (tutorialScreenIndex == 0) {
+            if (tutorialScreenIndex == 0)
+            {
                 TellPlayerToMove();
 
                 yield return new WaitUntil(() => refineryController.mineRenderer.mineInitialization != 0);
 
-            } 
+            }
             // Go into mine
-            else if (tutorialScreenIndex == 1) {
+            else if (tutorialScreenIndex == 1)
+            {
 
                 enterMineArrow.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
+                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 1));
 
                 yield return new WaitUntil(() => IsInTheMine(playerMovement.transform.position.y));
-                
+
                 enterMineArrow.SetActive(false);
-                if (arrowAnimation != null) {
+                if (arrowAnimation != null)
+                {
                     StopCoroutine(arrowAnimation);
                 }
 
-            } 
+            }
             // Use survey radar
-            else if (tutorialScreenIndex == 2) {
+            else if (tutorialScreenIndex == 2)
+            {
 
                 // In case player already activated power
                 upgradesDelegator.cooldownTimer = 0;
@@ -84,24 +90,27 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 powerIndicator.SetActive(true);
                 TutorialUIParent.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(powerIndicator.transform.GetChild(0).gameObject, 30));
-                
+                arrowAnimation = StartCoroutine(AnimateArrow(powerIndicator.transform.GetChild(0).gameObject, 30, 1));
+
                 yield return new WaitUntil(() => upgradesDelegator.scannedForOres);
 
                 TutorialUIParent.SetActive(false);
                 powerIndicator.SetActive(false);
-                if (arrowAnimation != null) {
+                if (arrowAnimation != null)
+                {
                     StopCoroutine(arrowAnimation);
                 }
-                
-            } 
+
+            }
             // Mine revealed ores
-            else if (tutorialScreenIndex == 3) {
+            else if (tutorialScreenIndex == 3)
+            {
                 TellPlayerToMove();
                 yield return new WaitUntil(() => playerState.materialsSold > 1);
             }
             // Mine until the time runs out
-            else if (tutorialScreenIndex == 4) {
+            else if (tutorialScreenIndex == 4)
+            {
                 refineryController.refineryTimer = 30;
 
                 playerMessage.SetActive(true);
@@ -125,26 +134,35 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return new WaitUntil(() => refineryController.refineryTimer == 0 || refineryController.refineryTimer > 30);
                 TutorialUIParent.SetActive(false);
                 overHeatTip.SetActive(false);
+
+                // Make sure player has at least 20.5k cash
+                if (playerState.GetUserCash() < 20_500)
+                {
+                    playerState.AddCash((double)(20_500 - playerState.GetUserCash()));
+                }
             }
             // Go to the vehicle upgrade bay
-            else if (tutorialScreenIndex == 5) {
+            else if (tutorialScreenIndex == 5)
+            {
                 playerMessage.SetActive(false);
 
                 // Flip and show arrow
-                enterMineArrow.transform.eulerAngles = new(0, 0, 0);
-                enterMineArrow.transform.localPosition = new(-1081, -1916, 0);
+                enterMineArrow.transform.eulerAngles = new(0, 0, 90);
+                enterMineArrow.transform.localPosition = new(-1083.79f, -1911.5f, 0);
                 enterMineArrow.SetActive(true);
-                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2));
+                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 0));
 
                 yield return new WaitUntil(() => vehicleUpgradeBayPanel.activeSelf);
-                
+
                 enterMineArrow.SetActive(false);
-                if (arrowAnimation != null) {
+                if (arrowAnimation != null)
+                {
                     StopCoroutine(arrowAnimation);
                 }
             }
             // Upgrade heat limit
-            else if (tutorialScreenIndex == 6) {
+            else if (tutorialScreenIndex == 6)
+            {
                 playerMessage.SetActive(false);
 
                 // Indicate upgrade button
@@ -160,24 +178,104 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return null;
                 yield return null;
                 yield return null;
-                yield return null;
-                yield return null;
 
                 // If they closed the panel, drop the index back to 5
-                if (!vehicleUpgradeBayPanel.activeSelf) {
+                if (!vehicleUpgradeBayPanel.activeSelf)
+                {
                     tutorialScreenIndex = 5;
                     continue;
                 }
             }
-            // Close upgrade bay
-            else if (tutorialScreenIndex == 7) {
-
+            // Close vehicle upgrade bay
+            else if (tutorialScreenIndex == 7)
+            {
                 // Indicate close button
                 vehicleUpgradeBayManager.FlashCloseButton();
 
                 yield return new WaitUntil(() => !vehicleUpgradeBayPanel.activeSelf);
-                
+
                 vehicleUpgradeBayManager.flashButton = false;
+            }
+            // Go to refinery upgrade bay
+            else if (tutorialScreenIndex == 8)
+            {
+                // Flip and show arrow
+                enterMineArrow.transform.eulerAngles = new(0, 0, 270);
+                enterMineArrow.transform.localPosition = new(-1076.21f, -1911.5f, 0);
+                enterMineArrow.SetActive(true);
+                arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 0));
+
+                yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
+
+                enterMineArrow.SetActive(false);
+                if (arrowAnimation != null)
+                {
+                    StopCoroutine(arrowAnimation);
+                }
+            }
+            // Upgrade limestone ore
+            else if (tutorialScreenIndex == 9)
+            {
+                // Wait for it to load
+                yield return new WaitUntil(() => refineryUpgradePad.limestoneUpgradeImage != null || !refineryUpgradeBayPanel.activeSelf);
+
+                // If they closed the panel, drop the index back to 8
+                if (!refineryUpgradeBayPanel.activeSelf)
+                {
+                    tutorialScreenIndex = 8;
+                    continue;
+                }
+
+                refineryUpgradePad.FlashOreUpgradeButton();
+
+                yield return new WaitUntil(() => refineryUpgradePad.BoughtOneUpgrade() || !refineryUpgradeBayPanel.activeSelf);
+
+                refineryUpgradePad.flashButton = false;
+
+                // Wait for flashing to stop
+                yield return null;
+                yield return null;
+                yield return null;
+
+                // If they closed the panel, drop the index back to 8
+                if (!refineryUpgradeBayPanel.activeSelf)
+                {
+                    tutorialScreenIndex = 8;
+                    continue;
+                }
+            }
+            // Go to proceed panel
+            else if (tutorialScreenIndex == 10)
+            {
+                refineryUpgradePad.FlashProceedPanelButton();
+
+                // Wait until they buy an upgrade
+                // Or if they close the panel
+                yield return new WaitUntil(() => refineryProceedPanel.activeSelf || !refineryUpgradeBayPanel.activeSelf);
+
+                refineryUpgradePad.flashButton = false;
+
+                // Wait for flashing to stop
+                yield return null;
+                yield return null;
+                yield return null;
+
+                // If they closed the panel, drop the index back to 8
+                if (!refineryUpgradeBayPanel.activeSelf)
+                {
+                    tutorialScreenIndex = 8;
+                    continue;
+                }
+            }
+            // Close refinery upgrade bay
+            else if (tutorialScreenIndex == 11)
+            {
+                // Indicate close button
+                refineryUpgradePad.FlashCloseButton();
+
+                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
+
+                refineryUpgradePad.flashButton = false;
             }
 
             tutorialScreenIndex++;
@@ -193,8 +291,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             playerState.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
             
-            // Switch back to first driller and reset mine
-            playerVehicleDelegation.SwitchVehicle(garageDelegator.drillers[0]);
+            // Reset mine
             refineryController.CallResetMineFromButton();
 
             analyticsDelegator.FinishTutorial();
@@ -217,22 +314,44 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
     }
 
-    private IEnumerator AnimateArrow(GameObject arrow, float amplitude) {
+    private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
+        // axis 0 = x, axis 1 = y
+
         RectTransform rectTransform = arrow.GetComponent<RectTransform>();
         // Save the original position for reference
         Vector2 originalPos = rectTransform.anchoredPosition;
 
-        float speed = 3f;      // Controls the speed of the oscillation
+        const float speed = 3f;      // Controls the speed of the oscillation
 
-        while (true) {
-            // Calculate the new y offset using Mathf.Sin
-            float offsetY = Mathf.Sin(Time.time * speed) * amplitude;
-            
-            // Update the anchored position while preserving the x-coordinate
-            rectTransform.anchoredPosition = new Vector2(originalPos.x, originalPos.y + offsetY);
-            
-            // Wait until the next frame
-            yield return null;
+        // Animate horizontally
+        if (axis == 0)
+        {
+            while (true)
+            {
+                // Calculate the new y offset using Mathf.Sin
+                float offsetX = Mathf.Sin(Time.time * speed) * amplitude;
+
+                // Update the anchored position while preserving the x-coordinate
+                rectTransform.anchoredPosition = new Vector2(originalPos.x + offsetX, originalPos.y);
+
+                // Wait until the next frame
+                yield return null;
+            }
+        }
+        // Animate vertically
+        else
+        {
+            while (true)
+            {
+                // Calculate the new y offset using Mathf.Sin
+                float offsetY = Mathf.Sin(Time.time * speed) * amplitude;
+
+                // Update the anchored position while preserving the x-coordinate
+                rectTransform.anchoredPosition = new Vector2(originalPos.x, originalPos.y + offsetY);
+
+                // Wait until the next frame
+                yield return null;
+            }
         }
     }
 

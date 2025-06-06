@@ -82,7 +82,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
             rangePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             rangePriceText.text = "MAX";
         } else {
-            rangePriceText.text = FormatPrice(upgradePrices[rangeLevel]);
+            rangePriceText.text = playerState.FormatPrice(upgradePrices[rangeLevel]);
         }
 
         // Strength
@@ -98,7 +98,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
             strengthPriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             strengthPriceText.text = "MAX";
         } else {
-            strengthPriceText.text = FormatPrice(upgradePrices[strengthLevel]);
+            strengthPriceText.text = playerState.FormatPrice(upgradePrices[strengthLevel]);
         }
     }
 
@@ -131,28 +131,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         data.magnetHaulerUpgrades = this.magnetHaulerUpgrades;
-    }
-
-    public string FormatPrice(int price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     private string GetLocalizedValue(string key, params object[] args)

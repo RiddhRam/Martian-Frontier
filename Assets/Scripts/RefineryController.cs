@@ -28,12 +28,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     // 5 Mins
     private const int initialTimer = 120;
     // The cash made during the current refinery timer, resets to 0 when mine resets
-    float cashMadeThisMine;
+    double cashMadeThisMine;
 
     private System.Numerics.BigInteger materialsSold;
     public bool askedForReview;
 
-    [SerializeField] private int[] materialPrices;
     [SerializeField] private float profitMultiplier = 1;
     private float levelProfitMultiplier = 0;
 
@@ -49,14 +48,14 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public UpgradesDelegator upgradesDelegator;
     [SerializeField] PlayerMovement playerMovement;
 
-    private bool doneLoading = false;
+    public bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
     private AdDelegator adDelegator;
 
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
-    private Coroutine countdownCoroutine;
+    public Coroutine countdownCoroutine;
 
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
@@ -66,8 +65,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         audioDelegator = AudioDelegator.Instance;
         dataPersistenceManager = DataPersistenceManager.Instance;
         analyticsDelegator = AnalyticsDelegator.Instance;
-        
-        materialPrices = mineRenderer.GetComponent<OreDelegation>().GetMaterialPrices();
     }
 
     void OnTriggerEnter2D(Collider2D collision)
@@ -92,6 +89,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private IEnumerator RefineryCountdown(int timer) {
+        // Wait for mine to load before continuing
+        // Sometimes refienry controller loads, then starts mine reset, and then mine loads while refinery thinks mine reset
+        yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
+
         refineryTimer = timer;
 
         while (refineryTimer > 0) {
@@ -156,7 +157,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
         if (adDelegator.lobbyAdDisplay) {
-            StartCoroutine(adDelegator.TryShowLobbyReward((long) cashMadeThisMine));
+            StartCoroutine(adDelegator.TryShowLobbyReward(cashMadeThisMine));
         }
 
         playerState.UpdateHighestMined(cashMadeThisMine);
@@ -168,7 +169,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
-        playerVehicle.transform.SetPositionAndRotation(new(0, 3, 0), Quaternion.Euler(0, 0, 180));
+        playerVehicle.transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
 
         doneAnimation = false;
         if (increaseBatteryCoroutine != null) {
@@ -257,10 +258,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public void SellOres(int[] materialsMined, bool isNPC) {
         // Track number of ores mined and cash earned
         int change = 0;
-        long cashToAdd = 0;
+        double cashToAdd = 0;
 
-        for (int i = 0; i != materialPrices.Length; i++) {
-            cashToAdd += materialPrices[i] * materialsMined[i];
+        for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
+        {
+            
+            if (materialsMined[i] <= 0)
+            {
+                continue;
+            }
+            
+            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
             change += materialsMined[i];
         }
 
@@ -287,7 +295,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void UpdateCashText() {
-        cashMadeThisMineText.text = playerState.FormatPrice((long) cashMadeThisMine);
+        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine, 1);
     }
 
     public void PlaySaleNoise() {
@@ -380,9 +388,12 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public float GetTotalProfitMultiplier() {
-        // Have to round due to floating point errors
-        float multiplier = profitMultiplier + levelProfitMultiplier + upgradesDelegator.profitMultiplier;
 
+        // Not currently using levelProfitMultiplier
+        //float multiplier = profitMultiplier + levelProfitMultiplier + upgradesDelegator.profitMultiplier;
+        float multiplier = profitMultiplier + upgradesDelegator.profitMultiplier;
+
+        // Have to round due to floating point errors
         return Mathf.Round(multiplier * 100f) / 100f;
     }
 

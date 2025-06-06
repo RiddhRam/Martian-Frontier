@@ -10,9 +10,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [SerializeField] Sprite[] grinderBodies;
     [SerializeField] Sprite[] twinBodies;
     [SerializeField] Sprite[] viperBodies;
-    [SerializeField] Sprite[] specterBodies;
-    [SerializeField] Sprite[] tempestBodies;
     [SerializeField] Sprite[] boreBodies;
+    [SerializeField] Sprite[] tempestBodies;
+    [SerializeField] Sprite[] specterBodies;
 
     private Sprite[][] allBodies;
 
@@ -27,16 +27,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("For Displaying")]
     public DrillerController drillerController;
     public GameObject upgradeBayPanel;
-    // Where to put the sprites
-    public Image[] garageBodyImages;
-    public Image[] garageDrillImages;
+    public GameObject[] drillUIPositions;
 
     public Transform displayPanel;
     private Transform drillToCopy;
-
-    // The actual sprite to show
-    private Sprite bodySprite;
-    private Animator drillAnimator;
 
     [Header("Buttons")]
     public Image customizationsButtonImage;
@@ -67,10 +61,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    private JoystickMovement joystickMovement;
-    public GarageDelegator garageDelegator;
     public PlayerVehicleDelegation playerVehicleDelegation;
+    [SerializeField] AudioDelegator audioDelegator;
     public bool loaded = false;
+
+    [Header("Audio")]
+    [SerializeField] AudioClip upgradeSound;
+    [SerializeField] AudioSource oreSoundEffectsSource;
 
     [Header("For Tutorial")]
     public bool flashButton;
@@ -80,35 +77,55 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
 
-    const int heatBonusPerLevel = 10; // 10 endurance per level
-
     const int coolTimesPerSecond = 50; // 50 fps
-    const float coolPerFrame = 0.12f; // 0.12f * 50 = 6 second per level
 
-    // 50-level curve: 5 000 → 1 500 000, total ≈ 10 118 400
-
-    private static readonly int[] upgradeHeatPrices = new int[]
+    // 50-level curve: 12 000 → 4 000 000 000 000 000 000
+    private static readonly ulong[] upgradeHeatPrices = new ulong[]
     {
-        5_000, 5_200, 5_300, 5_600, 5_800,
-        6_100, 6_400, 6_800, 7_300, 7_800,
-        8_400, 9_200, 10_000, 11_000, 12_100,
-        13_400, 15_000, 16_900, 19_100, 21_700,
-        24_700, 28_200, 32_200, 32_800, 38_000,
-        44_000, 50_800, 58_500, 67_400, 77_700,
-        89_600, 103_700, 120_000, 138_900, 160_700,
-        185_600, 215_500, 250_200, 290_500, 337_200,
-        345_300, 400_900, 465_400, 540_300, 627_300,
-        728_300, 845_500, 981_600, 1_139_500, 1_500_000
+        12_000UL,    24_000UL,    49_000UL,     95_000UL,      190_000UL,
+        380_000UL,   750_000UL,   1_500_000UL,  2_900_000UL,   6_000_000UL,
+        12_000_000UL,22_000_000UL,44_000_000UL, 90_000_000UL,   180_000_000UL,
+        340_000_000UL,700_000_000UL,1_400_000_000UL,2_600_000_000UL,5_500_000_000UL,
+        10_000_000_000UL,20_000_000_000UL,40_000_000_000UL,80_000_000_000UL,160_000_000_000UL,
+        320_000_000_000UL,600_000_000_000UL,1_200_000_000_000UL,2_400_000_000_000UL,4_800_000_000_000UL,
+        9_500_000_000_000UL,19_000_000_000_000UL,37_000_000_000_000UL,75_000_000_000_000UL,140_000_000_000_000UL,
+        280_000_000_000_000UL,550_000_000_000_000UL,1_100_000_000_000_000UL,2_200_000_000_000_000UL,4_400_000_000_000_000UL,
+        8_500_000_000_000_000UL,17_000_000_000_000_000UL,34_000_000_000_000_000UL,65_000_000_000_000_000UL,130_000_000_000_000_000UL,
+        260_000_000_000_000_000UL,500_000_000_000_000_000UL,1_000_000_000_000_000_000UL,2_000_000_000_000_000_000UL,4_000_000_000_000_000_000UL
     };
 
-    // 50-level curve: 1 000 → 500 000, total ≈ 5 000 600
-    private static readonly int[] upgradeCoolPrices = new int[]
+    // 51 values
+    private static readonly int[] upgradeHeatValues = new int[] {
+        60, 100, 120, 130, 150, 170, 200, 220, 250, 290,
+        330, 380, 430, 490, 560, 630, 720, 820, 940, 1100,
+        1200, 1400, 1600, 1800, 2000, 2300, 2600, 3000, 3400, 3900,
+        4500, 5100, 5800, 6600, 7500, 8500, 9700, 11000, 13000, 14000,
+        16000, 19000, 21000, 24000, 27000, 31000, 36000, 41000, 46000, 53000, 60000
+    };
+
+    // 50-level curve: 10 000 → 1 000 000 000 000 000 000
+    private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
-        1000, 1200, 1300, 1500, 1800, 2100, 2400, 2700, 3200, 3700,
-        4200, 4900, 5600, 6500, 7500, 8700, 10000, 11600, 13400, 15500,
-        17900, 20600, 23800, 27500, 31800, 36700, 42400, 48900, 56500, 65300,
-        75400, 83300, 91900, 101500, 112000, 123700, 136500, 150700, 166400, 183700,
-        202800, 223900, 247200, 272900, 301300, 332700, 367300, 405400, 447600, 494200
+        20_000UL,            25_000UL,            30_000UL,           40_000UL,           60_000UL,
+        80_000UL,          150_000UL,          300_000UL,          600_000UL,        1_200_000UL,
+        2_400_000UL,       4_800_000UL,       9_500_000UL,      19_000_000UL,      38_000_000UL,
+        75_000_000UL,     150_000_000UL,     300_000_000UL,     600_000_000UL,   1_200_000_000UL,
+        2_300_000_000UL,   4_500_000_000UL,   9_000_000_000UL,  18_000_000_000UL,  35_000_000_000UL,
+    70_000_000_000UL,  140_000_000_000UL,  280_000_000_000UL,  550_000_000_000UL,1_100_000_000_000UL,
+    2_200_000_000_000UL,4_200_000_000_000UL,8_500_000_000_000UL,17_000_000_000_000UL,35_000_000_000_000UL,
+    70_000_000_000_000UL,140_000_000_000_000UL,280_000_000_000_000UL,550_000_000_000_000UL,1_000_000_000_000_000UL,
+    2_100_000_000_000_000UL,4_200_000_000_000_000UL,8_500_000_000_000_000UL,16_000_000_000_000_000UL,32_000_000_000_000_000UL,
+    65_000_000_000_000_000UL,130_000_000_000_000_000UL,250_000_000_000_000_000UL,500_000_000_000_000_000UL,1_000_000_000_000_000_000UL
+    };
+
+    // 51 values
+    private static readonly float[] upgradeCoolValues = new float[] {
+        0.50f, 0.58f, 0.68f, 0.79f, 0.92f, 1.1f,  1.2f,  1.4f,  1.7f,  2f,
+        2.3f,  2.7f,  3.1f,  3.6f,  4.2f,  4.9f,  5.7f,  6.6f,  7.7f,  9f,
+        10f,   12f,   14f,   16f,   19f,   22f,   26f,   30f,   35f,   41f,
+        48f,   56f,   65f,   75f,   88f,  100f,  120f,  140f,  160f,  190f,
+        220f,  250f,  300f,  350f,  400f,  470f,  540f,  630f,  740f,  860f,
+        1000f
     };
 
     private Coroutine heatValueTextCoroutine;
@@ -116,13 +133,27 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     void Awake()
     {
-        joystickMovement = JoystickMovement.Instance;
+        // Set heat button click listener and hold to purchase
+        Transform heatButton = heatUpgradePriceText.transform.parent.parent;
+        heatButton.GetComponent<Button>().onClick.AddListener(() => PurchaseUpgrade("Heat"));
+
+        HoldButton heatHoldButton = heatButton.gameObject.AddComponent<HoldButton>();
+        heatHoldButton.SetAction(() => PurchaseUpgrade("Heat"));
+
+        // Set cool button click listener and hold to purchase
+        Transform coolButton = coolUpgradePriceText.transform.parent.parent;
+        coolButton.GetComponent<Button>().onClick.AddListener(() => PurchaseUpgrade("Cooldown"));
+
+        HoldButton coolHoldButton = coolButton.gameObject.AddComponent<HoldButton>();
+        coolHoldButton.SetAction(() => PurchaseUpgrade("Cooldown"));
     }
 
     void OnTriggerEnter2D(Collider2D collision) {
+
+        // Only the Player Trigger trigger can activate the pad, not the body or drill
         // Only the player vehicle can open the UI panel on their local game
-        // Also only the drill can activate this pad, not the body
-        if (!collision.transform.parent.parent.name.Contains("Player Vehicle") || !collision.GetComponent<DrillerController>()) {
+        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
+        {
             return;
         }
 
@@ -134,7 +165,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         uIDelegation.HideAll();
 
         // Customizations
-        // Get rid of last vehicle display and create new one that matches the current vehicle
         DestroyPreviousVehicleDisplay();
         CreateNewVehicleDisplay();
         GenerateCustomizationsDisplays();
@@ -145,35 +175,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         uIDelegation.RevealElement(upgradeBayPanel);
 
         // Stop player from moving;
-        joystickMovement.joystickVec = Vector2.zero;
-    }
-
-    // driller = the gameobject of the driller, not its panel
-    // matchActiveDrill = whether or not to update the drill the player is currently using too
-    private void MatchGarageDisplayToDrill(int drillerIndex) {
-
-        Transform driller = garageDelegator.drillers[drillerIndex].transform;
-
-        // Get and set body sprite
-        (bodySprite, _) = GetBodySprite(drillerIndex, driller.name);
-        
-        garageBodyImages[drillerIndex].sprite = bodySprite;
-
-        // Get and set driller controller / animator
-        DrillerController currentDrillerController = driller.GetChild(1).GetComponent<DrillerController>();
-        
-        drillAnimator = currentDrillerController.GetComponent<Animator>();
-
-        if (drillAnimator) {
-            (garageDrillImages[drillerIndex].GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(driller.name);
-        } 
-        else {
-            (garageDrillImages[drillerIndex].sprite, _) = GetDrillSprite(currentDrillerController.drillTypeIndex, driller.name);
-        }
-
-        // Get and set heat limit
-        int heat = GetHeatLimit(currentDrillerController);
-        garageDrillImages[drillerIndex].transform.parent.parent.GetChild(5).GetChild(1).GetComponent<TextMeshProUGUI>().text = heat.ToString();
+        JoystickMovement.Instance.joystickVec = Vector2.zero;
     }
 
     public void MatchPlayerDrillToDrill() {
@@ -190,7 +192,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         (drillerController.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
 
         // Used so we can get the base values
-        DrillerController originalDrillerController = garageDelegator.drillers[drillerController.drillerIndex].transform.GetChild(1).GetComponent<DrillerController>();
+        DrillerController originalDrillerController = playerVehicleDelegation.drillers[drillerController.drillerIndex].transform.GetChild(1).GetComponent<DrillerController>();
         
         drillerController.endurance = GetHeatLimit(originalDrillerController);
         drillerController.SetCoolRate(GetCoolRate(originalDrillerController));
@@ -209,13 +211,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     private int GetHeatLimit(DrillerController originalDrillerController) {
+        // Starts at 90
         // 10 endurance per level
-        return originalDrillerController.endurance + (heatBonusPerLevel * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat"));
+        return upgradeHeatValues[GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Heat")];
     }
 
     private float GetCoolRate(DrillerController originalDrillerController) {
         // 6 per level (0.12f per update, and 50fps)
-        return originalDrillerController.GetCoolRate() + (coolPerFrame * GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Cooldown"));
+        return upgradeCoolValues[GetDrillUpgradeLevel(originalDrillerController.transform.parent.name, "Cooldown")];
     }
 
     // Find the selected body sprite the user chose
@@ -277,31 +280,36 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Fallback
         return (allNormalDrills[drillTypeIndex][0], 0);
     }
-
+    
     // Remove the display from the upgrade bay
-    private void DestroyPreviousVehicleDisplay() {
-        if (drillToCopy) {
+    private void DestroyPreviousVehicleDisplay()
+    {
+        if (drillToCopy)
+        {
             Destroy(drillToCopy.gameObject);
         }
 
-        for (int i = 0; i != bodyOutlines.Length; i++) {
+        for (int i = 0; i != bodyOutlines.Length; i++)
+        {
             bodyOutlines[i].transform.GetChild(0).GetComponent<Button>().onClick.RemoveAllListeners();
         }
 
-        for (int i = 0; i != drillOutlines.Length; i++) {
+        for (int i = 0; i != drillOutlines.Length; i++)
+        {
             drillOutlines[i].transform.GetChild(0).GetComponent<Button>().onClick.RemoveAllListeners();
         }
     }
 
-    // Copy the garage display and show that in upgrade bay
-    private void CreateNewVehicleDisplay() {
-        // Copy from garage panel
-        drillToCopy = Instantiate(garageDrillImages[drillerController.drillerIndex].transform.parent.gameObject).transform;
+    // Copy the premade display and show that in upgrade bay
+    public void CreateNewVehicleDisplay()
+    {
+        // Instantiate premade positions for the sprite
+        drillToCopy = Instantiate(drillUIPositions[drillerController.drillerIndex]).transform;
 
         // Move to upgrade bay panel
         drillToCopy.SetParent(displayPanel);
         drillToCopy.localScale = new(2f, 2f, 2f);
-        
+
         // Reposition
         RectTransform rt = drillToCopy.GetComponent<RectTransform>();
         rt.offsetMin = new(0, rt.offsetMin.y);
@@ -310,9 +318,25 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         Vector2 pos = rt.anchoredPosition;
         pos.y = -1400f;
         rt.anchoredPosition = pos;
+
+        // Set body
+        (drillToCopy.GetChild(1).GetComponent<Image>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
+
+        string drillName = drillerController.transform.parent.name;
+        // Set drill
+        if (DrillUsesAnimation())
+        {
+            (drillToCopy.GetChild(2).GetComponent<Animator>().runtimeAnimatorController, _, _) = GetDrillAnimator(drillName);
+        }
+        else
+        {
+            (drillToCopy.GetChild(2).GetComponent<Image>().sprite, _) = GetDrillSprite(drillerController.drillTypeIndex, drillName);
+        }
+
     }
 
     private void GenerateCustomizationsDisplays() {
+
         bool usesAnimatedDrill = DrillUsesAnimation();
 
         for (int i = 0; i != bodyOutlines.Length; i++) {
@@ -470,7 +494,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     private void UpdateCustomizationGemPrice(long newPrice) {
         customizationGemPrice = newPrice;
-        gemPriceText.text = FormatPrice(customizationGemPrice);
+        gemPriceText.text = playerState.FormatPrice(customizationGemPrice);
     }
 
     private void HighlightEquippedOptions(bool usesAnimatedDrill) {
@@ -490,13 +514,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         equippedDrillOutline.effectColor = new(35/255f, 35/255f, 1);
     }
 
-    private bool PlayerOwnsCustomization(string name) {
+    private bool PlayerOwnsCustomization(string drillName) {
         // Vertex is free
-        if (name.ToLower().Contains("vertex")) {
+        if (drillName.ToLower().Contains("vertex")) {
             return true;
         }
 
-        if (customizationsOwned.Contains(name)) {
+        if (customizationsOwned.Contains(drillName)) {
             return true;
         }
 
@@ -526,9 +550,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         equipButton.SetActive(false);
 
-        MatchGarageDisplayToDrill(drillerController.drillerIndex);
         GenerateCustomizationsDisplays();
-
         MatchPlayerDrillToDrill();
     }
 
@@ -592,21 +614,26 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         EquipCustomization();
     }
 
-    public void PurchaseUpgrade(string type) {
-
+    // Returns false if player can't afford upgrade, true otherwise
+    public bool PurchaseUpgrade(string type)
+    {
         // Find upgrade price
-        long upgradePrice;
+        ulong upgradePrice;
 
-        if (type == "Cooldown") {
+        // Throws an out of bounds error when player uses hold to purchase, but doesn't matter because it doesn't break anything
+        if (type == "Cooldown")
+        {
             upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
-        } else {
-            upgradePrice = upgradeHeatPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
         }
-        
+        else
+        {
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+        }
+
         // Transact amount
-        if (!playerState.VerifyEnoughCash(upgradePrice)) {
-            uIDelegation.ShowError("NOT ENOUGH CASH!");
-            return;
+        if (!playerState.VerifyEnoughCash(upgradePrice))
+        {
+            return false;
         }
 
         playerState.SubtractCash(upgradePrice);
@@ -615,16 +642,24 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         UpdateUpgradesDictionary(1, type);
 
         // Update displays and drill
-        MatchGarageDisplayToDrill(drillerController.drillerIndex);
         MatchPlayerDrillToDrill();
         UpdateUpgradeDetails(type);
+
+        audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
+
+        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
+
+        return true;
     }
 
     public void UpdateUpgradeDetails(string flashPower = null) {
-        // Update heat limit
-        heatUpgradeSlider.value = drillerController.endurance;
+        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
 
-        TextMeshProUGUI heatValueText =  heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        // Update heat limit
+        // Slider is offset by 6
+        heatUpgradeSlider.value = heatLevel + 6;
+
+        TextMeshProUGUI heatValueText = heatUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         heatValueText.text = drillerController.endurance.ToString();
 
         if (flashPower == "Heat") {
@@ -635,27 +670,32 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             heatValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(heatValueText));
         }
 
-        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
-        
         // If max level
-        if (heatLevel >= upgradeHeatPrices.Length) {
+        if (heatLevel >= upgradeCoolPrices.Length)
+        {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             heatUpgradePriceText.text = "MAX";
-        } else {
+        }
+        else
+        {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
-            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
+            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[heatLevel];
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            heatUpgradePriceText.text = FormatPrice(upgradeHeatPrices[heatLevel]);
+            heatUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[heatLevel]);
         }
         
-        // Update cool rate
-        coolUpgradeSlider.value = drillerController.GetCoolRate() * coolTimesPerSecond;
+        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
 
-        TextMeshProUGUI coolValueText =  coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        // Update cool rate
+        // Slider is offset by 6
+        coolUpgradeSlider.value = coolLevel + 6;
+
+        TextMeshProUGUI coolValueText = coolUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
         coolValueText.text = (drillerController.GetCoolRate() * coolTimesPerSecond).ToString() + "/s";
 
         if (flashPower == "Cooldown") {
@@ -666,7 +706,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(coolValueText));
         }
         
-        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
         // If max level
         if (coolLevel >= upgradeCoolPrices.Length) {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -677,9 +716,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         } else {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[coolLevel];
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            coolUpgradePriceText.text = FormatPrice(upgradeCoolPrices[coolLevel]);
+            coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
         }
 
     }
@@ -700,9 +740,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             grinderBodies,
             twinBodies,
             viperBodies,
-            specterBodies,
+            boreBodies,
             tempestBodies,
-            boreBodies
+            specterBodies,
         };
 
         allNormalDrills = new Sprite[][] {
@@ -713,10 +753,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         this.vehicleUpgradeLevels = data.vehicleUpgradeLevels;
         this.vehicleCustomizations = data.vehicleCustomizations;
         this.customizationsOwned = data.customizationsOwned;
-
-        for (int i = 0; i != garageDelegator.drillers.Length; i++) {
-            MatchGarageDisplayToDrill(i);
-        }
 
         // In production this loads after PlayerVehicleDelegation for some reason, whichever loads second should call the function
         if (playerVehicleDelegation.loaded) {
@@ -826,27 +862,5 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         return false;
-    }
-
-    public string FormatPrice(long price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 2 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 }

@@ -10,9 +10,9 @@ public class AnalyticsDelegator : MonoBehaviour
 {
     private Firebase.FirebaseApp app;
     private static AnalyticsDelegator _instance;
-    public static AnalyticsDelegator Instance 
+    public static AnalyticsDelegator Instance
     {
-        get  
+        get
         {
             if (_instance == null)
             {
@@ -27,9 +27,11 @@ public class AnalyticsDelegator : MonoBehaviour
     private float sceneStartRealtime;
     private string currentScene;
 
-    async void Start() {
+    async void Start()
+    {
         // Disable analytics in editor and development
-        if (Debug.isDebugBuild) {
+        if (Debug.isDebugBuild)
+        {
             return;
         }
 
@@ -39,13 +41,17 @@ public class AnalyticsDelegator : MonoBehaviour
         // Wait for initialization in Cloud Delegator
         await Task.Delay(500);
 
-        await Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task => {
+        await Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        {
             var dependencyStatus = task.Result;
-            if (dependencyStatus == Firebase.DependencyStatus.Available) {
+            if (dependencyStatus == Firebase.DependencyStatus.Available)
+            {
                 app = Firebase.FirebaseApp.DefaultInstance;
                 FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
                 // Firebase is ready to use
-            } else {
+            }
+            else
+            {
                 Debug.LogError(System.String.Format(
                   "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
             }
@@ -71,7 +77,7 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Scene_Time",
             new Parameter("Scene", currentScene),
             new Parameter("Duration", Time.realtimeSinceStartup - sceneStartRealtime));
-            new Parameter("Next_Scene", nextScene);
+        new Parameter("Next_Scene", nextScene);
     }
 
     void OnApplicationPause(bool paused)
@@ -104,8 +110,10 @@ public class AnalyticsDelegator : MonoBehaviour
         sceneStartRealtime = Time.realtimeSinceStartup;
     }
 
-    public void TestEvent(string message) {
-        if (!isInitialized) {
+    public void TestEvent(string message)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Test_Event") {
@@ -116,8 +124,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Test_Event", new Parameter("Test_Message", message));
     }
 
-    public void InitializeMine(int previousHighestRow) {
-        if (!isInitialized) {
+    public void InitializeMine(int previousHighestRow)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Initialize_Mine") {
@@ -128,8 +138,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Initialize_Mine", new Parameter("Previous_Highest_Row", previousHighestRow));
     }
 
-    public void AdWatchAttempt(string reward) {
-        if (!isInitialized) {
+    public void AdWatchAttempt(string reward)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Ad_Watch_Attempt") {
@@ -140,20 +152,24 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Ad_Watch_Attempt", new Parameter("Reward", reward));
     }
 
-    public void OpenUIPanel(string name) {
-        if (!isInitialized) {
+    public void OpenUIPanel(string panelName)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Open_UI_Panel") {
-            {"Panel", name}
+            {"Panel", panelName}
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Open_UI_Panel", new Parameter("Panel", name));
+        FirebaseAnalytics.LogEvent("Open_UI_Panel", new Parameter("Panel", panelName));
     }
 
-    public void ShowError(string error) {
-        if (!isInitialized) {
+    public void ShowError(string error)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Show_Error") {
@@ -164,8 +180,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Show_Error", new Parameter("Error", error));
     }
 
-    public void SelectVehicle(string vehicleName, string vehicleType, int tier) {
-        if (!isInitialized) {
+    public void SelectVehicle(string vehicleName, string vehicleType, int tier)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Select_Vehicle") {
@@ -175,14 +193,16 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Select_Vehicle", 
+        FirebaseAnalytics.LogEvent("Select_Vehicle",
             new Parameter("Vehicle_Name", vehicleName),
             new Parameter("Vehicle_Type", vehicleType),
             new Parameter("Vehicle_Tier", tier));
     }
 
-    public void PurchaseVehicle(string vehicleName, string vehicleType, int tier) {
-        if (!isInitialized) {
+    public void PurchaseVehicle(string vehicleName, string vehicleType, int tier)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Purchase_Vehicle") {
@@ -192,14 +212,16 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Purchase_Vehicle", 
+        FirebaseAnalytics.LogEvent("Purchase_Vehicle",
             new Parameter("Vehicle_Name", vehicleName),
             new Parameter("Vehicle_Type", vehicleType),
             new Parameter("Vehicle_Tier", tier));
     }
 
-    public void RefineryUpgrade(string upgradeName, int upgradeLevel) {
-        if (!isInitialized) {
+    public void RefineryUpgrade(string upgradeName, int upgradeLevel)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Refinery_Upgrade") {
@@ -208,13 +230,15 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Refinery_Upgrade", 
+        FirebaseAnalytics.LogEvent("Refinery_Upgrade",
             new Parameter("Upgrade_Name", upgradeName),
             new Parameter("Upgrade_Level", upgradeLevel));
     }
 
-    public void DropOffOres(string vehicleName, int oreCount, float cashCount) {
-        if (!isInitialized) {
+    public void DropOffOres(string vehicleName, int oreCount, float cashCount)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Drop_Off_Ores") {
@@ -224,26 +248,30 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Drop_Off_Ores", 
+        FirebaseAnalytics.LogEvent("Drop_Off_Ores",
             new Parameter("Vehicle_Name", vehicleName),
             new Parameter("Ore_Count", oreCount),
             new Parameter("Cash_Count", cashCount));
     }
 
-    public void OpenTutorialUIPanel(string name) {
-        if (!isInitialized) {
+    public void OpenTutorialUIPanel(string panelName)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Open_Tutorial_UI_Panel") {
-            {"Panel", name}
+            {"Panel", panelName}
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Open_Tutorial_UI_Panel", new Parameter("Panel", name));
+        FirebaseAnalytics.LogEvent("Open_Tutorial_UI_Panel", new Parameter("Panel", panelName));
     }
 
-    public void SelectLanguage(string language) {
-        if (!isInitialized) {
+    public void SelectLanguage(string language)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Select_Language") {
@@ -254,12 +282,14 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Select_Language", new Parameter("Language", language));
     }
 
-    public void StartTutorial() {
+    public void StartTutorial()
+    {
         // Do this asynchronously that way it has time to initialize
         StartCoroutine(StartTutorialAsync());
     }
 
-    private IEnumerator StartTutorialAsync() {
+    private IEnumerator StartTutorialAsync()
+    {
         yield return new WaitUntil(() => isInitialized);
 
         CustomEvent myEvent = new CustomEvent("Start_Tutorial");
@@ -268,8 +298,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Start_Tutorial");
     }
 
-    public void FinishTutorial() {
-        if (!isInitialized) {
+    public void FinishTutorial()
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Finish_Tutorial");
@@ -278,8 +310,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Finish_Tutorial");
     }
 
-    public void ContinuedAfterTutorial() {
-        if (!isInitialized) {
+    public void ContinuedAfterTutorial()
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Continued_After_Tutorial");
@@ -288,8 +322,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Continued_After_Tutorial");
     }
 
-    public void EnjoyingGame() {
-        if (!isInitialized) {
+    public void EnjoyingGame()
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Enjoying_Game");
@@ -298,8 +334,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Enjoying_Game");
     }
 
-    public void NotEnjoyingGame(string reason) {
-        if (!isInitialized) {
+    public void NotEnjoyingGame(string reason)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Not_Enjoying_Game") {
@@ -310,8 +348,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Not_Enjoying_Game", new Parameter("HateReason", reason));
     }
 
-    public void StartSuperChallenge(int selectedChallengeIndex) {
-        if (!isInitialized) {
+    public void StartSuperChallenge(int selectedChallengeIndex)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Start_Super_Challenge") {
@@ -322,8 +362,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Start_Super_Challenge", new Parameter("Selected_Challenge_Index", selectedChallengeIndex));
     }
 
-    public void CompleteSuperChallenge(int selectedChallengeIndex, int timeLeft) {
-        if (!isInitialized) {
+    public void CompleteSuperChallenge(int selectedChallengeIndex, int timeLeft)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Complete_Super_Challenge") {
@@ -332,13 +374,15 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Complete_Super_Challenge", 
+        FirebaseAnalytics.LogEvent("Complete_Super_Challenge",
             new Parameter("Selected_Challenge_Index", selectedChallengeIndex),
             new Parameter("Time_Left", timeLeft));
     }
 
-    public void CollectChallengeReward(int selectedChallengeIndex) {
-        if (!isInitialized) {
+    public void CollectChallengeReward(int selectedChallengeIndex)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Collect_Challenge_Reward") {
@@ -349,8 +393,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Collect_Challenge_Reward", new Parameter("Selected_Challenge_Index", selectedChallengeIndex));
     }
 
-    public void PurchaseCashWithGems(float amount) {
-        if (!isInitialized) {
+    public void PurchaseCashWithGems(float amount)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Purchase_Cash_With_Gems") {
@@ -361,8 +407,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Purchase_Cash_With_Gems", new Parameter("Amount", amount));
     }
 
-    public void UpgradeVehicle(string vehicleName, int upgradeLevel) {
-        if (!isInitialized) {
+    public void UpgradeVehicle(string vehicleName, int upgradeLevel)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Upgrade_Vehicle") {
@@ -371,13 +419,15 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Upgrade_Vehicle", 
+        FirebaseAnalytics.LogEvent("Upgrade_Vehicle",
             new Parameter("Vehicle_Name", vehicleName),
             new Parameter("Upgrade_Level", upgradeLevel));
     }
 
-    public void OpenCrate(bool openAll, int amount) {
-        if (!isInitialized) {
+    public void OpenCrate(bool openAll, int amount)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Open_Crate") {
@@ -386,13 +436,15 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Open_Crate", 
+        FirebaseAnalytics.LogEvent("Open_Crate",
             new Parameter("Open_All", openAll.ToString()),
             new Parameter("Amount", amount));
     }
 
-    public void IAPPurchase(string type) {
-        if (!isInitialized) {
+    public void IAPPurchase(string type)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("IAP_Purchase") {
@@ -403,8 +455,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("IAP_Purchase", new Parameter("Type", type));
     }
 
-    public void EquipPower(string powerName) {
-        if (!isInitialized) {
+    public void EquipPower(string powerName)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Equip_Power") {
@@ -415,8 +469,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Equip_Power", new Parameter("Power", powerName));
     }
 
-    public void UsePower(string powerName) {
-        if (!isInitialized) {
+    public void UsePower(string powerName)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Use_Power") {
@@ -427,8 +483,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Use_Power", new Parameter("Power", powerName));
     }
 
-    public void SwitchSession(string sessionType) {
-        if (!isInitialized) {
+    public void SwitchSession(string sessionType)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Switch_Session") {
@@ -439,8 +497,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Switch_Session", new Parameter("Type", sessionType));
     }
 
-    public void TutorialStep(int tutorialIndex) {
-        if (!isInitialized) {
+    public void TutorialStep(int tutorialIndex)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Tutorial_Step") {
@@ -451,8 +511,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Tutorial_Step", new Parameter("Index", tutorialIndex));
     }
 
-    public void PurchaseCreditsWithGems(float amount) {
-        if (!isInitialized) {
+    public void PurchaseCreditsWithGems(float amount)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Purchase_Credits_With_Gems") {
@@ -463,8 +525,10 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Purchase_Credits_With_Gems", new Parameter("Amount", amount));
     }
 
-    public void TechLabUpgrade(string upgradeName) {
-        if (!isInitialized) {
+    public void TechLabUpgrade(string upgradeName)
+    {
+        if (!isInitialized)
+        {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Tech_Lab_Upgrade") {
@@ -473,6 +537,56 @@ public class AnalyticsDelegator : MonoBehaviour
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
         FirebaseAnalytics.LogEvent("Tech_Lab_Upgrade", new Parameter("Upgrade_Name", upgradeName));
-        
+    }
+
+    public void VehicleUpgrade(string type, int upgradeLevel, int rebirthLevel)
+    {
+        if (!isInitialized)
+        {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Vehicle_Upgrade") {
+            {"Type", type},
+            {"Upgrade_Level", upgradeLevel},
+            {"Rebirth_Level", rebirthLevel},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+        FirebaseAnalytics.LogEvent("Vehicle_Upgrade",
+            new Parameter("Type", type),
+            new Parameter("Upgrade_Level", upgradeLevel),
+            new Parameter("Rebirth_Level", rebirthLevel));
+    }
+
+    public void OreUpgrade(string type, int upgradeLevel, int rebirthLevel)
+    {
+        if (!isInitialized)
+        {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Ore_Upgrade") {
+            {"Type", type},
+            {"Upgrade_Level", upgradeLevel},
+            {"Rebirth_Level", rebirthLevel},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+        FirebaseAnalytics.LogEvent("Ore_Upgrade",
+            new Parameter("Type", type),
+            new Parameter("Upgrade_Level", upgradeLevel),
+            new Parameter("Rebirth_Level", rebirthLevel));
+    }
+    
+    public void Rebirth(int rebirthLevel) {
+        if (!isInitialized) {
+            return;
+        }
+        CustomEvent myEvent = new CustomEvent("Rebirth") {
+            {"Rebirth_Level", rebirthLevel},
+        };
+        AnalyticsService.Instance.RecordEvent(myEvent);
+        AnalyticsService.Instance.Flush();
+        FirebaseAnalytics.LogEvent("Rebirth",
+            new Parameter("Rebirth_Level", rebirthLevel));
     }
 }

@@ -13,7 +13,7 @@ public class GameData
     public string blocksMined;
     public string materialsSold;
     public string moneyEarned;
-    public float highestMined;
+    public double highestMined;
     public Vector3 playerPos;
     public float playerRotation;
     public List<string> vehiclesOwned;
@@ -26,6 +26,9 @@ public class GameData
     public int seed;
     public int highestRow;
     public int mineInitialization;
+    public int mineCount;
+    // oreIndex: level
+    public SerializableDictionary<int, int> oreUpgrades;
 
     public bool finishedTutorial;
     public bool askedForReview;
@@ -44,24 +47,25 @@ public class GameData
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
-
-    public float[] materialProfitMultipliers;
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
-    public int rewardAdTimer;
+
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
+    // The number of powers unlocked by the player
+    public int powersUnlocked;
+
     public string userCredits;
     public int twoDayIntervals;
+
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
-    public int magnetHaulerAdTimer;
     public int[] magnetHaulerChallengeProgress;
     public bool[] magnetHaulerChallengeCollection;
     public int magnetHaulerSuperChallengeTimer;
+
     public SerializableDictionary<string, int> oreBlasterUpgrades;
-    public int oreBlasterAdTimer;
     public int[] oreBlasterChallengeProgress;
     public bool[] oreBlasterChallengeCollection;
     public int oreBlasterSuperChallengeTimer;
@@ -74,9 +78,9 @@ public class GameData
 
     public GameData() {
         // Starter cash
-        this.userCash = "10000";
+        this.userCash = "0";
         this.userXP = "0";
-        this.playerPos = new(0, 3, 0);
+        this.playerPos = new(0, 10, 0);
         this.playerRotation = 180;
         this.blocksMined = "0";
         this.materialsSold = "0";
@@ -104,6 +108,8 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
+        this.mineCount = 1;
+        this.oreUpgrades = new();
 
         this.finishedTutorial = false;
         this.askedForReview = false;
@@ -121,32 +127,30 @@ public class GameData
         this.vehicleCustomizations = new();
         this.customizationsOwned = new();
 
-        this.materialProfitMultipliers = new float[9];
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
         this.currentCoopVehicle = "GRINDER";
-        this.rewardAdTimer = 0;
+        
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
+        this.powersUnlocked = 1;
         
         this.userCredits = "0";
         this.twoDayIntervals = 0;
 
         this.magnetHaulerUpgrades = new();
-        this.magnetHaulerAdTimer = 0;
         this.magnetHaulerChallengeProgress = new int[6];
         this.magnetHaulerChallengeCollection = new bool[6];
         this.magnetHaulerSuperChallengeTimer = 1200;
 
         this.oreBlasterUpgrades = new();
-        this.oreBlasterAdTimer = 0;
         this.oreBlasterChallengeProgress = new int[6];
         this.oreBlasterChallengeCollection = new bool[6];
         this.oreBlasterSuperChallengeTimer = 1200;
 
         this.bp = 0;
         
-        this.id = 111;
+        this.id = 113;
     }
 }

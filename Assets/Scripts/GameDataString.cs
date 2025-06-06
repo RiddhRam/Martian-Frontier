@@ -19,6 +19,8 @@ public class GameDataString
     public string seed;
     public string highestRow;
     public string mineInitialization;
+    public string mineCount;
+    public string oreUpgrades;
 
     public string finishedTutorial;
     public string askedForReview;
@@ -36,23 +38,24 @@ public class GameDataString
     public string vehicleCustomizations;
     public string customizationsOwned;
 
-    public string materialProfitMultipliers;
     public string cratesAvailable;
     public string progressToNextCrate;
     public string currentCoopVehicle;
-    public string rewardAdTimer;
+
     public string cooldownTimer;
     public string equippedPowers;
     public string powerUpgradeLevels;
+    public string powersUnlocked;
+
     public string userCredits;
     public string twoDayIntervals;
+
     public string magnetHaulerUpgrades;
-    public string magnetHaulerAdTimer;
     public string magnetHaulerChallengeProgress;
     public string magnetHaulerChallengeCollection;
     public string magnetHaulerSuperChallengeTimer;
+
     public string oreBlasterUpgrades;
-    public string oreBlasterAdTimer;
     public string oreBlasterChallengeProgress;
     public string oreBlasterChallengeCollection;
     public string oreBlasterSuperChallengeTimer;

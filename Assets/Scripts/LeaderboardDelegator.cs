@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Services.CloudSave;
@@ -145,7 +146,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (gemRewardsToCollect > 0) {
-            collectRewardText.text = FormatPrice(gemRewardsToCollect);
+            collectRewardText.text = playerState.FormatPrice(gemRewardsToCollect);
             collectReward.SetActive(true);
             
             if (message != null) {
@@ -231,7 +232,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                 orePlayerScoreBars[playerBarCounter].SetActive(true);
 
                 orePlayerNameTextMeshes[playerBarCounter].text = oreLeaderboardScoresPage.Results[i].PlayerName.Substring(0, oreLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                oreScoreTextMeshes[playerBarCounter].text = FormatPrice(oreLeaderboardScoresPage.Results[i].Score);
+                oreScoreTextMeshes[playerBarCounter].text = playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[i].Score));
 
                 if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
                     orePlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
@@ -245,13 +246,13 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             }
 
             if (lastPlayerIndex != 0) {
-                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score));
+                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score)));
                 oreLastTierText.gameObject.SetActive(true);
             } else {
                 oreLastTierText.gameObject.SetActive(false);
             }
             if (firstPlayerIndex != 0) {
-                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score));
+                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score)));
                 oreNextTierText.gameObject.SetActive(true);
             } else {
                 oreNextTierText.gameObject.SetActive(false);
@@ -309,33 +310,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);
-    }
-
-    private string FormatPrice(double price)
-    {
-        if (price >= 1_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     public void LoadData(GameData data)

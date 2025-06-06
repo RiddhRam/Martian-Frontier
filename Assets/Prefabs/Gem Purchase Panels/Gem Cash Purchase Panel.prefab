@@ -354,7 +354,7 @@ GameObject:
   - component: {fileID: 2389978818593625082}
   - component: {fileID: 1254915577678778465}
   - component: {fileID: 6355105594900968161}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Gem Cash Purchase Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -654,7 +654,7 @@ GameObject:
   - component: {fileID: 3705636465060663373}
   - component: {fileID: 8898157774512132631}
   - component: {fileID: 2494481003131219943}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -731,7 +731,8 @@ GameObject:
   - component: {fileID: 3547069590648029458}
   - component: {fileID: 8457487914498780854}
   - component: {fileID: 3411840046663167130}
-  m_Layer: 0
+  - component: {fileID: 177172268039413795}
+  m_Layer: 5
   m_Name: BUY BUTTON
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -866,6 +867,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.985
   shrinkSpeed: 10
+--- !u!114 &177172268039413795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7775133877671989701}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &9188733949955096861
 GameObject:
   m_ObjectHideFlags: 0

@@ -60,7 +60,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private int rewardAdTimer = 0;
 
-    private long lobbyRewardAmount;
+    private double lobbyRewardAmount;
     private int lobbyRewardTimer;
 
     private DataPersistenceManager dataPersistenceManager;
@@ -400,15 +400,15 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         lobbyAdDisplay.SetActive(false);
     }
 
-    public IEnumerator TryShowLobbyReward(long rewardAmount) {
+    public IEnumerator TryShowLobbyReward(double rewardAmount) {
 
-        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is 0
-        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount <= 0) {
+        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is less than 1000
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount < 1000) {
             yield break;
         }
 
         lobbyRewardAmount = rewardAmount;
-        lobbyAdRewardAmountText.text = FormatPrice(lobbyRewardAmount);
+        lobbyAdRewardAmountText.text = playerState.FormatPrice(new System.Numerics.BigInteger(lobbyRewardAmount));
 
         lobbyRewardTimer = 30;
         lobbyAdDisplay.SetActive(true);
@@ -647,13 +647,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        this.rewardAdTimer = data.rewardAdTimer;
-
-        if (rewardAdTimer > 0) {
-            // Reward
-            RewardBoost(rewardAdTimer);
-        }
-
         if (!data.finishedTutorial) {
             firstTimePlaying = true;
         }
@@ -663,8 +656,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (disableAds) {
             return;
         }
-        
-        data.rewardAdTimer= this.rewardAdTimer;
     }
 
     private void FillEmptyAdSlots() {
@@ -687,24 +678,5 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             LoadRewardedAd("Lobby");
         }
     }
-
-    public string FormatPrice(long price)
-    {
-
-        if (price >= 1_000_000)
-        {
-            // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
-    }
-
 
 }

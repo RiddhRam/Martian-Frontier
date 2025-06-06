@@ -13,14 +13,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public GameObject[] xpDisplays;
     public GameObject[] creditDisplays;
     public GameObject[] gemCashPurchasePanels;
-    public GameObject materialProfitPanel;
-
 
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
     [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
-    private long savedAmountSubtract;
+    private BigInteger savedAmountSubtract;
     private BigInteger userXP;
     private BigInteger blocksMined;
     public BigInteger materialsSold;
@@ -28,19 +26,15 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userGems;
     private BigInteger gemsEarned;
     private BigInteger userCredits;
-    private float highestMined;
+    private double highestMined;
     private List<string> vehiclesOwned = new();
 
     [SerializeField] private RefineryController refineryController;
     private DataPersistenceManager dataPersistenceManager;
-    [SerializeField] private UIDelegation uIDelegation;
     private AnalyticsDelegator analyticsDelegator;
-    private DailyChallengeDelegator dailyChallengeDelegator;
     private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
-    [SerializeField] private UpgradesDelegator upgradesDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
-    public GarageDelegator garageDelegator;
 
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
@@ -49,14 +43,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private TextMeshProUGUI cashText;
     private Slider[] xpDisplaysSliders;
     private TextMeshProUGUI[] xpDisplaysText;
-    private GameObject[] drillers;
 
     private bool notSinglePlayerScene;
 
     [SerializeField] private GameObject ResetMineButton;
     [SerializeField] private GameObject betaScreen;
-
-    float profitMultiplier;
 
     string levelString;
 
@@ -71,7 +62,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         leaderboardDelegator = LeaderboardDelegator.Instance;
         analyticsDelegator = AnalyticsDelegator.Instance;
         dataPersistenceManager = DataPersistenceManager.Instance;
-        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
         
         // Credits are used for special game modes
         if (creditDisplays.Length > 0) {
@@ -84,10 +74,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         for (int i = 0; i != xpDisplays.Length; i++) {
             xpDisplaysSliders[i] = xpDisplays[i].GetComponent<Slider>();
             xpDisplaysText[i] = xpDisplays[i].transform.GetChild(2).GetComponent<TextMeshProUGUI>();
-        }
-
-        if (garageDelegator) {
-            drillers = garageDelegator.drillers;
         }
     }
 
@@ -103,10 +89,10 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     // Validate and add cash
     // This version of AddCash is called when the user drops some materials off at the refinery
-    public void AddCash(long cashToAdd, bool fromMining = false) {
+    public void AddCash(double cashToAdd, bool fromMining = false) {
 
-        userCash += cashToAdd;
-        moneyEarned += cashToAdd;
+        userCash += new BigInteger(cashToAdd);
+        moneyEarned += new BigInteger(cashToAdd);
 
         UpdateCashDisplays();
 
@@ -180,7 +166,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     // For Refinery Upgrade
-    public void SubtractCash(long amountToSubtract) { 
+    public void SubtractCash(BigInteger amountToSubtract) { 
 
         if (amountToSubtract == savedAmountSubtract) {
             userCash -= amountToSubtract;
@@ -207,7 +193,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         dataPersistenceManager.SaveGame();
     }
 
-    public void UpdateHighestMined(float newMineAmount) {
+    public void UpdateHighestMined(double newMineAmount) {
         if (newMineAmount > highestMined) {
             highestMined = newMineAmount;
             UpdateGemCashPurchasePanels();
@@ -215,17 +201,19 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
 
     public void UpdateGemCashPurchasePanels() {
-        // 4000 gems saves you 2 mins by giving you the same amount as the highest mined value you achieved
+        // 4000 gems saves you 1 mins by giving you half the amount as the highest mined value you achieved
         // its a float so it doesnt get rounded down if there's a decimal
         const float mainGemPrice = 4000;
+        double baseCashAmount = highestMined * 0.5;
 
-        for (int i = 0; i != gemCashPurchasePanels.Length; i++) {
+        for (int i = 0; i != gemCashPurchasePanels.Length; i++)
+        {
             GemCashPurchasePanel gemCashPurchasePanel = gemCashPurchasePanels[i].GetComponent<GemCashPurchasePanel>();
-            gemCashPurchasePanel.UpdateCashAmount(RoundToSignificantDigits(highestMined * (gemCashPurchasePanel.gemPrice / mainGemPrice), 2));
+            gemCashPurchasePanel.UpdateCashAmount(RoundToSignificantDigits(baseCashAmount * (gemCashPurchasePanel.gemPrice / mainGemPrice), 2));
         }
     }
 
-    public float GetHighestMined() {
+    public double GetHighestMined() {
         return highestMined;
     }
 
@@ -242,7 +230,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     }
     
     // For Refinery Upgrade
-    public bool VerifyEnoughCash(long price) {
+    public bool VerifyEnoughCash(BigInteger price) {
         savedAmountSubtract = price;
 
         if (userCash - savedAmountSubtract >= 0) {
@@ -277,12 +265,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         supplyCrateDelegator.ChangeProgressToNextCrate(amount);
 
         UpdateXPDisplays();
-
-        // If player leveled up update power visibility
-        int newLevel = (int) GetUserLevel();
-        if (newLevel > userLevel) {
-            upgradesDelegator.UpdatePowerVisibility(newLevel);
-        }
     
         blocksMined += amount;
     }
@@ -339,38 +321,95 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             gemDisplays[i].GetComponent<TextMeshProUGUI>().text = gemText;
         }
     }
+    
+    private void UpdateXPDisplays() {
+        if (specialGameMode) {
+            return;
+        }
+
+        float userLevel = GetUserLevel();
+        int level = (int) userLevel;
+        
+        float calculatedValue = level * 0.005f;
+        // For each level, add 0.5% to the profit multiplier
+        refineryController.SetLevelProfitMultiplier(calculatedValue);
+
+        float xpSliderValue = userLevel - level;
+        levelString = level.ToString();
+        for (int i = 0; i != xpDisplays.Length; i++) {
+            xpDisplaysSliders[i].value = xpSliderValue;
+            xpDisplaysText[i].text = levelString;
+        }
+    }
 
     // The FormatPrice in other places is slightly different. 
-    // Here we need to purposefully round down so the user doesn't 
-    // overestimate their money and buy something they can't afford
-    public string FormatPrice(BigInteger price)
+    public string FormatPrice(BigInteger price, int decimalPoints = 2)
     {
-        if (price >= 1_000_000_000_000)
+        string decimalTags = "0";
+
+        // needs this to indicate decimals
+        if (decimalPoints > 0)
+        {
+            decimalTags = "0.";
+        }
+
+        // Default is 2 if not specified
+        for (int i = 0; i != decimalPoints; i++)
+        {
+            decimalTags += "#"; // 1 # = 1 extra decimal point
+        }
+
+        if (price >= 1_000_000_000_000_000)
+        {
+            // determine the 1000-power group
+            BigInteger divisor = new BigInteger(1_000_000_000_000_000);   // 10¹⁵  → “aa”
+            int group = 0;                                                // 0 → aa, 1 → ab …
+
+            while (price / divisor >= 1000)
+            {
+                divisor *= 1000;   // next power of 10³
+                group++;           // next suffix slot
+            }
+
+            // numeric part, truncated to two decimals
+            double value = Math.Floor((double)(price * 100) / (double)divisor) / 100d;
+
+            // two-letter suffix: “aa”, “ab” … “zz”
+            int first = group / 26;           // 0–25 → ‘a’–‘z’
+            int second = group % 26;
+            if (first > 25) first = 25;        // clamp; beyond “zz” not supported
+            char c1 = (char)('a' + first);
+            char c2 = (char)('a' + second);
+            string suffix = $"{c1}{c2}";
+
+            return value.ToString(decimalTags) + suffix;
+        }
+        else if (price >= 1_000_000_000_000)
         {
             // Truncate to 2 decimal places and format with "T"
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
+            return (Mathf.Floor((float)price / 1_000_000_000_000f * 1000) / 1000).ToString(decimalTags) + "T";
         }
         else if (price >= 1_000_000_000)
         {
             // Truncate to 2 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
+            return (Mathf.Floor((float)price / 1_000_000_000f * 1000) / 1000).ToString(decimalTags) + "B";
         }
         else if (price >= 1_000_000)
         {
             // Truncate to 2 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
+            return (Mathf.Floor((float)price / 1_000_000f * 1000) / 1000).ToString(decimalTags) + "M";
         }
         else if (price >= 1_000)
         {
             // Truncate to 2 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
+            return (Mathf.Floor((float)price / 1_000f * 1000) / 1000).ToString(decimalTags) + "K";
         }
 
         // Return the original price as a string for smaller numbers
         return price.ToString();
     }
 
-    public BigInteger RoundToSignificantDigits(float num, int n)
+    public BigInteger RoundToSignificantDigits(double num, int n)
     {
         if (num == 0)
             return 0;
@@ -417,11 +456,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
             ResetMineButton.SetActive(false);
         }
-
-        // Called from this load function and upgrades delegator, whichever loads second works
-        if (upgradesDelegator) {
-            upgradesDelegator.UpdatePowerVisibility((int) GetUserLevel());
-        }
        
         UpdateCashDisplays();
         UpdateGemDisplays();
@@ -441,28 +475,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.gemsEarned = this.gemsEarned.ToString();
         data.userCredits = this.userCredits.ToString();
         data.highestMined = this.highestMined;
-    }
-
-    private void UpdateXPDisplays() {
-        if (specialGameMode) {
-            return;
-        }
-
-        float userLevel = GetUserLevel();
-        int level = (int) userLevel;
-
-        profitMultiplier = refineryController.GetLevelProfitMultiplier();
-
-        float calculatedValue = level * 0.005f;
-        // For each level, add 0.5% to the profit multiplier
-        refineryController.SetLevelProfitMultiplier(calculatedValue);
-
-        float xpSliderValue = userLevel - level;
-        levelString = level.ToString();
-        for (int i = 0; i != xpDisplays.Length; i++) {
-            xpDisplaysSliders[i].value = xpSliderValue;
-            xpDisplaysText[i].text = levelString;
-        }
     }
 
     public float GetUserLevel() {
@@ -527,8 +539,44 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         betaScreen.SetActive(false);
     }
 
+    public void ProceedToNextMine()
+    {
+        // Get game data ref
+        ref GameData data = ref dataPersistenceManager.GetGameDataRef();
+        GameData newGameData = new();
+
+        // Modify it directly and then save without calling on other scripts
+        // otherwise other scripts will overwrite the modificiations we make here
+        data.playerPos = newGameData.playerPos;
+        data.playerRotation = newGameData.playerRotation;
+        data.currentVehicle = playerVehicleDelegation.drillers[playerVehicleDelegation.GetNextVehicleIndex(data.mineCount)].name;
+
+        data.highestMined = newGameData.highestMined;
+        data.refineryTimer = newGameData.refineryTimer;
+        
+        data.seed = newGameData.seed;
+        data.mineCount++;
+        data.mineInitialization = newGameData.mineInitialization;
+
+        data.vehicleUpgradeLevels = newGameData.vehicleUpgradeLevels;
+        data.oreUpgrades = newGameData.oreUpgrades;
+
+        data.userCash = newGameData.userCash;
+
+        data.cooldownTimer = newGameData.cooldownTimer;
+
+        // Save and reload
+        dataPersistenceManager.DirectlyWriteSave();
+        CloudDelegator.Instance.TempSignOut();
+        
+        AnalyticsDelegator.Instance.Rebirth(data.mineCount);
+
+        SceneManager.LoadScene("Loading Screen");
+    }
+
     // For development only
-    public void FreeMoney() {
+    public void FreeMoney()
+    {
         userCash += freeMoneyToAdd;
         UpdateCashDisplays();
         analyticsDelegator.TestEvent("Just testing");
