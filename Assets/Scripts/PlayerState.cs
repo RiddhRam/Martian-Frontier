@@ -571,7 +571,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         
         AnalyticsDelegator.Instance.Rebirth(data.mineCount);
 
-        SceneManager.LoadScene("Loading Screen");
+        // Now ask for consent and other things if needed, otherwise AdMob will give a regulatory issue
+        SceneManager.LoadScene("iOS ATT");
     }
 
     // For development only

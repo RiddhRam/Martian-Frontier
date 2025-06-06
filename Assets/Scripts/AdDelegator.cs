@@ -50,7 +50,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private RewardedAd rewardedAd;
     private RewardedAd crateAd;
-    private RewardedAd lobbyAd;
 
     private int timer = 0;
     private bool internetReachable = false;
@@ -212,12 +211,12 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (rewardedAd != null && type == "Boost") {
             rewardedAd.Destroy();
             rewardedAd = null;
-        } else if (crateAd != null && type == "Crate") {
+        }
+        // Crate and lobby share the same ad
+        else if (crateAd != null && (type == "Crate" || type == "Lobby"))
+        {
             crateAd.Destroy();
             crateAd = null;
-        } else if (lobbyAd != null && type == "Lobby") {
-            lobbyAd.Destroy();
-            lobbyAd = null;
         }
 
         // send the request to load the ad.
@@ -244,10 +243,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
                 //Debug.Log("Rewarded ad loaded with response : " + ad.GetResponseInfo());
                 if (type == "Boost") {
                     rewardedAd = ad;
-                } else if (type == "Crate") {
+                } else if (type == "Crate" || type == "Lobby") {
                     crateAd = ad;
-                } else if (type == "Lobby") {
-                    lobbyAd = ad;
                 }
                 
                 if (currentCloudLoadState == cloudLoading) {   
@@ -354,10 +351,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         // ADMOB DISABLE
-        if (lobbyAd != null && lobbyAd.CanShowAd())
+        if (crateAd != null && crateAd.CanShowAd())
         {   
             adShowing = true;
-            lobbyAd.Show((Reward reward) =>
+            crateAd.Show((Reward reward) =>
             {
                 adShowing = false;
                 // Reward user
@@ -366,7 +363,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             });
 
             // Listen to user events during ad
-            RegisterEventHandlers(lobbyAd);
+            RegisterEventHandlers(crateAd);
             return;
         } else {
             // CustomAdScreen if no ad ready
@@ -673,9 +670,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
         if (crateAd == null || !crateAd.CanShowAd()) {
             LoadRewardedAd("Crate");
-        }
-        if (lobbyAd == null || !lobbyAd.CanShowAd()) {
-            LoadRewardedAd("Lobby");
         }
     }
 
