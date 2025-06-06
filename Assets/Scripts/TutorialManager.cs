@@ -134,6 +134,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return new WaitUntil(() => refineryController.refineryTimer == 0 || refineryController.refineryTimer > 30);
                 TutorialUIParent.SetActive(false);
                 overHeatTip.SetActive(false);
+
+                // Make sure player has at least 20.5k cash
+                if (playerState.GetUserCash() < 20_500)
+                {
+                    playerState.AddCash((double)(20_500 - playerState.GetUserCash()));
+                }
             }
             // Go to the vehicle upgrade bay
             else if (tutorialScreenIndex == 5)

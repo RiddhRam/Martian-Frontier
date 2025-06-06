@@ -106,7 +106,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // 50-level curve: 10 000 → 1 000 000 000 000 000 000
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
-        2_500UL,            5_000UL,            9_500UL,           20_000UL,           40_000UL,
+        20_000UL,            25_000UL,            30_000UL,           40_000UL,           60_000UL,
         80_000UL,          150_000UL,          300_000UL,          600_000UL,        1_200_000UL,
         2_400_000UL,       4_800_000UL,       9_500_000UL,      19_000_000UL,      38_000_000UL,
         75_000_000UL,     150_000_000UL,     300_000_000UL,     600_000_000UL,   1_200_000_000UL,

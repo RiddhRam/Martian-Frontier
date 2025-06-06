@@ -45,7 +45,7 @@ public class RefineryUpgradePad : MonoBehaviour
     double cashProceedAmount;
 
     const float orePriceMultiplierPerLevel = 1.08f;
-    const float oreUpgradePriceMultiplierPerLevel = 1.17f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.2f;
 
     [Header("For Tutorial")]
     public bool flashButton;
@@ -149,13 +149,13 @@ public class RefineryUpgradePad : MonoBehaviour
     // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount) {
 
-        // 10
+        // ore 0, level 25
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
-            requiredOreUpgradeLevel = upgradeMilestones[0];
+            requiredOreUpgradeLevel = upgradeMilestones[1];
         }
-        // 25
+        // ore 1, level 25
         else if (mineCount == 2)
         {
             requiredOreIndex = 1;
@@ -241,7 +241,15 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     private double GetCashProceedAmount() {
-        return GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
+        double amount = GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
+
+        // Minimum
+        if (amount < 50_000)
+        {
+            amount = 50_000;
+        }
+
+        return amount;
     }
 
     // Returns false if player can't afford upgrade, true otherwise
@@ -436,7 +444,7 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         flashButton = true;
 
-        Color originalColor = proceedPanelButtonImage.color;
+        Color originalColor = new(1, 0 ,0);
         Color darkColor = originalColor * 0.7f;
 
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));

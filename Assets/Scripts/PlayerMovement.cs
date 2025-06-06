@@ -1,11 +1,11 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public GameObject mainCamera;
+    public Transform mainCamera;
+    public Transform uiCamera;
     public PlayerState playerState;
     public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
@@ -55,10 +55,11 @@ public class PlayerMovement : MonoBehaviour
     void Start()
     {
         StartCoroutine(HoldCanvasStill());
-        
+
         stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
-        mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
+        mainCamera.position = new(transform.position.x, transform.position.y, -10);
+        uiCamera.position = new(transform.position.x, transform.position.y, -10);
     }
 
     // 50 times a second
@@ -141,12 +142,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Smooth camera follow
-    public void MoveCamera() {
-        if (freezeCamera) {
+    public void MoveCamera()
+    {
+        if (freezeCamera)
+        {
             return;
         }
-        targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
-        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        targetPosition = new(transform.position.x, transform.position.y, mainCamera.position.z);
+        mainCamera.position = Vector3.Lerp(mainCamera.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        uiCamera.position = mainCamera.position;
     }
 
     public void SetSpeed(float newSpeed) {

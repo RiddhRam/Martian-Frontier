@@ -328,7 +328,7 @@ public class LoadingTest
         Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
 
         PlayerMovement playerMovement = playerVehicle.GetComponent<PlayerMovement>();
-        Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject);
+        Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject.transform);
         Assert.False(playerMovement.freezeCamera);
 
         yield return null;
