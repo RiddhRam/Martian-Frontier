@@ -309,7 +309,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         try {
-            analyticsDelegator.AdWatchAttempt("Crate");
+            LogAnalytics("Crate");
         } catch {
         }
 
@@ -352,7 +352,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         }
 
         try {
-            analyticsDelegator.AdWatchAttempt("Lobby");
+            LogAnalytics("Lobby");
         } catch {
         }
 

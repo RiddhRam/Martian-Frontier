@@ -97,7 +97,7 @@ public class DrillerController : MonoBehaviour
         lastErrorCounter = errorCounter;
 
         if (!isNPC) {
-            playerVehicleDelegation.UpdateOverheatSlider(drillHeat / endurance);
+            playerVehicleDelegation.UpdateOverheatSlider(drillHeat / endurance, drillHeat);
         }
 
         if (drillHeat < endurance) {
@@ -153,8 +153,6 @@ public class DrillerController : MonoBehaviour
         }
         else {
             minedSomething = false;
-
-            ErrorWhenDrilling("WAIT FOR DRILL TO COOL DOWN!");
         }
 
         if (isNPC) {

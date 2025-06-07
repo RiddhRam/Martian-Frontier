@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -29,6 +30,12 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     [Header("Visual")]
     [SerializeField] private Slider slider;
+    [SerializeField] private Image sliderImage;
+    static readonly Color coldColor = new(35f / 255f, 57f / 255f, 241f / 255f);
+    static readonly Color mid = new Color(1f, 146f/255f, 0f);
+    static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
+    [SerializeField] private TextMeshProUGUI sliderText;
+    
 
     void Awake()
     {
@@ -244,8 +251,24 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(float heatPercentage) {
+    public void UpdateOverheatSlider(float heatPercentage, float drillHeat) {
+        // Progress
         slider.value = heatPercentage;
+
+        // Colour
+        if (heatPercentage < 0.5f)
+        {
+            // 0 → 0.5 : blue → yellow
+            sliderImage.color = Color.Lerp(coldColor, mid, heatPercentage * 2f);
+        }
+        else
+        {
+            // 0.5 → 1 : yellow → red
+            sliderImage.color = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
+        }
+
+        // Text
+        sliderText.text = ((int)drillHeat).ToString();
     }
 
 }

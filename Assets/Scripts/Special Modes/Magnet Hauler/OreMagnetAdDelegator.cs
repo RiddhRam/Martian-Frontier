@@ -247,7 +247,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
 
     public void ShowConvertRewardedAd() {
         try {
-            analyticsDelegator.AdWatchAttempt("Convert");
+            LogAnalytics("Convert");
         } catch {
         }
 
