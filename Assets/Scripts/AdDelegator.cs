@@ -72,9 +72,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
-    // After 30 seconds of user watching an ad, request a new one.
-    // Once user watches an ad, ad boosts are free for the next 30 seconds
-    DateTime lastAdShown;
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool firstTimePlaying = false;
@@ -267,16 +264,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (disableAds)
             return;
         // If user watched an ad in the last 30 seconds or first time playing
-        if (firstTimePlaying || lastAdShown >= DateTime.Now.AddSeconds(-90)) {
+        if (firstTimePlaying) {
             RewardBoost();
             dataPersistenceManager.SaveGame();
             return;
         }
-
-        // ADMOB SERVING LIMIT
-        RewardBoost();
-        dataPersistenceManager.SaveGame();
-        return;
 
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
@@ -286,7 +278,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             {
                 adShowing = false;
                 RewardBoost();
-                lastAdShown = DateTime.Now;
                 dataPersistenceManager.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
@@ -296,11 +287,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
+        // ADMOB SERVING LIMIT
+        RewardBoost();
+        dataPersistenceManager.SaveGame();
+        return;
+
         // If unable to show ad, use custom screen
         StartCoroutine(UseCustomAdScreen(() => RewardBoost()));
-
-        lastAdShown = DateTime.Now;
-        dataPersistenceManager.SaveGame();
     }
 
     public void ShowCrateRewardedAd() {
@@ -317,10 +310,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             CrateRewardSuccess();
             return;
         }
-        
-        // ADMOB SERVING LIMIT
-        CrateRewardSuccess();
-        return;
 
         // ADMOB DISABLE
         if (crateAd != null && crateAd.CanShowAd())
@@ -338,12 +327,13 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             RegisterEventHandlers(crateAd);
             return;
         }
-        else
-        {
-            // CustomAdScreen if no ad ready
-            StartCoroutine(UseCustomAdScreen(() => CrateRewardSuccess()));
-        }
+
+        // ADMOB SERVING LIMIT
+        CrateRewardSuccess();
+        return;
         
+        // CustomAdScreen if no ad ready
+        StartCoroutine(UseCustomAdScreen(() => CrateRewardSuccess()));
     }
 
     public void ShowLobbyRewardedAd() {
@@ -376,11 +366,10 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             // Listen to user events during ad
             RegisterEventHandlers(crateAd);
             return;
-        } else {
-            // CustomAdScreen if no ad ready
-            StartCoroutine(UseCustomAdScreen(() => LobbyRewardSuccess()));
         }
-        
+
+        // CustomAdScreen if no ad ready
+        StartCoroutine(UseCustomAdScreen(() => LobbyRewardSuccess()));
     }
 
     private void CrateRewardSuccess() {
