@@ -273,6 +273,11 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
+        // ADMOB SERVING LIMIT
+        RewardBoost();
+        dataPersistenceManager.SaveGame();
+        return;
+
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
         {
@@ -312,10 +317,14 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             CrateRewardSuccess();
             return;
         }
+        
+        // ADMOB SERVING LIMIT
+        CrateRewardSuccess();
+        return;
 
         // ADMOB DISABLE
         if (crateAd != null && crateAd.CanShowAd())
-        {   
+        {
             adShowing = true;
             crateAd.Show((Reward reward) =>
             {
@@ -328,7 +337,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             // Listen to user events during ad
             RegisterEventHandlers(crateAd);
             return;
-        } else {
+        }
+        else
+        {
             // CustomAdScreen if no ad ready
             StartCoroutine(UseCustomAdScreen(() => CrateRewardSuccess()));
         }
@@ -403,6 +414,9 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount < 1000) {
             yield break;
         }
+
+        // ADMOB SERVING LIMIT
+        yield break;
 
         lobbyRewardAmount = rewardAmount;
         lobbyAdRewardAmountText.text = playerState.FormatPrice(new System.Numerics.BigInteger(lobbyRewardAmount));

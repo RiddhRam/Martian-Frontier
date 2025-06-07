@@ -153,7 +153,7 @@ public class RefineryUpgradePad : MonoBehaviour
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
-            requiredOreUpgradeLevel = upgradeMilestones[1];
+            requiredOreUpgradeLevel = upgradeMilestones[0];
         }
         // ore 1, level 25
         else if (mineCount == 2)
@@ -244,10 +244,10 @@ public class RefineryUpgradePad : MonoBehaviour
         double amount = GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
 
         // Minimum
-        if (amount < 50_000)
+        /*if (amount < 50_000)
         {
             amount = 50_000;
-        }
+        }*/
 
         return amount;
     }

@@ -135,10 +135,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 TutorialUIParent.SetActive(false);
                 overHeatTip.SetActive(false);
 
-                // Make sure player has at least 20.5k cash
-                if (playerState.GetUserCash() < 20_500)
+                // Make sure player has at least 25k cash
+                if (playerState.GetUserCash() < 25000)
                 {
-                    playerState.AddCash((double)(20_500 - playerState.GetUserCash()));
+                    playerState.AddCash((double)(25000 - playerState.GetUserCash()));
                 }
             }
             // Go to the vehicle upgrade bay
