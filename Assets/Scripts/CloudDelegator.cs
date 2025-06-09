@@ -241,13 +241,16 @@ public class CloudDelegator : MonoBehaviour
             Debug.LogException(ex);
         }  
     }
-
-    private async void SignedIn() {
-        try {
+    
+    private async void SignedIn()
+    {
+        try
+        {
             var accessToken = PlayerAccountService.Instance.AccessToken;
             await ConnectWithUnityAsync(accessToken);
-        } 
-        catch(Exception ex) {
+        }
+        catch (Exception ex)
+        {
             Debug.LogError(ex.Message);
         }
     }
