@@ -10,17 +10,19 @@ using UnityEngine.Tilemaps;
 public class MineRenderer : MonoBehaviour, IDataPersistence
 {
     // Have to change through hierarchy not through here
-    [SerializeField]
-    private int visionRadius;
+    [SerializeField] private int visionRadius;
     public GameObject largeFogOfWar;
     public GameObject generationTriggers;
     public GameObject mineTilemapPrefab;  // Reference to the Tilemap component
     public TileBase mineBackgroundRuleTile;
     public TileBase unknownTile;
+
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
+    public Color[] tileColours;
+
     public TextMeshProUGUI oresMinedText;
-    public TextMeshProUGUI mineValueText;
+
     // Height of the map, measured in tilemaps
     [SerializeField] private int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
@@ -46,34 +48,47 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
     // Array of the tilemap Game objects, same as above, but in a 2d array rather than a dictionary with the string as the key
     public Tilemap[,] tilemaps;
-    // The gameobject of each ore material to be instantied onto the map when mining ores
-    private GameObject[] materials;
-    // Lowercase names
-    private string[] oreNames;
+
     // Uppercase names
-    private string[] materialNames;
-    private int[] materialPrices;
-    public UncollectedMaterialsDelegator materialsDelegator;
-    [SerializeField]
-    private int seed;
+    public string[] selectedMaterialNames;
+
+    [SerializeField] private int seed;
     public int highestRow = 0;
 
     // 0 = Not created
     // 1 = in the process of initializing
     // 2 = initialized
     public int mineInitialization = 0;
+    public int mineCount;
+    private SerializableDictionary<string, int> oreUpgrades;
+
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
+
+    [Header("Scripts")]
+    private LoadingScreen loadingScreen;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
-    public DailyChallengeDelegator dailyChallengeDelegator;
+    private DailyChallengeDelegator dailyChallengeDelegator;
     public UpgradesDelegator upgradesDelegator;
+    public RefineryController refineryController;
+    public RefineryUpgradePad refineryUpgradePad;
+    private AudioDelegator audioDelegator;
+
     private Dictionary<string, int> quantities = new();
-    public int[] oresCount;
-    private readonly int[] materialPoolSizes = {23, 27, 30, 17, 24, 42, 13, 27, 50};
-    private Queue<GameObject>[] materialPools;
+
+    // Used to find the count of each ore in a mine
+    // search and uncomment everything related to "oresCount"
+    //public int[] oresCount;
+    
+    [SerializeField] ParticleSystem vacuumPrefab;
+    [SerializeField] AudioClip orePickUpAudioClip;
+    [SerializeField] AudioSource orePickUpSequenceAudioSource;
+    private float lastOreMinedTime;
+
+    private readonly Queue<ParticleSystem> particlePool = new();
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
     // Destroy these so haulers dont get stuck
@@ -85,7 +100,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int totalRowsForFunc;
     int totalColumnsForFunc;
     public Transform genTrigTransform;
-
 
     private int tileTier;
     GameObject obj;
@@ -116,7 +130,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int centerY;
     int radius;
     int oreToPlace;
-    int oreIndex;
     int minOreIndex;
     int maxOreIndex;
     int oreCount;
@@ -135,6 +148,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     int x;
     private Coroutine _loadDataCoroutine;
     private bool cloudLoading = false;
+    // Actually current blocks mined, not ores
     public int currentOresMined = 0;
     public System.Numerics.BigInteger currentMineValue = 0;
     public int minVeinRadius;
@@ -152,9 +166,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     int seedInUse;
 
-    // Called before Start
+
     void Awake()
     {
+        loadingScreen = LoadingScreen.Instance;
+        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
+        audioDelegator = AudioDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+
         totalColumns = mapHalfLength * 2 / gridSize.x;
         totalRowsForFunc = totalRows - 1;
         totalColumnsForFunc = totalColumns - 1;
@@ -201,18 +221,22 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         for (int i = 0; i != tierThresholds.Length; i++) {
             if (i == tierThresholds.Length - 1) {
                 oresPerTier[i] = tileValues.Length - tierThresholds[i] - 1;
+                sum += oresPerTier[i];
                 break;
             }
             oresPerTier[i] = tierThresholds[i+1] - tierThresholds[i] - 1;
             sum += oresPerTier[i];
         }
 
-        oresCount = new int[sum];
-    
-        materials = oreDelegation.materials;
-        oreNames = oreDelegation.GetOreNames();
-        materialNames = oreDelegation.materialNames;
-        materialPrices = oreDelegation.GetMaterialPrices();
+        //oresCount = new int[sum];
+
+        // Create particle object pool
+        for (int i = 0; i != 40; i++) {
+            var ps = Instantiate(vacuumPrefab, new(), Quaternion.identity);
+
+            ps.gameObject.SetActive(false);
+            particlePool.Enqueue(ps);
+        }
     }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
@@ -251,17 +275,25 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
+        /*for (int i = 0; i != oresCount.Length; i++)
+        {
+            oresCount[i] = 0;
+        }*/
+
         CreateGenTriggers();
-        // Create first 4 rows
-        // Change to totalRows + 1 to create entire map
+        // Change limit to 5 to create first 4 rows
+        // Change limit to totalRows + 1 to create entire map
         for (int i = 1; i != 5; i++) {
             CreateTiles(i);
         }
 
-        /* Uncomment this too to log the quantity of each ore
-        for (int i = 0; i != oresCount.Length; i++) {
-            Debug.Log(i + ": " + oresCount[i]);
-        } */
+        // Uncomment this too to log the quantity of each ores, copy pastable into excel
+        /*string output = oresCount[0].ToString();
+        for (int i = 1; i != oresCount.Length; i++)
+        {
+            output += "\n" + oresCount[i].ToString();
+        }
+        Debug.Log(output);*/
 
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
@@ -275,23 +307,33 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineInitialization = 2;
         SaveGame();
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.InitializeMine(highestRow);
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-mapHalfLength, -5) and going to the right and downward
     public void CreateTiles(int chunkRow, bool setHighestRow = true)
     {
-        try {
+        // If countdown hasn't started, then start it (player teleported inside and bypassed the normal entrance)
+        if (refineryController.countdownCoroutine == null && refineryController.doneLoading && chunkRow >= 5)
+        {
+            refineryController.StartRefineryCountdown();
+        }
+
+        chunkRow = System.Math.Clamp(chunkRow, 1, generatedRows.Length);
+
+        try
+        {
             Destroy(GameObject.Find("Generate Row (" + (chunkRow) + ")"));
-        } catch {
+        }
+        catch
+        {
         }
 
         for (int i = 1; i < chunkRow; i++) {
+
             // Verify previous tiles were created
-            if (!generatedRows[i]) {
+            if (!generatedRows[i])
+            {
                 CreateTiles(i, false);
             }
         }
@@ -324,8 +366,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         int chunkColumn = 1;
         // Generate 6 grids in each tilemap
         for (int i = -mapHalfLength; i != mapHalfLength; i += 25) {
-            string name = GetTilemapObject().name;
-            mineTilemap = tilemapsDictionary[name];
+            string tileMapName = GetTilemapObject().name;
+            mineTilemap = tilemapsDictionary[tileMapName];
             
             // i = the x coordinate of the chunk;
             // (chunkRow - 1) * -(gridSize.y) - 5 = the y coordinate of the chunk
@@ -360,15 +402,28 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         generatedRows[chunkRow - 1] = true;
     }
 
-    public void MoveFogOfWar(int rowLoaded) {
+    public void TriggerAllGenerationTriggersAbove(float y)
+    {
+        // Generate all rows up to that position if not already generated (will cause a lag spike)
+
+        // Offset to be 4 tilemaps lower because the generation triggers are offset by a little bit too
+        int tilemapY = (int)y - (4 * gridSize.y);
+        Vector2Int tilemapPos = CalculateTileMapPos(new(0, tilemapY));
+
+        CreateTiles(tilemapPos.y + 1);
+    }
+
+    public void MoveFogOfWar(int rowLoaded)
+    {
         // If the last row, send it very far down where it won't be seen at the edge of the map
-        if (rowLoaded == totalRows || genTrigTransform.childCount == 1) {
+        if (rowLoaded == totalRows || genTrigTransform.childCount == 1)
+        {
             largeFogOfWar.transform.position = new Vector3(0, -3000, 0);
             return;
         }
 
         // If not last row, just move it down
-        largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded+ 1) * gridSize.y), 0);
+        largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded + 1) * gridSize.y), 0);
     }
 
     public void LoadTiles() {
@@ -447,9 +502,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // In order to see quantity of each ore in the mine
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
-            // and also uncomment oresCount integer array above
+            // and also search and uncomment everything related to "oresCount"
             
-            /*oreIndex = 0;
+            int oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++) {
                isBaseTile = false;
 
@@ -470,7 +525,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 oreIndex++;
             }
-            oresCount[oreIndex]++;*/
+
+            //oresCount[oreIndex]++;
 
             for (int x = -radius; x <= radius; x++)
             {
@@ -509,7 +565,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         oreCount = maxOreIndex - minOreIndex + 1;
 
         // Calculate the probability weights based on depth
-        depthFactor = Mathf.Clamp01((chunkRow - 11 * level - 1) / 10f);  // Lower 10f to make the rarity change faster, increase to change it slower
+        depthFactor = Mathf.Clamp01((chunkRow - 14 * level - 1) / 13f);  // Lower 13f to make the rarity change faster, increase to change it slower
         weights = new float[oreCount];
         totalWeight = 0f;
 
@@ -595,7 +651,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC, Vector3 vehiclePos = new(), bool playAudio = false) {
 
         oresMined = 0;
 
@@ -604,6 +660,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         tilesToReveal.Clear();
         revealTilemapsToEdit.Clear();
         revealTilesForTilemaps.Clear();
+
+        bool generateParticles = false;
+        // If its not Vector3.zero, then it was initialized because there needs to be particles generated
+        if (Vector3.Distance(vehiclePos, new()) > 0.1f) {
+            generateParticles = true;
+        }
 
         foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
@@ -666,16 +728,19 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             tileMined = tilemap.GetTile(tileToDestroy);
     
-            identifiedTile = IdentifyTile(tileMined);
+            // Get tile index
+            identifiedTile = GetTileIndex(tileMined);
             oreMined = true;
 
-            for (int i = 0; i != tierThresholds.Length; i++) {
-                if (identifiedTile == tierThresholds[i]) {
-                    oreMined = false;
-                    break;
+            if (!oreDelegation.VerifyIfOre(identifiedTile)) {
+                oreMined = false;
+            } else {
+                if (generateParticles) {
+                    SpawnVacuum(tileToDestroy, vehiclePos, tileColours[identifiedTile]);
                 }
             }
 
+            // Actually current blocks mined, not ores
             currentOresMined++;
 
             if (!oreMined) {
@@ -691,11 +756,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
             }
 
-            if (!quantities.ContainsKey(materialNames[identifiedTile - adjustment])) {
-                quantities[materialNames[identifiedTile - adjustment]] = 1;
+            if (!quantities.ContainsKey(selectedMaterialNames[identifiedTile - adjustment])) {
+                quantities[selectedMaterialNames[identifiedTile - adjustment]] = 1;
             } else {
                 
-                quantities[materialNames[identifiedTile - adjustment]]++;
+                quantities[selectedMaterialNames[identifiedTile - adjustment]]++;
             }
         }
 
@@ -709,27 +774,109 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Set tiles being destroyed
             for (int j = 0; j != size; j++) {
-                tilesToSet[j] = destroyTilesForTilemaps[i][j];
+                tilesToSet[j] = destroyTilesForTilemaps[i][j];                
                 // Leave tilesBeingChanged[j] as null since we are destroying it
             }
 
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
         }
         
-        try {
-            // If not loading, and is not from an NPC
-            if (!loading && !isNPC) {
-                oresMinedText.text = currentOresMined.ToString();
+        oresMinedText.text = currentOresMined.ToString();
+
+        // If not loading
+        if (!loading) {
+            // If not from an npc
+            if (!isNPC) {
                 playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
                 dailyChallengeDelegator.MinedOres(quantities);
             }
-        } catch {
+
+            if (oresMined > 0 && playAudio) {
+                // Must mine at least once per 0.4s in order to keep audio going
+                float timeSinceLastMine = Time.time - lastOreMinedTime;
+                const float volume = 0.75f;
+                if (timeSinceLastMine >= 0.4f) {
+                    // Play ore pick up audio
+                    StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
+                    
+                    lastOreMinedTime = Time.time;
+                } 
+                // If audio is fading out or faded out already, then skip the 0.4s timer, and play right away
+                else if (audioDelegator.audioTimer <= 0f) {
+                    // Play ore pick up audio
+                    StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
+                    
+                    lastOreMinedTime= Time.time;
+                }
+
+                // Track which ores are being sold so the player can get paid
+                int[] newMaterials = new int[9];
+                foreach (string oreName in quantities.Keys) {
+                    newMaterials[GetTileIndexByName(oreName)] = quantities[oreName];
+                }
+                
+                // Finally pay player
+                refineryController.SellOres(newMaterials, isNPC);
+            }
         }
+
 
         quantities.Clear();
 
         // Reveal the tiles
         RevealTiles(tilesToReveal);
+    }
+
+    public void SpawnVacuum(Vector3 from, Vector3 to, Color colour)
+    {
+        // Instantiate at source
+        var ps = GetParticleFromPool();
+
+        // No particle was available
+        if (ps == null) {
+            return;
+        }
+
+        ps.transform.position = from;
+        ps.gameObject.SetActive(true);
+
+        // Tint
+        var main = ps.main;
+        main.startColor = colour;
+
+        // Compute direction and force so particles reach target ~75‑90 % of lifetime
+        var dir = (to - from).normalized;
+        var distance = Vector3.Distance(from, to);
+        var forceMag = 2f * distance / main.startLifetime.constant;
+
+        var fol = ps.forceOverLifetime;
+        fol.enabled = true;
+        fol.x = dir.x * forceMag;
+        fol.y = dir.y * forceMag;
+        fol.z = dir.z * forceMag;
+
+        // orient swirl around travel axis
+        var vol = ps.velocityOverLifetime;
+        vol.enabled = true;
+        vol.orbitalZ = new ParticleSystem.MinMaxCurve(6f);
+
+        ps.Play();
+
+        StartCoroutine(ReturnParticleToPool(ps));
+    }
+
+    private ParticleSystem GetParticleFromPool() {
+        if (particlePool.Count > 0) {
+            return particlePool.Dequeue();
+        }
+        return null;
+    }
+
+    private IEnumerator ReturnParticleToPool(ParticleSystem particle) {
+        yield return new WaitForSeconds(particle.main.startLifetime.constant);
+
+        particlePool.Enqueue(particle);
+        particle.gameObject.SetActive(false);
     }
 
     public TileBase[] GetOres() {
@@ -762,7 +909,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         string[] tier1OreNames = new string[oresPerTier[0]];
 
         for (int i = 0; i != oresPerTier[0]; i++) {
-            tier1OreNames[i] = materialNames[i];
+            tier1OreNames[i] = selectedMaterialNames[i];
         }
 
         return tier1OreNames;
@@ -772,7 +919,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         string[] tier2OreNames = new string[oresPerTier[1]];
 
         for (int i = 0; i != oresPerTier[1]; i++) {
-            tier2OreNames[i] = materialNames[oresPerTier[0] + i];
+            tier2OreNames[i] = selectedMaterialNames[oresPerTier[0] + i];
         }
 
         return tier2OreNames;
@@ -782,14 +929,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         string[] tier3OreNames = new string[oresPerTier[2]];
 
         for (int i = 0; i != oresPerTier[2]; i++) {
-            tier3OreNames[i] = materialNames[oresPerTier[0] + oresPerTier[1] + i];
+            tier3OreNames[i] = selectedMaterialNames[oresPerTier[0] + oresPerTier[1] + i];
         }
 
         return tier3OreNames;
     }
 
     // Get the index of the tile
-    private int IdentifyTile(TileBase tileToIdentify) {
+    private int GetTileIndex(TileBase tileToIdentify) {
 
         int index = 0;
 
@@ -803,13 +950,26 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return index;
     }
 
+    public int GetTileIndexByName(string oreName) {
+        for (int i = 0; i != selectedMaterialNames.Length; i++) {
+            if (selectedMaterialNames[i] == oreName) {
+                return i;
+            }
+        }
+
+        // Shouldnt reach here
+        return 0;
+    }
+
     public void LoadData(GameData data) {
         // If there's already a coroutine running, stop it
-        if (_loadDataCoroutine != null) {
+        if (_loadDataCoroutine != null)
+        {
             StopCoroutine(_loadDataCoroutine);
         }
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer"))
+        {
             notSinglePlayerScene = false;
             // This has to be done async so that we can return all objects to the pool when loading a cloud save
             // Return objects happens over several frames to reduce lag
@@ -830,13 +990,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         Random.InitState(this.seed);
         seedInUse = this.seed;
 
-        GenerateMaterials();
         InitializeMine();
+        dailyChallengeDelegator.Initialize();
 
         coopMineLoaded = true;
 
         try {
-            StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
         } catch {
         }
     }
@@ -858,69 +1018,105 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // This doesn't necessarily mean the player is new, just that a new mine is needed
         this.mineInitialization = data.mineInitialization;
 
-        SerializableDictionary<string, MaterialManagerData> savedMaterials = data.materials;
         this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
 
         this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
         this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
+        this.mineCount = data.mineCount;
 
-        GenerateMaterials();
+        // Choose a random factor to multiply by, so adjacent levels aren't too similar
+        var factorDecider = new System.Random(this.mineCount);
+        int multiplicationFactor = factorDecider.Next(0, 31);
 
-        foreach (string id in savedMaterials.Keys) {
-            // Copy all the saved values into the loaded material
-            MaterialManagerData savedMaterialManager = savedMaterials[id];
-            GetMaterialObject(savedMaterialManager.materialIndex, savedMaterialManager.position, savedMaterialManager.count, savedMaterialManager.drillProfitMultiplier);
+        // Build a list of all original indices (0-14)
+        List<int> indices = Enumerable.Range(0, oreDelegation.materialNames.Length).ToList();
+
+        // Shuffle deterministically with the seed
+        System.Random rng = new(multiplicationFactor * this.mineCount);
+        for (int i = 0; i != indices.Count; i++)
+        {
+            int j = rng.Next(i, indices.Count);          // inclusive-exclusive
+            (indices[i], indices[j]) = (indices[j], indices[i]);
         }
 
-        if (mineInitialization == 2) {
+        // Take the first 9 indices as the chosen ones
+        List<int> chosen = indices.Take(oreDelegation.GetOriginalMaterialPrices().Length).ToList();
+
+        // If its the first mine, use the basic ores
+        if (mineCount == 1)
+        {
+            chosen = new List<int> { 0, 1, 2, 3, 4, 5, 6, 7, 8 };
+        }
+
+        // Set selected material names
+        selectedMaterialNames = new string[chosen.Count];
+        for (int i = 0; i != chosen.Count; i++)
+        {
+            selectedMaterialNames[i] = oreDelegation.materialNames[chosen[i]];
+        }
+
+        // Set tilebase values and colours
+        int oreIndex = 0;
+        for (int i = 0; i != tileValues.Length; i++)
+        {
+            // if its an ore, over write it with the selected material
+            if (oreDelegation.VerifyIfOre(i))
+            {
+                int index = chosen[oreIndex];
+                tileValues[i] = oreDelegation.oreTileValues[index];
+                tileColours[i] = oreDelegation.oreTileColours[index];
+                oreIndex++;
+            }
+        }
+
+        // Finally load mine
+        if (mineInitialization == 2)
+        {
             LoadTiles();
         }
+
+        // Initialize everything else
+        refineryUpgradePad.oreUpgrades = data.oreUpgrades;
+        refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
+        dailyChallengeDelegator.Initialize();
         
-        if (currentCloudLoadState == cloudLoading) {
+        if (currentCloudLoadState == cloudLoading)
+        {
             cloudLoading = true;
-            try {
-                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
-            } catch {
+            try
+            {
+                StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
+            }
+            catch
+            {
             }
         }
 
         soloMineLoaded = true;
     }
 
-    public void GenerateMaterials() {
-        // Create pools of materials before loading materials
-        materialPools = new Queue<GameObject>[tileValues.Length - tierThresholds.Length];
-
-        for (int i = 0; i != materialPools.Length; i++) {
-            materialPools[i] = new Queue<GameObject>();
-            // Create the right amount of each material according to each pool size
-            for (int j = 0; j != materialPoolSizes[i]; j++) {
-                GameObject newMaterial = Instantiate(materials[i]);
-                newMaterial.SetActive(false);
-                materialPools[i].Enqueue(newMaterial);
-                newMaterial.transform.SetParent(materialsDelegator.transform);
-            }
-        }
-    }
-
-    public void SaveData(ref GameData data) {
-        if (notSinglePlayerScene) {
+    public void SaveData(ref GameData data)
+    {
+        if (notSinglePlayerScene)
+        {
             return;
         }
 
         // if mine didn't load, then its probably because player quickly opened the game, then closed it before mine loaded
-        if (!soloMineLoaded) {
+        if (!soloMineLoaded)
+        {
             return;
         }
 
-        data.materials = materialsDelegator.uncollectedMaterials;
         data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
         data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
         data.seed = this.seed;
         data.highestRow = this.highestRow;
         data.mineInitialization = this.mineInitialization;
         data.currentOresMined = this.currentOresMined;
+        data.mineCount = this.mineCount;
+        data.oreUpgrades = refineryUpgradePad.oreUpgrades;
     }
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {
@@ -969,63 +1165,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return tileTier;
     }
 
-    public int GetTileTier(int tileIndex) {
-        TileBase tileToIdentify = tileValues[tileIndex];
-        
-        tileTier = 1;
-
-        for (int i = 0; i != tileValues.Length; i++) {
-            if (tileToIdentify != tileValues[i]) {
-                continue;
-            }
-
-            for (int j = 0; j != tierThresholds.Length; j++) {
-                if (tierThresholds[j] <= i) {
-                    tileTier = j + 1;
-                }
-            }
-
-            break;
-        }
-
-        return tileTier;
-    }
-
-    public void GetMaterialObject(int materialIndex, Vector3 materialPosition, int materialCount, float profitMultiplier)
-    {
-        if (materialPools[materialIndex].Count > 0)
-        {
-            obj = materialPools[materialIndex].Dequeue();
-        }
-        else
-        {
-            // Expand the pool if empty
-            obj = Instantiate(materials[materialIndex]);
-        }
-
-        obj.transform.position = materialPosition;
-        obj.SetActive(true);
-        materialsDelegator.AddMaterial(obj, materialPosition, materialIndex, materialCount, profitMultiplier);
-
-        currentMineValue += materialPrices[materialIndex] * materialCount;
-        mineValueText.text = FormatPrice(currentMineValue);
-        //return obj;
-    }
-
-    // Method to return an object to the pool
-    public void ReturnMaterialObject(GameObject obj, int materialIndex, string materialID)
-    {
-        try {
-            currentMineValue -= materialPrices[materialIndex] * materialsDelegator.uncollectedMaterials[materialID].count;
-            mineValueText.text = FormatPrice(currentMineValue);
-        } catch {
-        }
-        materialsDelegator.RemoveMaterial(materialID);
-        
-        obj.SetActive(false);
-        materialPools[materialIndex].Enqueue(obj);
-    }
-
     public GameObject GetTilemapObject()
     {
         obj = mineTilemaps[0];
@@ -1066,15 +1205,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             yield break;
         } else {
             alreadyBeingReturned = true;
-        }
-
-        // Return materials, TODO: FIX PERFORMANCE OPTIMIZATION HERE
-        GameObject[] taggedObjects = GameObject.FindGameObjectsWithTag("Material Tag");
-        MaterialManager[] materials = new MaterialManager[taggedObjects.Length];
-
-        for (int i = 0; i < taggedObjects.Length; i++)
-        {
-            materials[i] = taggedObjects[i].GetComponent<MaterialManager>();
         }
 
         // Reset the mine        
@@ -1118,21 +1248,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 counter++;
             }
         }
-
-        // Only 6 materials per 3 frames
-        for (int j = 0; j < materials.Length;) {
-            for (int i = 0; i < 6; i++, j++) {
-                if (j >= materials.Length) {
-                    break;
-                }
-                ReturnMaterialObject(materials[j].gameObject, materials[j].materialIndex, materials[j].id);
-            }
-            
-            yield return null;
-            yield return null;
-            yield return null;
-        }
-
         alreadyBeingReturned = false;
     }
 
@@ -1234,10 +1349,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 // Check if this tile has ore
                 if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value))
                 {
-                    int oreTier = GetTileTier(tileValues[value]);
-                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
-                        continue;
-                    }
                     oreTiles.Add(tilePos);
                 }
             }
@@ -1389,43 +1500,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public int GetSeed() {
         return seed;
-    }
-
-    public string FormatPrice(System.Numerics.BigInteger price)
-    {
-        if (price >= 1_000_000_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "Qu"
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "Qu";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "Q"
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "T"
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("$0.#") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("$0.#") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("$0.#") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("$0.#") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return "$" + price.ToString();
     }
 
     public int GetTotalRows() {

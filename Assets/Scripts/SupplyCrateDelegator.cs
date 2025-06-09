@@ -18,7 +18,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI[] crateDisplays;
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    public AnalyticsDelegator analyticsDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
     public TextMeshProUGUI crateExtractionPercentageText;
@@ -30,7 +30,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI blocksNeededMiniBarText;
     public TextMeshProUGUI blocksNeededMainBarText;
 
-    public AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
     public AudioClip crateUnlockSoundEffect;
     public AudioSource UISoundEffects;
 
@@ -42,12 +42,17 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public bool disableAds = false;
 
-
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
     private readonly int blocksNeededToDestroy = 5000;
 
     public bool adWatchedAlready = false;
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     public void UpdateBlocksNeededBars() {
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
@@ -154,10 +159,14 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
         System.Random random = new System.Random();
 
-        cashRewardAmount = (int) (random.Next(10000, 30000) * (1 + upgradesDelegator.crateMultiplier));
-        gemRewardAmount = (int) (random.Next(600, 1300) * (1 + upgradesDelegator.crateMultiplier));
+        // Randomly choose reward amounts
+        // Cash reward is based on the highest value of ores the player mined in a single mine
+        double minReward = playerState.GetHighestMined() * 0.1;
+        double maxReward = playerState.GetHighestMined() * 0.2f;
 
-        cashRewardAmount *= BigInteger.Pow(100, (-1 + playerState.GetHighestDrillTier()));
+        double rawCashReward = minReward + random.NextDouble() * (maxReward - minReward);
+        cashRewardAmount = new BigInteger(rawCashReward * (1 + upgradesDelegator.crateMultiplier));
+        gemRewardAmount = (int) (random.Next(600, 1200) * (1 + upgradesDelegator.crateMultiplier));
 
         if (openAll) {
             cashRewardAmount *= cratesAvailable;

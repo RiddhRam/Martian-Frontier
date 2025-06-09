@@ -16,6 +16,19 @@ using UnityEngine.SceneManagement;
 
 public class CloudDelegator : MonoBehaviour
 {
+    private static CloudDelegator _instance;
+    public static CloudDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<CloudDelegator>();
+            }
+            return _instance;
+        }
+    }
     public TMP_Text userNameText;
     public GameObject loginPanel, userPanel;
     public GameObject askToLogOut;
@@ -25,17 +38,22 @@ public class CloudDelegator : MonoBehaviour
     public GameObject forceUpdate;
 
     public UIDelegation uIDelegation;
-    public DataPersistenceManager dataPersistenceManager;
-    public LoadingScreen loadingScreen;
-    public LeaderboardDelegator leaderboardDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private LoadingScreen loadingScreen;
+    private LeaderboardDelegator leaderboardDelegator;
 
     private PlayerProfile playerProfile;
     private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 105;
+    private readonly int currentVersionNumber = 116;
     private bool notSinglePlayerScene = false;
+    public bool doingSigninProcess = false;
 
     async void Awake() {
+        loadingScreen = LoadingScreen.Instance;
+        leaderboardDelegator = LeaderboardDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+
         await UnityServices.InitializeAsync();
         PlayerAccountService.Instance.SignedIn += SignedIn;
 
@@ -70,21 +88,26 @@ public class CloudDelegator : MonoBehaviour
         // This call will sign in the cached player, or make a new account.
         try
         {
+            doingSigninProcess = true;
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
             attemptedLogIn = true;
             OnSignedIn();
         }
         catch (AuthenticationException ex)
         {
+            doingSigninProcess = false;
             // Compare error code to AuthenticationErrorCodes
             // Notify the player with the proper error message
             Debug.LogException(ex);
         }
         catch (RequestFailedException ex)
         {
+            doingSigninProcess = false;
             // Compare error code to CommonErrorCodes
             // Notify the player with the proper error message
             Debug.LogException(ex);
+        } catch {
+            doingSigninProcess = false;
         }
     }
 
@@ -255,18 +278,22 @@ public class CloudDelegator : MonoBehaviour
         playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
 
         var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+
         PlayerPrefs.SetString("PlayerName", name);
 
         playerInfo = playerProfile.playerInfo;
         playerProfile.Name = name;
 
+        await Task.Delay(1000);
+
         // Make sure not anonymous
         if (CheckAnonymity()) {
+
             loginPanel.SetActive(false);
             userPanel.SetActive(true);
         
             userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
-            
+
             LoadGameDataFromCloud();
         }
 
@@ -274,9 +301,10 @@ public class CloudDelegator : MonoBehaviour
             _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
             leaderboardDelegator.CheckForRewards();
         }
-        
 
-        //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
+        Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
+
+        doingSigninProcess = false;
     }
 
     private IEnumerator AutoSaveCoroutine() {
@@ -322,6 +350,11 @@ public class CloudDelegator : MonoBehaviour
             
             GameData gameData = dataPersistenceManager.ParseJson(jsonData);
 
+            // Don't load data from the cloud if player is from the beta
+            if (PlayerPrefs.GetInt("Beta") == 200) {
+                return;
+            }
+
             if (dataPersistenceManager.CompareGameData(gameData)) {
                 loadingScreen.loadedItems = 0;
                 loadingScreen.totalItems = loadingScreen.cloudSaveItems;
@@ -350,7 +383,7 @@ public class CloudDelegator : MonoBehaviour
     // Just so it gets factor into Loading
     private void IncrementLoadedItems() {
         try {
-             StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
         } catch {
         }
     } 
@@ -389,6 +422,10 @@ public class CloudDelegator : MonoBehaviour
         #endif
         
         Application.OpenURL(url);
+    }
+
+    void OnDestroy() {
+        PlayerAccountService.Instance.SignedIn -= SignedIn;
     }
 }
 

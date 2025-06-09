@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
-public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
+public class OreBlasterAdDelegator : MonoBehaviour
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
@@ -27,9 +27,9 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
 
     private int oreBlasterAdTimer = 0;
 
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
-    public CloudDelegator cloudDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
+    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public OreBlasterRoundManager oreBlasterRoundManager;
     public OreBlasterUpgrades oreBlasterUpgrades;
@@ -44,6 +44,13 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool adShowing = false;
+
+    void Awake()
+    {
+        cloudDelegator = CloudDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -241,10 +248,7 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void ShowConvertRewardedAd() {
-        try {
-            analyticsDelegator.AdWatchAttempt("Convert");
-        } catch {
-        }
+        LogAnalytics("Convert");
 
         // ADMOB DISABLE
         if (convertAd != null && convertAd.CanShowAd())
@@ -278,9 +282,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
     }
 
@@ -415,9 +416,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 
@@ -470,20 +468,6 @@ public class OreBlasterAdDelegator : MonoBehaviour, IDataPersistence
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         playerMovement.SetSpeed(7);
         yield break;
-    }
-
-    public void LoadData(GameData data) {
-
-        this.oreBlasterAdTimer = data.oreBlasterAdTimer;
-
-        if (oreBlasterAdTimer > 0) {
-            // Reward
-            RewardBoost(oreBlasterAdTimer);
-        }
-    }
-
-    public void SaveData(ref GameData data) {        
-        data.oreBlasterAdTimer = this.oreBlasterAdTimer;
     }
 
     private void FillEmptyAdSlots() {

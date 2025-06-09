@@ -21,8 +21,8 @@ public class BackgroundAmbientMusic : MonoBehaviour
     System.Collections.IEnumerator FadeOutAndPlayNext() {
 
         yield return new WaitForSeconds(audioSource.clip.length - fadeDuration);
+        
         // Fade out the current clip
-
         for (float t = 0; t < fadeDuration; t += Time.deltaTime) {
             float volume = Mathf.Lerp(backgroundSongVolumes[currentSongIndex], 0, t / fadeDuration);
             // If music is not enabled then volume is 0;

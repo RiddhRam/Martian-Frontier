@@ -6,8 +6,6 @@ using UnityEngine.Tilemaps;
 public class DrillerController : MonoBehaviour
 {
     private int radius;
-    private TileBase[] ores;
-    private GameObject[] materials;
     private MineRenderer mineRenderer;
     private JoystickMovement joystickMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -18,10 +16,15 @@ public class DrillerController : MonoBehaviour
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
+    private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
     [SerializeField]
     private long price;
     [SerializeField]
     private float profitMultiplier;
+
+    [Header("Upgrade Bay Info")]
+    public int drillerIndex; // Position in the garage
+    public int drillTypeIndex; // Corresponds to sprite's position in allNormalDrills in VehicleUpgradeBayManager
     // Every second spent atttempting to mine a higher tier block, display an error
     private int errorCounter = 400;
     private int lastErrorCounter = 400;
@@ -37,30 +40,30 @@ public class DrillerController : MonoBehaviour
     private Vector2 size;
     Vector2 rotatedOffset;
 
-    private Collider2D[] colliders;
+    // Endurance
+    private float drillHeat = 0;
+    private float lastMineTime = -Mathf.Infinity;
+    private const float heatCooldownDelay = 0.6f;
+    private int highestTierDrilled = 0;
+
+    // Cache
+    // 40 should be more enough for drilling
+    private readonly Collider2D[] colliders = new Collider2D[40];
     private Tilemap tilemap;
     private Vector3Int spriteTilePos;
     private TileBase tileToDestroy;
-    private GameObject materialToUse;
-    private Collider2D[] hitColliders;
-    private MaterialManager newMaterialManager;
     private int randomIndex;
     readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
-    bool dontPlayAudio;
+
+    float time = 0;
+    int count = 0;
     bool minedSomething;
     public bool isNPC = false;
 
-    private int drillHeat = 0;
-    private readonly float heatCooldownDelay = 1.5f;
-    private readonly float coolRate = 0.5f;
-    private float lastMineTime = -Mathf.Infinity;
-
     void Start() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        ores = mineRenderer.GetOres();
-        materials = mineRenderer.oreDelegation.materials;
 
         boxCollider2D = GetComponent<BoxCollider2D>();
         // Get the bounds of the BoxCollider2D
@@ -68,9 +71,11 @@ public class DrillerController : MonoBehaviour
         
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
+        // DO NOT CHANGE THIS UNLESS DRILLER PREFAB STRUCTURE OR PLAYER STRUCTURE CHANGES
         try {
             joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
         } catch {
+            // if failed, then its not the local main player
             isNPC = true;
             return;
         }
@@ -78,7 +83,7 @@ public class DrillerController : MonoBehaviour
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
-        audioDelegator = GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>();
+        audioDelegator = AudioDelegator.Instance;
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
     }
 
@@ -91,7 +96,7 @@ public class DrillerController : MonoBehaviour
         lastErrorCounter = errorCounter;
 
         if (!isNPC) {
-            playerVehicleDelegation.UpdateOverheatSlider(drillHeat);
+            playerVehicleDelegation.UpdateOverheatSlider(drillHeat / endurance, drillHeat);
         }
 
         if (drillHeat < endurance) {
@@ -101,80 +106,39 @@ public class DrillerController : MonoBehaviour
             Vector3 correctedOffset = transform.rotation * rotatedOffset;
 
             // Check if the game object's collider is touching a tilemap with "Mine Tag"
-            colliders = Physics2D.OverlapBoxAll(transform.position + correctedOffset, size, 0);
-            
-            dontPlayAudio = false;
+            int colliderCount = Physics2D.OverlapBoxNonAlloc(transform.position + correctedOffset, size, 0, colliders);
 
             // Destroy tiles
-            foreach (Collider2D collision in colliders) {
-                if (!collision.CompareTag("Mine Tag")) {
+            for (int i = 0; i < colliderCount; i++) {
+                if (!colliders[i].CompareTag("Mine Tag")) {
                     continue;
                 }
 
-                tilemap = mineRenderer.tilemapsDictionary[collision.name];
+                tilemap = mineRenderer.tilemapsDictionary[colliders[i].name];
 
                 spriteTilePos = tilemap.WorldToCell(transform.position);
 
                 currentTilePositions.Clear();
                 // Iterate over nearby tiles within the radius
-                for (int x = 0; x <= radius; x++)
+                for (int x = -radius; x <= radius; x++)
                 {
-                    int yLimit = radius - x;
-                    for (int y = 0; y <= yLimit; y++)
+                    for (int y = -radius; y <= radius; y++)
                     {
-                        // Check all 4 quadrants
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(x, y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(x, -y, 0));
-                        CheckToDestroyTile(spriteTilePos + new Vector3Int(-x, -y, 0));
-                    }
-                }
-
-                mineRenderer.DestroyTiles(currentTilePositions, false, isNPC);
-                
-                if (!dontPlayAudio && !isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
-                    PlayAudio();
-                }
-            }
-
-            // Place materials
-            for (int j = 0; j != tileWorldPositions.Count; j++) {
-                for (int i = 0; i != ores.Length; i++) {
-                    if (tileBasesToDestroy[j] != ores[i]) {
-                        continue;
-                    }
-
-                    materialToUse = materials[i];
-
-                    // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-                    int oldCount = 0;
-                    hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], radius);
-
-                    foreach (var hitCollider in hitColliders)
-                    {      
-                        // Make sure a gameobject was hit
-                        if (hitCollider == null) {
-                            continue;
+                        if (x * x + y * y <= radius * radius) // Check if inside circle
+                        {
+                            CheckToDestroyTile(spriteTilePos + new Vector3Int(x, y, 0));
                         }
-                        
-                        // Make sure they are the same materials
-                        if (hitCollider.name != materialToUse.name + "(Clone)") {
-                            continue;
-                        }
-                
-                        // If a neighbouring material was found, return to object pool,
-                        // and keep track of the count of the object
-                        // Don't set oldCount, use += in case there are more than 1;
-                        // Also don't break for the same reason
-                        newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                        oldCount += newMaterialManager.count;
-
-                        mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
                     }
-
-                    mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, profitMultiplier);
-                    break;
                 }
+
+                if (minedSomething) {
+                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2, true);
+
+                    if (!isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
+                        PlayAudio();
+                    }
+                }
+                
             }
 
             if (tileWorldPositions.Count > 0) {
@@ -185,10 +149,9 @@ public class DrillerController : MonoBehaviour
 
             tileWorldPositions.Clear();
             tileBasesToDestroy.Clear();
-        } else {
+        }
+        else {
             minedSomething = false;
-
-            ErrorWhenDrilling("DRILL OVERHEATED!");
         }
 
         if (isNPC) {
@@ -198,22 +161,37 @@ public class DrillerController : MonoBehaviour
         // Drill overheat
         float timeSinceLastMine = Time.time - lastMineTime;
         
-        if (minedSomething) {
-            // if within chain window, add heat
+        if (minedSomething)
+        {
+            // if within chain window, add heat, irregardless of amount of blocks mined
             if (timeSinceLastMine <= heatCooldownDelay)
             {
-                drillHeat = Mathf.Min(endurance, drillHeat + 1);
+                // 0.34f = fixed coefficency
+                // 0.09f = average time since last mine for small drills. 
+                // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
+                // 0.17f / 0.09f = 1.88f which helps balance the larger drills
+                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
+
+                drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+
+                // Gives average time since last mine
+                /*time += timeSinceLastMine;
+                count++;
+                Debug.Log(time/count);*/
             }
 
             lastMineTime = Time.time;
-        } else {
+        }
+        else
+        {
+            // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                // DeltaTime in FixedUpdate is fixedDeltaTime
-                drillHeat = Mathf.Max(0, (int) (drillHeat - coolRate));
+                drillHeat = Mathf.Max(0, (int)(drillHeat - coolRate));
             }
         }
 
+        highestTierDrilled = 0;
     }
 
     public void ErrorWhenDrilling(string error, params object[] args) {
@@ -225,15 +203,13 @@ public class DrillerController : MonoBehaviour
                 uiDelegation.ShowError(error, args);
                 errorCounter = 0;
             }
-
-            dontPlayAudio = true;
         }
     }
 
     public void CheckToDestroyTile(Vector3Int currentTilePos) {
 
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos) || currentTilePositions.Contains(new(currentTilePos.x, currentTilePos.y))) {
+        if (!tilemap.HasTile(currentTilePos)) {
             return;
         }
 
@@ -241,9 +217,8 @@ public class DrillerController : MonoBehaviour
         
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
-        if (drillTier < tileTier) {
-            ErrorWhenDrilling("TIER {0} DRILL IS NEEDED!", tileTier);
-            return;
+        if (highestTierDrilled < tileTier) {
+            highestTierDrilled = tileTier;
         }
 
         currentTilePositions.Add(new(currentTilePos.x, currentTilePos.y));
@@ -266,6 +241,14 @@ public class DrillerController : MonoBehaviour
     public void SetProfitMultiplier(float newProfitMultiplier) {
         this.profitMultiplier = newProfitMultiplier;
     }
+
+    public float GetCoolRate() {
+        return coolRate;
+    }
+
+    public void SetCoolRate(float newRate) {
+        coolRate = newRate;
+    }  
 
     public void PlayAudio() {
         if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {

@@ -8,7 +8,6 @@ public class MapRecordingMode : MonoBehaviour
     public Transform playerVehicle;
     public GameObject mapText;
     public PlayerState playerState;
-    public UncollectedMaterialsDelegator uncollectedMaterialsDelegator;
 
     public TextMeshProUGUI cargoValueText;
     public TextMeshProUGUI depthText;
@@ -133,8 +132,7 @@ public class MapRecordingMode : MonoBehaviour
             return;
         }
 
-        mineValueText.text = "$" + FormatPrice(uncollectedMaterialsDelegator.GetMineValue() - originalMineValue);
-        cashEarnedValueText.text = "$" + FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
+        cashEarnedValueText.text = playerState.FormatPrice(playerState.GetMoneyEarned() - originalCashEarned);
     }
 
     private IEnumerator GlowText() {
@@ -152,38 +150,6 @@ public class MapRecordingMode : MonoBehaviour
 
         // Ensure the final color is exactly the target color
         mineValueText.color = endColor;
-    }
-
-    private string FormatPrice(System.Numerics.BigInteger price)
-    {
-        if (price >= 1_000_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Qu";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.##") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.##") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.##") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     [ContextMenu("Reset Camera")]
@@ -228,13 +194,7 @@ public class MapRecordingMode : MonoBehaviour
         if (!notSingleplayerScene) {
             mineValueText.transform.parent.parent.parent.gameObject.SetActive(false);
             Camera.main.orthographicSize = 26f;
-        } else {
-            originalMineValue = uncollectedMaterialsDelegator.GetMineValue();
-            originalCashEarned = playerState.GetMoneyEarned();
-            //GetComponent<Camera>().orthographicSize = 162;
-            GetComponent<Camera>().orthographicSize = 125;
         }
-        
         //Camera.main.orthographicSize = 30;
 
         /*

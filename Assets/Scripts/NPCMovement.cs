@@ -17,15 +17,13 @@ public class NPCMovement : MonoBehaviour
     public int npcIndex;
     public NPCManager nPCManager;
     public NavMeshAgent agent;
-    public TilemapAStar tilemapAStar;
+
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
-    public TextMeshProUGUI rebirthText;
+    public TextMeshProUGUI rebirthText; // Used to hold rebirth counter but now holds level, that's why its called rebirth text
     public Canvas worldSpaceCanvas;
 
     public int rebirthLevel;
-    public HaulerController haulerController;
-    public int haulerIndex;
     public int drillTier;
     public bool stopMoving;
 
@@ -44,9 +42,6 @@ public class NPCMovement : MonoBehaviour
     public float timer = 0;
     private readonly float maxTimer = 20f;
 
-    // Cache
-    NavMeshPath path;
-
     public bool transitioning = false;
 
     public Vector3 dest;
@@ -56,8 +51,6 @@ public class NPCMovement : MonoBehaviour
         agent.updateUpAxis = false;
         agent.updatePosition = false;
         agent.updateRotation = false;
-
-        tilemapAStar.mineRenderer = nPCManager.mineRenderer;
 
         rb = GetComponent<Rigidbody2D>();
 
@@ -72,60 +65,29 @@ public class NPCMovement : MonoBehaviour
 
         timer += Time.deltaTime;
 
-        if (!haulerController) {
+        try {
+            UpdateAgentDestination(agent.destination);
+        } catch {
+        }
 
-            try {
-                UpdateAgentDestination(agent.destination);
-            } catch {
-            }
+        float distance = Vector3.Distance(transform.position, agent.steeringTarget);
 
-            float distance = Vector3.Distance(transform.position, agent.steeringTarget);
-
-            if (distance < 0.5f) {
-                agent.nextPosition = transform.position;
-            } else {
-                direction = (agent.steeringTarget - transform.position).normalized;
-            }
-
-            // If npc is close or timer reached then choose a new spot
-            if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer) {
-                RequestNewPosition();
-            }
-
+        if (distance < 0.5f) {
+            agent.nextPosition = transform.position;
         } else {
-            
-            if (tilemapAStar.Waypoints.Count != 0 && maxTimer > timer) {
-                float distance = Vector3.Distance(transform.position, tilemapAStar.Waypoints[0]);
+            direction = (agent.steeringTarget - transform.position).normalized;
+        }
 
-                if (distance < 2f) {
-                    tilemapAStar.Waypoints.RemoveAt(0);
-                } else {
-                    direction = (tilemapAStar.Waypoints[0] - transform.position).normalized;
-                }
-            } else {
-                RequestNewPosition();
-            }
-
+        // If npc is close or timer reached then choose a new spot
+        if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer) {
+            RequestNewPosition();
         }
 
         // (0, -6, 0) means theres a problem with requesting new position
         if (Math.Abs(dest.y + 6) < 0.1) {
-            // If its a hauler, drop to a smaller hauler or sell ores
-            if (haulerController != null) {
-                if (haulerController.GetTotalMaterialCount() > 0) {
-                    UpdateAgentDestination(new(0, 6));
-                    return;
-                }
-                
-                if (haulerController.width > 3) {
-                    StartCoroutine(nPCManager.SwitchToAnotherHauler(npcIndex, haulerIndex));
-                    return;
-                }
-            }
+
             // If its a driller, just drill to some random spot
-            else {
-                UpdateAgentDestination(GetRandomPosition());
-            }
+            UpdateAgentDestination(GetRandomPosition());
         }
 
         joystickVec = direction;
@@ -138,10 +100,7 @@ public class NPCMovement : MonoBehaviour
     }
 
     public void UpdateAgentDestination(Vector3 newDestination) {
-        if (haulerController == null) {
-            agent.SetDestination(newDestination);
-        }
-
+        agent.SetDestination(newDestination);
         dest = newDestination;
     }
 
@@ -165,15 +124,8 @@ public class NPCMovement : MonoBehaviour
         RequestNewPosition();
         yield return new WaitForSeconds((float) random.NextDouble() * 3);
 
-        if (Vector3.Distance(dest, new(0, 6)) < 0.1f) {
-            UpdateAgentDestination(new(random.Next(-2, 2), random.Next(6, 9)));
-            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
-        }
-
-        if (haulerController == null) {
-            agent.enabled = false;
-            agent.enabled = true;
-        }
+        agent.enabled = false;
+        agent.enabled = true;
 
         transitioning = false;
     }
@@ -234,11 +186,6 @@ public class NPCMovement : MonoBehaviour
             foreach (Vector2Int tilePos in unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Keys) {
                 if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].TryGetValue(tilePos, out int value) && nPCManager.mineRenderer.oreDelegation.VerifyIfOre(value))
                 {
-                    int oreTier = nPCManager.mineRenderer.GetTileTier(nPCManager.mineRenderer.tileValues[value]);
-                    if (drillTier - 1 > oreTier || oreTier > drillTier) {
-                        continue;
-                    }
-
                     oreTiles.Add(tilePos);
                 }
             }
@@ -334,82 +281,8 @@ public class NPCMovement : MonoBehaviour
     public void RequestNewPosition() {
         timer = 0;
 
-        // Get hauler position
-        if (haulerController != null) {
-            AskIfHaulingIsNeeded();
-
-            // If hauler doesnt need to become a drill, or isnt waiting in spawn, then go to a new position
-            if (!transitioning) {
-                UpdateAgentDestination(RequestNewHaulerPosition());
-            } 
-            // Otherwise drop off materials if there are more than 10 then try again
-            else if (haulerController.GetTotalMaterialCount() > 0) {
-                UpdateAgentDestination(new(0, 6));
-                tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
-                transitioning = false;
-            }
-            // Otherwise, it is going to become a driller
-            
-            return;
-        }
-
         // Get driller position
         UpdateAgentDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
-    }
-
-    public Vector3 RequestNewHaulerPosition() {
-
-        // Threshold
-        if (haulerController.GetTotalMaterialCount() >= haulerController.GetMaxMaterials() * 0.5 || (nPCManager.GetMaterialCount() < nPCManager.Get1HaulerThreshold() && nPCManager.drillingNeeded)) {
-            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
-            return new(0, 6);
-        }
-
-        // If path is null, initialize it
-        path ??= new NavMeshPath();
-
-        Vector3 newHaulerPosition;
-
-        // Check if the game object's collider is touching a tilemap with "Mine Tag"
-        // Dont do this in the spawn
-        if (transform.position.y < -5) {
-            Collider2D[] colliders = Physics2D.OverlapBoxAll(transform.position, new(40, 40), 0);
-
-            foreach (Collider2D collision in colliders) {
-                if (!collision.CompareTag("Material Tag")) {
-                    continue;
-                }
-
-                newHaulerPosition = collision.transform.position;
-
-                tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
-
-                if (tilemapAStar.PathFound) {
-
-                    return newHaulerPosition;
-                }
-            }
-        }
-
-        // Check for a position for a max of 60 times. If still invalid, then the hauler is too big
-        // TODO: Code dupe, fix this, its also in npc manager
-        int haulPositionCount = 0;
-        do {
-            newHaulerPosition = nPCManager.RequestNewHaulerPosition(drillTier);
-            tilemapAStar.GeneratePath(transform.position, newHaulerPosition, 3);
-
-            haulPositionCount++;
-        } 
-        while(!tilemapAStar.PathFound && haulPositionCount < 10);
-
-        // If invalid
-        if (haulPositionCount >= 10) {
-            newHaulerPosition = new(0, -6);
-            tilemapAStar.GeneratePath(transform.position, new(0, 6), 3, true);
-            nPCManager.drillingNeeded = true;
-        }
-
-        return newHaulerPosition;
     }
 
     public void MoveVehicle() {
@@ -495,37 +368,6 @@ public class NPCMovement : MonoBehaviour
         frontWheels = null;
 
         
-    }
-
-    public void AskIfHaulingIsNeeded() {
-        transitioning = true;
-
-        if (nPCManager.drillingNeeded) {
-            // If has cargo, don't switch yet, let it drop off the ores then check again
-            if (haulerController.GetTotalMaterialCount() > 0) {
-                return;
-            }
-
-            StartCoroutine(nPCManager.SwitchHaulerToDriller(npcIndex));
-        } else {
-            transitioning = false;
-            return;
-        }
-
-        StartCoroutine(MakeHaulerWait());
-    }
-
-    private IEnumerator MakeHaulerWait() {
-        // If transitioning to a driller, keep going to final destination
-        while (Vector3.Distance(transform.position, dest) > 0.5f) {
-            MoveVehicle();
-            joystickVec = (dest - transform.position).normalized;
-            yield return null;
-        }
-
-        // Then stop moving and wait
-        stopMoving = true;
-        rb.velocity = Vector2.zero;
     }
 
     private IEnumerator HoldPlayerCardStill() {

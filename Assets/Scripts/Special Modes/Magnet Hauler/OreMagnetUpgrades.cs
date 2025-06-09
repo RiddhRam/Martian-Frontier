@@ -27,6 +27,11 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     private SerializableDictionary<string, int> magnetHaulerUpgrades;
     private readonly int[] upgradePrices = { 300, 500, 700, 1000, 1300, 1700, 2200, 2800, 3500, 4300, 5200, 6200, 7400, 8700, 10100, 11800, 13600, 15700, 18000, 20500 };
 
+    void Awake()
+    {
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
+
     public void UpgradeMagnet(string upgradeType) {
         int level = GetUpgradeLevel(upgradeType);
 
@@ -77,7 +82,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
             rangePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             rangePriceText.text = "MAX";
         } else {
-            rangePriceText.text = FormatPrice(upgradePrices[rangeLevel]);
+            rangePriceText.text = playerState.FormatPrice(upgradePrices[rangeLevel]);
         }
 
         // Strength
@@ -93,7 +98,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
             strengthPriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             strengthPriceText.text = "MAX";
         } else {
-            strengthPriceText.text = FormatPrice(upgradePrices[strengthLevel]);
+            strengthPriceText.text = playerState.FormatPrice(upgradePrices[strengthLevel]);
         }
     }
 
@@ -117,10 +122,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
-        try {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        } catch {
-        }
 
         this.magnetHaulerUpgrades = data.magnetHaulerUpgrades;
 
@@ -130,28 +131,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data) {
         data.magnetHaulerUpgrades = this.magnetHaulerUpgrades;
-    }
-
-    public string FormatPrice(int price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     private string GetLocalizedValue(string key, params object[] args)

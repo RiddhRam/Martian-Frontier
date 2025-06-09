@@ -1,16 +1,17 @@
-using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    public GameObject mainCamera;
+    public Transform mainCamera;
+    public Transform uiCamera;
+    public PlayerState playerState;
     public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
     public bool stopMoving;
 
-    [SerializeField]
-    private float playerSpeed = 5f;
+    [SerializeField] private float playerSpeed = 5f;
     private readonly float cameraFollowSpeed = 5f; // Controls how smoothly the camera follows
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
@@ -35,12 +36,30 @@ public class PlayerMovement : MonoBehaviour
     // Only for recording
     public bool freezeCamera = false;
 
+    // Details above the player
+    [SerializeField] private Transform sliderCanvas;
+    [SerializeField] private TextMeshProUGUI cashEarnedText;
+    [SerializeField] private SpriteRenderer cashIconSpriteRenderer;
+    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
+
+    private double cashToShow;
+    private Coroutine floatingTextCoroutine;
+    const float fadeDuration = 0.5f;
+
+    void Awake()
+    {
+        joystickMovement = JoystickMovement.Instance;
+    }
+
     // Start is called before the first frame update
     void Start()
     {
+        StartCoroutine(HoldCanvasStill());
+
         stopMoving = false;
         rb = GetComponent<Rigidbody2D>();
-        mainCamera.transform.position = new(transform.position.x, transform.position.y, -10);
+        mainCamera.position = new(transform.position.x, transform.position.y, -10);
+        uiCamera.position = new(transform.position.x, transform.position.y, -10);
     }
 
     // 50 times a second
@@ -48,8 +67,8 @@ public class PlayerMovement : MonoBehaviour
     {
         float y = transform.position.y;
         float x = transform.position.x;
-        if (y > 21 || y < -515 || x > 79 || x < -79) {
-            transform.position = new(4.5f, 5.4f, 0);
+        if (y > 24 || y < -515 || x > 79 || x < -79) {
+            transform.position = new(0, 10, 0);
         }
 
         // Leave this before the if statement, that way the camera repositions properly upon restarting the game.
@@ -123,12 +142,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     // Smooth camera follow
-    public void MoveCamera() {
-        if (freezeCamera) {
+    public void MoveCamera()
+    {
+        if (freezeCamera)
+        {
             return;
         }
-        targetPosition = new(transform.position.x, transform.position.y, mainCamera.transform.position.z);
-        mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        targetPosition = new(transform.position.x, transform.position.y, mainCamera.position.z);
+        mainCamera.position = Vector3.Lerp(mainCamera.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+        uiCamera.position = mainCamera.position;
     }
 
     public void SetSpeed(float newSpeed) {
@@ -164,8 +186,70 @@ public class PlayerMovement : MonoBehaviour
         {
             // Truncate to 3 decimal places and format with "KM"
             return (positionY / 1_000) + " KM";
-        } else {
+        } 
+        else {
             return positionY + " M";
+        }
+    }
+
+    public void NewOreMined(double cashEarned) {
+        cashToShow += cashEarned;
+        
+        if (floatingTextCoroutine != null) {
+            StopCoroutine(floatingTextCoroutine);
+        }
+        floatingTextCoroutine = StartCoroutine(ShowFloatingText());
+    }
+
+    private IEnumerator ShowFloatingText() {
+
+        // Show text and icon
+        cashEarnedText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashToShow), 1);
+        float alphaValue = 1;
+        cashEarnedText.alpha = alphaValue;
+        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+
+        // Wait 2 seconds
+        yield return new WaitForSecondsRealtime(2);
+
+        // Fade text and icon out
+        float time = 0f;
+        while (time < fadeDuration)
+        {
+            time += Time.deltaTime;
+            alphaValue = Mathf.Lerp(1f, 0f, time / fadeDuration);
+            cashEarnedText.alpha = alphaValue;
+            cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+            yield return null;
+        }
+
+        // Ensure it’s fully invisible
+        alphaValue = 0;
+        cashEarnedText.alpha = alphaValue;
+        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
+        // Reset for next time
+        cashToShow = 0;   
+    }
+
+    private IEnumerator HoldCanvasStill() {
+        
+        if (sliderCanvas == null) {
+            Debug.Log("No canvas found");
+            yield break;
+        }
+        while (true) {
+
+            sliderCanvas.rotation = normalRotation;
+
+            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+
+            // Calculate new position based on rotation
+            float x = Mathf.Sin(angle) * 5.2f;
+            float y = Mathf.Cos(angle) * 5.2f;
+
+            sliderCanvas.localPosition = new Vector3(x, y, 0);
+
+            yield return null;
         }
     }
 

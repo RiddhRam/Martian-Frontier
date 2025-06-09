@@ -3,13 +3,27 @@ using UnityEngine;
 using System;
 using System.Numerics;
 using UnityEngine.SceneManagement;
+using System.Threading.Tasks;
 
 public class DataPersistenceManager : MonoBehaviour
-{
+{    
+    private static DataPersistenceManager _instance;
+    public static DataPersistenceManager Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<DataPersistenceManager>();
+            }
+            return _instance;
+        }
+    }
 
     [Header("File Storage Config")]
     public string fileName;
-    public CloudDelegator cloudDelegator;
+    private CloudDelegator cloudDelegator;
     private bool useEncryption = true;
 
     private GameData gameData = new();
@@ -23,8 +37,6 @@ public class DataPersistenceManager : MonoBehaviour
 
     private bool notSinglePlayerScene = false;
 
-    public static DataPersistenceManager instance {get; private set; }
-
     // If this is false, then don't save the game
     // Helps improve game data integrity
     //
@@ -34,12 +46,9 @@ public class DataPersistenceManager : MonoBehaviour
 
     private void Awake() {
 
-        if (instance != null) {
-            Debug.LogError("Found more than one data persistence manager");
-        }
-        instance = this;
+        cloudDelegator = CloudDelegator.Instance;
 
-        // Don't encrypt when using the editor, go debugging purposes
+        // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
             useEncryption = false;
         }
@@ -56,6 +65,7 @@ public class DataPersistenceManager : MonoBehaviour
 
         // Load saved data from file from a file handler
         CompareGameData(dataHandler.Load());
+
         if (adConsent) {
             adConsent.UpdatePlayerStatus(this.gameData.finishedTutorial);
             return;
@@ -76,6 +86,32 @@ public class DataPersistenceManager : MonoBehaviour
         this.gameData = new GameData();
     }
 
+    public async void ResetBetaPlayer() {
+        // Reset game
+        NewGame();
+
+        // Recognize as beta player
+        this.gameData.bp = 2;
+
+        DirectlyWriteSave();
+
+        // Make sure player isn't signing in
+        while (cloudDelegator.doingSigninProcess)
+            await Task.Yield();
+
+        // Make sure cloud save is overwritten too
+        await cloudDelegator.SaveGameDataToCloud();
+
+        // Still make sure they aren't signing in just in case
+        while (cloudDelegator.doingSigninProcess)
+            await Task.Yield();
+
+        cloudDelegator.TempSignOut();
+
+        // Restart game
+        SceneManager.LoadScene("Loading Screen");
+    }
+
     public void LoadGame() {
         // If no file, create a new game
         if (this.gameData == null) {
@@ -92,7 +128,7 @@ public class DataPersistenceManager : MonoBehaviour
             }
 
             try {
-                StartCoroutine(GameObject.Find("Loading Screen").GetComponent<LoadingScreen>().IncrementLoadedItems(gameObject));
+                StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
             } catch {
             }
         }
@@ -205,29 +241,45 @@ public class DataPersistenceManager : MonoBehaviour
         // true = use new save (cloud save or something else)
         // false = use current save
         
-        // If cloud save has higher rebirth use the cloud save, else use local save
-        if (gameData.rebirthProfitMultiplier > this.gameData.rebirthProfitMultiplier) {
+        // If player is from the beta and has not collected their reward, don't load data from the cloud
+
+        // Keep the game save with the older stuff. STUBBY was from the beta, so the player will receive a reward
+        // The current save has to go first for this one, otherwise it gets stuck in a loop
+        // If Beta key == 200, then the player already was recognized so just reward them with the current save
+        // If bp == 2, then the player was previously recognized as a beta player
+
+        if (this.gameData.vehiclesOwned.Contains("STUBBY") || this.gameData.bp == 2 || PlayerPrefs.GetInt("Beta") == 200) {
+
+            // Case: Other game data is also from the beta, just like the current one
+            // If the other one has more xp, use that, otherwise use this.
+            if (gameData.bp == 2 && BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
+                this.gameData = gameData;
+                return true;
+            }
+            this.gameData.bp = 2;
+            return false;
+        }
+        if (gameData.vehiclesOwned.Contains("STUBBY") || gameData.bp == 2) {
             this.gameData = gameData;
             return true;
         }
-        // If less than, return, other wise, they are equal so we look for a tie breaker
-        if (gameData.rebirthProfitMultiplier < this.gameData.rebirthProfitMultiplier) {
+
+        // Keep one with most XP 
+        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
+            this.gameData = gameData;
+            return true;
+        }
+        if (BigInteger.Parse(gameData.userXP) < BigInteger.Parse(this.gameData.userXP)) {
             return false;
         }
 
-        // Keep one with most cash, if rebirth is equal
+        // Keep one with most cash if xp is equal
         if (BigInteger.Parse(gameData.userCash) > BigInteger.Parse(this.gameData.userCash)) {
             this.gameData = gameData;
             return true;
         }
         if (BigInteger.Parse(gameData.userCash) < BigInteger.Parse(this.gameData.userCash)) {
             return false;
-        }
-
-        // Keep one with most XP if cash and rebirth is equal
-        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
-            this.gameData = gameData;
-            return true;
         }
 
         // Keep one with most gems if others all equal

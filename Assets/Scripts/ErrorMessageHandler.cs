@@ -23,12 +23,12 @@ public class ErrorMessageHandler : MonoBehaviour
     private void Start()
     {
         StartCoroutine(AnimateMessage());
-        GameObject.Find("Audio Delegator").GetComponent<AudioDelegator>().PlayAudio(UISoundEffects, errorAudio, 0.4f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, errorAudio, 0.4f);
     }
 
     private IEnumerator AnimateMessage()
     {
-        float duration = 2f; // Total duration of the animation
+        float duration = 3f; // Total duration of the animation
         float elapsedTime = 0f;
         Vector3 initialPosition = rectTransform.anchoredPosition;
         Vector3 targetPosition = initialPosition + new Vector3(0, 200, 0); // Move 200 pixels upwards

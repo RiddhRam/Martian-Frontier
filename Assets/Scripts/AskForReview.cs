@@ -24,7 +24,7 @@ public class AskForReview : MonoBehaviour
 
         // If this is the first response ask for a public review
         if (responseTracker == 0) {
-            GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().EnjoyingGame();
+            AnalyticsDelegator.Instance.EnjoyingGame();
             StartCoroutine(RequestForReviews());
         } 
         // Otherwise, send feedback
@@ -32,7 +32,7 @@ public class AskForReview : MonoBehaviour
             
             if (screenType == "Private Feedback") {
                 string reason = safeAreaTransform.GetChild(0).GetChild(2).GetChild(0).GetChild(2).GetComponent<TextMeshProUGUI>().text;
-                GameObject.Find("Analytics Delegator").GetComponent<AnalyticsDelegator>().NotEnjoyingGame(reason);
+                AnalyticsDelegator.Instance.NotEnjoyingGame(reason);
                 Destroy(gameObject);
             }
         }

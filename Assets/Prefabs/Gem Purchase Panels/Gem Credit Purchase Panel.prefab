@@ -117,7 +117,8 @@ GameObject:
   - component: {fileID: 4333069795821767636}
   - component: {fileID: 7230970069719616946}
   - component: {fileID: 4526678190724063537}
-  m_Layer: 0
+  - component: {fileID: 8692884520114409469}
+  m_Layer: 5
   m_Name: BUY BUTTON
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -252,6 +253,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   shrinkFactor: 0.985
   shrinkSpeed: 10
+--- !u!114 &8692884520114409469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 900922767548157223}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 3, y: 3}
+  m_UseGraphicAlpha: 1
 --- !u!1 &3626381442175255982
 GameObject:
   m_ObjectHideFlags: 0
@@ -338,7 +354,7 @@ GameObject:
   - component: {fileID: 5149593336566312750}
   - component: {fileID: 5189881889385549512}
   - component: {fileID: 3763181546502926747}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Gem Credit Purchase Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -491,7 +507,7 @@ GameObject:
   - component: {fileID: 1888561498782498329}
   - component: {fileID: 2112556745060384067}
   - component: {fileID: 255323810222553593}
-  m_Layer: 0
+  m_Layer: 5
   m_Name: Background Panel
   m_TagString: Untagged
   m_Icon: {fileID: 0}

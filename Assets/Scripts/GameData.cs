@@ -13,21 +13,23 @@ public class GameData
     public string blocksMined;
     public string materialsSold;
     public string moneyEarned;
+    public double highestMined;
     public Vector3 playerPos;
     public float playerRotation;
     public List<string> vehiclesOwned;
     public string currentVehicle;
-    public int[] haulerCargo;
-    // Uncollected materials
-    public SerializableDictionary<string, MaterialManagerData> materials;
-    public float refineryBattery;
+    
+    public int refineryTimer;
     // Keep track of both in user used a vision boost when destroying tiles. Reveal all tiles first, then set destroyed ones to null
     public SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
     public SerializableDictionary<Vector2Int, int>[,] revealedTilemapsTileValues;
     public int seed;
     public int highestRow;
     public int mineInitialization;
-    public float rebirthProfitMultiplier;
+    public int mineCount;
+    // oreIndex: level
+    public SerializableDictionary<int, int> oreUpgrades;
+
     public bool finishedTutorial;
     public bool askedForReview;
     public int lastChallengeDate;
@@ -36,44 +38,61 @@ public class GameData
     public int superChallengeTimer;
     public string userGems;
     public string gemsEarned;
+    // Actually current blocks mined, not ores
     public int currentOresMined;
     public long gemRewardsToCollect;
     public int tutorialScreenIndex;
-    public SerializableDictionary<string, int> vehicleUpgradeLevels;
-    public float[] materialProfitMultipliers;
+
+    public SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
+    public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
+    public List<string> customizationsOwned;
+
     public int cratesAvailable;
     public int progressToNextCrate;
     public string currentCoopVehicle;
-    public int rewardAdTimer;
+
     public int cooldownTimer;
     public List<string> equippedPowers;
     public SerializableDictionary<string, int> powerUpgradeLevels;
+    // The number of powers unlocked by the player
+    public int powersUnlocked;
+
     public string userCredits;
     public int twoDayIntervals;
+
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
-    public int magnetHaulerAdTimer;
     public int[] magnetHaulerChallengeProgress;
     public bool[] magnetHaulerChallengeCollection;
     public int magnetHaulerSuperChallengeTimer;
+
     public SerializableDictionary<string, int> oreBlasterUpgrades;
-    public int oreBlasterAdTimer;
     public int[] oreBlasterChallengeProgress;
     public bool[] oreBlasterChallengeCollection;
     public int oreBlasterSuperChallengeTimer;
 
+    // bp = Beta Player. 0 = not a beta player, 2 = beta player
+    public int bp;
+
+    // the first version (android bundle) id that this player last played on. Can also be found in CloudDelegator.cs
+    public int id;
+
     public GameData() {
+        // Starter cash
         this.userCash = "0";
         this.userXP = "0";
-        this.playerPos = new(4.5f, 5.4f, 0);
+        this.playerPos = new(0, 10, 0);
         this.playerRotation = 180;
         this.blocksMined = "0";
         this.materialsSold = "0";
         this.moneyEarned = "0";
-        this.vehiclesOwned = new List<string> { "GRINDER I", "STUBBY" };
-        this.currentVehicle = "GRINDER I";
-        this.haulerCargo = new int[9];
-        this.materials = new();
-        this.refineryBattery = 120;
+
+        // This is just so the supply crates rewards and other things aren't too low
+        this.highestMined = 5_000;
+        
+        this.vehiclesOwned = new List<string> { "GRINDER" };
+        this.currentVehicle = "GRINDER";
+
+        this.refineryTimer = 120;
         // SEARCH FOR [42] TO FIND ALL OCCURRENCES OF THE LENGTH, THERE MAY BE MORE IN DEPTH STUFF IN MineRenderer.cs
         this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];
         this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];
@@ -89,7 +108,9 @@ public class GameData
         this.seed = 0;
         this.highestRow = 0;
         this.mineInitialization = 0;
-        this.rebirthProfitMultiplier = 0;
+        this.mineCount = 1;
+        this.oreUpgrades = new();
+
         this.finishedTutorial = false;
         this.askedForReview = false;
         this.lastChallengeDate = (int) (DateTime.UtcNow.Date - new DateTime(2024, 12, 8, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds;
@@ -101,29 +122,35 @@ public class GameData
         this.currentOresMined = 0;
         this.gemRewardsToCollect = 0;
         this.tutorialScreenIndex = 0;
+
         this.vehicleUpgradeLevels = new();
-        this.materialProfitMultipliers = new float[9];
+        this.vehicleCustomizations = new();
+        this.customizationsOwned = new();
+
         this.cratesAvailable = 0;
         this.progressToNextCrate = 0;
-        this.currentCoopVehicle = "GRINDER I";
-        this.rewardAdTimer = 0;
+        this.currentCoopVehicle = "GRINDER";
+        
         this.cooldownTimer = 0;
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
+        this.powersUnlocked = 1;
         
         this.userCredits = "0";
         this.twoDayIntervals = 0;
 
         this.magnetHaulerUpgrades = new();
-        this.magnetHaulerAdTimer = 0;
         this.magnetHaulerChallengeProgress = new int[6];
         this.magnetHaulerChallengeCollection = new bool[6];
         this.magnetHaulerSuperChallengeTimer = 1200;
 
         this.oreBlasterUpgrades = new();
-        this.oreBlasterAdTimer = 0;
         this.oreBlasterChallengeProgress = new int[6];
         this.oreBlasterChallengeCollection = new bool[6];
         this.oreBlasterSuperChallengeTimer = 1200;
+
+        this.bp = 0;
+        
+        this.id = 116;
     }
 }

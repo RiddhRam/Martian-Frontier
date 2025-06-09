@@ -22,8 +22,10 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private GameObject[] powerPanels;
     [SerializeField] private GameObject[] powerLockedPanels;
 
+    [SerializeField] private Button unlockPowerButton;
 
-    [SerializeField] private AudioDelegator audioDelegator;
+
+    private AudioDelegator audioDelegator;
     [SerializeField] private AudioSource powerUpAudioSource;
     [SerializeField] private AudioClip[] powerUpAudioClips;
     [SerializeField] private float[] audioVolumes;
@@ -32,8 +34,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private Color surveyRadarColor;
     [SerializeField] private Sprite[] powerIconsWhite;
 
-    private TileBase[] ores;
-    private GameObject[] materials;
     private OreDelegation oreDelegation;
     private AnalyticsDelegator analyticsDelegator;
 
@@ -45,9 +45,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     Vector3Int spriteTilePos;
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
-    GameObject materialToUse;
-    private MaterialManager newMaterialManager;
-    private Collider2D[] hitColliders;
+
     ExplosionController explosionController;
 
     private List<string> equippedPowers = new();
@@ -55,6 +53,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public int cooldownTimer = 0;
     [SerializeField] private SerializableDictionary<string, int> powerUpgradeLevels;
+    private int powersUnlocked = 1;
     // Reduce Cooldown
     public int cooldown = 90;
     // Increase Rewards
@@ -69,15 +68,40 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     public bool scannedForOres = false;
 
-    private readonly int[] upgradeGemPrices = { 4300, 5500, 7000, 8900, 11000, 15000, 19000, 24000, 30000, 38000, 49000, 62000, 80000, 100000, 130000, 160000, 210000, 270000, 340000, 430000 };
+    // Length: 20
+    // Sum: 578,800
+    private readonly int[] upgradeCashPrices = {
+        2000,
+        2500,
+        3100,
+        3800,
+        4700,
+        5800,
+        7100,
+        8800,
+        11000,
+        13000,
+        17000,
+        21000,
+        25000,
+        32000,
+        39000,
+        48000,
+        60000,
+        74000,
+        91000,
+        110000
+    };
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     void Start()
     {
-        ores = mineRenderer.GetOres();
         oreDelegation = mineRenderer.oreDelegation;
-        materials = oreDelegation.materials;
-        
-        analyticsDelegator = AnalyticsDelegator.Instance;
     }
     // Increase Vision
     public int visionBoost;
@@ -209,6 +233,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     // Destroy surrounding ores
     [ContextMenu("Explosive Charge")]
     private void ExplosiveCharge() {
+        // If the radius is very large, there's a chance that some ungenerated tiles will be destroyed
+        // This gameobject activates any generation triggers if needed
+
         // Set off any generation triggers first
         // Create a new GameObject for the collider
         GameObject colliderObject = new("GroundCollider");
@@ -221,7 +248,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         boxCollider.size = new(1, destroyRadius);
         boxCollider.transform.position = new(playerVehicle.position.x, playerVehicle.position.y - destroyRadius/2);
         boxCollider.transform.rotation = new();
-
+        
         StartCoroutine(DestroyGroundCollider(colliderObject));
 
         // Very similar to what is used in Driller Controller
@@ -254,46 +281,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
                 }
             }
 
-            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true);
-        }
-
-        for (int j = 0; j != tileWorldPositions.Count; j++) {
-            for (int i = 0; i != ores.Length; i++) {
-                if (tileBasesToDestroy[j] != ores[i]) {
-                    continue;
-                }
-
-                materialToUse = materials[i];
-
-                // If no neighbouring materials then this stays 0 and the new object will have a count of 1
-                int oldCount = 0;
-                hitColliders = Physics2D.OverlapCircleAll(tileWorldPositions[j], 3);
-
-                foreach (var hitCollider in hitColliders)
-                {      
-                    // Make sure a gameobject was hit
-                    if (hitCollider == null) {
-                        continue;
-                    }
-                    
-                    // Make sure they are the same materials
-                    if (hitCollider.name != materialToUse.name + "(Clone)") {
-                        continue;
-                    }
-            
-                    // If a neighbouring material was found, return to object pool,
-                    // and keep track of the count of the object
-                    // Don't set oldCount, use += in case there are more than 1;
-                    // Also don't break for the same reason
-                    newMaterialManager = hitCollider.GetComponent<MaterialManager>();
-                    oldCount += newMaterialManager.count;
-
-                    mineRenderer.ReturnMaterialObject(hitCollider.gameObject, i, newMaterialManager.id);
-                }
-
-                mineRenderer.GetMaterialObject(i, tileWorldPositions[j], oldCount + 1, 0);
-                break;
-            }
+            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true, playerVehicle.position, true);
         }
 
         tileWorldPositions.Clear();
@@ -321,12 +309,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         Vector2Int tilemapPos = mineRenderer.CalculateTileMapPos(new(currentTilePos.x, currentTilePos.y));
         int tileIndex = mineRenderer.unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y][new(currentTilePos.x, currentTilePos.y)];
 
-        // Make sure the drill is capable of destroying this tile
-        int tileTier = mineRenderer.GetTileTier(mineRenderer.tileValues[tileIndex]);
-        if (playerState.GetHighestDrillTier() < tileTier) {            
-            return;
-        }
-
         tilesToDestroy.Add(new(currentTilePos.x, currentTilePos.y));
         tileBasesToDestroy.Add(tilemap.GetTile(currentTilePos));
         tileWorldPositions.Add(tilemap.GetCellCenterWorld(currentTilePos));
@@ -340,8 +322,13 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void Teleport(Vector3 newPosition) {
+        // Make sure rows are generated
+        mineRenderer.TriggerAllGenerationTriggersAbove(newPosition.y);
+
+        // Move player
         playerVehicle.position = new(newPosition.x, newPosition.y);
 
+        // Back to game
         uIDelegation.HideElement(teleportPanel);
         uIDelegation.RevealAll();
         uIDelegation.ToggleCamera();
@@ -477,16 +464,54 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         powerIconImage.gameObject.SetActive(true);
     }
 
-    public void UpdatePowerVisibility(int rebirths) {
-        
-        foreach (var power in powers) {
-            if (power.MinLevelRequired > rebirths) {
+    public void UnlockNewPower()
+    {
+        if (!playerState.VerifyEnoughGems(GetUnlockPrice()))
+        {
+            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            return;
+        }
+
+        playerState.SubtractGems(GetUnlockPrice());
+        powersUnlocked++;
+
+        UpdatePowerVisibility();
+    }
+
+    public void UpdatePowerVisibility()
+    {
+
+        foreach (var power in powers)
+        {
+            // Disable if index is higher than or equal to number of powers unlocked
+            if (power.Index >= powersUnlocked)
+            {
                 powerPanels[power.Index].SetActive(false);
                 powerLockedPanels[power.Index].SetActive(true);
-            } else {
+            }
+            // Enable otherwise
+            else
+            {
                 powerPanels[power.Index].SetActive(true);
                 powerLockedPanels[power.Index].SetActive(false);
             }
+        }
+
+        // Max powers unlocked
+        if (powersUnlocked >= powers.Count)
+        {
+            // Show button as disabled
+            unlockPowerButton.interactable = false;
+            unlockPowerButton.GetComponent<Image>().color = new(1, 0, 0);
+
+            // Change text
+            unlockPowerButton.transform.GetChild(0).gameObject.SetActive(false);
+            unlockPowerButton.transform.GetChild(1).gameObject.SetActive(true);
+        }
+        // Update price
+        else
+        {
+            unlockPowerButton.transform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerState.FormatPrice(GetUnlockPrice());
         }
     }
 
@@ -495,19 +520,40 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         int powerLevel = GetPowerLevel(power.Name);
 
+        // Level
         powerPanels[powerIndex].transform.GetChild(2).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("LEVEL {0}", powerLevel);
+        // Power value
         powerPanels[powerIndex].transform.GetChild(3).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue(power.MainValueKey, power.Level0Value + power.UpgradeValue * powerLevel);
 
+        // Upgrade button
         Transform upgradeButton = powerPanels[powerIndex].transform.GetChild(7);
-        if (powerLevel == powers[powerIndex].Prices.Length) {
+        // Max level
+        if (powerLevel >= powers[powerIndex].Prices.Length)
+        {
             upgradeButton.GetComponent<Button>().interactable = false;
             upgradeButton.GetComponent<Image>().color = new(1, 0, 0);
 
             upgradeButton.GetChild(0).GetChild(0).gameObject.SetActive(false);
             upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = "MAX";
-        } else {
-            upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = FormatPrice(power.Prices[powerLevel]);
         }
+        else
+        {
+            // Update price
+            upgradeButton.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>().text = playerState.FormatPrice(power.Prices[powerLevel]);
+        }
+    }
+
+    public int GetUnlockPrice()
+    {
+        // m = 9000, x = powersUnlocked, b = 6000
+        int price = (9000 * powersUnlocked) + 6000;
+
+        if (price < 0)
+        {
+            price = 0;
+        }
+
+        return price;
     }
 
     public void LoadData(GameData data)
@@ -515,19 +561,22 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         this.cooldownTimer = data.cooldownTimer;
         this.equippedPowers = data.equippedPowers;
         this.powerUpgradeLevels = data.powerUpgradeLevels;
+        this.powersUnlocked = data.powersUnlocked;
 
-        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeGemPrices, powerIconsWhite[0], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
-        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeGemPrices, powerIconsWhite[1], 0, false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
-        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], 1, false, false, "", 0, 0, () => {}));
-        powers.Add(new(() => {}, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeGemPrices, null, 3, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
-        powers.Add(new(() => {}, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeGemPrices, null, 5, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
-        powers.Add(new(() => {}, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeGemPrices, null, 8, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
-        powers.Add(new(() => {}, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 4000, 8000, 22000, 60000, 100000, 400000, 1000000 }, null, 11, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
+        powers.Add(new(() => SurveyRadar(), "SURVEY RADAR", "REVEALS NEARBY ORES", 0, upgradeCashPrices, powerIconsWhite[0], false, false, "{0} BLOCKS", 12, 1, () => UpdateRadar()));
+        powers.Add(new(() => ExplosiveCharge(), "EXPLOSIVE CHARGE", "DESTROYS NEARBY ORES", 1, upgradeCashPrices, powerIconsWhite[1], false, false, "{0} BLOCKS", 12, 1, () => UpdateExplosive()));
+        powers.Add(new(() => ShowTeleporter(), "TELEPORTER", "INSTANTLY RELOCATES VEHICLE", 2, new int[0], powerIconsWhite[2], false, false, "", 0, 0, () => { }));
+        powers.Add(new(() => { }, "REDUCE COOLDOWN", "REUSE POWERS FASTER", 3, upgradeCashPrices, null, false, true, "{0} SECONDS", 90, -2, () => UpdateCooldown()));
+        powers.Add(new(() => { }, "INCREASE REWARD", "EARN MORE FROM SUPPLY CRATES", 4, upgradeCashPrices, null, false, true, "{0}X", 0, 0.05f, () => UpdateRewardBoost()));
+        powers.Add(new(() => { }, "INCREASE PROFIT", "EXTRA PROFIT BOOST", 5, upgradeCashPrices, null, false, true, "{0}X", 0, 0.05f, () => UpdateProfitBoost()));
+        powers.Add(new(() => { }, "INCREASE VISION", "SEE FURTHER WHEN MINING", 6, new int[7] { 2000, 4700, 11000, 26000, 61000, 140000, 340000 }, null, false, true, "{0} BLOCKS", 3, 1, () => UpdateVisionBoost()));
 
         int powerIndex = 0;
 
-        foreach (var power in powers) {
-            if (equippedPowers[0] == power.Name) {
+        foreach (var power in powers)
+        {
+            if (equippedPowers[0] == power.Name)
+            {
                 powerIndex = power.Index;
             }
 
@@ -544,7 +593,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         StartCoroutine(StartCooldownTimer(cooldownTimer));
 
-        UpdatePowerVisibility((int) Mathf.Round(data.rebirthProfitMultiplier / 0.01f));
+        UpdatePowerVisibility();
     }
 
     public void SaveData(ref GameData data)
@@ -552,28 +601,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         data.cooldownTimer = this.cooldownTimer;
         data.equippedPowers = this.equippedPowers;
         data.powerUpgradeLevels = this.powerUpgradeLevels;
-    }
-
-    public string FormatPrice(int price)
-    {
-        if (price >= 1_000_000_000)
-        {
-            // Truncate to 3 decimal places and format with "B"
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            // Truncate to 3 decimal places and format with "M"
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            // Truncate to 3 decimal places and format with "K"
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
+        data.powersUnlocked = this.powersUnlocked;
     }
 
     private string GetLocalizedValue(string key, params object[] args)
