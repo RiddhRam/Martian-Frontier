@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using TMPro;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
-public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
+public class OreMagnetAdDelegator : MonoBehaviour
 {
     private string _adUnitId = "unused";
     public GameObject adButton;
@@ -27,9 +27,9 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     private int magnetHaulerAdTimer = 0;
 
-    public DataPersistenceManager dataPersistenceManager;
-    public AnalyticsDelegator analyticsDelegator;
-    public CloudDelegator cloudDelegator;
+    private DataPersistenceManager dataPersistenceManager;
+    private AnalyticsDelegator analyticsDelegator;
+    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public OreMagnetRoundManager oreMagnetRoundManager;
     public UIDelegation uIDelegation;
@@ -42,6 +42,13 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool adShowing = false;
+
+    void Awake()
+    {
+        cloudDelegator = CloudDelegator.Instance;
+        dataPersistenceManager = DataPersistenceManager.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -240,7 +247,7 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
 
     public void ShowConvertRewardedAd() {
         try {
-            analyticsDelegator.AdWatchAttempt("Convert");
+            LogAnalytics("Convert");
         } catch {
         }
 
@@ -276,9 +283,6 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
 
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
     }
 
@@ -416,9 +420,6 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        if (!analyticsDelegator) {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        }
         analyticsDelegator.AdWatchAttempt(analyticToLog);
     }
 
@@ -457,20 +458,6 @@ public class OreMagnetAdDelegator : MonoBehaviour, IDataPersistence
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         playerMovement.SetSpeed(7);
         yield break;
-    }
-
-    public void LoadData(GameData data) {
-
-        this.magnetHaulerAdTimer = data.magnetHaulerAdTimer;
-
-        if (magnetHaulerAdTimer > 0) {
-            // Reward
-            RewardBoost(magnetHaulerAdTimer);
-        }
-    }
-
-    public void SaveData(ref GameData data) {        
-        data.magnetHaulerAdTimer = this.magnetHaulerAdTimer;
     }
 
     private void FillEmptyAdSlots() {

@@ -5,7 +5,10 @@ public class MiniMapClickHandler : MonoBehaviour
 {
     [SerializeField] private RectTransform teleportDisplay;
     [SerializeField] private Camera mapCamera;
+
+    [SerializeField] private MineRenderer mineRenderer;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
+
     [SerializeField] private RectTransform uIRectTransform;
     [SerializeField] private RectTransform imageRectTransform;
 
@@ -47,14 +50,32 @@ public class MiniMapClickHandler : MonoBehaviour
 
         bool validSpace = true;
 
-        foreach (var collider in colliders) {
-            if (collider.name.Contains("Large Fog Of War") || collider.name.Contains("Soil") || collider.name.Contains("Generate") || collider.CompareTag("Mine Tag")) {
+        // Can only teleport while mine isn't rendering
+        if (mineRenderer.mineInitialization != 2)
+        {
+            validSpace = false;
+        }
+
+        foreach (var collider in colliders)
+        {
+            // Make sure not touching a wall
+            if (collider.name.Contains("Soil Barrier"))
+            {
+                validSpace = false;
+                break;
+            }
+
+            // Make sure not outside the map
+            if (!collider.name.Contains("Large Fog Of War") && !collider.name.Contains("Generate") && !collider.name.Contains("Mine Background") && !collider.CompareTag("Mine Tag"))
+            {
                 validSpace = false;
                 break;
             }
         }
 
-        if (colliders.Length == 0) {
+        // Touched nothing
+        if (colliders.Length == 0)
+        {
             validSpace = false;
         }
 
@@ -75,6 +96,12 @@ public class MiniMapClickHandler : MonoBehaviour
 
     // Called from confirm button
     public void Teleport() {
+        // Can only teleport while mine isn't rendering
+        if (mineRenderer.mineInitialization != 2)
+        {
+            return;
+        }
+        
         upgradesDelegator.Teleport(currentPosition);
         teleportDisplay.gameObject.SetActive(false);
     }

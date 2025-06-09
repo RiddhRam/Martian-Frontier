@@ -7,11 +7,16 @@ public class ExplosiveChargeProjectile : MonoBehaviour
     [SerializeField] private ExplosionController explosionController;
 
 
-    [SerializeField] private AudioDelegator audioDelegator;
+    private AudioDelegator audioDelegator;
     [SerializeField] private AudioSource powerUpAudioSource;
     [SerializeField] private AudioClip powerUpAudioClip;
 
     private Rigidbody2D rb;
+
+    void Awake()
+    {
+        audioDelegator = AudioDelegator.Instance;
+    }
 
     void OnEnable()
     {

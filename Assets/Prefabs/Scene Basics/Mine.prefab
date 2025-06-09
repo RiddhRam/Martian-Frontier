@@ -130,55 +130,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 150, y: 504}
   m_EdgeRadius: 0
---- !u!1 &3005703990929972970
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2946674904466445259}
-  - component: {fileID: 4563826537479658624}
-  m_Layer: 0
-  m_Name: Materials Delegator
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2946674904466445259
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3005703990929972970}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 8185928295292544219}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4563826537479658624
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3005703990929972970}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48cfdfae4b035438fb0eca813fdc55ff, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  oreDelegation: {fileID: 0}
-  uncollectedMaterials:
-    keys: []
-    values: []
-  materialCount: 0
 --- !u!1 &4881658683426951593
 GameObject:
   m_ObjectHideFlags: 0
@@ -190,6 +141,7 @@ GameObject:
   - component: {fileID: 8185928295292544219}
   - component: {fileID: 6893630403304610326}
   - component: {fileID: 5397357773619342391}
+  - component: {fileID: 3812123160642750527}
   m_Layer: 0
   m_Name: Mine
   m_TagString: Untagged
@@ -212,7 +164,6 @@ Transform:
   m_Children:
   - {fileID: 434401426583056040}
   - {fileID: 1954479713918797573}
-  - {fileID: 2946674904466445259}
   - {fileID: 8325935495126643932}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -259,26 +210,123 @@ MonoBehaviour:
   - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
   - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
   - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  tileColours:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.7254902, g: 0.7254902, b: 0.7254902, a: 1}
+  - {r: 0.9882353, g: 0.9254902, b: 0.44705883, a: 1}
+  - {r: 0.6666667, g: 0.3019608, b: 0.22745098, a: 1}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.95686275, g: 0.95686275, b: 0.95686275, a: 1}
+  - {r: 0.5019608, g: 0.50980395, b: 0.50980395, a: 1}
+  - {r: 0.2, g: 0.31764707, b: 0.60784316, a: 1}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0.60784316, g: 0.60784316, b: 0.60784316, a: 1}
+  - {r: 0.5764706, g: 0.7176471, b: 0.8627451, a: 1}
+  - {r: 0.60784316, g: 0.627451, b: 0.09411765, a: 1}
   oresMinedText: {fileID: 0}
-  mineValueText: {fileID: 0}
-  materialsDelegator: {fileID: 4563826537479658624}
+  totalRows: 42
+  generatedRows: 
+  selectedMaterialNames: []
   seed: 0
   highestRow: 0
   mineInitialization: 0
+  mineCount: 0
   tierThresholds: 000000000000000000000000
   oresPerTier: 000000000000000000000000
-  dataPersistenceManager: {fileID: 0}
-  analyticsDelegator: {fileID: 0}
-  oreDelegation: {fileID: 0}
-  dailyChallengeDelegator: {fileID: 0}
-  oresCount: 
+  oreDelegation: {fileID: 3812123160642750527}
+  upgradesDelegator: {fileID: 0}
+  refineryController: {fileID: 0}
+  refineryUpgradePad: {fileID: 0}
+  vacuumPrefab: {fileID: 2675737178741110276, guid: adb4b10c2d2be4a4fb92a7bb8b595014, type: 3}
+  orePickUpAudioClip: {fileID: 8300000, guid: 2e6eaed26280b466c98ae5c604794c75, type: 3}
+  orePickUpSequenceAudioSource: {fileID: 0}
   playerStateScript: {fileID: 0}
+  genTrigTransform: {fileID: 0}
   currentOresMined: 0
-  minVeinRadius: 1
+  minVeinRadius: 2
   maxVeinRadius: 4
   minVeinCount: 1
   maxVeinCount: 2
   coopMineLoaded: 0
+--- !u!114 &3812123160642750527
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4881658683426951593}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8b2f553e820b4922a453d12c19e7183, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialNames:
+  - LIMESTONE
+  - SULFUR
+  - IRON
+  - QUARTZ
+  - TITANIUM
+  - COBALT
+  - PLATINUM
+  - LITHIUM
+  - URANIUM
+  - SHADOW
+  - ICE SHARD
+  - FIRE STONE
+  - VINTERRA
+  - GLACIRITE
+  - INFERNITE
+  materialPrices: 4b000000c80000002c0100004c1d0000204e000030750000b0710b0080841e00c0c62d00
+  materialHighResSprites:
+  - {fileID: 846206727, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 118929344, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -842085035, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -2132517402, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 360213364, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -630706790, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1404689641, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 372327173, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 761500619, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -494750908, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1520584258, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -1454561227, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 864381585, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: -859447470, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  - {fileID: 1855573420, guid: cfbedbc78e693489e85f882bf2abb8bc, type: 3}
+  oreTileValues:
+  - {fileID: 11400000, guid: 7b77928c428994777bc8b4b8c51472c4, type: 2}
+  - {fileID: 11400000, guid: 8cb0ad98557234ad8967efe88fef3d0c, type: 2}
+  - {fileID: 11400000, guid: 66d209b30dd674276a66d146ba80bfc7, type: 2}
+  - {fileID: 11400000, guid: ff6d52df4c0ad410faed54f7dc64dfff, type: 2}
+  - {fileID: 11400000, guid: c09c9b9189b2f4e0a9ff9ed44cb459b3, type: 2}
+  - {fileID: 11400000, guid: f02f649e18fd14006b948bc2d055f02f, type: 2}
+  - {fileID: 11400000, guid: dfe61a29995984afabf8f1b429e2b608, type: 2}
+  - {fileID: 11400000, guid: 5b37908eb7f5c4b388f87498775cce5e, type: 2}
+  - {fileID: 11400000, guid: 248678a1fffce4c88ab236406d4ecb8f, type: 2}
+  - {fileID: 11400000, guid: 0ec035aacff6c4b4b91e7e2c909de4df, type: 2}
+  - {fileID: 11400000, guid: 6c7fbae7c6557444f9c8f7ef6d811dc4, type: 2}
+  - {fileID: 11400000, guid: 4b89325b1271d41389bc6c30e9a56a08, type: 2}
+  - {fileID: 11400000, guid: 01d550ce734894f53a02ebc474f87706, type: 2}
+  - {fileID: 11400000, guid: 5089783e78cb34db79eb68143897d5f7, type: 2}
+  - {fileID: 11400000, guid: deb7e453378f74891bb96364fcba8777, type: 2}
+  oreTileColours:
+  - {r: 0.7254902, g: 0.7254902, b: 0.7254902, a: 1}
+  - {r: 0.9882353, g: 0.9254902, b: 0.44705883, a: 1}
+  - {r: 0.6666667, g: 0.3019608, b: 0.22745098, a: 1}
+  - {r: 0.9098039, g: 0.9098039, b: 0.9098039, a: 1}
+  - {r: 0.5019608, g: 0.50980395, b: 0.50980395, a: 1}
+  - {r: 0.2, g: 0.31764707, b: 0.60784316, a: 1}
+  - {r: 0.6, g: 0.6, b: 0.6, a: 1}
+  - {r: 0.5764706, g: 0.7176471, b: 0.8627451, a: 1}
+  - {r: 0.60784316, g: 0.627451, b: 0.09411765, a: 1}
+  - {r: 0.13725491, g: 0.12941177, b: 0.1254902, a: 1}
+  - {r: 0.6156863, g: 0.99215686, b: 0.99607843, a: 1}
+  - {r: 0.7607843, g: 0.2784314, b: 0.05882353, a: 1}
+  - {r: 0.7019608, g: 0.8509804, b: 1, a: 1}
+  - {r: 0.7019608, g: 0.8509804, b: 1, a: 1}
+  - {r: 0.99607843, g: 0, b: 0, a: 1}
+  oreMaterialPanel: {fileID: 1576754601292561084, guid: 6948a1657298e44e485bfdf22c99e437, type: 3}
+  contentGO: {fileID: 0}
 --- !u!1 &8153990519332188789
 GameObject:
   m_ObjectHideFlags: 0

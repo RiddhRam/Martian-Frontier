@@ -4,7 +4,6 @@ using UnityEngine;
 public class SoundHolder : MonoBehaviour
 {
    public AudioClip oreSaleSoundEffect;
-   public AudioClip orePickupSoundEffect;
    public AudioClip[] drillBlockSoundEffects;
    public float[] drillBlockVolumes;
 }

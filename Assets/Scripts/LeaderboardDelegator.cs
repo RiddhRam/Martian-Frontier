@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Services.CloudSave;
@@ -13,12 +14,23 @@ using UnityEngine.UI;
 
 public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
+    private static LeaderboardDelegator _instance;
+    public static LeaderboardDelegator Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindObjectOfType<LeaderboardDelegator>();
+            }
+            return _instance;
+        }
+    }
+
     public PlayerState playerState;
 
     public GameObject oreTournamentPanel;
-    public GameObject rebirthTournamentPanel;
-    public GameObject oreTournamentButton;
-    public GameObject rebirthTournamentButton;
 
     public GameObject collectReward;
     public TextMeshProUGUI collectRewardMessage;
@@ -26,15 +38,13 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
     public Sprite[] tierSprites;
     public TextMeshProUGUI oreTierText;
-    public TextMeshProUGUI rebirthsTierText;
+
     public TextMeshProUGUI tournamentTimer;
     public TextMeshProUGUI oreNextTierText;
     public TextMeshProUGUI oreLastTierText;
-    public TextMeshProUGUI rebirthsNextTierText;
-    public TextMeshProUGUI rebirthsLastTierText;
+
 
     public Image oreTierImage;
-    public Image rebirthsTierImage;
     public TextMeshProUGUI lastUpdateText;
 
     public TextMeshProUGUI[] orePlayerNameTextMeshes;
@@ -42,12 +52,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI[] oreRewardTextMeshes;
     public Image[] orePlayerScoreImages;
     public GameObject[] orePlayerScoreBars;
-
-    public TextMeshProUGUI[] rebirthsPlayerNameTextMeshes;
-    public TextMeshProUGUI[] rebirthsScoreTextMeshes;
-    public TextMeshProUGUI[] rebirthsRewardTextMeshes;
-    public Image[] rebirthsPlayerScoreImages;
-    public GameObject[] rebirthsPlayerScoreBars;
 
     private DateTime endTime;
     private TimeSpan timeRemaining;
@@ -57,7 +61,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public long gemRewardsToCollect = 0;
 
     private readonly string oreLeaderboardID = "Ores";
-    private readonly string rebirthLeaderboardID = "Rebirths";
     private readonly string[] leaderboardTiers = {"BRONZE TIER", "SILVER TIER", "GOLD TIER"};
     private readonly string[] leaderboardTiersMatching = {"Bronze", "Silver", "Gold"};
     private readonly string[][] rewardAmounts = new string[][] {
@@ -66,7 +69,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             new string[] {"64K", "50K", "40K", "32k", "24k", "20K", "20K", "20K", "16K", "16K"}
             };
     LeaderboardScores oreLeaderboardScoresPage;
-    LeaderboardScores rebirthLeaderboardScoresPage;
 
     private void OnEnable()
     {
@@ -144,7 +146,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         }
 
         if (gemRewardsToCollect > 0) {
-            collectRewardText.text = FormatPrice(gemRewardsToCollect);
+            collectRewardText.text = playerState.FormatPrice(gemRewardsToCollect);
             collectReward.SetActive(true);
             
             if (message != null) {
@@ -230,7 +232,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                 orePlayerScoreBars[playerBarCounter].SetActive(true);
 
                 orePlayerNameTextMeshes[playerBarCounter].text = oreLeaderboardScoresPage.Results[i].PlayerName.Substring(0, oreLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                oreScoreTextMeshes[playerBarCounter].text = FormatPrice(oreLeaderboardScoresPage.Results[i].Score);
+                oreScoreTextMeshes[playerBarCounter].text = playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[i].Score));
 
                 if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
                     orePlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
@@ -244,106 +246,21 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             }
 
             if (lastPlayerIndex != 0) {
-                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score));
+                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score)));
                 oreLastTierText.gameObject.SetActive(true);
             } else {
                 oreLastTierText.gameObject.SetActive(false);
             }
             if (firstPlayerIndex != 0) {
-                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score));
+                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score)));
                 oreNextTierText.gameObject.SetActive(true);
             } else {
                 oreNextTierText.gameObject.SetActive(false);
             }
 
-            rebirthLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
-                                                rebirthLeaderboardID,
-                                                new GetPlayerRangeOptions{ RangeLimit = 10 }
-                                            );
-
-            for (int i = 0; i != 10; i++) {
-                rebirthsPlayerScoreBars[i].SetActive(false);
-            }
-                                            
-            playerTier = 0;
-            results = rebirthLeaderboardScoresPage.Results.Count;
-
-            for (int i = 0; i != results; i++) {
-                if (rebirthLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    switch (rebirthLeaderboardScoresPage.Results[i].Tier) {
-                        case "Bronze":
-                            rebirthsTierImage.sprite = tierSprites[0];
-                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[0]);
-                            break;
-                        case "Silver":
-                            playerTier = 1;
-                            rebirthsTierImage.sprite = tierSprites[1];
-                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[1]);
-                            break;
-                        case "Gold":
-                            playerTier = 2;
-                            rebirthsTierImage.sprite = tierSprites[2];
-                            rebirthsTierText.text = GetLocalizedValue(leaderboardTiers[2]);
-                            break;
-                    }
-                    break;
-                }
-            }
-
             firstPlayerIndex = 0;
             lastPlayerIndex = 0;
             playerBarCounter = 0;
-
-            for (int i = 0; i != results; i++) {
-
-                if (rebirthLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
-                    if (rebirthLeaderboardScoresPage.Results[i].Tier == "Gold") {
-                        firstPlayerIndex = i;
-                    } else if (rebirthLeaderboardScoresPage.Results[i].Tier == "Bronze") {
-
-                        if (lastPlayerIndex == 0) {
-                            lastPlayerIndex = i;
-                        } 
-                    } else if (rebirthLeaderboardScoresPage.Results[i].Tier == "Silver") {
-                        if (leaderboardTiersMatching[playerTier] == "Gold") {
-                            if (lastPlayerIndex == 0) {
-                                lastPlayerIndex = i;
-                            } 
-                        } else {
-                            firstPlayerIndex = i;
-                        }
-                    }
-                    continue;
-                }
-
-                rebirthsPlayerScoreBars[playerBarCounter].SetActive(true);
-
-                rebirthsPlayerNameTextMeshes[playerBarCounter].text = rebirthLeaderboardScoresPage.Results[i].PlayerName.Substring(0, rebirthLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                rebirthsScoreTextMeshes[playerBarCounter].text = FormatPrice(rebirthLeaderboardScoresPage.Results[i].Score);
-
-                if (rebirthLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    rebirthsPlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
-                } else {
-                    rebirthsPlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
-                }
-
-                rebirthsRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
-
-                playerBarCounter++;
-            }
-
-            if (lastPlayerIndex != 0) {
-                rebirthsLastTierText.text = GetLocalizedValue("LAST TIER: {0}", FormatPrice(rebirthLeaderboardScoresPage.Results[lastPlayerIndex].Score));
-                rebirthsLastTierText.gameObject.SetActive(true);
-            } else {
-                rebirthsLastTierText.gameObject.SetActive(false);
-            }
-            if (firstPlayerIndex != 0) {
-                rebirthsNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", FormatPrice(rebirthLeaderboardScoresPage.Results[firstPlayerIndex].Score));
-                rebirthsNextTierText.gameObject.SetActive(true);
-            } else {
-                rebirthsNextTierText.gameObject.SetActive(false);
-            }
 
             lastUpdateTimer = 0;
         } catch (Exception ex) {
@@ -353,10 +270,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             } catch {
             }
 
-            try {
-                await LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, 0);
-            } catch {
-            }
             Debug.Log(ex);
         }
     }
@@ -365,8 +278,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         playerProfile = newPlayerProfile;
 
         await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
-
-        await LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, 0);
 
         UpdateLeaderBoardData();
     }
@@ -379,39 +290,11 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, amount);
     }
 
-    public void AddRebirthScore(int amount) {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
-            return;
-        }
-
-        LeaderboardsService.Instance.AddPlayerScoreAsync(rebirthLeaderboardID, amount);
-    }
-
     // TODO: If an anonymous player creates an account, their old account stays in the leaderboard and their new account
     // Picks off from where they left off. The old anonymous account should be removed, so someone else can earn the reward
     // For that spot
     public void RemoveFromLeaderBoard() {
         
-    }
-
-    public void TogglePanel(string type) {
-        if (type == "Ore") {
-            rebirthTournamentPanel.SetActive(false);
-            rebirthTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-            rebirthTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
-
-            oreTournamentPanel.SetActive(true);
-            oreTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-            oreTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
-        } else {
-            oreTournamentPanel.SetActive(false);
-            oreTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 90f / 255f);
-            oreTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(50f / 255f, 50f / 255f, 50f / 255f, 255f / 255f);
-
-            rebirthTournamentPanel.SetActive(true);
-            rebirthTournamentButton.GetComponent<Image>().color = new Color(255f / 255f, 0f / 255f, 0f / 255f, 255f / 255f);
-            rebirthTournamentButton.transform.GetChild(0).gameObject.GetComponent<TextMeshProUGUI>().color = new Color(255f / 255f, 255f / 255f, 255f / 255f, 255f / 255f);
-        }
     }
 
     private string GetLocalizedValue(string key, params object[] args)
@@ -427,41 +310,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
         // Use string.Format to replace placeholders with arguments
         return string.Format(entry.LocalizedValue, args);
-    }
-
-    private string FormatPrice(double price)
-    {
-        if (price >= 1_000_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Se";
-        }
-        else if (price >= 1_000_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Qu";
-        }
-        else if (price >= 1_000_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000_000f * 1000) / 1000).ToString("0.##") + "Q";
-        }
-        else if (price >= 1_000_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000_000f * 1000) / 1000).ToString("0.##") + "T";
-        }
-        else if (price >= 1_000_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000_000f * 1000) / 1000).ToString("0.###") + "B";
-        }
-        else if (price >= 1_000_000)
-        {
-            return (Mathf.Floor((float) price / 1_000_000f * 1000) / 1000).ToString("0.###") + "M";
-        }
-        else if (price >= 1_000)
-        {
-            return (Mathf.Floor((float) price / 1_000f * 1000) / 1000).ToString("0.###") + "K";
-        }
-
-        // Return the original price as a string for smaller numbers
-        return price.ToString();
     }
 
     public void LoadData(GameData data)

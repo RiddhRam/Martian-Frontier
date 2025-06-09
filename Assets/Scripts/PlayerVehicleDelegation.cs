@@ -1,72 +1,61 @@
-using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
-    public GameObject cargoInfo;
-    public GameObject UI;
+    [Header("Vehicles")]
+    public GameObject[] drillers;
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
-    public string vehicleType;
     private bool loading = false;
     private Vector3 loadPlayerPos;
     private float loadRotate;
-    public MineRenderer mineRenderer;
-    public AdDelegator adDelegator;
-    public AnalyticsDelegator analyticsDelegator;
+
+    [Header("Other Scripts")]
+    private AdDelegator adDelegator;
+    private AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
-    public GarageDelegator garageDelegator;
+    public VehicleUpgradeBayManager vehicleUpgradeBayManager;
+    public RefineryUpgradePad refineryUpgradePad;
     private bool notSinglePlayerScene = false;
+    public bool loaded = false;
 
     // For tutorial
-    public bool blockSwitching = false;
-    public HaulerController haulerController3;
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
+    [SerializeField] private Image sliderImage;
+    static readonly Color coldColor = new(35f / 255f, 57f / 255f, 241f / 255f);
+    static readonly Color mid = new Color(1f, 146f/255f, 0f);
 
-    [SerializeField] private Canvas sliderCanvas;
-    private Slider slider;
-    private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
-    private Coroutine holdProgressBarStill;
+    [Header("Visual")]
+    [SerializeField] private Slider slider;
+    static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
+    [SerializeField] private TextMeshProUGUI sliderText;
+    
 
     void Awake()
     {
-        slider = sliderCanvas.transform.GetChild(0).GetComponent<Slider>();
+        adDelegator = AdDelegator.Instance;
+        analyticsDelegator = AnalyticsDelegator.Instance;
     }
 
     public void SwitchVehicle(GameObject newVehicle) {
-
-        if (blockSwitching) {
-            UI.GetComponent<UIDelegation>().ShowError("FINISH THE TUTORIAL FIRST");
-            return;
-        }
 
         GameObject oldVehicle = transform.GetChild(0).gameObject;
 
         if (newVehicle.name == oldVehicle.name && !loading) {
             // User is already in this vehicle, do nothing
+            if (!notSinglePlayerScene) {
+                currentVehicle = oldVehicle.name;
+            } else {
+                currentCoopVehicle = oldVehicle.name;
+            }
             return;
         }
         loading = false;
-
-        HaulerController haulerController1 = oldVehicle.GetComponent<HaulerController>();
-
-        if (haulerController1) {
-            int[] materialCount = haulerController1.GetMaterialCount();
-            float[] materialProfitMultipliers = haulerController1.GetMaterialProfitMultipliers();
-
-            for (int i = 0; i != materialCount.Length; i++) {
-                // Should never be less than zero but just in case
-                if (materialCount[i] <= 0) {
-                    continue;
-                }
-
-                mineRenderer.GetMaterialObject(i, transform.position, materialCount[i], materialProfitMultipliers[i]);
-            }
-        }
 
         // Reset PlayerVehicle by removing the current vehicle, and resetting the vehicle position and rotation
         Destroy(oldVehicle);
@@ -81,7 +70,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         playerVehicle.name = playerVehicle.name[..^7];
 
         if (!notSinglePlayerScene) {
-            transform.SetPositionAndRotation(new(4.5f, 5.4f, 0), Quaternion.Euler(0, 0, 180));
+            transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
             currentVehicle = playerVehicle.name;
@@ -95,40 +84,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
         
         float playerSpeed;
-        
-        HaulerController haulerController2 = playerVehicle.GetComponent<HaulerController>();
-        
-        // All haulers will have this script, if the vehicle doesn't have this, it's not a hauler
-        if (haulerController2) {
-            // Display the hauler cargo button
-            cargoInfo.SetActive(true);
-            UI.GetComponent<UIDelegation>().ToggleCargoInfo(true);
-            playerSpeed = haulerController2.GetPlayerSpeed();
-            playerSpeed = UpdateOriginalSpeed(playerSpeed);
-            // Speed boost to new players
-            if (firstTimePlaying) {
-                playerSpeed *= speedBoostAmount;
-            }
-            gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
 
-            vehicleType = "Hauler";
-
-            haulerController2.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(haulerController2.name));
-            haulerController3 = haulerController2;
-
-            if (holdProgressBarStill != null) {
-                StopCoroutine(holdProgressBarStill);
-                sliderCanvas.gameObject.SetActive(false);
-                holdProgressBarStill = null;
-            }
-
-            analyticsDelegator.SelectVehicle(playerVehicle.name, "Hauler", 0);
-            return;
-        }
-
-        // If not a hauler, hide the hauler cargo button
-        cargoInfo.SetActive(false);
-        UI.GetComponent<UIDelegation>().ToggleCargoInfo(false);
         DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
@@ -137,89 +93,129 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed *= speedBoostAmount;
         }
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-
-        vehicleType = "Driller";
         
-        drillerController.SetProfitMultiplier(garageDelegator.GetVehicleProfitMultiplier(drillerController.transform.parent.gameObject.name));
         drillerController.playerVehicleDelegation = this;
 
-        if (holdProgressBarStill != null) {
-            StopCoroutine(holdProgressBarStill);
-        }
+        vehicleUpgradeBayManager.drillerController = drillerController;
 
-        sliderCanvas.gameObject.SetActive(true);
-        holdProgressBarStill = StartCoroutine(HoldProgressBarStill());
-        slider.maxValue = drillerController.endurance;
+        // In production this loads before the upgrade bay for some reason, whichever loads second should call the function
+        if (vehicleUpgradeBayManager.loaded)
+        {
+            vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
+        }
        
         analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
+
         this.currentCoopVehicle = data.currentCoopVehicle;
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
-            FindVehicle(currentCoopVehicle, null, null);
+            FindVehicle(currentCoopVehicle);
+            loaded = true;
             return;
         }
 
-        if (!data.finishedTutorial) {
+        if (!data.finishedTutorial)
+        {
             firstTimePlaying = true;
         }
-        
+
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
         this.loadPlayerPos = data.playerPos;
         this.loadRotate = data.playerRotation;
-        // Hauler cargo is loaded lower down
-        // It's saved to this temp variable because otherwise it magically gets wiped I don't know how
-        int[] tempHaulerCargo = data.haulerCargo;
-        float[] tempMaterialProfitMultipliers = data.materialProfitMultipliers;
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
-        FindVehicle(currentVehicle, tempHaulerCargo, tempMaterialProfitMultipliers);
+        FindVehicle(currentVehicle);
+        loaded = true;
+
+        // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
+        int nextIndex = GetNextVehicleIndex(data.mineCount);
+        refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING
-    public void FindVehicle(string vehicleName, int[] tempHaulerCargo, float[] tempMaterialProfitMultipliers) {
+    // Returns the index of the vehicle, and switches vehicle automatically
+    public int FindVehicle(string vehicleName, bool switchVehicle = true)
+    {
+
+        (string secondaryName, bool checkSecondaryName) = GetMergedVehicleName(vehicleName);
+
         // Iterate through all vehicles and find which vehicle it is
-        // First check if user used a hauler
-        // Most likely did since a user would probably leave after making some money
-        GameObject[] haulers = garageDelegator.GetHaulers();
-        for (int i = 0; i != haulers.Length; i++) {
-            if (vehicleName != haulers[i].name) {
-                continue;
+
+        for (int i = 0; i != drillers.Length; i++)
+        {
+            if (!vehicleName.Contains(drillers[i].name))
+            {
+                if (!(checkSecondaryName && vehicleName.Contains(secondaryName)))
+                {
+
+                    continue;
+                }
             }
 
-            // Switch to that vehicle
-            SwitchVehicle(haulers[i]);
-            
-            if (!notSinglePlayerScene) {
-                HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
-                haulerController.SetMaterialProfitMultipliers(tempMaterialProfitMultipliers);
-                haulerController.SetMaterialCount(tempHaulerCargo);
-                playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+            if (switchVehicle)
+            {
+                SwitchVehicle(drillers[i]);
+                if (!notSinglePlayerScene)
+                {
+                    playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
+                }
             }
             
-            return;
+
+            return i;
         }
 
-        // If wasn't a hauler then it's a driller
-        GameObject[] drillers = garageDelegator.GetDrillers();
-        for (int i = 0; i != drillers.Length; i++) {
-            if (vehicleName != drillers[i].name) {
-                continue;
-            }
-
-            SwitchVehicle(drillers[i]);
-            if (!notSinglePlayerScene) {
+        // If it reaches here, no vehicle was found, so we just set the player to use the first drill
+        if (switchVehicle)
+        {
+            SwitchVehicle(drillers[0]);
+            if (!notSinglePlayerScene)
+            {
                 playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
             }
-
-            break;
         }
+        
+        return 0;
+    }
+
+    public int GetNextVehicleIndex(int mineCount)
+    {
+        // No need to do mineCount + 1, because mineCount is not zero indexed
+        return (mineCount) % vehicleUpgradeBayManager.drillUIPositions.Length;
+    }
+
+    // Check to see if this vehicle was merged into another in a previous update
+    public (string secondaryName, bool checkSecondaryName) GetMergedVehicleName(string vehicleName)
+    {
+
+        // Neither of these 4 are in the game anymore, just here as a demonstration
+        if (vehicleName.Contains("TURBO TANKER"))
+        {
+            return ("HEAVY", true);
+        }
+        else if (vehicleName.Contains("HEAVY"))
+        {
+            return ("TURBO TANKER", true);
+        }
+        else if (vehicleName.Contains("DASH"))
+        {
+            return ("STUBBY", true);
+        }
+        else if (vehicleName.Contains("STUBBY"))
+        {
+            return ("DASH", true);
+        }
+
+        return ("", false);
     }
 
     public void SaveData(ref GameData data) {
@@ -233,22 +229,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         data.currentVehicle = this.currentVehicle;
 
         if (!playerVehicle) {
-            data.haulerCargo = new int[9];
             return;
         }
 
         data.playerPos = playerVehicle.transform.parent.position;
         data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
-
-        HaulerController haulerController = playerVehicle.GetComponent<HaulerController>();
-        if (haulerController) {
-            data.haulerCargo = haulerController.GetMaterialCount();
-            data.materialProfitMultipliers = haulerController.GetMaterialProfitMultipliers();
-        } else {
-            data.haulerCargo = new int[9];
-            data.materialProfitMultipliers = new float[9];
-        }
-        
     }
 
     private float UpdateOriginalSpeed(float playerSpeed) {
@@ -265,26 +250,24 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(float heat) {
-        slider.value = heat;
-    }
+    public void UpdateOverheatSlider(float heatPercentage, float drillHeat) {
+        // Progress
+        slider.value = heatPercentage;
 
-    private IEnumerator HoldProgressBarStill() {
-        
-        while (true) {
-
-            sliderCanvas.transform.rotation = normalRotation;
-
-            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
-
-            // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 4.2f;
-            float y = Mathf.Cos(angle) * 4.2f;
-
-            sliderCanvas.transform.localPosition = new Vector3(x, y, 0);
-
-            yield return null;
+        // Colour
+        if (heatPercentage < 0.5f)
+        {
+            // 0 → 0.5 : blue → yellow
+            sliderImage.color = Color.Lerp(coldColor, mid, heatPercentage * 2f);
         }
+        else
+        {
+            // 0.5 → 1 : yellow → red
+            sliderImage.color = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
+        }
+
+        // Text
+        sliderText.text = ((int)drillHeat).ToString();
     }
 
 }
