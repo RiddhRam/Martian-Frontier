@@ -27,14 +27,20 @@ public class CloudDelegator : MonoBehaviour
             return _instance;
         }
     }
+    [Header("Panels and Displays")]
     public TMP_Text userNameText;
     public GameObject loginPanel, userPanel;
-    public GameObject askToLogOut;
     public GameObject askToChangeName;
-    public GameObject askToDeleteAccount;
-    public TMP_InputField newName;
     public GameObject forceUpdate;
 
+    [Header("Input fields")]
+    public TMP_InputField newName;
+    public TMP_InputField logInEmail;
+    public TMP_InputField logInPassword;
+    public TMP_InputField signUpEmail;
+    public TMP_InputField signUpPassword;
+
+    [Header("Scripts")]
     public UIDelegation uIDelegation;
     private DataPersistenceManager dataPersistenceManager;
     private LoadingScreen loadingScreen;
@@ -119,14 +125,6 @@ public class CloudDelegator : MonoBehaviour
         }  
     }
 
-    public void AskToLogOut() {
-        askToLogOut.SetActive(true);
-    }
-
-    public void CancelLogOut() {
-        askToLogOut.SetActive(false);
-    }
-
     public async void LogOut()
     {
         // if not signed in, early return
@@ -140,14 +138,6 @@ public class CloudDelegator : MonoBehaviour
         OnSignedIn();
         
         dataPersistenceManager.ResetEntireGame();
-    }
-
-    public void AskToChangeName() {
-        askToChangeName.SetActive(true);
-    }
-
-    public void CancelChangeName() {
-        askToChangeName.SetActive(false);
     }
 
     public async void ChangeName() {
@@ -171,14 +161,6 @@ public class CloudDelegator : MonoBehaviour
         } catch {
             uIDelegation.ShowError("NAME IS ALREADY TAKEN");
         }
-    }
-
-    public void AskToDeleteAccount() {
-        askToDeleteAccount.SetActive(true);
-    }
-
-    public void CancelDeleteAccount() {
-        askToDeleteAccount.SetActive(false);
     }
 
     public async void DeleteAccount() {

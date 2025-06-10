@@ -188,7 +188,6 @@ public class LoadingTest
         Assert.AreEqual(cloudDelegator.userNameText.name, "USERNAME");
         Assert.AreEqual(cloudDelegator.loginPanel.name, "Log In");
         Assert.AreEqual(cloudDelegator.userPanel.name, "Account");
-        Assert.AreEqual(cloudDelegator.askToLogOut.name, "Confirm Log Out");
         Assert.AreEqual(cloudDelegator.askToChangeName.name, "Change Name");
         Assert.AreEqual(cloudDelegator.newName.name, "New Name");
         Assert.AreEqual(cloudDelegator.forceUpdate.name, "Force Update");
