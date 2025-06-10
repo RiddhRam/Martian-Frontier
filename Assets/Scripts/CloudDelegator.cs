@@ -41,6 +41,7 @@ public class CloudDelegator : MonoBehaviour
     public GameObject loginPanel, userPanel;
     public GameObject askToChangeName;
     public GameObject forceUpdate;
+    public GameObject passwordResetEmailSent;
 
     [Header("Input fields")]
     public TMP_InputField newName;
@@ -73,15 +74,6 @@ public class CloudDelegator : MonoBehaviour
                 Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
             }
         });
-
-        try
-        {
-            await AttemptLogIn();
-        }
-        catch (Exception ex)
-        {
-            Debug.Log("Couldnt log in: " + ex.Message);
-        }
 
         if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
         {
@@ -125,9 +117,9 @@ public class CloudDelegator : MonoBehaviour
     }
 
     // Auto log in for user
-    public async Task AttemptLogIn()
+    public void AttemptLogIn()
     {
-
+        GetLowestVersionAllowed();
     }
 
     // Manual log in
@@ -140,7 +132,7 @@ public class CloudDelegator : MonoBehaviour
         }
 
         Task<AuthResult> task = auth.SignInWithEmailAndPasswordAsync(logInEmail.text.Trim(), logInPassword.text);
-        bool wrongEmail = false;
+
         try
         {
             await task;
@@ -172,19 +164,35 @@ public class CloudDelegator : MonoBehaviour
 
         user = task.Result.User;
         Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
+        // Hide panel
+        logInEmail.transform.parent.parent.gameObject.SetActive(false);
     }
-    
+
     public async void ForgotPassword()
     {
+
+        if (logInEmail.text.Trim().Length == 0)
+        {
+            uIDelegation.ShowError("MISSING EMAIL!");
+            return;
+        }
+
+        Task task = auth.SendPasswordResetEmailAsync(logInEmail.text.Trim());
+
         try
         {
-            //await PlayerAccountService.Instance.StartSignInAsync();
+            await task;
         }
-        catch
+        catch (Exception ex)
         {
-            // Compare error code to CommonErrorCodes
-            // Notify the player with the proper error message
+            // any other errors
+            uIDelegation.ShowError("EMAIL IS INVALID!");
+            Debug.LogError(ex);
+            return;
         }
+
+        // Tell user to check their email
+        passwordResetEmailSent.SetActive(true);
     }
 
     public async void SignUp()
@@ -196,7 +204,7 @@ public class CloudDelegator : MonoBehaviour
         }
 
         Task<AuthResult> task = auth.CreateUserWithEmailAndPasswordAsync(signUpEmail.text.Trim(), signUpPassword.text);
-        bool wrongEmail = false;
+
         try
         {
             await task;
@@ -234,6 +242,8 @@ public class CloudDelegator : MonoBehaviour
         user = task.Result.User;
         Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
 
+        // Hide panel
+        signUpEmail.transform.parent.parent.gameObject.SetActive(false);
     }
 
     public async void LogOut()
