@@ -106,7 +106,7 @@ public class DataPersistenceManager : MonoBehaviour
         while (cloudDelegator.doingSigninProcess)
             await Task.Yield();
 
-        cloudDelegator.TempSignOut();
+        //cloudDelegator.TempSignOut();
 
         // Restart game
         SceneManager.LoadScene("Loading Screen");

@@ -83,7 +83,7 @@ public class SessionDelegator : MonoBehaviour
 
     public void Transition() {
         dataPersistenceManager.SaveGame();
-        cloudDelegator.TempSignOut();
+        //cloudDelegator.TempSignOut();
     }
 
     public void ToggleButtonColor(bool isMinigame) {

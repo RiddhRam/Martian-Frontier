@@ -2,10 +2,8 @@ using System;
 using System.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
-using Unity.Services.Authentication;
-using Unity.Services.Authentication.PlayerAccounts;
 using Unity.Services.Core;
-using Unity.Services.CloudSave;
+
 using Unity.Services.CloudCode;
 using TMPro;
 using System.IO;
@@ -42,8 +40,6 @@ public class CloudDelegator : MonoBehaviour
     private LoadingScreen loadingScreen;
     private LeaderboardDelegator leaderboardDelegator;
 
-    private PlayerProfile playerProfile;
-    private PlayerInfo playerInfo;
     bool attemptedLogIn = false;
     private readonly int currentVersionNumber = 116;
     private bool notSinglePlayerScene = false;
@@ -55,7 +51,6 @@ public class CloudDelegator : MonoBehaviour
         dataPersistenceManager = DataPersistenceManager.Instance;
 
         await UnityServices.InitializeAsync();
-        PlayerAccountService.Instance.SignedIn += SignedIn;
 
         try {
             await AttemptLogIn();
@@ -79,14 +74,14 @@ public class CloudDelegator : MonoBehaviour
         }
 
         // Only sign in when needed
-        if (AuthenticationService.Instance.IsSignedIn)
+        /*if (AuthenticationService.Instance.IsSignedIn)
         {
             return;
-        }
+        }*/
         
         // Sign in Anonymously
         // This call will sign in the cached player, or make a new account.
-        try
+        /*try
         {
             doingSigninProcess = true;
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -108,12 +103,20 @@ public class CloudDelegator : MonoBehaviour
             Debug.LogException(ex);
         } catch {
             doingSigninProcess = false;
-        }
+        }*/
     }
 
     public async void LoginButtonPressed()
     {
-        await InitSignIn();
+        try {
+            //await PlayerAccountService.Instance.StartSignInAsync();
+        } 
+        catch (RequestFailedException ex)
+        {
+            // Compare error code to CommonErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }  
     }
 
     public void AskToLogOut() {
@@ -126,33 +129,17 @@ public class CloudDelegator : MonoBehaviour
 
     public async void LogOut()
     {
-        if (AuthenticationService.Instance.IsSignedIn)
-        {
-            try {
-                await SaveGameDataToCloud();
-            } catch {
-            }
+        // if not signed in, early return
 
-            AuthenticationService.Instance.SignOut(true); // True to clear cache
-            PlayerAccountService.Instance.SignOut();
+        await SaveGameDataToCloud();
 
-            loginPanel.SetActive(true);
-            userPanel.SetActive(false);
-            askToLogOut.SetActive(false);
+        // Sign out
 
-            uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
-            uIDelegation.RevealAll();
-
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
-            OnSignedIn();
-
-            dataPersistenceManager.ResetEntireGame();
-        }
-    }
-
-    public void TempSignOut() {
-        AuthenticationService.Instance.SignOut(false); // True to clear cache
+        // Create anonymous account
+        //SignInAnonymouslyAsync();
+        OnSignedIn();
+        
+        dataPersistenceManager.ResetEntireGame();
     }
 
     public void AskToChangeName() {
@@ -175,17 +162,15 @@ public class CloudDelegator : MonoBehaviour
         }
 
         try {
-            await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
+            //await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
             askToChangeName.SetActive(false);
 
-            var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+            //var name = await AuthenticationService.Instance.GetPlayerNameAsync();
             PlayerPrefs.SetString("PlayerName", name);
-            playerProfile.Name = name;
-            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
+            //userNameText.text = name
         } catch {
             uIDelegation.ShowError("NAME IS ALREADY TAKEN");
         }
-
     }
 
     public void AskToDeleteAccount() {
@@ -202,87 +187,21 @@ public class CloudDelegator : MonoBehaviour
             return;
         }
 
-        await AuthenticationService.Instance.DeleteAccountAsync();
-        askToDeleteAccount.SetActive(false);
+        //await AuthenticationService.Instance.DeleteAccountAsync();
 
-        AuthenticationService.Instance.SignOut(true); // True to clear cache
-        PlayerAccountService.Instance.SignOut();
-
-        loginPanel.SetActive(true);
-        userPanel.SetActive(false);
-        askToLogOut.SetActive(false);
-
-        uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
-        uIDelegation.RevealAll();
-
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
+        // Create anonymous account
+        //SignInAnonymouslyAsync();
         OnSignedIn();
 
         dataPersistenceManager.ResetEntireGame();
     }
 
-    public async Task InitSignIn() {
-        try {
-            await PlayerAccountService.Instance.StartSignInAsync();
-        } 
-        catch (AuthenticationException ex)
-        {
-            // Compare error code to AuthenticationErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        }
-        catch (RequestFailedException ex)
-        {
-            // Compare error code to CommonErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        }  
-    }
-
-    private async void SignedIn() {
-        try {
-            var accessToken = PlayerAccountService.Instance.AccessToken;
-            await ConnectWithUnityAsync(accessToken);
-        } 
-        catch(Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-
-    async Task ConnectWithUnityAsync(string accessToken) {
-
-        try {
-            await AuthenticationService.Instance.LinkWithUnityAsync(accessToken);
-        } 
-        catch (AuthenticationException ex) when (ex.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked) {
-
-            AuthenticationService.Instance.SignOut(true);
-            try {
-                await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
-            } 
-            catch (Exception error) {
-                Debug.Log(error.Message);
-            }
-            
-        } catch (Exception error) {
-            Debug.Log(error.Message);
-        }
-
-        OnSignedIn();
-    }
-
     private async void OnSignedIn()
     {
         GetLowestVersionAllowed();
-        playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
-
-        var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+        //var name = await AuthenticationService.Instance.GetPlayerNameAsync();
 
         PlayerPrefs.SetString("PlayerName", name);
-
-        playerInfo = playerProfile.playerInfo;
-        playerProfile.Name = name;
 
         await Task.Delay(1000);
 
@@ -291,18 +210,18 @@ public class CloudDelegator : MonoBehaviour
 
             loginPanel.SetActive(false);
             userPanel.SetActive(true);
-        
-            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
+
+            userNameText.text = name;
 
             LoadGameDataFromCloud();
         }
 
         if (leaderboardDelegator) {
-            _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
+            //_ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
             leaderboardDelegator.CheckForRewards();
         }
 
-        Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
+        //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
 
         doingSigninProcess = false;
     }
@@ -317,11 +236,11 @@ public class CloudDelegator : MonoBehaviour
 
     public async Task SaveGameDataToCloud() {
 
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
+        /*if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
-        }
+        }*/
 
-        string jsonData = dataPersistenceManager.CreateJson();
+        /*string jsonData = dataPersistenceManager.CreateJson();
         byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
         
         try
@@ -331,7 +250,7 @@ public class CloudDelegator : MonoBehaviour
         catch (Exception e)
         {
             Debug.Log($"Cloud save failed: {e.Message}");
-        }
+        }*/
     }
 
     public async void LoadGameDataFromCloud() {
@@ -340,7 +259,7 @@ public class CloudDelegator : MonoBehaviour
             return;
         }
 
-        try
+        /*try
         {
             // Load the file from the cloud
             var file = await CloudSaveService.Instance.Files.Player.LoadBytesAsync("GameSave.json");
@@ -362,22 +281,23 @@ public class CloudDelegator : MonoBehaviour
                 IncrementLoadedItems();
 
                 dataPersistenceManager.DirectlyWriteSave();
-                TempSignOut();
                 SceneManager.LoadScene("Loading Screen");
             }
         }
         catch (Exception e)
         {
             Debug.Log($"Cloud load failed: {e.Message}");
-        }
+        }*/
     }
 
-    public bool CheckAnonymity() {
+    public bool CheckAnonymity()
+    {
         // True if logged in
         // False if not
-        if (playerInfo != null && playerInfo.Identities.Count != 0) {
+        /*if (playerInfo != null && playerInfo.Identities.Count != 0) {
         }
-        return playerInfo != null && playerInfo.Identities.Count != 0;
+        return playerInfo != null && playerInfo.Identities.Count != 0;*/
+        return false;
     }
 
     // Just so it gets factor into Loading
@@ -423,17 +343,6 @@ public class CloudDelegator : MonoBehaviour
         
         Application.OpenURL(url);
     }
-
-    void OnDestroy() {
-        PlayerAccountService.Instance.SignedIn -= SignedIn;
-    }
-}
-
-[Serializable]
-public struct PlayerProfile
-{
-    public PlayerInfo playerInfo;
-    public string Name;
 }
 
 [Serializable]

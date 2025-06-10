@@ -56,7 +56,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     private DateTime endTime;
     private TimeSpan timeRemaining;
     private string timeString;
-    private PlayerProfile playerProfile;
     private int lastUpdateTimer = 0;
     public long gemRewardsToCollect = 0;
 
@@ -169,7 +168,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        try {
+        /*try {
             oreLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
                                                 oreLeaderboardID,
                                                 new GetPlayerRangeOptions{ RangeLimit = 11 }
@@ -271,11 +270,11 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             }
 
             Debug.Log(ex);
-        }
+        }*/
     }
 
-    public async Task InitializeLeaderboard(PlayerProfile newPlayerProfile) {
-        playerProfile = newPlayerProfile;
+    public async Task InitializeLeaderboard() {
+        //playerProfile = newPlayerProfile (param);
 
         await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
 

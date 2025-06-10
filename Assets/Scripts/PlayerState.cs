@@ -567,7 +567,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         // Save and reload
         dataPersistenceManager.DirectlyWriteSave();
-        CloudDelegator.Instance.TempSignOut();
+        //CloudDelegator.Instance.TempSignOut();
         
         AnalyticsDelegator.Instance.Rebirth(data.mineCount);
 
