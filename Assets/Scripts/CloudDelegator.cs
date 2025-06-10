@@ -3,17 +3,26 @@ using System.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
 using Unity.Services.Core;
-
-using Unity.Services.CloudCode;
 using TMPro;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Firebase;
+using Firebase.Auth;
+using Firebase.Functions;
+using System.Collections.Generic;
+using System.Threading;
 
 public class CloudDelegator : MonoBehaviour
 {
+    [Header("Firebase")]
+    public DependencyStatus dependencyStatus;
+    public FirebaseAuth auth;
+    public FirebaseFunctions functions;
+    public FirebaseUser user;
+    private SynchronizationContext _unityContext;
+
     private static CloudDelegator _instance;
     public static CloudDelegator Instance
     {
@@ -42,9 +51,6 @@ public class CloudDelegator : MonoBehaviour
 
     [Header("Scripts")]
     public UIDelegation uIDelegation;
-    private DataPersistenceManager dataPersistenceManager;
-    private LoadingScreen loadingScreen;
-    private LeaderboardDelegator leaderboardDelegator;
 
     bool attemptedLogIn = false;
     private readonly int currentVersionNumber = 116;
@@ -53,11 +59,23 @@ public class CloudDelegator : MonoBehaviour
 
     async void Awake()
     {
-        loadingScreen = LoadingScreen.Instance;
-        leaderboardDelegator = LeaderboardDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
+        _unityContext = SynchronizationContext.Current;
 
         await UnityServices.InitializeAsync();
+
+        await FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
+            dependencyStatus = task.Result;
+
+            if (dependencyStatus == DependencyStatus.Available)
+            {
+                InitializeFirebase();
+            }
+            else
+            {
+                Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
+            }
+        });
 
         try
         {
@@ -76,6 +94,37 @@ public class CloudDelegator : MonoBehaviour
         IncrementLoadedItems();
 
         StartCoroutine(AutoSaveCoroutine());
+    }
+
+    void InitializeFirebase()
+    {
+        auth = FirebaseAuth.DefaultInstance;
+
+        functions = FirebaseFunctions.DefaultInstance;
+
+        auth.StateChanged += AuthStateChanged;
+        AuthStateChanged(this, null);
+    }
+
+    void AuthStateChanged(object sender, System.EventArgs eventArgs)
+    {
+        if (auth.CurrentUser != user)
+        {
+            bool signedin = user != auth.CurrentUser && auth.CurrentUser != null;
+
+            if (!signedin && user != null)
+            {
+                Debug.Log("Signed out " + user.UserId);
+            }
+
+            user = auth.CurrentUser;
+
+            if (signedin)
+            {
+                Debug.Log("Signed in " + user.UserId);
+                OnSignedIn();    // now on the Unity thread
+            }
+        }
     }
 
     // Auto log in for user
@@ -123,15 +172,66 @@ public class CloudDelegator : MonoBehaviour
     // Manual log in
     public async void LogIn()
     {
+        if (logInPassword.text.Length == 0)
+        {
+            uIDelegation.ShowError("MISSING PASSWORD!");
+            return;
+        }
+
+        Task<AuthResult> task = auth.SignInWithEmailAndPasswordAsync(logInEmail.text, logInPassword.text);
+        bool wrongEmail = false;
         try
         {
-            //await PlayerAccountService.Instance.StartSignInAsync();
+            await task;
         }
-        catch (RequestFailedException ex)
+        catch
         {
-            // Compare error code to CommonErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
+            // Most likely wrong email format, but could be another error too
+            wrongEmail = true;
+        }
+
+        // pasword: g,h,f,d
+        
+        // There was an error with the task
+        if (task.Exception != null || wrongEmail)
+        {
+            Debug.LogError(task.Exception);
+
+            FirebaseException firebaseException = task.Exception.GetBaseException() as FirebaseException;
+            AuthError authError = (AuthError)firebaseException.ErrorCode;
+
+            if (wrongEmail)
+            {
+                authError = AuthError.InvalidEmail;
+            }
+
+            string failedMessage;
+
+            switch (authError)
+            {
+                case AuthError.InvalidEmail:
+                    failedMessage = "EMAIL IS INVALID!";
+                    break;
+                case AuthError.WrongPassword:
+                    failedMessage = "WRONG PASSWORD!";
+                    break;
+                case AuthError.MissingEmail:
+                    failedMessage = "MISSING EMAIL!";
+                    break;
+                case AuthError.MissingPassword:
+                    failedMessage = "MISSING PASSWORD!";
+                    break;
+                default:
+                    failedMessage = "LOGIN FAILED!";
+                    break;
+            }
+
+            uIDelegation.ShowError(failedMessage);
+        }
+        else
+        {
+            user = task.Result.User;
+            Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
         }
     }
     
@@ -151,22 +251,76 @@ public class CloudDelegator : MonoBehaviour
 
     public async void SignUp()
     {
+        if (signUpPassword.text.Length == 0)
+        {
+            uIDelegation.ShowError("MISSING PASSWORD!");
+            return;
+        }
 
+        Task<AuthResult> task = auth.CreateUserWithEmailAndPasswordAsync(signUpEmail.text, signUpEmail.text);
+        bool wrongEmail = false;
+        try
+        {
+            await task;
+        }
+        catch
+        {
+            // Most likely wrong email format, but could be another error too
+            wrongEmail = true;
+        }
+
+        // There was an error with the task
+        if (task.Exception != null || wrongEmail)
+        {
+            Debug.LogError(task.Exception);
+
+            FirebaseException firebaseException = task.Exception.GetBaseException() as FirebaseException;
+            AuthError authError = (AuthError)firebaseException.ErrorCode;
+
+            if (wrongEmail)
+            {
+                authError = AuthError.InvalidEmail;
+            }
+
+            string failedMessage;
+
+            switch (authError)
+            {
+                case AuthError.InvalidEmail:
+                    failedMessage = "EMAIL IS INVALID!";
+                    break;
+                case AuthError.WrongPassword:
+                    failedMessage = "WRONG PASSWORD!";
+                    break;
+                case AuthError.MissingEmail:
+                    failedMessage = "MISSING EMAIL!";
+                    break;
+                case AuthError.MissingPassword:
+                    failedMessage = "MISSING PASSWORD!";
+                    break;
+                default:
+                    failedMessage = "SIGNUP FAILED!";
+                    break;
+            }
+
+            uIDelegation.ShowError(failedMessage);
+        }
+        else
+        {
+            user = task.Result.User;
+            Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
+        }
     }
 
     public async void LogOut()
     {
         // if not signed in, early return
-
         await SaveGameDataToCloud();
 
         // Sign out
+        auth.SignOut();
 
-        // Create anonymous account
-        //SignInAnonymouslyAsync();
-        OnSignedIn();
-
-        dataPersistenceManager.ResetEntireGame();
+        DataPersistenceManager.Instance.ResetEntireGame();
     }
 
     public async void ChangeName()
@@ -208,17 +362,13 @@ public class CloudDelegator : MonoBehaviour
 
         //await AuthenticationService.Instance.DeleteAccountAsync();
 
-        // Create anonymous account
-        //SignInAnonymouslyAsync();
-        OnSignedIn();
-
-        dataPersistenceManager.ResetEntireGame();
+        DataPersistenceManager.Instance.ResetEntireGame();
     }
 
     private async void OnSignedIn()
     {
         GetLowestVersionAllowed();
-        //var name = await AuthenticationService.Instance.GetPlayerNameAsync();
+        var name = user.DisplayName;
 
         PlayerPrefs.SetString("PlayerName", name);
 
@@ -236,10 +386,10 @@ public class CloudDelegator : MonoBehaviour
             LoadGameDataFromCloud();
         }
 
-        if (leaderboardDelegator)
+        if (LeaderboardDelegator.Instance)
         {
             //_ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
-            leaderboardDelegator.CheckForRewards();
+            LeaderboardDelegator.Instance.CheckForRewards();
         }
 
         //Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
@@ -330,7 +480,7 @@ public class CloudDelegator : MonoBehaviour
     {
         try
         {
-            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
+            StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
         }
         catch
         {
@@ -348,13 +498,28 @@ public class CloudDelegator : MonoBehaviour
     {
         try
         {
-            var arguments = new Dictionary<string, object>();
-            var response = await CloudCodeService.Instance.CallEndpointAsync<LowestVersionCloudResponse>("Get_Lowest_Version_Allowed", arguments);
+            // If any arguments to send, use:
+            //var data = new Dictionary<string, object>();
 
-            if (response.Lowest_Version_Allowed > currentVersionNumber)
+            // Call the function
+            var result = await functions
+                .GetHttpsCallable("GetLowestVersionAllowed")
+                .CallAsync();
+
+            var data = result.Data as IDictionary<object, object>;
+
+            if (data != null && data.ContainsKey("Version"))
             {
-                forceUpdate.SetActive(true);
-                Time.timeScale = 0;
+                int lowestAllowedVersion = Convert.ToInt32(data["Version"]);
+
+                if (lowestAllowedVersion > currentVersionNumber)
+                {
+                    _unityContext.Post(_ =>
+                    {
+                        forceUpdate.SetActive(true);
+                        Time.timeScale = 0;
+                    }, null);
+                }
             }
         }
         catch (Exception e)

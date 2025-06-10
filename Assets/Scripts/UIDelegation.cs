@@ -110,8 +110,8 @@ public class UIDelegation : MonoBehaviour
         string message = GetLocalizedValue(error, args);
         errorInstance.GetComponent<TextMeshProUGUI>().text = message;
 
-        // Place it within the safe area
-        errorInstance.transform.SetParent(transform.GetChild(0), false);
+        // Place it within the UI
+        errorInstance.transform.SetParent(transform, false);
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
         analyticsDelegator.ShowError(error);
