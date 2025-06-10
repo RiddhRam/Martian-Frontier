@@ -15,9 +15,9 @@ using UnityEngine.SceneManagement;
 public class CloudDelegator : MonoBehaviour
 {
     private static CloudDelegator _instance;
-    public static CloudDelegator Instance 
+    public static CloudDelegator Instance
     {
-        get  
+        get
         {
             if (_instance == null)
             {
@@ -51,20 +51,25 @@ public class CloudDelegator : MonoBehaviour
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
 
-    async void Awake() {
+    async void Awake()
+    {
         loadingScreen = LoadingScreen.Instance;
         leaderboardDelegator = LeaderboardDelegator.Instance;
         dataPersistenceManager = DataPersistenceManager.Instance;
 
         await UnityServices.InitializeAsync();
 
-        try {
+        try
+        {
             await AttemptLogIn();
-        } catch (Exception ex) {
+        }
+        catch (Exception ex)
+        {
             Debug.Log("Couldnt log in: " + ex.Message);
         }
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
         }
 
@@ -73,9 +78,12 @@ public class CloudDelegator : MonoBehaviour
         StartCoroutine(AutoSaveCoroutine());
     }
 
-    public async Task AttemptLogIn() {
+    // Auto log in for user
+    public async Task AttemptLogIn()
+    {
 
-        if (attemptedLogIn) {
+        if (attemptedLogIn)
+        {
             return;
         }
 
@@ -84,7 +92,7 @@ public class CloudDelegator : MonoBehaviour
         {
             return;
         }*/
-        
+
         // Sign in Anonymously
         // This call will sign in the cached player, or make a new account.
         /*try
@@ -112,17 +120,38 @@ public class CloudDelegator : MonoBehaviour
         }*/
     }
 
-    public async void LoginButtonPressed()
+    // Manual log in
+    public async void LogIn()
     {
-        try {
+        try
+        {
             //await PlayerAccountService.Instance.StartSignInAsync();
-        } 
+        }
         catch (RequestFailedException ex)
         {
             // Compare error code to CommonErrorCodes
             // Notify the player with the proper error message
             Debug.LogException(ex);
-        }  
+        }
+    }
+    
+    public async void ForgotPassword()
+    {
+        try
+        {
+            //await PlayerAccountService.Instance.StartSignInAsync();
+        }
+        catch (RequestFailedException ex)
+        {
+            // Compare error code to CommonErrorCodes
+            // Notify the player with the proper error message
+            Debug.LogException(ex);
+        }
+    }
+
+    public async void SignUp()
+    {
+
     }
 
     public async void LogOut()
@@ -136,35 +165,43 @@ public class CloudDelegator : MonoBehaviour
         // Create anonymous account
         //SignInAnonymouslyAsync();
         OnSignedIn();
-        
+
         dataPersistenceManager.ResetEntireGame();
     }
 
-    public async void ChangeName() {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
+    public async void ChangeName()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
             uIDelegation.ShowError("NO INTERNET!");
             return;
         }
 
-        if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]")) {
+        if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]"))
+        {
             uIDelegation.ShowError("INVALID NAME!");
             return;
         }
 
-        try {
+        try
+        {
             //await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
             askToChangeName.SetActive(false);
 
             //var name = await AuthenticationService.Instance.GetPlayerNameAsync();
             PlayerPrefs.SetString("PlayerName", name);
             //userNameText.text = name
-        } catch {
+        }
+        catch
+        {
             uIDelegation.ShowError("NAME IS ALREADY TAKEN");
         }
     }
 
-    public async void DeleteAccount() {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
+    public async void DeleteAccount()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
             uIDelegation.ShowError("NO INTERNET!");
             return;
         }
@@ -188,7 +225,8 @@ public class CloudDelegator : MonoBehaviour
         await Task.Delay(1000);
 
         // Make sure not anonymous
-        if (CheckAnonymity()) {
+        if (CheckAnonymity())
+        {
 
             loginPanel.SetActive(false);
             userPanel.SetActive(true);
@@ -198,7 +236,8 @@ public class CloudDelegator : MonoBehaviour
             LoadGameDataFromCloud();
         }
 
-        if (leaderboardDelegator) {
+        if (leaderboardDelegator)
+        {
             //_ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
             leaderboardDelegator.CheckForRewards();
         }
@@ -208,7 +247,8 @@ public class CloudDelegator : MonoBehaviour
         doingSigninProcess = false;
     }
 
-    private IEnumerator AutoSaveCoroutine() {
+    private IEnumerator AutoSaveCoroutine()
+    {
         while (true) // Run indefinitely
         {
             _ = SaveGameDataToCloud();
@@ -216,7 +256,8 @@ public class CloudDelegator : MonoBehaviour
         }
     }
 
-    public async Task SaveGameDataToCloud() {
+    public async Task SaveGameDataToCloud()
+    {
 
         /*if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
             return;
@@ -235,9 +276,11 @@ public class CloudDelegator : MonoBehaviour
         }*/
     }
 
-    public async void LoadGameDataFromCloud() {
+    public async void LoadGameDataFromCloud()
+    {
 
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity())
+        {
             return;
         }
 
@@ -283,12 +326,16 @@ public class CloudDelegator : MonoBehaviour
     }
 
     // Just so it gets factor into Loading
-    private void IncrementLoadedItems() {
-        try {
+    private void IncrementLoadedItems()
+    {
+        try
+        {
             StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
-        } catch {
         }
-    } 
+        catch
+        {
+        }
+    }
 
     // VERSION NUMBER IS BASED ON ANDROID BUNDLE IDENTIFIER
     // ONLY UNCOMMENT IF YOU ARE UPDATING THE LOWEST_VERSION_ALLOWED
@@ -297,13 +344,15 @@ public class CloudDelegator : MonoBehaviour
     // VERSION 33 AND LOWER HAVE NO RESTRICTION BECAUSE THEY DO NOT USE THE CLOUD
     // To change current version change it above 'currentVersionNumber'
     // To change lowest version allowed, change it in Unity Cloud Dashboard -> Cloud Code -> JS Scripts -> Get_Lowest_Version_Allowed and then change the integer in the script
-    private async void GetLowestVersionAllowed() {
+    private async void GetLowestVersionAllowed()
+    {
         try
         {
             var arguments = new Dictionary<string, object>();
             var response = await CloudCodeService.Instance.CallEndpointAsync<LowestVersionCloudResponse>("Get_Lowest_Version_Allowed", arguments);
 
-            if (response.Lowest_Version_Allowed > currentVersionNumber) {
+            if (response.Lowest_Version_Allowed > currentVersionNumber)
+            {
                 forceUpdate.SetActive(true);
                 Time.timeScale = 0;
             }
@@ -314,16 +363,26 @@ public class CloudDelegator : MonoBehaviour
         }
     }
 
-    public void GoToAppStore() {
+    public void GoToAppStore()
+    {
         string url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier";
-        
-        #if UNITY_ANDROID
-            url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier"; // Replace with your app's package name
-        #elif UNITY_IOS
+
+#if UNITY_ANDROID
+        url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier"; // Replace with your app's package name
+#elif UNITY_IOS
             url = "https://apps.apple.com/us/app/martian-frontier/id6740146979"; // Replace with your app's iOS app ID
-        #endif
-        
+#endif
+
         Application.OpenURL(url);
+    }
+
+    public void ShowPrviacyPolicy()
+    {
+        Application.OpenURL("https://rydstudios.com/privacy");
+    }
+    
+    public void ShowTOS() {
+        Application.OpenURL("https://rydstudios.com/tos");
     }
 }
 
