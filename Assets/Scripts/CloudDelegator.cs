@@ -372,13 +372,11 @@ public class CloudDelegator : MonoBehaviour
             if (user.DisplayName.Length == 0)
             {
                 // Use local name if profile doesn't have one yet
-                Debug.Log("Using local player's name");
                 userName = PlayerPrefs.GetString("PlayerName");
             }
             else
             {
                 // Use saved profile name
-                Debug.Log("Using player's profile name");
                 userName = user.DisplayName;
             }
             
@@ -447,13 +445,8 @@ public class CloudDelegator : MonoBehaviour
 
             docRef.SetAsync(payload)
             .ContinueWithOnMainThread(task => {
-                if (task.IsFaulted) {
+                if (task.IsFaulted)
                     Debug.Log($"Firestore save failed: {task.Exception.Flatten().Message}");
-                }
-                else
-                {
-                    //Debug.Log("Cloud save to Firestore succeeded.");
-                }
                     
             });
         }
@@ -471,35 +464,49 @@ public class CloudDelegator : MonoBehaviour
             return;
         }
 
-        /*try
+        try
         {
-            // Load the file from the cloud
-            var file = await CloudSaveService.Instance.Files.Player.LoadBytesAsync("GameSave.json");
+            // Reference the right document and get the snapshot from the cloud
+            var docRef = firestore.Collection("GameSaves").Document(user.UserId);
 
-            // Convert the file's byte data to a string
-            string jsonData = Encoding.UTF8.GetString(file);
-            
-            GameData gameData = dataPersistenceManager.ParseJson(jsonData);
+            await docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+            {
+                var document = task.Result;
+                if (document.TryGetValue("gameSave", out string jsonData))
+                {
+                    Debug.Log(jsonData);
+                    GameData gameData = DataPersistenceManager.Instance.ParseJson(jsonData);
 
-            // Don't load data from the cloud if player is from the beta
-            if (PlayerPrefs.GetInt("Beta") == 200) {
-                return;
-            }
+                    // Don't load data from the cloud if player is from the beta
+                    if (PlayerPrefs.GetInt("Beta") == 200)
+                    {
+                        return;
+                    }
+                    
+                    try
+                    {
+                        if (DataPersistenceManager.Instance.CompareGameData(gameData)) {
+                            // Reload game with the new data
+                            DataPersistenceManager.Instance.DirectlyWriteSave();
+                            SceneManager.LoadScene("Loading Screen");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log($"Cloud load failed: {e.Message}");
+                    }
+                }
+                else
+                {
+                    Debug.Log("No 'gameSave' field found in Firestore document.");
+                }
+            });
 
-            if (dataPersistenceManager.CompareGameData(gameData)) {
-                loadingScreen.loadedItems = 0;
-                loadingScreen.totalItems = loadingScreen.cloudSaveItems;
-                loadingScreen.gameObject.SetActive(true);
-                IncrementLoadedItems();
-
-                dataPersistenceManager.DirectlyWriteSave();
-                SceneManager.LoadScene("Loading Screen");
-            }
         }
         catch (Exception e)
         {
-            Debug.Log($"Cloud load failed: {e.Message}");
-        }*/
+            Debug.Log("Couldn't load from cloud: " + e.Message);
+        }
     }
 
     public bool CheckAnonymity()

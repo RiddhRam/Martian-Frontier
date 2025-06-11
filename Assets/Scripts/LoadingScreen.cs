@@ -24,7 +24,6 @@ public class LoadingScreen : MonoBehaviour
     public int loadedItems = 0;
     // See comment below to see why total items is this value, change in inspector
     public int totalItems;
-    public int cloudSaveItems;
 
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
@@ -40,7 +39,7 @@ public class LoadingScreen : MonoBehaviour
         TutorialManager: LoadData() (1 total), only in singleplayer
         NPCManager: LoadData() (1 total), only in co-op local
 
-        Total as of Jun 6 2025: 15 || 14
+        Total as of Jun 6 2025: 15
         Last check: Jun 6 2025
     */
 
