@@ -61,6 +61,19 @@ public class CloudDelegator : MonoBehaviour
     {
         _unityContext = SynchronizationContext.Current;
 
+        _unityContext.Post(_ =>
+        {
+            // Set default local name
+            if (PlayerPrefs.GetString("PlayerName").Length == 0)
+            {
+                var rnd = new System.Random();
+                int randomNumber = rnd.Next(0, 10000);
+
+                UpdateLocalPlayerName($"Player{randomNumber:D4}");
+            }
+            
+        }, null);
+
         await FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
             dependencyStatus = task.Result;
@@ -215,6 +228,10 @@ public class CloudDelegator : MonoBehaviour
             {
                 uIDelegation.ShowError("CHOOSE A STRONGER PASSWORD!"); return;
             }
+            else if (fe.ErrorCode == 8)
+            {
+                uIDelegation.ShowError("THIS EMAIL IS ALREADY IN USE!"); return;
+            }
 
             var error = (AuthError)fe.ErrorCode;
             switch (error)
@@ -254,6 +271,8 @@ public class CloudDelegator : MonoBehaviour
         // Sign out
         auth.SignOut();
 
+        UpdateLocalPlayerName("");
+
         DataPersistenceManager.Instance.ResetEntireGame();
     }
 
@@ -273,17 +292,45 @@ public class CloudDelegator : MonoBehaviour
 
         try
         {
-            //await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
             askToChangeName.SetActive(false);
 
-            //var name = await AuthenticationService.Instance.GetPlayerNameAsync();
-            PlayerPrefs.SetString("PlayerName", name);
-            //userNameText.text = name
+            UpdateUserName(newName.text);
         }
         catch
         {
             uIDelegation.ShowError("NAME IS ALREADY TAKEN");
         }
+    }
+
+    private async void UpdateUserName(string newName)
+    {
+
+        // Create new firebase profile
+        UserProfile newUser = new UserProfile
+        {
+            DisplayName = newName,
+        };
+
+        // Update players firebase profile
+        Task task = user.UpdateUserProfileAsync(newUser);
+        try
+        {
+            // If task succeeded
+            await task;
+
+            UpdateLocalPlayerName(newName);
+            userNameText.text = newName;
+        }
+        catch
+        {
+            // If update failed
+            uIDelegation.ShowError("COULDN'T UPDATE NAME");
+        }
+    }
+
+    private void UpdateLocalPlayerName(string newName)
+    {
+        PlayerPrefs.SetString("PlayerName", newName);
     }
 
     public async void DeleteAccount()
@@ -299,29 +346,51 @@ public class CloudDelegator : MonoBehaviour
             return;
         }
 
-        await user.DeleteAsync();
+        try
+        {
+            // Delete player
+            await user.DeleteAsync();
 
-        DataPersistenceManager.Instance.ResetEntireGame();
+            UpdateLocalPlayerName("");
+
+            DataPersistenceManager.Instance.ResetEntireGame();
+        }
+        catch
+        {
+            // If failed, player needs to relogin
+            uIDelegation.ShowError("PLEASE RE-LOGIN AND TRY AGAIN!");
+        }
+
     }
 
     private void OnSignedIn()
     {
         GetLowestVersionAllowed();
 
-        var name = user.DisplayName;
-
         _unityContext.Post(_ =>
         {
-            PlayerPrefs.SetString("PlayerName", name);
+            string userName;
 
+            if (user.DisplayName.Length == 0)
+            {
+                // Use local name if profile doesn't have one yet
+                Debug.Log("Using local player's name");
+                userName = PlayerPrefs.GetString("PlayerName");
+            }
+            else
+            {
+                // Use saved profile name
+                Debug.Log("Using player's profile name");
+                userName = user.DisplayName;
+            }
+            
             // Make sure not anonymous
             if (CheckAnonymity())
             {
+                UpdateUserName(userName);
 
                 loginPanel.SetActive(false);
                 userPanel.SetActive(true);
-
-                userNameText.text = name;
 
                 LoadGameDataFromCloud();
             }
