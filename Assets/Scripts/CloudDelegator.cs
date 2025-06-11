@@ -4,13 +4,14 @@ using System.Collections;
 using UnityEngine;
 
 using TMPro;
-using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Functions;
+using Firebase.Firestore;
+using Firebase.Extensions;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -21,6 +22,7 @@ public class CloudDelegator : MonoBehaviour
     public FirebaseAuth auth;
     public FirebaseFunctions functions;
     public FirebaseUser user;
+    public FirebaseFirestore firestore;
     private SynchronizationContext _unityContext;
 
     private static CloudDelegator _instance;
@@ -100,9 +102,13 @@ public class CloudDelegator : MonoBehaviour
 
     void InitializeFirebase()
     {
+        FirebaseFirestore.LogLevel = Firebase.LogLevel.Verbose;
+
         auth = FirebaseAuth.DefaultInstance;
 
         functions = FirebaseFunctions.DefaultInstance;
+
+        firestore = FirebaseFirestore.DefaultInstance;
 
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
@@ -263,10 +269,9 @@ public class CloudDelegator : MonoBehaviour
         signUpEmail.transform.parent.parent.gameObject.SetActive(false);
     }
 
-    public async void LogOut()
+    public void LogOut()
     {
-        // if not signed in, early return
-        await SaveGameDataToCloud();
+        SaveGameDataToCloud();
 
         // Sign out
         auth.SignOut();
@@ -276,7 +281,7 @@ public class CloudDelegator : MonoBehaviour
         DataPersistenceManager.Instance.ResetEntireGame();
     }
 
-    public async void ChangeName()
+    public void ChangeName()
     {
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
@@ -290,16 +295,9 @@ public class CloudDelegator : MonoBehaviour
             return;
         }
 
-        try
-        {
-            askToChangeName.SetActive(false);
+        askToChangeName.SetActive(false);
 
-            UpdateUserName(newName.text);
-        }
-        catch
-        {
-            uIDelegation.ShowError("NAME IS ALREADY TAKEN");
-        }
+        UpdateUserName(newName.text);
     }
 
     private async void UpdateUserName(string newName)
@@ -408,31 +406,61 @@ public class CloudDelegator : MonoBehaviour
 
     private IEnumerator AutoSaveCoroutine()
     {
+        yield return new WaitForSeconds(60f); // Wait 60 seconds before the first save
+
         while (true) // Run indefinitely
         {
-            _ = SaveGameDataToCloud();
-            yield return new WaitForSeconds(60f); // Wait for 60 seconds before saving again
+            try
+            {
+                SaveGameDataToCloud();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't save to cloud: " + e.Message);
+            }
+
+            // Put this before
+            yield return new WaitForSeconds(300f); // Wait for 300 seconds before saving again
         }
     }
 
-    public async Task SaveGameDataToCloud()
+    public void SaveGameDataToCloud()
     {
 
-        /*if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || firestore == null)
+        {
             return;
-        }*/
+        }
 
-        /*string jsonData = dataPersistenceManager.CreateJson();
-        byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
-        
         try
         {
-            await CloudSaveService.Instance.Files.Player.SaveAsync("GameSave.json", new MemoryStream(jsonBytes));            
+            // Format data properly for the database
+            string jsonData = DataPersistenceManager.Instance.CreateJson();
+
+            var payload = new Dictionary<string, object>
+            {
+                { "gameSave", jsonData }
+            };
+
+            // Refer to right spot in database
+            var docRef = firestore.Collection("GameSaves").Document(user.UserId);
+
+            docRef.SetAsync(payload)
+            .ContinueWithOnMainThread(task => {
+                if (task.IsFaulted) {
+                    Debug.Log($"Firestore save failed: {task.Exception.Flatten().Message}");
+                }
+                else
+                {
+                    //Debug.Log("Cloud save to Firestore succeeded.");
+                }
+                    
+            });
         }
         catch (Exception e)
         {
-            Debug.Log($"Cloud save failed: {e.Message}");
-        }*/
+            Debug.Log("Couldn't save to cloud:" + e.Message);
+        }
     }
 
     public async void LoadGameDataFromCloud()
@@ -556,10 +584,4 @@ public class CloudDelegator : MonoBehaviour
     public void ShowTOS() {
         Application.OpenURL("https://rydstudios.com/tos");
     }
-}
-
-[Serializable]
-public class LowestVersionCloudResponse
-{
-    public int Lowest_Version_Allowed;
 }

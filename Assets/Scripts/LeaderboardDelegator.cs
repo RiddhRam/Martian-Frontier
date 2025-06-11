@@ -276,7 +276,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public async Task InitializeLeaderboard() {
         //playerProfile = newPlayerProfile (param);
 
-        await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
+        //await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
 
         UpdateLeaderBoardData();
     }
@@ -286,7 +286,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             return;
         }
 
-        LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, amount);
+        //LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, amount);
     }
 
     // TODO: If an anonymous player creates an account, their old account stays in the leaderboard and their new account
