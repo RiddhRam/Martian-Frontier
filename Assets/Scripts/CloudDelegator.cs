@@ -4,6 +4,8 @@ using System.Collections;
 using UnityEngine;
 
 using TMPro;
+using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine.SceneManagement;
@@ -14,6 +16,8 @@ using Firebase.Firestore;
 using Firebase.Extensions;
 using System.Collections.Generic;
 using System.Threading;
+using Unity.Services.Core;
+
 
 public class CloudDelegator : MonoBehaviour
 {
@@ -75,6 +79,8 @@ public class CloudDelegator : MonoBehaviour
             }
             
         }, null);
+
+        await UnityServices.InitializeAsync();
 
         await FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
         {
@@ -404,7 +410,7 @@ public class CloudDelegator : MonoBehaviour
 
     private IEnumerator AutoSaveCoroutine()
     {
-        yield return new WaitForSeconds(60f); // Wait 60 seconds before the first save
+        yield return new WaitForSeconds(10f); // Wait 60 seconds before the first save
 
         while (true) // Run indefinitely
         {
@@ -422,9 +428,8 @@ public class CloudDelegator : MonoBehaviour
         }
     }
 
-    public void SaveGameDataToCloud()
+    public async void SaveGameDataToCloud()
     {
-
         if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || firestore == null)
         {
             return;
@@ -435,16 +440,17 @@ public class CloudDelegator : MonoBehaviour
             // Format data properly for the database
             string jsonData = DataPersistenceManager.Instance.CreateJson();
 
+            byte[] compressedJson = Compress(jsonData);
+
             var payload = new Dictionary<string, object>
             {
-                { "gameSave", jsonData }
+                { "gameSave", compressedJson }
             };
 
             // Refer to right spot in database
             var docRef = firestore.Collection("GameSaves").Document(user.UserId);
 
-            docRef.SetAsync(payload)
-            .ContinueWithOnMainThread(task => {
+            await docRef.SetAsync(payload).ContinueWithOnMainThread(task => {
                 if (task.IsFaulted)
                     Debug.Log($"Firestore save failed: {task.Exception.Flatten().Message}");
                     
@@ -472,10 +478,10 @@ public class CloudDelegator : MonoBehaviour
             await docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
             {
                 var document = task.Result;
-                if (document.TryGetValue("gameSave", out string jsonData))
+                if (document.TryGetValue("gameSave", out byte[] webData))
                 {
-                    Debug.Log(jsonData);
-                    GameData gameData = DataPersistenceManager.Instance.ParseJson(jsonData);
+                    string gameSaveString = Decompress(webData);
+                    GameData gameData = DataPersistenceManager.Instance.ParseJson(gameSaveString);
 
                     // Don't load data from the cloud if player is from the beta
                     if (PlayerPrefs.GetInt("Beta") == 200)
@@ -507,6 +513,24 @@ public class CloudDelegator : MonoBehaviour
         {
             Debug.Log("Couldn't load from cloud: " + e.Message);
         }
+    }
+
+    public static byte[] Compress(string json)
+    {
+        byte[] src = Encoding.UTF8.GetBytes(json);
+        using var ms = new MemoryStream();
+        // quality 5 = good balance; 0-11 allowed
+        using (var brotli = new BrotliStream(ms, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true))
+            brotli.Write(src, 0, src.Length);
+        return ms.ToArray();
+    }
+
+    public static string Decompress(byte[] data)
+    {
+        using var input = new MemoryStream(data);
+        using var brotli = new BrotliStream(input, CompressionMode.Decompress);
+        using var sr = new StreamReader(brotli, Encoding.UTF8);
+        return sr.ReadToEnd();
     }
 
     public bool CheckAnonymity()
