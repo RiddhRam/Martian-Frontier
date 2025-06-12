@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -21,7 +22,7 @@ public class LeaderboardResults
     Random rng;
 
     // TREAT THIS AS A VERY LARGE ARRAY (thousands of names)
-    private readonly string[] botNames = {
+    readonly string[] botNames = {
         "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
         "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
         "Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
@@ -141,9 +142,9 @@ public class LeaderboardResults
     };
 
     // The scores and bot profiles
-    static readonly List<LeaderboardPlayer> leaderboardPlayerScores = new();
+    readonly List<LeaderboardPlayer> leaderboardPlayerScores = new();
     // key: Bot uuid
-    private readonly Dictionary<string, BotProfile> botProfiles = new();
+    readonly Dictionary<string, BotProfile> botProfiles = new();
 
     public LeaderboardResults(BigInteger playerLS, DateTime endTime, int uniqueUserInt)
     {
@@ -165,6 +166,7 @@ public class LeaderboardResults
 
     private void InitializeLeaderboard()
     {
+        
         // Add player
         player = new("You", "Player");
         player.SetScore(playerLS);
@@ -242,7 +244,7 @@ public class LeaderboardResults
         // Clamp the current time to the tournament window
         if (currentTime < startTime) currentTime = startTime;
         if (currentTime > endTime) currentTime = endTime;
-        
+
         const float averageScorePerSecond = averageOresMinedPerRound / (minutesPerRound * 60);
 
         foreach (var botPlayer in leaderboardPlayerScores)
@@ -290,6 +292,11 @@ public class LeaderboardResults
     private int GetRNGSeed()
     {
         return (int)(endTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + this.uniqueUserInt;
+    }
+
+    public int GetUniqueUserInt()
+    {
+        return uniqueUserInt;
     }
 }
 

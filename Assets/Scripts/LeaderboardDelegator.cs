@@ -2,10 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
-using Firebase.Auth;
 using TMPro;
-using Unity.Services.Leaderboards;
-using Unity.Services.Leaderboards.Models;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
@@ -58,19 +55,32 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     private int lastUpdateTimer = 0;
     public long gemRewardsToCollect = 0;
 
-    private readonly string oreLeaderboardID = "Ores";
-    private readonly string[] leaderboardTiers = { "BRONZE TIER", "SILVER TIER", "GOLD TIER" };
-    private readonly string[] leaderboardTiersMatching = { "Bronze", "Silver", "Gold" };
-    private readonly string[][] rewardAmounts = new string[][] {
-            new string[] {"2K", "1.6K", "1.4K", "1.2K", "1K", "800", "800", "800", "600", "600"},
-            new string[] {"12K", "8K", "6.4K", "5K", "4K", "3.2K", "3.2K", "3.2K", "2.8K", "2.8K"},
-            new string[] {"64K", "50K", "40K", "32k", "24k", "20K", "20K", "20K", "16K", "16K"}
+    // Two day intervals leaderboard
+    [SerializeField] private int twoDIL;
+    private int previousInterval;
+
+    //private const string oreLeaderboardID = "Ores";
+    private static readonly string[] leaderboardTiers = { "BRONZE TIER", "SILVER TIER", "GOLD TIER" };
+    private static readonly string[] leaderboardTiersMatching = { "Bronze", "Silver", "Gold" };
+    private static readonly int[][] rewardAmounts = new int[][] {
+            new int[] {2_000, 1_600, 1_400, 1_200, 1_000, 800, 800, 800, 600, 600},
+            new int[] {12_000, 8_000, 6_400, 5_000, 4_000, 3_200, 3_200, 3_200, 2_800, 2_800},
+            new int[] {64_000, 50_000, 40_000, 32_000, 24_000, 20_000, 20_000, 20_000, 16_000, 16_000}
             };
+    
+    // DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc)
+    private static readonly DateTime resetDate = new DateTime(1970, 1, 2, 21, 1, 0, DateTimeKind.Utc); // Start at 12:00 PM UTC on Epoch
+
     LeaderboardResults oreLeaderboardResultsPage;
     List<LeaderboardPlayer> oreLeaderboardScores;
 
     private IEnumerator TimerController()
     {
+        if (this.twoDIL > this.previousInterval)
+        {
+            ResetLeaderboard();
+        }
+
         while (true)
         {
             timeRemaining = endTime - DateTime.UtcNow;
@@ -82,8 +92,13 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             if (timeRemaining.TotalSeconds <= 0)
             {
                 SetLeaderBoardTimer();
-                yield return new WaitForSeconds(60);
-                CheckForRewards();
+
+                yield return new WaitForSeconds(5);
+
+                previousInterval = this.twoDIL;
+                this.twoDIL = CalculateTwoDayIntervals();
+
+                ResetLeaderboard();
             }
 
             if (timeRemaining.Seconds == 0 || timeRemaining.Seconds == 30)
@@ -96,7 +111,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     }
 
     public void SetLeaderBoardTimer() {
-        DateTime epoch = new DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc); // Start at 12:00 PM UTC on Epoch
+        DateTime epoch = resetDate;
         DateTime now = DateTime.UtcNow;
 
         // Calculate how many full 2-day cycles have passed since the epoch
@@ -109,7 +124,19 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         endTime = nextResetTime;
     }
 
-    public void CheckForRewards(string message = null) {
+    public int CalculateTwoDayIntervals() {
+        TimeSpan timeSinceEpoch = DateTime.UtcNow - resetDate;
+        return (int)(timeSinceEpoch.TotalDays / 2); // Numbers of days / 2
+    }
+    
+    public DateTime ReverseTwoDayInterval(int intervals) {
+        // Returns the start time, NOT the end sime. To get end time, just add 2 days
+        DateTime epoch = resetDate;
+        return epoch.AddDays(intervals * 2); // Days after epoch
+    }
+
+    public void CheckForRewards(string message = null)
+    {
 
         if (gemRewardsToCollect > 0)
         {
@@ -176,22 +203,23 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                 if (oreLeaderboardScores[i].GetUUID() != "Player")
                     continue;
 
+                string playerTierString = GetTier(i);
                 // Gold
-                if (GetTier(i) == "Gold")
+                if (playerTierString == "Gold")
                 {
                     playerTier = 2;
                     oreTierImage.sprite = tierSprites[2];
                     oreTierText.text = GetLocalizedValue(leaderboardTiers[2]);
                 }
                 // Silver
-                else if (GetTier(i) == "Silver")
+                else if (playerTierString == "Silver")
                 {
                     playerTier = 1;
                     oreTierImage.sprite = tierSprites[1];
                     oreTierText.text = GetLocalizedValue(leaderboardTiers[1]);
                 }
                 // Bronze
-                else if (GetTier(i) == "Bronze")
+                else if (playerTierString == "Bronze")
                 {
                     playerTier = 0;
                     oreTierImage.sprite = tierSprites[0];
@@ -210,16 +238,18 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             {
 
                 // If current player is outside of the local players tier, save the index so we can determine the threshold score for the next and last tier
-                if (GetTier(i) != leaderboardTiersMatching[playerTier])
+                // Also don't display this player because they are in another tier
+                string currentTier = GetTier(i);
+                if (currentTier != leaderboardTiersMatching[playerTier])
                 {
                     // Gold
-                    if (GetTier(i) == "Gold")
+                    if (currentTier == "Gold")
                     {
                         // If gold, then we know its the next tier
                         firstPlayerIndex = i;
                     }
                     // Bronze
-                    else if (GetTier(i) == "Bronze")
+                    else if (currentTier == "Bronze")
                     {
                         // If bronze, then we know its the last tier
                         if (lastPlayerIndex == 0)
@@ -228,7 +258,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                         }
                     }
                     // Silver
-                    else if (GetTier(i) == "Silver")
+                    else if (currentTier == "Silver")
                     {
                         // If silver we need to determine if player is in gold or bronze first.
                         // If gold, then silver is last tier, if bronze then its next tier
@@ -263,7 +293,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                     orePlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
                 }
 
-                oreRewardTextMeshes[playerBarCounter].text = rewardAmounts[playerTier][playerBarCounter];
+                oreRewardTextMeshes[playerBarCounter].text = playerState.FormatPrice(rewardAmounts[playerTier][playerBarCounter]);
 
                 playerBarCounter++;
             }
@@ -298,7 +328,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         }
         catch (Exception ex)
         {
-
             Debug.Log(ex);
         }
     }
@@ -327,6 +356,51 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         oreLeaderboardResultsPage.AddPlayerScore(new BigInteger(amount));
     }
 
+    private void ResetLeaderboard()
+    {
+        playerState.RewardPlayerWithGems(CalculatePlayerRewards());
+
+        // Start next leaderboard
+        int uniqueUserInt = oreLeaderboardResultsPage.GetUniqueUserInt();
+        oreLeaderboardResultsPage = new(0, endTime, uniqueUserInt);
+    }
+
+    public int CalculatePlayerRewards()
+    {
+        // Use previous interval to calculate scores of last leaderboard
+        LeaderboardResults previousLeaderboard = new(oreLeaderboardResultsPage.playerLS, ReverseTwoDayInterval(previousInterval).AddDays(2), oreLeaderboardResultsPage.GetUniqueUserInt());
+
+        List<LeaderboardPlayer> previousResults = previousLeaderboard.GetLeaderboardScores();
+
+        for (int i = 0; i != previousResults.Count; i++)
+        {
+            if (previousResults[i].GetUUID() != "Player") {
+                continue;
+            }
+            
+            int counter = 0;
+
+            // Iterate rewards in reverse, because results start from first place and go to last, but reward array goes from bronze to gold
+            for (int j = rewardAmounts.Length - 1; j != -1; j--)
+            {
+                // Iterate forward here, but each subarray goes from first to last
+                for (int k = 0; k != rewardAmounts[j].Length; k++)
+                {
+                    // Find the reward at the same position of the player
+                    if (counter == i)
+                    {
+                        return rewardAmounts[j][k];
+                    }
+
+                    counter++;
+                }
+            }
+        }
+
+        // Fallback should never be reached, give 600 gems if somehow reached
+        return 600;
+    }
+
     private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
@@ -346,8 +420,12 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public void LoadData(GameData data)
     {
         SetLeaderBoardTimer();
+
         oreLeaderboardResultsPage = new(BigInteger.Parse(data.playerLS), endTime, data.uniqueUserInt);
         this.gemRewardsToCollect = data.gemRewardsToCollect;
+
+        this.twoDIL = CalculateTwoDayIntervals();
+        previousInterval = data.twoDIL;
 
         StartCoroutine(TimerController());
         UpdateLeaderBoardData();
@@ -358,5 +436,6 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         data.gemRewardsToCollect = this.gemRewardsToCollect;
         data.playerLS = oreLeaderboardResultsPage.playerLS.ToString();
         data.uniqueUserInt = oreLeaderboardResultsPage.uniqueUserInt;
+        data.twoDIL = this.twoDIL;
     }
 }

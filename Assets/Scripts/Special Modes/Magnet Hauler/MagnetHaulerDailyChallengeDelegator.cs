@@ -261,7 +261,7 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
 
     public void LoadData(GameData data)
     {
-        this.twoDayIntervals = data.twoDayIntervals;
+        this.twoDayIntervals = data.twoDIM;
         this.challengeProgress = data.magnetHaulerChallengeProgress;
         this.challengeCollection = data.magnetHaulerChallengeCollection;
         this.superChallengeTimer = data.magnetHaulerSuperChallengeTimer;

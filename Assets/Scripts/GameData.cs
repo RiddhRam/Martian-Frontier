@@ -60,9 +60,13 @@ public class GameData
     // Player leaderboard score
     public string playerLS;
     public int uniqueUserInt;
+    // Two day interval leaderboards
+    public int twoDIL;
 
     public string userCredits;
-    public int twoDayIntervals;
+    
+    // Two day interval minigames
+    public int twoDIM;
 
     public SerializableDictionary<string, int> magnetHaulerUpgrades;
     public int[] magnetHaulerChallengeProgress;
@@ -142,9 +146,10 @@ public class GameData
 
         this.playerLS = "0";
         this.uniqueUserInt = 0;
+        this.twoDIL = 0;
         
         this.userCredits = "0";
-        this.twoDayIntervals = 0;
+        this.twoDIM = 0;
 
         this.magnetHaulerUpgrades = new();
         this.magnetHaulerChallengeProgress = new int[6];

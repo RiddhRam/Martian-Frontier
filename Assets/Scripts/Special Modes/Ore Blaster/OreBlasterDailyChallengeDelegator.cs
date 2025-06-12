@@ -263,7 +263,7 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        this.twoDayIntervals = data.twoDayIntervals;
+        this.twoDayIntervals = data.twoDIM;
         this.challengeProgress = data.oreBlasterChallengeProgress;
         this.challengeCollection = data.oreBlasterChallengeCollection;
         this.superChallengeTimer = data.oreBlasterSuperChallengeTimer;
