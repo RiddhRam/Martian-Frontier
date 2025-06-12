@@ -17,7 +17,8 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
     [SerializeField] private PlayerState playerState;
     [SerializeField] private SessionDelegator sessionDelegator;
 
-    [SerializeField] private int twoDayIntervals;
+    // Two day intervals minigames
+    [SerializeField] private int twoDIM;
     private int previousInterval;
     private readonly DateTime resetDate = new DateTime(1970, 1, 2, 12, 0, 0, DateTimeKind.Utc);
 
@@ -27,9 +28,9 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-        this.twoDayIntervals = CalculateTwoDayIntervals();
+        this.twoDIM = CalculateTwoDayIntervals();
 
-        previousInterval = data.twoDayIntervals;
+        previousInterval = data.twoDIM;
 
         SetMiniGameTimer();
         StartCoroutine(CountdownToNextInterval());
@@ -41,13 +42,13 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
         yield return new WaitUntil(() => playerState.loaded);
 
         // Reset data if there's a new mini game today
-        if (this.twoDayIntervals > this.previousInterval) {
+        if (this.twoDIM > this.previousInterval) {
             ResetMiniGameData();
         }
 
         while (true) {
             // Set minigame
-            int index = twoDayIntervals % minigameNames.Length;
+            int index = this.twoDIM % minigameNames.Length;
             nameText.text = GetLocalizedValue(minigameNames[index]);
             descriptionText.text = GetLocalizedValue(minigameDescriptions[index]);
             sessionDelegator.minigameName = minigameNames[index];
@@ -57,7 +58,9 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
             resetTimerText.text = GetLocalizedValue("RESETS IN {0}", timeString);
 
             if (timeRemaining.TotalSeconds <= 0) {
-                this.twoDayIntervals = CalculateTwoDayIntervals();
+                previousInterval = this.twoDIM;
+                this.twoDIM = CalculateTwoDayIntervals();
+                
                 SetMiniGameTimer();
 
                 ResetMiniGameData();
@@ -120,6 +123,6 @@ public class MiniGameChooser : MonoBehaviour, IDataPersistence
 
     public void SaveData(ref GameData data)
     {
-        data.twoDayIntervals = this.twoDayIntervals;
+        data.twoDIM = this.twoDIM;
     }
 }

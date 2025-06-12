@@ -100,13 +100,14 @@ public class DataPersistenceManager : MonoBehaviour
             await Task.Yield();
 
         // Make sure cloud save is overwritten too
-        await cloudDelegator.SaveGameDataToCloud();
 
+        cloudDelegator.SaveGameDataToCloud();
+        
         // Still make sure they aren't signing in just in case
         while (cloudDelegator.doingSigninProcess)
             await Task.Yield();
 
-        cloudDelegator.TempSignOut();
+        //cloudDelegator.TempSignOut();
 
         // Restart game
         SceneManager.LoadScene("Loading Screen");
@@ -166,14 +167,6 @@ public class DataPersistenceManager : MonoBehaviour
         // Make sure game data is valid
         if (!dataHandler.gameDataValid) {
             return;
-        }
-
-        try {
-            if (cloudDelegator) {
-                _ = cloudDelegator.SaveGameDataToCloud();
-            }
-        } catch (Exception ex) {
-            Debug.Log("Error when saving to cloud: " + ex);
         }
     }
 
@@ -263,9 +256,19 @@ public class DataPersistenceManager : MonoBehaviour
             this.gameData = gameData;
             return true;
         }
+        
+        // Keep one with highest mine count
+        if (gameData.mineCount > this.gameData.mineCount) {
+            this.gameData = gameData;
+            return true;
+        }
+        if (gameData.mineCount < this.gameData.mineCount) {
+            return false;
+        }
 
-        // Keep one with most XP 
-        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP)) {
+        // Keep one with most XP if mine count is equal
+        if (BigInteger.Parse(gameData.userXP) > BigInteger.Parse(this.gameData.userXP))
+        {
             this.gameData = gameData;
             return true;
         }
@@ -273,7 +276,7 @@ public class DataPersistenceManager : MonoBehaviour
             return false;
         }
 
-        // Keep one with most cash if xp is equal
+        // Keep one with most cash if others are equal
         if (BigInteger.Parse(gameData.userCash) > BigInteger.Parse(this.gameData.userCash)) {
             this.gameData = gameData;
             return true;
@@ -282,7 +285,7 @@ public class DataPersistenceManager : MonoBehaviour
             return false;
         }
 
-        // Keep one with most gems if others all equal
+        // Keep one with most gems if others are equal
         if (BigInteger.Parse(gameData.userGems) > BigInteger.Parse(this.gameData.userGems)) {
             this.gameData = gameData;
             return true;

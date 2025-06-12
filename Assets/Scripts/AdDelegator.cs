@@ -535,7 +535,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             }
 
-            _ = cloudDelegator.AttemptLogIn();
+            cloudDelegator.AttemptLogIn();
             
             displayStatus = true;
             return;

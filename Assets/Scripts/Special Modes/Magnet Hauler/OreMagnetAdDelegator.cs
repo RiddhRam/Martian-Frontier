@@ -386,7 +386,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
             //convertRewardNoWifi.SetActive(false);
             //doubleConvertRewardButton.SetActive(true);
 
-            _ = cloudDelegator.AttemptLogIn();
+            cloudDelegator.AttemptLogIn();
             
             displayStatus = true;
             return;
