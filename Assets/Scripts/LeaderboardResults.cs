@@ -2,15 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using UnityEngine;
 
-public class LeaderboardResults : MonoBehaviour
+public class LeaderboardResults
 {
     // Player leaderboard score
     public BigInteger playerLS;
     private LeaderboardPlayer player;
 
     // IMPORTANT FOR GENERATING LEADERBOARD DATA
+    private DateTime startTime;
     // When the tournament ends (part of seed)
     private DateTime endTime;
     // Unique integer for the user (part of seed) so each user has a different leaderboard, even with the same endTime
@@ -18,7 +18,7 @@ public class LeaderboardResults : MonoBehaviour
     const int averageOresMinedPerRound = 160;
     const int minutesPerRound = 2;
     private const int totalTournamentSeconds = 172_800; // 2 days
-    System.Random rng;
+    Random rng;
 
     // TREAT THIS AS A VERY LARGE ARRAY (thousands of names)
     private readonly string[] botNames = {
@@ -137,50 +137,142 @@ public class LeaderboardResults : MonoBehaviour
         "Oregrinder", "Deepbit", "Voltagrind", "Ironburst", "ShardbX", "Nodeblaster",
         "Bitstrike", "Rocksplit", "Drillblitz", "Nulljaw", "Fraybt", "Orelock",
         "Tunnelthrasher", "QuakeSp1n", "Depthjaw", "Datashard", "Gritpulse", "Burrowburn",
-        "Oreburst", "M1n3sl4sh"
+        "Oreburst", "M1n3sl4sh",
     };
 
-    // The scores
+    // The scores and bot profiles
     static readonly List<LeaderboardPlayer> leaderboardPlayerScores = new();
+    // key: Bot uuid
+    private readonly Dictionary<string, BotProfile> botProfiles = new();
 
     public LeaderboardResults(BigInteger playerLS, DateTime endTime, int uniqueUserInt)
     {
         this.playerLS = playerLS;
         this.endTime = endTime;
-
+        this.startTime = this.endTime.AddSeconds(-totalTournamentSeconds);
         this.uniqueUserInt = uniqueUserInt;
 
         // If it hasn't been set yet, then set it
         if (this.uniqueUserInt == 0)
         {
-            this.uniqueUserInt = new System.Random().Next(1, int.MaxValue);
-
-            PlayerPrefs.SetInt("Unique User ID", this.uniqueUserInt);
+            this.uniqueUserInt = new Random().Next(1, int.MaxValue);
         }
 
-        rng = new((int)(endTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + this.uniqueUserInt);
+        rng = new(GetRNGSeed());
 
         InitializeLeaderboard();
     }
 
     private void InitializeLeaderboard()
     {
-        player = new(playerLS, "You", "Player");
+        // Add player
+        player = new("You", "Player");
+        player.SetScore(playerLS);
         leaderboardPlayerScores.Add(player);
 
+        // Choose 29 unique names
         string[] chosenNames = botNames.OrderBy(_ => rng.Next()).Take(29).ToArray();
 
+        // Add 29 bots
         for (int i = 0; i != chosenNames.Length; i++)
         {
-            LeaderboardPlayer bot = new(100, chosenNames[i], Guid.NewGuid().ToString());
+            LeaderboardPlayer bot = new(chosenNames[i], Guid.NewGuid().ToString());
             leaderboardPlayerScores.Add(bot);
+
+            // Create profile for bot
+            GenerateBotProfile(bot.GetUUID(), i);
         }
+    }
+
+    private void GenerateBotProfile(string botId, int botIndex)
+    {
+        // Use a bot-specific seed derived from the main RNG to make each bot's behavior unique but deterministic.
+        var botRng = new Random(GetRNGSeed() + botIndex);
+        var profile = new BotProfile();
+
+        // Determine bot's overall activity level (e.g., casual vs. hardcore)
+        // This bot will play for somewhere between 0% and 5% (over 2 hours) of the total tournament duration.
+        double playtimeRatio = 0 + botRng.NextDouble() * 0.05;
+        double totalSecondsToPlay = totalTournamentSeconds * playtimeRatio;
+
+        // Determine number of play sessions (2-4)
+        int numSessions = botRng.Next(2, 5);
+        List<double> sessionDurations = new();
+
+        // Distribute total playtime across sessions
+        double remainingPlaytime = totalSecondsToPlay;
+        for (int i = 0; i < numSessions - 1; i++)
+        {
+            // Assign a random portion of the remaining time to the current session
+            double sessionPlaytime = remainingPlaytime * botRng.NextDouble();
+            sessionDurations.Add(sessionPlaytime);
+            remainingPlaytime -= sessionPlaytime;
+        }
+        sessionDurations.Add(remainingPlaytime); // Add the rest to the last session
+
+        // Schedule the sessions randomly within the tournament window
+        foreach (double durationSeconds in sessionDurations)
+        {
+            if (durationSeconds < 1) continue;
+
+            // Pick a random start time for this session
+            int maxStartSecond = totalTournamentSeconds - (int)durationSeconds;
+            int startOffsetSeconds = botRng.Next(0, maxStartSecond);
+
+            DateTime sessionStart = this.startTime.AddSeconds(startOffsetSeconds);
+            DateTime sessionEnd = sessionStart.AddSeconds(durationSeconds);
+
+            profile.Sessions.Add(new Session(sessionStart, sessionEnd));
+        }
+
+        botProfiles[botId] = profile;
     }
 
     public List<LeaderboardPlayer> GetLeaderboardScores()
     {
+        UpdateBotScores(DateTime.UtcNow);
+
         SortBoard();
+
         return leaderboardPlayerScores;
+    }
+
+    private void UpdateBotScores(DateTime currentTime)
+    {
+        // Clamp the current time to the tournament window
+        if (currentTime < startTime) currentTime = startTime;
+        if (currentTime > endTime) currentTime = endTime;
+        
+        const float averageScorePerSecond = averageOresMinedPerRound / (minutesPerRound * 60);
+
+        foreach (var botPlayer in leaderboardPlayerScores)
+        {
+            // Skip the real player
+            if (botPlayer.GetUUID() == "Player") continue;
+
+            if (botProfiles.TryGetValue(botPlayer.GetUUID(), out BotProfile profile))
+            {
+                BigInteger totalScore = 0;
+
+                // Calculate score based on completed session time
+                foreach (var session in profile.Sessions)
+                {
+                    // Find the time window where the session has already occurred
+                    DateTime effectiveStart = session.Start;
+                    DateTime effectiveEnd = session.End < currentTime ? session.End : currentTime;
+
+                    // If the effective time window is valid, calculate the score earned
+                    if (effectiveEnd > effectiveStart)
+                    {
+                        double secondsPlayedInSession = (effectiveEnd - effectiveStart).TotalSeconds;
+                        BigInteger scoreFromSession = (BigInteger)(secondsPlayedInSession * averageScorePerSecond);
+                        totalScore += scoreFromSession;
+                    }
+                }
+
+                botPlayer.SetScore(totalScore);
+            }
+        }
     }
 
     private void SortBoard()
@@ -194,29 +286,38 @@ public class LeaderboardResults : MonoBehaviour
         playerLS += scoreToAdd;
         player.AddScore(scoreToAdd);
     }
+
+    private int GetRNGSeed()
+    {
+        return (int)(endTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).TotalSeconds + this.uniqueUserInt;
+    }
 }
 
 public class LeaderboardPlayer
 {
-    private BigInteger score;
+    private BigInteger score = 0;
     private string playerName;
     private string uuid;
 
-    public LeaderboardPlayer(BigInteger initialScore, string playerName, string uuid)
+    public LeaderboardPlayer(string playerName, string uuid)
     {
-        this.score = initialScore;
         this.playerName = playerName;
         this.uuid = uuid;
     }
 
-    public void AddScore(BigInteger scoreToAdd)
+    public void SetScore(BigInteger newScore)
     {
-        score += scoreToAdd;
+        score = newScore;
     }
 
     public BigInteger GetScore()
     {
         return score;
+    }
+
+    public void AddScore(BigInteger scoreToAdd)
+    {
+        score += scoreToAdd;
     }
 
     public string GetPlayerName()
@@ -231,29 +332,21 @@ public class LeaderboardPlayer
 
 }
 
-// Keep a session’s timetable & score budget
-public class PlaySession
+// Helper class to store a bot's generated play sessions.
+public class BotProfile
 {
-    public DateTime startUtc;
-    public DateTime endUtc;
-    // Points to earn over this session
-    public BigInteger target;          
+    public List<Session> Sessions { get; } = new();
 }
 
-/*
-Populate the leaderboardPlayerScores list with 30 players. Give them each a unique name for botNames (no duplicates), a uuid and an initial score. I will explain how to determine the score in a second.
+// Helper struct to define a single play session time window.
+public struct Session
+{
+    public DateTime Start { get; }
+    public DateTime End { get; }
 
-One of these players should be the player themselves. Set the player's uuid to be "Player", and their initial score to be 0. Then order the list from highest score to lowest.
-
-The scores should be calculated by using averageOresMinedPerRound and minutesPerRound, and a float: randomNumberOfMinutes, for each player. Basically generate a random float of minutes the player plays, and use the average number of ores mined and minutes per round to determine their score.
-
-A tricky part is this: the scores should change as endTime - DateTime.UtcNow gets lower. Basically the closer the tournament is to ending, the higher the scores should go. And they should not go up linearly.
-
-You should treat it as players playing throughout multiple sessions. 2-4 sessions for each player, over two days. endTime - DateTime.UtcNow returns an integer from 0 - 172800 because the tournament is 2 days long.
-
-I reccommend you calculate the final score of the player first, then treat it as them earning the score equally throughout each of their sessions. If they have a score of 6k and player 3 session, then they have 2k after each session. 
-
-The sessions should be timed randomly throughout the 2 days. Also the score should not popup at once. Throughout each session, the scores should slowly change every 30 seconds. 
-
-For example, you should not see a huge spike in a score. The score should slowly rise over several minutes until that session is over, then it stops until the next session or the touranment ends.
-*/
+    public Session(DateTime start, DateTime end)
+    {
+        Start = start;
+        End = end;
+    }
+}

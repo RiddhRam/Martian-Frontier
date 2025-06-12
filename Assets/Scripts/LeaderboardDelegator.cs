@@ -256,6 +256,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                 if (oreLeaderboardScores[i].GetUUID() == "Player")
                 {
                     orePlayerScoreImages[playerBarCounter].color = new(255 / 255f, 204 / 255f, 0 / 255f);
+                    orePlayerNameTextMeshes[playerBarCounter].text = PlayerPrefs.GetString("PlayerName");
                 }
                 else
                 {
