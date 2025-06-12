@@ -38,17 +38,20 @@ public class GameData
     public int superChallengeTimer;
     public string userGems;
     public string gemsEarned;
-    // Actually current blocks mined, not ores
+    // Current blocks mined, not ores
     public int currentOresMined;
     public long gemRewardsToCollect;
+
     public int tutorialScreenIndex;
 
+    // For vehicle upgrade bay
     public SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
     public int cratesAvailable;
     public int progressToNextCrate;
+
     public string currentCoopVehicle;
 
     public int cooldownTimer;
@@ -56,6 +59,9 @@ public class GameData
     public SerializableDictionary<string, int> powerUpgradeLevels;
     // The number of powers unlocked by the player
     public int powersUnlocked;
+
+    // The ores that the player has discovered so far in the current mine
+    public List<string> discoveredOres;
 
     // Player leaderboard score
     public string playerLS;
@@ -143,6 +149,8 @@ public class GameData
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
         this.powersUnlocked = 1;
+
+        this.discoveredOres = new();
 
         this.playerLS = "0";
         this.uniqueUserInt = 0;

@@ -23,7 +23,6 @@ public class DataPersistenceManager : MonoBehaviour
 
     [Header("File Storage Config")]
     public string fileName;
-    private CloudDelegator cloudDelegator;
     private bool useEncryption = true;
 
     private GameData gameData = new();
@@ -45,8 +44,6 @@ public class DataPersistenceManager : MonoBehaviour
     private bool gameLoaded = false;
 
     private void Awake() {
-
-        cloudDelegator = CloudDelegator.Instance;
 
         // Don't encrypt when using the editor, for debugging purposes
         if (Application.isEditor) {
@@ -96,18 +93,16 @@ public class DataPersistenceManager : MonoBehaviour
         DirectlyWriteSave();
 
         // Make sure player isn't signing in
-        while (cloudDelegator.doingSigninProcess)
+        while (CloudDelegator.Instance.doingSigninProcess)
             await Task.Yield();
 
         // Make sure cloud save is overwritten too
 
-        cloudDelegator.SaveGameDataToCloud();
+        CloudDelegator.Instance.SaveGameDataToCloud();
         
         // Still make sure they aren't signing in just in case
-        while (cloudDelegator.doingSigninProcess)
+        while (CloudDelegator.Instance.doingSigninProcess)
             await Task.Yield();
-
-        //cloudDelegator.TempSignOut();
 
         // Restart game
         SceneManager.LoadScene("Loading Screen");

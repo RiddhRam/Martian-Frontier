@@ -18,7 +18,6 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI[] crateDisplays;
     public UIDelegation uIDelegation;
     public PlayerState playerState;
-    private AnalyticsDelegator analyticsDelegator;
     public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
     public TextMeshProUGUI crateExtractionPercentageText;
@@ -30,7 +29,6 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI blocksNeededMiniBarText;
     public TextMeshProUGUI blocksNeededMainBarText;
 
-    private AudioDelegator audioDelegator;
     public AudioClip crateUnlockSoundEffect;
     public AudioSource UISoundEffects;
 
@@ -47,12 +45,6 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     private readonly int blocksNeededToDestroy = 5000;
 
     public bool adWatchedAlready = false;
-
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     public void UpdateBlocksNeededBars() {
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
@@ -139,7 +131,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         float elapsed = 0f;
         float extractionProgress;
 
-        audioDelegator.PlayAudio(UISoundEffects, crateUnlockSoundEffect, 1);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, crateUnlockSoundEffect, 1);
 
         while (elapsed < duration)
         {
@@ -172,14 +164,14 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
             cashRewardAmount *= cratesAvailable;
             gemRewardAmount *= cratesAvailable;
             try {
-                analyticsDelegator.OpenCrate(true, cratesAvailable);
+                AnalyticsDelegator.Instance.OpenCrate(true, cratesAvailable);
             } catch {
             }
 
             UpdateCrateCount(0);
         } else {
             try {
-                analyticsDelegator.OpenCrate(false, 1);
+                AnalyticsDelegator.Instance.OpenCrate(false, 1);
             } catch {
             }
 

@@ -4,13 +4,7 @@ public class GamemodePad : MonoBehaviour
 {
     [SerializeField] UIDelegation uIDelegation;
     [SerializeField] TutorialManager tutorialManager;
-    JoystickMovement joystickMovement;
     [SerializeField] GameObject gamemodeScreen;
-
-    void Awake()
-    {
-        joystickMovement = JoystickMovement.Instance;
-    }
 
     void OnTriggerEnter2D(Collider2D collision) {
 
@@ -34,6 +28,6 @@ public class GamemodePad : MonoBehaviour
         uIDelegation.RevealElement(gamemodeScreen);
 
         // Stops player from moving
-        joystickMovement.joystickVec = new();
+        JoystickMovement.Instance.joystickVec = new();
     }
 }

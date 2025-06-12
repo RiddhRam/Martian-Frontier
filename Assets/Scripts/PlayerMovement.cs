@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     public Transform mainCamera;
     public Transform uiCamera;
     public PlayerState playerState;
-    public JoystickMovement joystickMovement;
     public TextMeshProUGUI depthTracker;
     public bool stopMoving;
 
@@ -46,11 +45,6 @@ public class PlayerMovement : MonoBehaviour
     private Coroutine floatingTextCoroutine;
     const float fadeDuration = 0.5f;
 
-    void Awake()
-    {
-        joystickMovement = JoystickMovement.Instance;
-    }
-
     // Start is called before the first frame update
     void Start()
     {
@@ -77,7 +71,7 @@ public class PlayerMovement : MonoBehaviour
         MoveCamera();
         UpdateDepth();
 
-        joystickVec = joystickMovement.joystickVec;
+        joystickVec = JoystickMovement.Instance.joystickVec;
 
         // Make sure vehicle is trying to move
         if (stopMoving || (joystickVec.x == 0 && joystickVec.y == 0)) {

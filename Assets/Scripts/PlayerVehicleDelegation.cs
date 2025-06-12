@@ -15,8 +15,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private float loadRotate;
 
     [Header("Other Scripts")]
-    private AdDelegator adDelegator;
-    private AnalyticsDelegator analyticsDelegator;
     public NPCManager nPCManager;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
     public RefineryUpgradePad refineryUpgradePad;
@@ -34,13 +32,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     [SerializeField] private Slider slider;
     static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
     [SerializeField] private TextMeshProUGUI sliderText;
-    
-
-    void Awake()
-    {
-        adDelegator = AdDelegator.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     public void SwitchVehicle(GameObject newVehicle) {
 
@@ -104,7 +95,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
         }
        
-        analyticsDelegator.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
+        AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
     public void LoadData(GameData data)
@@ -241,8 +232,8 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             playerSpeed *= speedBoostAmount;
         }
 
-        if (adDelegator.speedBoostActive) {   
-            adDelegator.originalSpeed = playerSpeed;
+        if (AdDelegator.Instance.speedBoostActive) {   
+            AdDelegator.Instance.originalSpeed = playerSpeed;
             
             playerSpeed *= 1.5f;
         }

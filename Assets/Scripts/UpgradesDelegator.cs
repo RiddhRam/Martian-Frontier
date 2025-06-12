@@ -25,7 +25,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private Button unlockPowerButton;
 
 
-    private AudioDelegator audioDelegator;
     [SerializeField] private AudioSource powerUpAudioSource;
     [SerializeField] private AudioClip[] powerUpAudioClips;
     [SerializeField] private float[] audioVolumes;
@@ -35,7 +34,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private Sprite[] powerIconsWhite;
 
     private OreDelegation oreDelegation;
-    private AnalyticsDelegator analyticsDelegator;
 
     readonly HashSet<Vector2Int> tilesToDestroy = new();
     readonly HashSet<Vector2Int> tilesToReveal = new();
@@ -93,12 +91,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         110000
     };
 
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
-
     void Start()
     {
         oreDelegation = mineRenderer.oreDelegation;
@@ -113,7 +105,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         foreach (var power in powers) {
             if (power.Name == equippedPowers[0]) {
                 power.ActivatePower();
-                analyticsDelegator.UsePower(power.Name);
+                AnalyticsDelegator.Instance.UsePower(power.Name);
                 break;
             }
         }
@@ -140,7 +132,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         mineRenderer.RevealTiles(tilesToReveal);
         
-        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[0], audioVolumes[0]);
+        AudioDelegator.Instance.PlayAudio(powerUpAudioSource, powerUpAudioClips[0], audioVolumes[0]);
         
         StartCoroutine(StartCooldownTimer(cooldown));
     }
@@ -287,7 +279,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         tileWorldPositions.Clear();
         tileBasesToDestroy.Clear();
 
-        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[1], audioVolumes[1]);
+        AudioDelegator.Instance.PlayAudio(powerUpAudioSource, powerUpAudioClips[1], audioVolumes[1]);
         StartCoroutine(StartCooldownTimer(cooldown));
     }
 
@@ -333,7 +325,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         uIDelegation.RevealAll();
         uIDelegation.ToggleCamera();
 
-        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClips[2], audioVolumes[2]);
+        AudioDelegator.Instance.PlayAudio(powerUpAudioSource, powerUpAudioClips[2], audioVolumes[2]);
         StartCoroutine(StartCooldownTimer(cooldown));
     }
 
@@ -364,7 +356,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
         powers[powerIndex].UpdatePower();
 
-        analyticsDelegator.TechLabUpgrade(powerName);
+        AnalyticsDelegator.Instance.TechLabUpgrade(powerName);
     }
 
     public void UpdateRadar() {
@@ -432,7 +424,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         equippedPowers.Add(powers[powerIndex].Name);
 
         try {
-            analyticsDelegator.EquipPower(powers[powerIndex].Name);
+            AnalyticsDelegator.Instance.EquipPower(powers[powerIndex].Name);
         } catch {
 
         }

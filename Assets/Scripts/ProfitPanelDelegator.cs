@@ -9,7 +9,6 @@ public class ProfitPanelDelegator : MonoBehaviour
     public GameObject boostButton;
     public GameObject boostPanel;
     private RefineryController refineryController;
-    private AdDelegator adDelegator;
     public TextMeshProUGUI boostText;
     public TextMeshProUGUI adBoostText;
     public TextMeshProUGUI adBoostTimer;
@@ -18,11 +17,6 @@ public class ProfitPanelDelegator : MonoBehaviour
     private string activePanel = "Ores";
 
     private int timer = 50;
-
-    void Awake()
-    {
-        adDelegator = AdDelegator.Instance;
-    }
     
     void Start() {
         
@@ -41,8 +35,8 @@ public class ProfitPanelDelegator : MonoBehaviour
         boostText.text = refineryController.GetTotalProfitMultiplier().ToString() + "x";
         adBoostText.text = refineryController.GetProfitMultiplier().ToString() + "x";
 
-        if (adDelegator.rewardAdTimerText) {
-            string totalTime =  adDelegator.rewardAdTimerText.text;
+        if (AdDelegator.Instance.rewardAdTimerText) {
+            string totalTime = AdDelegator.Instance.rewardAdTimerText.text;
 
             if (totalTime == "0:00") {
                 adBoostTimer.text = "";

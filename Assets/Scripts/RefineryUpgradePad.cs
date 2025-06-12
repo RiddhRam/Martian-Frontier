@@ -11,8 +11,6 @@ public class RefineryUpgradePad : MonoBehaviour
     [SerializeField] UIDelegation uIDelegation;
     [SerializeField] OreDelegation oreDelegation;
     public PlayerState playerState;
-    JoystickMovement joystickMovement;
-    [SerializeField] AudioDelegator audioDelegator;
     public MineRenderer mineRenderer;
 
     [Header("Audio")]
@@ -55,8 +53,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
     void Awake()
     {
-        joystickMovement = JoystickMovement.Instance;
-
         // Store this for reference later
         int[] materialPrices = oreDelegation.GetOriginalMaterialPrices();
         originalMaterialPrices = new long[materialPrices.Length];
@@ -90,7 +86,7 @@ public class RefineryUpgradePad : MonoBehaviour
         uIDelegation.RevealElement(refineryScreen);
 
         // Stops player from moving
-        joystickMovement.joystickVec = new();
+        JoystickMovement.Instance.joystickVec = new();
     }
 
     public void SwitchTabs(string newTab)
@@ -288,7 +284,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         CheckIfProceedAvailable();
 
-        audioDelegator.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
+        AudioDelegator.Instance.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
 
         AnalyticsDelegator.Instance.OreUpgrade(mineRenderer.selectedMaterialNames[oreIndex], newLevel, mineRenderer.mineCount);
         

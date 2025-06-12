@@ -27,9 +27,6 @@ public class OreMagnetAdDelegator : MonoBehaviour
 
     private int magnetHaulerAdTimer = 0;
 
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
-    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public OreMagnetRoundManager oreMagnetRoundManager;
     public UIDelegation uIDelegation;
@@ -42,13 +39,6 @@ public class OreMagnetAdDelegator : MonoBehaviour
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool adShowing = false;
-
-    void Awake()
-    {
-        cloudDelegator = CloudDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -216,7 +206,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
         // If user watched an ad in the last 30 seconds or first time playing
         if (lastAdShown >= DateTime.Now.AddSeconds(-90)) {
             RewardBoost();
-            dataPersistenceManager.SaveGame();
+            DataPersistenceManager.Instance.SaveGame();
             return;
         }
 
@@ -229,7 +219,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
                 adShowing = false;
                 lastAdShown = DateTime.Now;
                 RewardBoost();
-                dataPersistenceManager.SaveGame();
+                DataPersistenceManager.Instance.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
 
@@ -242,7 +232,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
         StartCoroutine(UseCustomAdScreen(() => RewardBoost()));
 
         lastAdShown = DateTime.Now;
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void ShowConvertRewardedAd() {
@@ -283,7 +273,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
 
-        analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
+        AnalyticsDelegator.Instance.PurchaseCreditsWithGems(gemCount * 2);
     }
 
     private void ConvertRewardSuccess() {
@@ -386,7 +376,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
             //convertRewardNoWifi.SetActive(false);
             //doubleConvertRewardButton.SetActive(true);
 
-            cloudDelegator.AttemptLogIn();
+            CloudDelegator.Instance.AttemptLogIn();
             
             displayStatus = true;
             return;
@@ -420,7 +410,7 @@ public class OreMagnetAdDelegator : MonoBehaviour
     }
 
     private void LogAnalytics(string analyticToLog) {
-        analyticsDelegator.AdWatchAttempt(analyticToLog);
+        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog);
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {

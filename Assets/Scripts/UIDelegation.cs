@@ -20,13 +20,7 @@ public class UIDelegation : MonoBehaviour
     public GameObject errorMessage;
 
     private GameCameraController mainCameraController;
-    private AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
-
-    void Awake()
-    {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     void Start()
     {
@@ -65,7 +59,7 @@ public class UIDelegation : MonoBehaviour
     public void RevealElement(GameObject element) {
         element.SetActive(true);
         mainCameraController.ToggleZooming(false);
-        analyticsDelegator.OpenUIPanel(element.name);
+        AnalyticsDelegator.Instance.OpenUIPanel(element.name);
     }
 
     // Used when closing a secondary element
@@ -114,7 +108,7 @@ public class UIDelegation : MonoBehaviour
         errorInstance.transform.SetParent(transform, false);
         errorInstance.transform.localPosition = new(0, 400 ,0);
 
-        analyticsDelegator.ShowError(error);
+        AnalyticsDelegator.Instance.ShowError(error);
     }
 
     private string GetLocalizedValue(string key, params object[] args)

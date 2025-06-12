@@ -7,7 +7,6 @@ public class DrillerController : MonoBehaviour
 {
     private int radius;
     private MineRenderer mineRenderer;
-    private JoystickMovement joystickMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
     [SerializeField]
     private float playerSpeed;
@@ -34,7 +33,6 @@ public class DrillerController : MonoBehaviour
     // Same thing as the error counter, but with an actual timer
     private DateTime audioTimer = DateTime.Now;
     private int lastAudioUsed = -1;
-    private AudioDelegator audioDelegator;
     private UIDelegation uiDelegation;
     private BoxCollider2D boxCollider2D;
     private Vector2 size;
@@ -72,10 +70,8 @@ public class DrillerController : MonoBehaviour
         radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
         // DO NOT CHANGE THIS UNLESS DRILLER PREFAB STRUCTURE OR PLAYER STRUCTURE CHANGES
-        try {
-            joystickMovement = transform.parent.parent.GetComponent<PlayerMovement>().joystickMovement;
-        } catch {
-            // if failed, then its not the local main player
+        if (transform.parent.parent.name != "Player Vehicle")
+        {
             isNPC = true;
             return;
         }
@@ -83,7 +79,6 @@ public class DrillerController : MonoBehaviour
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
-        audioDelegator = AudioDelegator.Instance;
         uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
     }
 
@@ -134,7 +129,7 @@ public class DrillerController : MonoBehaviour
                 if (minedSomething) {
                     mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2, true);
 
-                    if (!isNPC && joystickMovement && joystickMovement.joystickVec != Vector2.zero) {
+                    if (!isNPC && JoystickMovement.Instance.joystickVec != Vector2.zero) {
                         PlayAudio();
                     }
                 }
@@ -265,7 +260,7 @@ public class DrillerController : MonoBehaviour
 
         lastAudioUsed = randomIndex;
 
-        audioDelegator.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
+        AudioDelegator.Instance.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
     }

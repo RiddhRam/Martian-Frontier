@@ -62,20 +62,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int mineCount;
     private SerializableDictionary<string, int> oreUpgrades;
 
+    private List<string> discoveredOres;
+
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
     public int[] oresPerTier = new int[3];
 
     [Header("Scripts")]
-    private LoadingScreen loadingScreen;
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
     public OreDelegation oreDelegation;
-    private DailyChallengeDelegator dailyChallengeDelegator;
     public UpgradesDelegator upgradesDelegator;
     public RefineryController refineryController;
     public RefineryUpgradePad refineryUpgradePad;
-    private AudioDelegator audioDelegator;
 
     private Dictionary<string, int> quantities = new();
 
@@ -169,12 +166,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     void Awake()
     {
-        loadingScreen = LoadingScreen.Instance;
-        dailyChallengeDelegator = DailyChallengeDelegator.Instance;
-        audioDelegator = AudioDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
         totalColumns = mapHalfLength * 2 / gridSize.x;
         totalRowsForFunc = totalRows - 1;
         totalColumnsForFunc = totalColumns - 1;
@@ -307,7 +298,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         mineInitialization = 2;
         SaveGame();
 
-        analyticsDelegator.InitializeMine(highestRow);
+        AnalyticsDelegator.Instance.InitializeMine(highestRow);
     }
 
     // Places tiles in a 25x12 rectangle, starting from (-mapHalfLength, -5) and going to the right and downward
@@ -788,7 +779,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // If not from an npc
             if (!isNPC) {
                 playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
-                dailyChallengeDelegator.MinedOres(quantities);
+                DailyChallengeDelegator.Instance.MinedOres(quantities);
             }
 
             if (oresMined > 0 && playAudio) {
@@ -797,14 +788,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 const float volume = 0.75f;
                 if (timeSinceLastMine >= 0.4f) {
                     // Play ore pick up audio
-                    StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
+                    StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
                     
                     lastOreMinedTime = Time.time;
                 } 
                 // If audio is fading out or faded out already, then skip the 0.4s timer, and play right away
-                else if (audioDelegator.audioTimer <= 0f) {
+                else if (AudioDelegator.Instance.audioTimer <= 0f) {
                     // Play ore pick up audio
-                    StartCoroutine(audioDelegator.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
+                    StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
                     
                     lastOreMinedTime= Time.time;
                 }
@@ -991,12 +982,12 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         seedInUse = this.seed;
 
         InitializeMine();
-        dailyChallengeDelegator.Initialize();
+        DailyChallengeDelegator.Instance.Initialize();
 
         coopMineLoaded = true;
 
         try {
-            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
+            StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
         } catch {
         }
     }
@@ -1079,14 +1070,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Initialize everything else
         refineryUpgradePad.oreUpgrades = data.oreUpgrades;
         refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
-        dailyChallengeDelegator.Initialize();
+        DailyChallengeDelegator.Instance.Initialize();
         
         if (currentCloudLoadState == cloudLoading)
         {
             cloudLoading = true;
             try
             {
-                StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
+                StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
             }
             catch
             {
@@ -1138,11 +1129,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     private void SaveGame() {
-        if (!dataPersistenceManager) {
+        if (!DataPersistenceManager.Instance) {
             return;
         }
 
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public int GetTileTier(TileBase tileToIdentify) {

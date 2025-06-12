@@ -33,7 +33,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject superChallengeTimerTextGO;
 
     private System.Random rng;
-    private AnalyticsDelegator analyticsDelegator;
     private TextMeshProUGUI dailyTimerText;
     public MineRenderer mineRenderer;
     public PlayerState playerState;
@@ -84,7 +83,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     }
 
     void Awake() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
 
         for (int i = 0; i != challengeButtons.Length; i++) {
@@ -317,7 +315,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         playerState.AddGems((long) rewardAmounts[challengeIndex]);
         DisableChallengeButton(challengeIndex);
         challengeProgress[5]++;
-        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
+        AnalyticsDelegator.Instance.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
@@ -368,7 +366,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
-        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
+        AnalyticsDelegator.Instance.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -405,7 +403,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
         } else {
             // If successfully completed then log how long it took
-            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
+            AnalyticsDelegator.Instance.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";

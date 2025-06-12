@@ -68,8 +68,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             new int[] {64_000, 50_000, 40_000, 32_000, 24_000, 20_000, 20_000, 20_000, 16_000, 16_000}
             };
     
-    // DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc)
-    private static readonly DateTime resetDate = new DateTime(1970, 1, 2, 21, 1, 0, DateTimeKind.Utc); // Start at 12:00 PM UTC on Epoch
+    private static readonly DateTime resetDate = new DateTime(1970, 1, 1, 12, 0, 0, DateTimeKind.Utc); // Start at 12:00 PM UTC on Epoch
 
     LeaderboardResults oreLeaderboardResultsPage;
     List<LeaderboardPlayer> oreLeaderboardScores;

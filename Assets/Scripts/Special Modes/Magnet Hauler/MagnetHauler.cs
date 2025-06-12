@@ -18,7 +18,6 @@ public class MagnetHauler : MonoBehaviour
 
     private AudioSource vehicleSoundEffects;
     private AudioClip orePickUpSoundEffect;
-    private AudioDelegator audioDelegator;
 
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
@@ -26,11 +25,6 @@ public class MagnetHauler : MonoBehaviour
     [SerializeField] private Color lineRendererColor;
     [SerializeField] private Material defaultMaterial;
     readonly float multplier = 360f / 50;
-
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-    }
 
     void Start() {
         lineRenderer = GetComponent<LineRenderer>();
@@ -162,7 +156,7 @@ public class MagnetHauler : MonoBehaviour
     }
    
     private void PlayAudio() {
-        audioDelegator.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.3f);
+        AudioDelegator.Instance.PlayAudio(vehicleSoundEffects, orePickUpSoundEffect, 0.3f);
     }
 
 }

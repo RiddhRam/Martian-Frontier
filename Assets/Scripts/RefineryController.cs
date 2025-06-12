@@ -38,10 +38,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     public Transform largeFogOfWar;
 
-    private AudioDelegator audioDelegator;
-    private DataPersistenceManager dataPersistenceManager;
     public GameObject playerVehicle;
-    private AnalyticsDelegator analyticsDelegator;
     public MineRenderer mineRenderer;
     public TutorialManager tutorialManager;
     public NPCManager nPCManager;
@@ -51,7 +48,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
-    private AdDelegator adDelegator;
 
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
@@ -59,13 +55,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
-
-    void Awake() {
-        adDelegator = AdDelegator.Instance;
-        audioDelegator = AudioDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     void OnTriggerEnter2D(Collider2D collision)
     {
@@ -149,15 +138,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             askedForReview = true;
             askForReviewScreen.SetActive(true);
             
-            analyticsDelegator.ContinuedAfterTutorial();
+            AnalyticsDelegator.Instance.ContinuedAfterTutorial();
 
         } else if (askedForReview) {
             Destroy(askForReviewScreen);
         }
 
         // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
-        if (adDelegator.lobbyAdDisplay) {
-            StartCoroutine(adDelegator.TryShowLobbyReward(cashMadeThisMine));
+        if (AdDelegator.Instance.lobbyAdDisplay) {
+            StartCoroutine(AdDelegator.Instance.TryShowLobbyReward(cashMadeThisMine));
         }
 
         playerState.UpdateHighestMined(cashMadeThisMine);
@@ -217,7 +206,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
 
-        audioDelegator.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
 
         while (elapsed < duration)
         {
@@ -299,7 +288,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     public void PlaySaleNoise() {
-        audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
+        AudioDelegator.Instance.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     public int GetRefineryTimer() {
@@ -363,7 +352,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     }
 
     private void SaveGame() {
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void SetProfitMultiplier(float newMultiplier) {

@@ -18,7 +18,6 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject superChallengeTimerTextGO;
 
     private System.Random rng;
-    private AnalyticsDelegator analyticsDelegator;
 
     public PlayerState playerState;
 
@@ -76,9 +75,6 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
     }
 
     void Initialize() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-
-
         GenerateChallenges(true);
     }
 
@@ -216,14 +212,14 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
-        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
+        AnalyticsDelegator.Instance.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
-        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
+        AnalyticsDelegator.Instance.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -253,7 +249,7 @@ public class OreBlasterDailyChallengeDelegator : MonoBehaviour, IDataPersistence
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
         } else {
             // If successfully completed then log how long it took
-            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
+            AnalyticsDelegator.Instance.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";

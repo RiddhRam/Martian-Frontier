@@ -30,9 +30,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private List<string> vehiclesOwned = new();
 
     [SerializeField] private RefineryController refineryController;
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
-    private LeaderboardDelegator leaderboardDelegator;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
 
@@ -59,9 +56,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     const int miningSaveInterval = 100;
 
     void Awake() {
-        leaderboardDelegator = LeaderboardDelegator.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
         
         // Credits are used for special game modes
         if (creditDisplays.Length > 0) {
@@ -104,7 +98,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             miningCount = 0;
         }
 
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void AddGems(long gemsToAdd) {
@@ -113,7 +107,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         gemsEarned += gemsToAdd;
 
         UpdateGemDisplays();
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void AddGems(int gemsToAdd) {
@@ -123,14 +117,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         gemsEarned += gemsToAdd;
 
         UpdateGemDisplays();
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void AddCredits(int creditsToAdd) {        
         userCredits += creditsToAdd;
 
         UpdateCreditDisplays();
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     // Validate again and subtract cash
@@ -158,8 +152,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             
             vehiclesOwned.Add(objectBeingPurchased.name);
 
-            dataPersistenceManager.SaveGame();
-            analyticsDelegator.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
+            DataPersistenceManager.Instance.SaveGame();
+            AnalyticsDelegator.Instance.PurchaseVehicle(objectBeingPurchased.name, vehicleType, tier);
         }
 
         UpdateCashDisplays();
@@ -183,14 +177,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         userCredits -= amountToSubtract;
         UpdateCreditDisplays();
 
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void ResetCredits() {
         userCredits = 0;
         UpdateCreditDisplays();
 
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void UpdateHighestMined(double newMineAmount) {
@@ -273,7 +267,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         materialsSold++;
 
         if (!isNPC) {
-            leaderboardDelegator.AddOreScore(amount);
+            LeaderboardDelegator.Instance.AddOreScore(amount);
         }
     }
 
@@ -426,7 +420,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         if (data.vehiclesOwned.Contains("STUBBY")) {
             // Set this so we know when the game restarts
             PlayerPrefs.SetInt("Beta", 200);
-            dataPersistenceManager.ResetBetaPlayer();
+            DataPersistenceManager.Instance.ResetBetaPlayer();
             return;
         }
 
@@ -511,8 +505,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void RewardPlayerWithGems(int amount, string message = null) {
 
-        leaderboardDelegator.gemRewardsToCollect += amount;
-        leaderboardDelegator.CheckForRewards(message);
+        LeaderboardDelegator.Instance.gemRewardsToCollect += amount;
+        LeaderboardDelegator.Instance.CheckForRewards(message);
     }
 
     public BigInteger GetUserGems() {
@@ -542,7 +536,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public void ProceedToNextMine()
     {
         // Get game data ref
-        ref GameData data = ref dataPersistenceManager.GetGameDataRef();
+        ref GameData data = ref DataPersistenceManager.Instance.GetGameDataRef();
         GameData newGameData = new();
 
         // Modify it directly and then save without calling on other scripts
@@ -561,13 +555,14 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.vehicleUpgradeLevels = newGameData.vehicleUpgradeLevels;
         data.oreUpgrades = newGameData.oreUpgrades;
 
+        data.discoveredOres = newGameData.discoveredOres;
+
         data.userCash = newGameData.userCash;
 
         data.cooldownTimer = newGameData.cooldownTimer;
 
         // Save and reload
-        dataPersistenceManager.DirectlyWriteSave();
-        //CloudDelegator.Instance.TempSignOut();
+        DataPersistenceManager.Instance.DirectlyWriteSave();
         
         AnalyticsDelegator.Instance.Rebirth(data.mineCount);
 
@@ -580,7 +575,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     {
         userCash += freeMoneyToAdd;
         UpdateCashDisplays();
-        analyticsDelegator.TestEvent("Just testing");
+        AnalyticsDelegator.Instance.TestEvent("Just testing");
     }
 
     public void FreeMoneyUpdate() {

@@ -8,7 +8,6 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
 {
     public PlayerState playerState;
     public UIDelegation uIDelegation;
-    private AnalyticsDelegator analyticsDelegator;
     public SupplyCrateDelegator supplyCrateDelegator;
     
     private IStoreController storeController;
@@ -16,10 +15,6 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
     public BundleIAPPanel[] bundleIAPPanels;
     public TextMeshProUGUI[] priceTexts;
     public GameObject thankYouScreen;
-
-    void Awake() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     void Start() {
         var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
@@ -46,7 +41,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         playerState.AddCash((long) gemCashPurchasePanel.cashAmount);
         playerState.SubtractGems(gemCashPurchasePanel.gemPrice);
 
-        analyticsDelegator.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
+        AnalyticsDelegator.Instance.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
     }
 
     public void PurchaseGemProduct(string productId) {
@@ -125,9 +120,8 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
                     Debug.Log("Added " + gemReward + " gems to player");
                 }
                 
-                
                 // Log analytics
-                analyticsDelegator.IAPPurchase(productId);
+                AnalyticsDelegator.Instance.IAPPurchase(productId);
                 
                 // Show confirmation if UI delegation is available
                 thankYouScreen.SetActive(true);
@@ -159,7 +153,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
                 // Example: bundle.specialItemReward, etc.
                 
                 // Log analytics
-                analyticsDelegator.IAPPurchase(productId);
+                AnalyticsDelegator.Instance.IAPPurchase(productId);
                 
                 // Show confirmation if UI delegation is available
                 thankYouScreen.SetActive(true);

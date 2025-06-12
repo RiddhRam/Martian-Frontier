@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
-    private AnalyticsDelegator analyticsDelegator;
     public PlayerState playerState;
     public PlayerMovement playerMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -38,11 +37,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private Coroutine arrowAnimation;
 
-    void Awake()
-    {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
-
     private IEnumerator DisplayTutorial()
     {
         ResetMine.SetActive(false);
@@ -54,7 +48,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         {
             Debug.Log(tutorialScreenIndex);
             
-            analyticsDelegator.TutorialStep(tutorialScreenIndex);
+            AnalyticsDelegator.Instance.TutorialStep(tutorialScreenIndex);
 
             // Load mine
             if (tutorialScreenIndex == 0)
@@ -294,7 +288,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Reset mine
             refineryController.CallResetMineFromButton();
 
-            analyticsDelegator.FinishTutorial();
+            AnalyticsDelegator.Instance.FinishTutorial();
         } catch (Exception ex) {  
             Debug.Log(ex.Message);
         }
@@ -387,7 +381,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         if (tutorialScreenIndex == 0) {
-            analyticsDelegator.StartTutorial();
+            AnalyticsDelegator.Instance.StartTutorial();
         }
     
         StartCoroutine(DisplayTutorial());
@@ -401,7 +395,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element) {
         element.SetActive(true);
-        analyticsDelegator.OpenTutorialUIPanel(element.name);
+        AnalyticsDelegator.Instance.OpenTutorialUIPanel(element.name);
     }
 
     // Used when closing a secondary element

@@ -6,17 +6,10 @@ public class ExplosiveChargeProjectile : MonoBehaviour
     [SerializeField] private OreBlaster oreBlaster;
     [SerializeField] private ExplosionController explosionController;
 
-
-    private AudioDelegator audioDelegator;
     [SerializeField] private AudioSource powerUpAudioSource;
     [SerializeField] private AudioClip powerUpAudioClip;
 
     private Rigidbody2D rb;
-
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-    }
 
     void OnEnable()
     {
@@ -38,7 +31,7 @@ public class ExplosiveChargeProjectile : MonoBehaviour
         explosionController.transform.position = transform.position;
         explosionController.SetupAndTrigger(oreBlaster.destroyRadius);
 
-        audioDelegator.PlayAudio(powerUpAudioSource, powerUpAudioClip, 1f);
+        AudioDelegator.Instance.PlayAudio(powerUpAudioSource, powerUpAudioClip, 1f);
         
         // Destroy ores
         oreBlaster.BlastOres();

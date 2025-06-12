@@ -19,15 +19,7 @@ public class SettingsDelegator : MonoBehaviour
 
     private bool musicEnabled;
     private bool soundFXEnabled;
-    private AudioDelegator audioDelegator;
-    private AnalyticsDelegator analyticsDelegator;
     [SerializeField] private UpgradesDelegator upgradesDelegator;
-
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     // FOR BOOLEANS (toggles), 0 = false, 1 = true
     void Start()
@@ -64,11 +56,11 @@ public class SettingsDelegator : MonoBehaviour
 
         musicEnabled = GetPlayerPrefBool("Music");
         UpdateToggleColors(musicToggle.GetComponent<Toggle>(), musicEnabled);
-        audioDelegator.UpdateMusicVolume(musicEnabled);
+        AudioDelegator.Instance.UpdateMusicVolume(musicEnabled);
 
         soundFXEnabled = GetPlayerPrefBool("SoundFX");
         UpdateToggleColors(soundFXToggle.GetComponent<Toggle>(), soundFXEnabled);
-        audioDelegator.soundFXEnabled = soundFXEnabled;
+        AudioDelegator.Instance.soundFXEnabled = soundFXEnabled;
     }
 
     private void UpdateToggleColors(Toggle toggle, bool value) {
@@ -145,7 +137,7 @@ public class SettingsDelegator : MonoBehaviour
             upgradesDelegator.UpdateAllPowerPanels();
         }
 
-        analyticsDelegator.SelectLanguage(language);
+        AnalyticsDelegator.Instance.SelectLanguage(language);
         PlayerPrefs.SetString("Language", language); // Save the selected language
     }
 

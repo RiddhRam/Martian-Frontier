@@ -5,24 +5,14 @@ using UnityEngine.UI;
 
 public class SessionDelegator : MonoBehaviour
 {
-    private DataPersistenceManager dataPersistenceManager;
-    private CloudDelegator cloudDelegator;
     [SerializeField] private TutorialManager tutorialManager;
     [SerializeField] private GameObject lockedUntilDoneTutorial;
     [SerializeField] private GameObject loadingScreen;
-    private AnalyticsDelegator analyticsDelegator;
 
     public string minigameName;
 
     public Image teamButtonImage;
     public Image minigameButtonImage;
-
-    void Awake()
-    {
-        cloudDelegator = CloudDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     void Start()
     {
@@ -51,8 +41,8 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.transform.GetChild(2).GetComponent<Slider>().value = 0;
         loadingScreen.SetActive(true);
 
-        analyticsDelegator.SwitchSession("Team");
-        analyticsDelegator.LogSceneDuration("Team");
+        AnalyticsDelegator.Instance.SwitchSession("Team");
+        AnalyticsDelegator.Instance.LogSceneDuration("Team");
 
         Transition();
         SceneManager.LoadScene("Co-op Local");
@@ -63,8 +53,8 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.transform.GetChild(3).GetComponent<Slider>().value = 0;
         loadingScreen.SetActive(true);
         
-        analyticsDelegator.SwitchSession("Solo");
-        analyticsDelegator.LogSceneDuration("Singleplayer");
+        AnalyticsDelegator.Instance.SwitchSession("Solo");
+        AnalyticsDelegator.Instance.LogSceneDuration("Singleplayer");
 
         Transition();
         SceneManager.LoadScene("Loading Screen");
@@ -74,16 +64,15 @@ public class SessionDelegator : MonoBehaviour
         loadingScreen.transform.GetChild(2).GetComponent<Slider>().value = 0;
         loadingScreen.SetActive(true);
         
-        analyticsDelegator.SwitchSession(minigameName);
-        analyticsDelegator.LogSceneDuration(minigameName);
+        AnalyticsDelegator.Instance.SwitchSession(minigameName);
+        AnalyticsDelegator.Instance.LogSceneDuration(minigameName);
 
         Transition();
         SceneManager.LoadScene(minigameName);
     }
 
     public void Transition() {
-        dataPersistenceManager.SaveGame();
-        //cloudDelegator.TempSignOut();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void ToggleButtonColor(bool isMinigame) {
