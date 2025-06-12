@@ -57,6 +57,10 @@ public class GameData
     // The number of powers unlocked by the player
     public int powersUnlocked;
 
+    // Player leaderboard score
+    public string playerLS;
+    public int uniqueUserInt;
+
     public string userCredits;
     public int twoDayIntervals;
 
@@ -135,6 +139,9 @@ public class GameData
         this.equippedPowers = new() { "SURVEY RADAR" };
         this.powerUpgradeLevels = new();
         this.powersUnlocked = 1;
+
+        this.playerLS = "0";
+        this.uniqueUserInt = 0;
         
         this.userCredits = "0";
         this.twoDayIntervals = 0;

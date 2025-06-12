@@ -47,6 +47,9 @@ public class GameDataString
     public string powerUpgradeLevels;
     public string powersUnlocked;
 
+    public string playerLS;
+    public string uniqueUserInt;
+
     public string userCredits;
     public string twoDayIntervals;
 

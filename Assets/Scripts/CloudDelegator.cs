@@ -108,8 +108,6 @@ public class CloudDelegator : MonoBehaviour
 
     void InitializeFirebase()
     {
-        FirebaseFirestore.LogLevel = Firebase.LogLevel.Verbose;
-
         auth = FirebaseAuth.DefaultInstance;
 
         functions = FirebaseFunctions.DefaultInstance;
@@ -399,7 +397,6 @@ public class CloudDelegator : MonoBehaviour
 
             if (LeaderboardDelegator.Instance)
             {
-                //_ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
                 LeaderboardDelegator.Instance.CheckForRewards();
             }
 
@@ -410,7 +407,7 @@ public class CloudDelegator : MonoBehaviour
 
     private IEnumerator AutoSaveCoroutine()
     {
-        yield return new WaitForSeconds(10f); // Wait 60 seconds before the first save
+        yield return new WaitForSeconds(60f); // Wait 60 seconds before the first save
 
         while (true) // Run indefinitely
         {

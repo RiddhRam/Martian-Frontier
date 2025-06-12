@@ -2,9 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Numerics;
-using System.Threading.Tasks;
+using Firebase.Auth;
 using TMPro;
-using Unity.Services.CloudSave;
 using Unity.Services.Leaderboards;
 using Unity.Services.Leaderboards.Models;
 using UnityEngine;
@@ -15,9 +14,9 @@ using UnityEngine.UI;
 public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 {
     private static LeaderboardDelegator _instance;
-    public static LeaderboardDelegator Instance 
+    public static LeaderboardDelegator Instance
     {
-        get  
+        get
         {
             if (_instance == null)
             {
@@ -60,36 +59,35 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
     public long gemRewardsToCollect = 0;
 
     private readonly string oreLeaderboardID = "Ores";
-    private readonly string[] leaderboardTiers = {"BRONZE TIER", "SILVER TIER", "GOLD TIER"};
-    private readonly string[] leaderboardTiersMatching = {"Bronze", "Silver", "Gold"};
+    private readonly string[] leaderboardTiers = { "BRONZE TIER", "SILVER TIER", "GOLD TIER" };
+    private readonly string[] leaderboardTiersMatching = { "Bronze", "Silver", "Gold" };
     private readonly string[][] rewardAmounts = new string[][] {
-            new string[] {"2K", "1.6K", "1.4K", "1.2K", "1K", "800", "800", "800", "600", "600"}, 
-            new string[] {"12K", "8K", "6.4K", "5K", "4K", "3.2K", "3.2K", "3.2K", "2.8K", "2.8K"}, 
+            new string[] {"2K", "1.6K", "1.4K", "1.2K", "1K", "800", "800", "800", "600", "600"},
+            new string[] {"12K", "8K", "6.4K", "5K", "4K", "3.2K", "3.2K", "3.2K", "2.8K", "2.8K"},
             new string[] {"64K", "50K", "40K", "32k", "24k", "20K", "20K", "20K", "16K", "16K"}
             };
-    LeaderboardScores oreLeaderboardScoresPage;
+    LeaderboardResults oreLeaderboardResultsPage;
+    List<LeaderboardPlayer> oreLeaderboardScores;
 
-    private void OnEnable()
+    private IEnumerator TimerController()
     {
-        SetLeaderBoardTimer();
-        StartCoroutine(TimerController());
-    }
-    
-    private IEnumerator TimerController() {
-        while (true) {
+        while (true)
+        {
             timeRemaining = endTime - DateTime.UtcNow;
             timeString = string.Format("{0:D2}:{1:D2}:{2:D2}:{3:D2}", timeRemaining.Days, timeRemaining.Hours, timeRemaining.Minutes, timeRemaining.Seconds);
             tournamentTimer.text = GetLocalizedValue("RESETS IN {0}", timeString);
             lastUpdateText.text = lastUpdateTimer + "s";
             lastUpdateTimer++;
 
-            if (timeRemaining.TotalSeconds <= 0) {
+            if (timeRemaining.TotalSeconds <= 0)
+            {
                 SetLeaderBoardTimer();
                 yield return new WaitForSeconds(60);
                 CheckForRewards();
             }
- 
-            if (timeRemaining.Seconds == 0 || timeRemaining.Seconds == 30) {
+
+            if (timeRemaining.Seconds == 0 || timeRemaining.Seconds == 30)
+            {
                 UpdateLeaderBoardData();
             }
 
@@ -111,21 +109,21 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         endTime = nextResetTime;
     }
 
-    public async void CheckForRewards(string message = null) {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
-            if (gemRewardsToCollect > 0) {
-                collectRewardText.text = gemRewardsToCollect.ToString();
-                collectReward.SetActive(true);
+    public void CheckForRewards(string message = null) {
 
-                if (message != null) {
-                    collectRewardMessage.text = GetLocalizedValue(message);
-                }
-                
+        if (gemRewardsToCollect > 0)
+        {
+            collectRewardText.text = playerState.FormatPrice(gemRewardsToCollect);
+            collectReward.SetActive(true);
+
+            if (message != null)
+            {
+                collectRewardMessage.text = GetLocalizedValue(message);
             }
-            return;
         }
 
-        try
+        // There's not cloud data to retrieve for now
+        /*try
         {
             // Load the file from the cloud
             var data = await CloudSaveService.Instance.Data.Player.LoadAsync(new HashSet<string>{"leaderboard_gems"});
@@ -142,16 +140,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         catch (Exception e)
         {
             Debug.Log($"Reward check failed: {e.Message}");
-        }
-
-        if (gemRewardsToCollect > 0) {
-            collectRewardText.text = playerState.FormatPrice(gemRewardsToCollect);
-            collectReward.SetActive(true);
-            
-            if (message != null) {
-                collectRewardMessage.text = GetLocalizedValue(message);
-            }
-        }
+        }*/
     }
 
     public void CollectLeaderboardRewards() {
@@ -160,68 +149,98 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
         playerState.AddGems(gemValue);
         collectReward.SetActive(false);
         collectReward.transform.GetChild(0).GetChild(0).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("CONGRATULATIONS! YOU RECEIVED SOME REWARDS!");
-        
     }
 
-    public async void UpdateLeaderBoardData() {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
+    public void UpdateLeaderBoardData()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
             return;
         }
 
-        /*try {
-            oreLeaderboardScoresPage = await LeaderboardsService.Instance.GetPlayerRangeAsync(
-                                                oreLeaderboardID,
-                                                new GetPlayerRangeOptions{ RangeLimit = 11 }
-                                            );
+        try
+        {
+            oreLeaderboardScores = oreLeaderboardResultsPage.GetLeaderboardScores();
 
             int playerTier = 0;
-            int results = oreLeaderboardScoresPage.Results.Count;
+            int results = oreLeaderboardScores.Count;
 
-            for (int i = 0; i != 10; i++) {
+            for (int i = 0; i != 10; i++)
+            {
                 orePlayerScoreBars[i].SetActive(false);
             }
 
-            for (int i = 0; i != results; i++) {
-                if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    switch (oreLeaderboardScoresPage.Results[i].Tier) {
-                        case "Bronze":
-                            oreTierImage.sprite = tierSprites[0];
-                            oreTierText.text = GetLocalizedValue(leaderboardTiers[0]);
-                            break;
-                        case "Silver":
-                            playerTier = 1;
-                            oreTierImage.sprite = tierSprites[1];
-                            oreTierText.text = GetLocalizedValue(leaderboardTiers[1]);
-                            break;
-                        case "Gold":
-                            playerTier = 2;
-                            oreTierImage.sprite = tierSprites[2];
-                            oreTierText.text = GetLocalizedValue(leaderboardTiers[2]);
-                            break;
-                    }
-                    break;
+            // Find player pos so we know the tier to display
+            for (int i = 0; i != results; i++)
+            {
+                if (oreLeaderboardScores[i].GetUUID() != "Player")
+                    continue;
+
+                // Gold
+                if (GetTier(i) == "Gold")
+                {
+                    playerTier = 2;
+                    oreTierImage.sprite = tierSprites[2];
+                    oreTierText.text = GetLocalizedValue(leaderboardTiers[2]);
                 }
+                // Silver
+                else if (GetTier(i) == "Silver")
+                {
+                    playerTier = 1;
+                    oreTierImage.sprite = tierSprites[1];
+                    oreTierText.text = GetLocalizedValue(leaderboardTiers[1]);
+                }
+                // Bronze
+                else if (GetTier(i) == "Bronze")
+                {
+                    playerTier = 0;
+                    oreTierImage.sprite = tierSprites[0];
+                    oreTierText.text = GetLocalizedValue(leaderboardTiers[0]);
+                }
+
+                break;
             }
-            
+
+            // Lowest player in next tier
             int firstPlayerIndex = 0;
+            // Highest player in last tier
             int lastPlayerIndex = 0;
             int playerBarCounter = 0;
-            for (int i = 0; i != results; i++) {
+            for (int i = 0; i != results; i++)
+            {
 
-                if (oreLeaderboardScoresPage.Results[i].Tier != leaderboardTiersMatching[playerTier]) {
-                    if (oreLeaderboardScoresPage.Results[i].Tier == "Gold") {
+                // If current player is outside of the local players tier, save the index so we can determine the threshold score for the next and last tier
+                if (GetTier(i) != leaderboardTiersMatching[playerTier])
+                {
+                    // Gold
+                    if (GetTier(i) == "Gold")
+                    {
+                        // If gold, then we know its the next tier
                         firstPlayerIndex = i;
-                    } else if (oreLeaderboardScoresPage.Results[i].Tier == "Bronze") {
-
-                        if (lastPlayerIndex == 0) {
+                    }
+                    // Bronze
+                    else if (GetTier(i) == "Bronze")
+                    {
+                        // If bronze, then we know its the last tier
+                        if (lastPlayerIndex == 0)
+                        {
                             lastPlayerIndex = i;
-                        } 
-                    } else if (oreLeaderboardScoresPage.Results[i].Tier == "Silver") {
-                        if (leaderboardTiersMatching[playerTier] == "Gold") {
-                            if (lastPlayerIndex == 0) {
+                        }
+                    }
+                    // Silver
+                    else if (GetTier(i) == "Silver")
+                    {
+                        // If silver we need to determine if player is in gold or bronze first.
+                        // If gold, then silver is last tier, if bronze then its next tier
+                        if (leaderboardTiersMatching[playerTier] == "Gold")
+                        {
+                            if (lastPlayerIndex == 0)
+                            {
                                 lastPlayerIndex = i;
-                            } 
-                        } else {
+                            }
+                        }
+                        else
+                        {
                             firstPlayerIndex = i;
                         }
                     }
@@ -230,12 +249,16 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
                 orePlayerScoreBars[playerBarCounter].SetActive(true);
 
-                orePlayerNameTextMeshes[playerBarCounter].text = oreLeaderboardScoresPage.Results[i].PlayerName.Substring(0, oreLeaderboardScoresPage.Results[i].PlayerName.Length - 5);;
-                oreScoreTextMeshes[playerBarCounter].text = playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[i].Score));
+                orePlayerNameTextMeshes[playerBarCounter].text = oreLeaderboardScores[i].GetPlayerName();
+                oreScoreTextMeshes[playerBarCounter].text = playerState.FormatPrice(oreLeaderboardScores[i].GetScore());
 
-                if (oreLeaderboardScoresPage.Results[i].PlayerName == playerProfile.Name) {
-                    orePlayerScoreImages[playerBarCounter].color = new(255/255f, 204/255f, 0/255f);
-                } else {
+                // If local player, then highlight
+                if (oreLeaderboardScores[i].GetUUID() == "Player")
+                {
+                    orePlayerScoreImages[playerBarCounter].color = new(255 / 255f, 204 / 255f, 0 / 255f);
+                }
+                else
+                {
                     orePlayerScoreImages[playerBarCounter].color = new(1, 1, 1);
                 }
 
@@ -244,16 +267,25 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
                 playerBarCounter++;
             }
 
-            if (lastPlayerIndex != 0) {
-                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[lastPlayerIndex].Score)));
+            // Display score of highest player in last tier if a last tier exists
+            if (lastPlayerIndex != 0)
+            {
+                oreLastTierText.text = GetLocalizedValue("LAST TIER: {0}", playerState.FormatPrice(oreLeaderboardScores[lastPlayerIndex].GetScore()));
                 oreLastTierText.gameObject.SetActive(true);
-            } else {
+            }
+            else
+            {
                 oreLastTierText.gameObject.SetActive(false);
             }
-            if (firstPlayerIndex != 0) {
-                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", playerState.FormatPrice(new BigInteger(oreLeaderboardScoresPage.Results[firstPlayerIndex].Score)));
+
+            // Display score of lowest player in next tier if a next tier exists
+            if (firstPlayerIndex != 0)
+            {
+                oreNextTierText.text = GetLocalizedValue("NEXT TIER: {0}", playerState.FormatPrice(oreLeaderboardScores[firstPlayerIndex].GetScore()));
                 oreNextTierText.gameObject.SetActive(true);
-            } else {
+            }
+            else
+            {
                 oreNextTierText.gameObject.SetActive(false);
             }
 
@@ -262,48 +294,47 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             playerBarCounter = 0;
 
             lastUpdateTimer = 0;
-        } catch (Exception ex) {
-            // In case no score submitted
-            try {
-                await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
-            } catch {
-            }
+        }
+        catch (Exception ex)
+        {
 
             Debug.Log(ex);
-        }*/
+        }
     }
 
-    public async Task InitializeLeaderboard() {
-        //playerProfile = newPlayerProfile (param);
+    private string GetTier(int position)
+    {
+        if (position < 10)
+        {
+            return "Gold";
+        }
+        else if (position < 20)
+        {
+            return "Silver";
+        }
 
-        //await LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, 0);
-
-        UpdateLeaderBoardData();
+        return "Bronze";
     }
 
-    public void AddOreScore(double amount) {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
+    public void AddOreScore(double amount)
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
             return;
         }
 
-        //LeaderboardsService.Instance.AddPlayerScoreAsync(oreLeaderboardID, amount);
-    }
-
-    // TODO: If an anonymous player creates an account, their old account stays in the leaderboard and their new account
-    // Picks off from where they left off. The old anonymous account should be removed, so someone else can earn the reward
-    // For that spot
-    public void RemoveFromLeaderBoard() {
-        
+        oreLeaderboardResultsPage.AddPlayerScore(new BigInteger(amount));
     }
 
     private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 
-        StringTableEntry entry = table.GetEntry(key);;
+        StringTableEntry entry = table.GetEntry(key); ;
 
         // If no translation, just return the key
-        if (entry == null) {
+        if (entry == null)
+        {
             return string.Format(key, args);
         }
 
@@ -313,11 +344,18 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+        SetLeaderBoardTimer();
+        oreLeaderboardResultsPage = new(BigInteger.Parse(data.playerLS), endTime, data.uniqueUserInt);
         this.gemRewardsToCollect = data.gemRewardsToCollect;
+
+        StartCoroutine(TimerController());
+        UpdateLeaderBoardData();
     }
 
     public void SaveData(ref GameData data)
     {
         data.gemRewardsToCollect = this.gemRewardsToCollect;
+        data.playerLS = oreLeaderboardResultsPage.playerLS.ToString();
+        data.uniqueUserInt = oreLeaderboardResultsPage.uniqueUserInt;
     }
 }
