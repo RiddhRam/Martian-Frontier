@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Localization.Settings;
 using System.Collections;
+using System.Collections.Generic;
 
 public class OreDelegation : MonoBehaviour
 {
@@ -76,6 +77,29 @@ public class OreDelegation : MonoBehaviour
 
         for (int i = 0; i != length; i++)
         {
+            // Determine which ores to show
+            // Always show the first ore no matter what
+            if (i != 0)
+            {
+                bool foundOre = false;
+
+                // Go through all discovered ores and see if this one was found
+                for (int j = 0; j < mineRenderer.discoveredOres.Count; j++)
+                {
+                    // Ore was discovered
+                    if (mineRenderer.selectedMaterialNames[i] == mineRenderer.discoveredOres[j])
+                    {
+                        foundOre = true;
+                        break;
+                    }
+                }
+
+                // If not found, don't show it
+                if (!foundOre)
+                {
+                    continue;
+                }
+            }
             GameObject newMaterialPanel = Instantiate(oreMaterialPanel);
             Transform panelTransform = newMaterialPanel.transform;
             // Add panel to the content scroll view of the right tier panel

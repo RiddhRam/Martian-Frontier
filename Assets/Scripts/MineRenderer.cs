@@ -62,7 +62,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int mineCount;
     private SerializableDictionary<string, int> oreUpgrades;
 
-    private List<string> discoveredOres;
+    public List<string> discoveredOres = new();
 
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
@@ -782,35 +782,53 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 DailyChallengeDelegator.Instance.MinedOres(quantities);
             }
 
-            if (oresMined > 0 && playAudio) {
+            // Determine which ores have been discovered so far
+            // If less than 9, then we need to determine which ones have been found, since not all were found yet
+            // Only add the ones that were found in the frame, if they were not previously found
+            if (quantities.Keys.Count < 9)
+            {
+                foreach (var key in quantities.Keys)
+                {
+                    // If not previously discovered, then add it
+                    if (!discoveredOres.Contains(key))
+                    {
+                        discoveredOres.Add(key);
+                    }
+                }
+            }
+
+            if (oresMined > 0 && playAudio)
+            {
                 // Must mine at least once per 0.4s in order to keep audio going
                 float timeSinceLastMine = Time.time - lastOreMinedTime;
                 const float volume = 0.75f;
-                if (timeSinceLastMine >= 0.4f) {
+                if (timeSinceLastMine >= 0.4f)
+                {
                     // Play ore pick up audio
                     StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
-                    
+
                     lastOreMinedTime = Time.time;
-                } 
+                }
                 // If audio is fading out or faded out already, then skip the 0.4s timer, and play right away
-                else if (AudioDelegator.Instance.audioTimer <= 0f) {
+                else if (AudioDelegator.Instance.audioTimer <= 0f)
+                {
                     // Play ore pick up audio
                     StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
-                    
-                    lastOreMinedTime= Time.time;
+
+                    lastOreMinedTime = Time.time;
                 }
 
                 // Track which ores are being sold so the player can get paid
                 int[] newMaterials = new int[9];
-                foreach (string oreName in quantities.Keys) {
+                foreach (string oreName in quantities.Keys)
+                {
                     newMaterials[GetTileIndexByName(oreName)] = quantities[oreName];
                 }
-                
+
                 // Finally pay player
                 refineryController.SellOres(newMaterials, isNPC);
             }
         }
-
 
         quantities.Clear();
 
@@ -994,10 +1012,26 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private IEnumerator AsyncLoadData(GameData data) {
 
+        this.discoveredOres = data.discoveredOres;
+
         bool currentCloudLoadState = cloudLoading;
 
         // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
         yield return StartCoroutine(ReturnAllObjectsToPool());
+
+        
+
+        foreach (var key in data.discoveredOres)
+        {
+            Debug.Log("Data: " + key);
+        }
+
+        foreach (var key in this.discoveredOres)
+        {
+            Debug.Log("Saved: " + key);
+        }
+
+        Debug.Log("Done");
         
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
@@ -1107,6 +1141,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         data.mineInitialization = this.mineInitialization;
         data.currentOresMined = this.currentOresMined;
         data.mineCount = this.mineCount;
+
+        data.discoveredOres = this.discoveredOres;
+
         data.oreUpgrades = refineryUpgradePad.oreUpgrades;
     }
 
@@ -1136,16 +1173,21 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         DataPersistenceManager.Instance.SaveGame();
     }
 
-    public int GetTileTier(TileBase tileToIdentify) {
+    public int GetTileTier(TileBase tileToIdentify)
+    {
         tileTier = 1;
 
-        for (int i = 0; i != tileValues.Length; i++) {
-            if (tileToIdentify != tileValues[i]) {
+        for (int i = 0; i != tileValues.Length; i++)
+        {
+            if (tileToIdentify != tileValues[i])
+            {
                 continue;
             }
 
-            for (int j = 0; j != tierThresholds.Length; j++) {
-                if (tierThresholds[j] <= i) {
+            for (int j = 0; j != tierThresholds.Length; j++)
+            {
+                if (tierThresholds[j] <= i)
+                {
                     tileTier = j + 1;
                 }
             }
