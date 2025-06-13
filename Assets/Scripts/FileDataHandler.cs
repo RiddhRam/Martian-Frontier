@@ -165,8 +165,13 @@ public class FileDataHandler
                         strValue = strValue.Replace("%22", "\"");
                         List<string> deserializedValue = JsonConvert.DeserializeObject<List<string>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
+                    }
+                    else if (fieldType == typeof(List<int>)) {
+                        List<int> deserializedValue = JsonConvert.DeserializeObject<List<int>>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
                     } 
-                    else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>)) {
+                    else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>))
+                    {
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
                         strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
@@ -175,7 +180,8 @@ public class FileDataHandler
                         SerializableDictionary<string, VehicleUpgrade> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleUpgrade>>(strValue);
                         correspondingField.SetValue(tempData, vehicleData);
                     }
-                    else if (fieldType == typeof(SerializableDictionary<string, VehicleCustomization>)) {
+                    else if (fieldType == typeof(SerializableDictionary<string, VehicleCustomization>))
+                    {
 
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
@@ -185,7 +191,8 @@ public class FileDataHandler
                         SerializableDictionary<string, VehicleCustomization> vehicleData = JsonUtility.FromJson<SerializableDictionary<string, VehicleCustomization>>(strValue);
                         correspondingField.SetValue(tempData, vehicleData);
                     }
-                    else if (fieldType == typeof(SerializableDictionary<int, int>)) {
+                    else if (fieldType == typeof(SerializableDictionary<int, int>))
+                    {
                         // Same as below intDictData
                         // Trim the outer [ ] and also turn the url encoding back to quotation marks
                         strValue = strValue.Substring(1, strValue.Length - 2).Replace("%22", "\"");
@@ -428,6 +435,19 @@ public class FileDataHandler
 
                 // URL encode all quotation marks to make it safer for when we load the game
                 result = result.Replace("\"", "%22");
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is List<int>)
+            {
+                List<int> value = (List<int>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
 
                 if (useEncryption)
                 {

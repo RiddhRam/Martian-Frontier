@@ -61,7 +61,7 @@ public class GameData
     public int powersUnlocked;
 
     // The ores that the player has discovered so far in the current mine
-    public List<string> discoveredOres;
+    public List<int> discoveredOres;
 
     // Player leaderboard score
     public string playerLS;

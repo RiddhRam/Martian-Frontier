@@ -62,7 +62,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int mineCount;
     private SerializableDictionary<string, int> oreUpgrades;
 
-    public List<string> discoveredOres = new();
+    public List<int> discoveredOres = new();
 
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
@@ -661,10 +661,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         foreach (Vector3Int tileToDestroy in tilesToDestroy.Select(v => (Vector3Int)v))
         {
             tilemapPos = CalculateTileMapPos(new(tileToDestroy.x, tileToDestroy.y));
-            
+
             tilemap = tilemaps[tilemapPos.x, tilemapPos.y];
 
-            if (!destroyTilemapsToEdit.Contains(tilemap)) {
+            if (!destroyTilemapsToEdit.Contains(tilemap))
+            {
                 destroyTilemapsToEdit.Add(tilemap);
                 destroyTilesForTilemaps.Add(new());
             }
@@ -677,22 +678,27 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // fails when initializing because the first row that has DestroyTiles being called on it isn't actually part of the map
             // revealedTilemapsTileValues is a subset of unplacedTilemapsTileValues
             // it's just a quick way to reveal the first few tiles
-            try {
+            try
+            {
                 unplacedTilemapsTileValues[tilemapPos.x, tilemapPos.y].Remove(new(tileToDestroy.x, tileToDestroy.y));
                 revealedTilemapsTileValues[tilemapPos.x, tilemapPos.y].Remove(new(tileToDestroy.x, tileToDestroy.y));
-            } catch {
+            }
+            catch
+            {
             }
 
             // Destroy the tile by setting to null and saving it
             destroyedTilemapsTileValues[tilemapPos.x, tilemapPos.y][new(tileToDestroy.x, tileToDestroy.y)] = tileValue;
 
             // If the mine is being loaded from a save, don't reveal tiles, unless the top row
-            if (loading && tileToDestroy.y != -4) {
+            if (loading && tileToDestroy.y != -4)
+            {
                 continue;
             }
 
             int visionBoost = 0;
-            if (upgradesDelegator) {
+            if (upgradesDelegator)
+            {
                 // Value is offset by 3
                 visionBoost = upgradesDelegator.visionBoost - 3;
             }
@@ -711,22 +717,27 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     tilesToReveal.Add(new(tileToDestroy.x + x, tileToDestroy.y - y));
                 }
             }
-            
+
             // If one of the top row tiles, don't count towards stats
-            if (tileToDestroy.y == -4 || loading) {
+            if (tileToDestroy.y == -4 || loading)
+            {
                 continue;
             }
 
             tileMined = tilemap.GetTile(tileToDestroy);
-    
-            // Get tile index
+
+            // Get tile index among the array of all tile values (including non ores)
             identifiedTile = GetTileIndex(tileMined);
             oreMined = true;
 
-            if (!oreDelegation.VerifyIfOre(identifiedTile)) {
+            if (!oreDelegation.VerifyIfOre(identifiedTile))
+            {
                 oreMined = false;
-            } else {
-                if (generateParticles) {
+            }
+            else
+            {
+                if (generateParticles)
+                {
                     SpawnVacuum(tileToDestroy, vehiclePos, tileColours[identifiedTile]);
                 }
             }
@@ -734,23 +745,41 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // Actually current blocks mined, not ores
             currentOresMined++;
 
-            if (!oreMined) {
+            if (!oreMined)
+            {
                 continue;
             }
 
             oresMined++;
+
+            // Get adjustment needed to make sure we have the ore index, not the tile index (ignore any non ore tiles when getting index)
             int adjustment = 0;
 
-            for (int i = 0; i != tierThresholds.Length; i++) {
-                if (identifiedTile > tierThresholds[i]) {
+            for (int i = 0; i != tierThresholds.Length; i++)
+            {
+                if (identifiedTile > tierThresholds[i])
+                {
                     adjustment++;
                 }
             }
 
-            if (!quantities.ContainsKey(selectedMaterialNames[identifiedTile - adjustment])) {
-                quantities[selectedMaterialNames[identifiedTile - adjustment]] = 1;
-            } else {
+            int adjustedTileIndex = identifiedTile - adjustment;
+
+            if (!quantities.ContainsKey(selectedMaterialNames[adjustedTileIndex]))
+            {
+                quantities[selectedMaterialNames[adjustedTileIndex]] = 1;
                 
+                // Determine which ores have been discovered so far
+                // If less than 9, then we need to determine which ones have been found, since not all were found yet
+                // Only add the ones that were found in the frame, if they were not previously found
+                if (discoveredOres.Count < 9 && !discoveredOres.Contains(adjustedTileIndex))
+                {
+                    discoveredOres.Add(adjustedTileIndex);
+                }
+            }
+            else
+            {
+
                 quantities[selectedMaterialNames[identifiedTile - adjustment]]++;
             }
         }
@@ -780,21 +809,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             if (!isNPC) {
                 playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
                 DailyChallengeDelegator.Instance.MinedOres(quantities);
-            }
-
-            // Determine which ores have been discovered so far
-            // If less than 9, then we need to determine which ones have been found, since not all were found yet
-            // Only add the ones that were found in the frame, if they were not previously found
-            if (quantities.Keys.Count < 9)
-            {
-                foreach (var key in quantities.Keys)
-                {
-                    // If not previously discovered, then add it
-                    if (!discoveredOres.Contains(key))
-                    {
-                        discoveredOres.Add(key);
-                    }
-                }
             }
 
             if (oresMined > 0 && playAudio)

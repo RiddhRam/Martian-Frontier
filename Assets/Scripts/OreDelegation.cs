@@ -87,7 +87,7 @@ public class OreDelegation : MonoBehaviour
                 for (int j = 0; j < mineRenderer.discoveredOres.Count; j++)
                 {
                     // Ore was discovered
-                    if (mineRenderer.selectedMaterialNames[i] == mineRenderer.discoveredOres[j])
+                    if (i == mineRenderer.discoveredOres[j])
                     {
                         foundOre = true;
                         break;
