@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 
@@ -16,7 +15,7 @@ public class LeaderboardResults
     private DateTime endTime;
     // Unique integer for the user (part of seed) so each user has a different leaderboard, even with the same endTime
     public int uniqueUserInt;
-    const int averageOresMinedPerRound = 160;
+    const int averageOresMinedPerRound = 12;
     const int minutesPerRound = 2;
     private const int totalTournamentSeconds = 172_800; // 2 days
     Random rng;
@@ -192,9 +191,11 @@ public class LeaderboardResults
         var botRng = new Random(GetRNGSeed() + botIndex);
         var profile = new BotProfile();
 
+        const double minRatio = 0.0;
+        const double maxRatio = 0.75;
         // Determine bot's overall activity level (e.g., casual vs. hardcore)
         // This bot will play for somewhere between 0% and 5% (over 2 hours) of the total tournament duration.
-        double playtimeRatio = 0 + botRng.NextDouble() * 0.05;
+        double playtimeRatio = minRatio + botRng.NextDouble() * (maxRatio - minRatio);
         double totalSecondsToPlay = totalTournamentSeconds * playtimeRatio;
 
         // Determine number of play sessions (2-4)
@@ -245,7 +246,7 @@ public class LeaderboardResults
         if (currentTime < startTime) currentTime = startTime;
         if (currentTime > endTime) currentTime = endTime;
 
-        const float averageScorePerSecond = averageOresMinedPerRound / (minutesPerRound * 60);
+        const float averageScorePerSecond = (float)averageOresMinedPerRound / (minutesPerRound * 60);
 
         foreach (var botPlayer in leaderboardPlayerScores)
         {
