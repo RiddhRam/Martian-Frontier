@@ -47,6 +47,8 @@ public class GameDataString
     public string powerUpgradeLevels;
     public string powersUnlocked;
 
+    public string discoveredOres;
+
     public string playerLS;
     public string uniqueUserInt;
     public string twoDIL;
