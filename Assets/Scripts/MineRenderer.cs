@@ -1012,26 +1012,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private IEnumerator AsyncLoadData(GameData data) {
 
-        this.discoveredOres = data.discoveredOres;
-
         bool currentCloudLoadState = cloudLoading;
 
         // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
         yield return StartCoroutine(ReturnAllObjectsToPool());
-
-        
-
-        foreach (var key in data.discoveredOres)
-        {
-            Debug.Log("Data: " + key);
-        }
-
-        foreach (var key in this.discoveredOres)
-        {
-            Debug.Log("Saved: " + key);
-        }
-
-        Debug.Log("Done");
         
         // this.materials = array of game objects for the materials
         // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
@@ -1049,6 +1033,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
         this.mineCount = data.mineCount;
+
+        this.discoveredOres = data.discoveredOres;
 
         // Choose a random factor to multiply by, so adjacent levels aren't too similar
         var factorDecider = new System.Random(this.mineCount);

@@ -366,6 +366,12 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
     public int CalculatePlayerRewards()
     {
+        // Happens upon new game save
+        if (previousInterval == 0)
+        {
+            return 0;
+        }
+
         // Use previous interval to calculate scores of last leaderboard
         LeaderboardResults previousLeaderboard = new(oreLeaderboardResultsPage.playerLS, ReverseTwoDayInterval(previousInterval).AddDays(2), oreLeaderboardResultsPage.GetUniqueUserInt());
 
