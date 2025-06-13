@@ -24,24 +24,38 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     // For tutorial
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
-    [SerializeField] private Image sliderImage;
-    static readonly Color coldColor = new(35f / 255f, 57f / 255f, 241f / 255f);
-    static readonly Color mid = new Color(1f, 146f/255f, 0f);
 
     [Header("Visual")]
+    [SerializeField] private Image sliderImage;
     [SerializeField] private Slider slider;
+    [SerializeField] private RectTransform sliderTransform;
     static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
+    static readonly Color coldColor = new(0f / 255f, 235f / 255f, 0f / 255f);
+    static readonly Color mid = new Color(1f, 146f/255f, 0f);
+    static readonly Color pulseColor = new Color(150f / 255f, 0f, 0f, 1f);
+    Color baseColor;
     [SerializeField] private TextMeshProUGUI sliderText;
+    private Vector3 initialScale;
 
-    public void SwitchVehicle(GameObject newVehicle) {
+    void Start()
+    {
+        initialScale = sliderTransform.localScale;
+    }
+
+    public void SwitchVehicle(GameObject newVehicle)
+    {
 
         GameObject oldVehicle = transform.GetChild(0).gameObject;
 
-        if (newVehicle.name == oldVehicle.name && !loading) {
+        if (newVehicle.name == oldVehicle.name && !loading)
+        {
             // User is already in this vehicle, do nothing
-            if (!notSinglePlayerScene) {
+            if (!notSinglePlayerScene)
+            {
                 currentVehicle = oldVehicle.name;
-            } else {
+            }
+            else
+            {
                 currentCoopVehicle = oldVehicle.name;
             }
             return;
@@ -60,31 +74,36 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Remove (Clone) from the name
         playerVehicle.name = playerVehicle.name[..^7];
 
-        if (!notSinglePlayerScene) {
+        if (!notSinglePlayerScene)
+        {
             transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
             // The z rotation initially starts at 180, but when we switch we use 0
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 0);
             currentVehicle = playerVehicle.name;
-        } else {
+        }
+        else
+        {
             playerVehicle.transform.rotation = Quaternion.Euler(0, 0, 270);
             currentCoopVehicle = playerVehicle.name;
         }
 
-        if (nPCManager) {
+        if (nPCManager)
+        {
             nPCManager.ResetPlayerPos();
         }
-        
+
         float playerSpeed;
 
         DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
         playerSpeed = drillerController.GetPlayerSpeed();
         playerSpeed = UpdateOriginalSpeed(playerSpeed);
         // Speed boost to new players
-        if (firstTimePlaying) {
+        if (firstTimePlaying)
+        {
             playerSpeed *= speedBoostAmount;
         }
         gameObject.GetComponent<PlayerMovement>().SetSpeed(playerSpeed);
-        
+
         drillerController.playerVehicleDelegation = this;
 
         vehicleUpgradeBayManager.drillerController = drillerController;
@@ -94,7 +113,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         {
             vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
         }
-       
+
         AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
     }
 
@@ -241,24 +260,55 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         return playerSpeed;
     }
 
-    public void UpdateOverheatSlider(float heatPercentage, float drillHeat) {
+    public void UpdateOverheatSlider(float heatPercentage, float drillHeat)
+    {
         // Progress
         slider.value = heatPercentage;
+        // Text
+        sliderText.text = ((int)drillHeat).ToString();
 
-        // Colour
+        // Calculate base colour
         if (heatPercentage < 0.5f)
         {
             // 0 → 0.5 : blue → yellow
-            sliderImage.color = Color.Lerp(coldColor, mid, heatPercentage * 2f);
+            baseColor = Color.Lerp(coldColor, mid, heatPercentage * 2f);
         }
         else
         {
             // 0.5 → 1 : yellow → red
-            sliderImage.color = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
+            baseColor = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
         }
+        
+        // Pulse the progress bar if heat percentage is above threshold
+        const float pulseThreshold = 0.80f;
+        const float pulseSpeed = 10f;
+        const float pulseScaleAmount = 0.1f;
 
-        // Text
-        sliderText.text = ((int)drillHeat).ToString();
+        if (heatPercentage > pulseThreshold)
+        {
+            // Calculate a 0-1 value representing how far we are past the pulseThreshold
+            float rampUpFactor = (heatPercentage - pulseThreshold) / (1f - pulseThreshold);
+
+            // Oscillation
+            float pulseValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
+
+            // Factor the 2 together
+            float pulseValueToUse = pulseValue * rampUpFactor;
+
+            // Lerp between the current base color and the bright pulse color
+            sliderImage.color = Color.Lerp(baseColor, pulseColor, pulseValueToUse);
+
+            // Pulse the size of the progress bar too
+            float scaleMultiplier = 1f + (pulseValueToUse * pulseScaleAmount);
+            sliderTransform.localScale = initialScale * scaleMultiplier;
+        }
+        // If heat is below threshold, make progress look normal
+        else
+        {
+            // Don't modify colour or scale
+            sliderImage.color = baseColor;
+            sliderTransform.localScale = initialScale;
+        }
     }
 
 }

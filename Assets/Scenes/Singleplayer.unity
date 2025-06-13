@@ -544,7 +544,7 @@ RectTransform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 90}
   m_LocalScale: {x: 0.004, y: 0.01523, z: 0.01523}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 624678227}
   - {fileID: 1428716423}
@@ -553,7 +553,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0.588}
   m_SizeDelta: {x: 1160.3344, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &97286647
@@ -2354,8 +2354,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
-  m_AnchoredPosition: {x: 0, y: -4.5}
-  m_SizeDelta: {x: 4.9201, y: 2.3142}
+  m_AnchoredPosition: {x: 0, y: -4.5705}
+  m_SizeDelta: {x: 4.9201, y: 2.4553}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &567458024
 MonoBehaviour:
@@ -17158,6 +17158,7 @@ GameObject:
   - component: {fileID: 624678227}
   - component: {fileID: 624678229}
   - component: {fileID: 624678228}
+  - component: {fileID: 624678230}
   m_Layer: 5
   m_Name: Background
   m_TagString: Untagged
@@ -17181,7 +17182,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0}
+  m_AnchoredPosition: {x: 0, y: -0.000061035156}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &624678228
@@ -17222,6 +17223,21 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 624678226}
   m_CullTransparentMesh: 1
+--- !u!114 &624678230
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 624678226}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_EffectColor: {r: 0, g: 0, b: 0, a: 1}
+  m_EffectDistance: {x: 14, y: 2.1}
+  m_UseGraphicAlpha: 1
 --- !u!1 &633165476 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1935488909577476081, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -29713,6 +29729,7 @@ MonoBehaviour:
   firstTimePlaying: 0
   sliderImage: {fileID: 589357891}
   slider: {fileID: 97286647}
+  sliderTransform: {fileID: 97286646}
   sliderText: {fileID: 649572956}
 --- !u!1 &1016199296
 GameObject:

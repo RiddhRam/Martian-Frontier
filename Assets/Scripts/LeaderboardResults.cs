@@ -21,7 +21,7 @@ public class LeaderboardResults
     Random rng;
 
     // TREAT THIS AS A VERY LARGE ARRAY (thousands of names)
-    readonly string[] botNames = {
+    static readonly string[] botNames = {
         "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
         "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
         "Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
