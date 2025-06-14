@@ -30,7 +30,6 @@ public class NotificationsManager : MonoBehaviour {
         }
         #endif
 
-        // Wait for initialization in Cloud Delegator
         await UnityServices.InitializeAsync();
         
         try

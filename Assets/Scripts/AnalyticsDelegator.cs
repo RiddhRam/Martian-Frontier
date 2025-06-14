@@ -5,10 +5,10 @@ using UnityEngine;
 using Firebase.Extensions;
 using Firebase.Analytics;
 using UnityEngine.SceneManagement;
+using Unity.Services.Core;
 
 public class AnalyticsDelegator : MonoBehaviour
 {
-    private Firebase.FirebaseApp app;
     private static AnalyticsDelegator _instance;
     public static AnalyticsDelegator Instance
     {
@@ -38,26 +38,23 @@ public class AnalyticsDelegator : MonoBehaviour
         currentScene = SceneManager.GetActiveScene().name;
         sceneStartRealtime = Time.realtimeSinceStartup;
 
-        // Wait for initialization in Cloud Delegator
-        await Task.Delay(500);
+        Debug.Log("ANALYTIC: Loading unity");
 
-        await Firebase.FirebaseApp.CheckAndFixDependenciesAsync().ContinueWithOnMainThread(task =>
+        await UnityServices.InitializeAsync();
+
+        Debug.Log("ANALYTIC: Waiting for firebase");
+
+        while (CloudDelegator.Instance.auth == null)
         {
-            var dependencyStatus = task.Result;
-            if (dependencyStatus == Firebase.DependencyStatus.Available)
-            {
-                app = Firebase.FirebaseApp.DefaultInstance;
-                FirebaseAnalytics.SetAnalyticsCollectionEnabled(true);
-                // Firebase is ready to use
-            }
-            else
-            {
-                Debug.LogError(System.String.Format(
-                  "Could not resolve all Firebase dependencies: {0}", dependencyStatus));
-            }
-        });
+            await Task.Delay(100);
+        }
+
+        Debug.Log("ANALYTIC: DONE WAITING");
 
         AnalyticsService.Instance.StartDataCollection();
+
+        Debug.Log("ANALYTIC: DONE");
+
         isInitialized = true;
     }
 
@@ -73,6 +70,8 @@ public class AnalyticsDelegator : MonoBehaviour
         };
         AnalyticsService.Instance.RecordEvent(ev);
         AnalyticsService.Instance.Flush();
+
+        //if (CloudDelegator.Instance.auth != null) 
 
         FirebaseAnalytics.LogEvent("Scene_Time",
             new Parameter("Scene", currentScene),
