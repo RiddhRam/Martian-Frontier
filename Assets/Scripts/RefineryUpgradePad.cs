@@ -428,9 +428,9 @@ public class RefineryUpgradePad : MonoBehaviour
         flashButton = true;
 
         Color originalColor = closeButtonImage.color;
-        Color darkColor = originalColor * 0.7f;
+        Color darkColor = new(160/255f, 160/255f, 160/255f);
 
-        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
+        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor, new(1.2f, 1.2f, 1.2f)));
     }
 
     public void FlashOreUpgradeButton()
@@ -453,22 +453,43 @@ public class RefineryUpgradePad : MonoBehaviour
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
     }
 
-    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor)
+    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor, Vector3? largeScale = null)
     {
         float duration = 0.5f; // time to go from original to dark and back
         float t = 0f;
         bool goingDarker = true;
 
+        RectTransform rectTransform = null;
+        Vector3 initialScale = Vector3.zero;
+
+        // If large scale is provided, then we need to animate the scale too
+        if (largeScale.HasValue)
+        {
+            rectTransform = buttonImage.GetComponent<RectTransform>();
+            initialScale = rectTransform.localScale;
+        }
+
         while (flashButton)
         {
             t += Time.deltaTime / duration;
 
+            // Color
             // Darken
             if (goingDarker)
                 buttonImage.color = Color.Lerp(originalColor, darkColor, t);
             // Brighten
             else
                 buttonImage.color = Color.Lerp(darkColor, originalColor, t);
+            
+            // Scale, if provided
+            if (largeScale.HasValue)
+            {
+                Vector3 big = largeScale.Value;
+                if (goingDarker)
+                    rectTransform.localScale = Vector3.Lerp(initialScale, big, t);
+                else
+                    rectTransform.localScale = Vector3.Lerp(big, initialScale, t);
+            }
 
             if (t >= 1f)
             {
