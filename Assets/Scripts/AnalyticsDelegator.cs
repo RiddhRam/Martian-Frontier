@@ -2,6 +2,7 @@ using System.Collections;
 using System.Threading.Tasks;
 using Unity.Services.Analytics;
 using UnityEngine;
+using Firebase;
 using Firebase.Extensions;
 using Firebase.Analytics;
 using UnityEngine.SceneManagement;
@@ -48,6 +49,17 @@ public class AnalyticsDelegator : MonoBehaviour
         {
             await Task.Delay(100);
         }
+
+        await FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
+            DependencyStatus dependencyStatus = task.Result;
+
+            if (dependencyStatus != DependencyStatus.Available)
+            {
+                Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
+                return;
+            }
+        });
 
         Debug.Log("ANALYTIC: DONE WAITING");
 
