@@ -447,8 +447,9 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         flashButton = true;
 
-        Color originalColor = new(1, 0 ,0);
-        Color darkColor = originalColor * 0.7f;
+        // it's flipped on purpose. Button should stay red after being clicked
+        Color originalColor = new(1, 0, 0);
+        Color darkColor = proceedPanelButtonImage.color;
 
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
     }

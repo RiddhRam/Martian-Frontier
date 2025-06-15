@@ -5,6 +5,7 @@ using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
+
     public PlayerState playerState;
     public PlayerMovement playerMovement;
     public PlayerVehicleDelegation playerVehicleDelegation;
@@ -27,6 +28,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject refineryUpgradeBayPanel;
     public GameObject refineryProceedPanel;
     public GameObject overHeatTip;
+    public GameObject proceedTutorialInstruction;
+    public Button refineryOresButton;
 
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
@@ -241,6 +244,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Go to proceed panel
             else if (tutorialScreenIndex == 10)
             {
+                // Indicate proceed button
                 refineryUpgradePad.FlashProceedPanelButton();
 
                 // Wait until they buy an upgrade
@@ -264,10 +268,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Close refinery upgrade bay
             else if (tutorialScreenIndex == 11)
             {
-                // Indicate close button
-                refineryUpgradePad.FlashCloseButton();
+                // Can't go click on ores tab until tutorial ends
+                refineryOresButton.interactable = false;
 
-                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
+                // Show message
+                yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
+
+                // Wait for refinery panel to close, or player clicks ok
+                yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf || !refineryUpgradeBayPanel.activeSelf);
 
                 refineryUpgradePad.flashButton = false;
             }
@@ -275,7 +283,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             tutorialScreenIndex++;
         }
 
+        // Can now reset mine
         ResetMine.SetActive(true);
+        // Make sure everything is back to normal
+        refineryOresButton.interactable = true;
+        proceedTutorialInstruction.SetActive(false);
+        refineryUpgradeBayPanel.SetActive(false);
+        supplyCrateDelegator.uIDelegation.RevealAll();
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();

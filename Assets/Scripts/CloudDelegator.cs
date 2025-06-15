@@ -59,7 +59,7 @@ public class CloudDelegator : MonoBehaviour
     [Header("Scripts")]
     public UIDelegation uIDelegation;
 
-    private readonly int currentVersionNumber = 120;
+    private readonly int currentVersionNumber = 121;
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
 
