@@ -120,7 +120,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         internetReachable = true;
         ToggleDisplay();
 
-        if (firstTimePlaying) {
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
             return;
         }
         
@@ -254,7 +254,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         if (disableAds)
             return;
         // If user watched an ad in the last 30 seconds or first time playing
-        if (firstTimePlaying) {
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
             RewardBoost();
             DataPersistenceManager.Instance.SaveGame();
             return;
@@ -296,7 +296,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
 
-        if (firstTimePlaying) {
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
             CrateRewardSuccess();
             return;
         }
@@ -336,7 +336,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
 
-        if (firstTimePlaying) {
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
             LobbyRewardSuccess();
             return;
         }
@@ -389,8 +389,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(double rewardAmount) {
 
-        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is less than 1000
-        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount < 1000) {
+        // show unless ads disabled or already showing or no internet or not on third mine yet or rewardAmount is less than 1000
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || DataPersistenceManager.Instance.GetGameData().mineCount <= 2 || rewardAmount < 1000) {
             yield break;
         }
 
@@ -510,7 +510,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             deleteAccountButton.SetActive(true);
             leaderboardCashPanel.SetActive(cashPanelWasOpen);
             leaderboardNoWifi.SetActive(false);
-            
 
             if (!disableAds) {
 
@@ -558,7 +557,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         displayStatus = false;
     }
 
-    private void RewardBoost(int? totalTime = 180) {
+    private void RewardBoost(int? totalTime = 300) {
 
         PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
         originalSpeed = playerMovement.GetSpeed();
