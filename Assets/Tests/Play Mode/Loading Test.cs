@@ -9,6 +9,8 @@ using System.Threading.Tasks;
 
 public class LoadingTest
 {
+    // DELETE GAME SAVE FILE BEFORE RUNNING
+
 
     private async Task DriveTowards(Transform playerVehicle, Vector3 targetPosition, float speed)
     {
@@ -56,28 +58,19 @@ public class LoadingTest
         Assert.IsTrue(loadedSingleplayer, "Failed to load Singleplayer scene within " + timeout + " seconds");
     }
 
-    // DELETE GAME SAVE FILE BEFORE RUNNING
     [UnityTest]
-    // Might fail cuz no object found
-    public IEnumerator A_LoadingScreen()
+    public IEnumerator A_CheckPublicValues()
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
 
-        // Loading Screen
+        // Loading Screen, might fail cuz no object found
         GameObject loadingScreen = GameObject.Find("Loading Screen");
         LoadingScreen loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
         Assert.AreEqual(15, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
-    }
-
-    [UnityTest]
-    public IEnumerator B_CheckPublicValues()
-    {
-        SceneManager.LoadScene("Singleplayer");
-        yield return null;
 
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
@@ -405,7 +398,7 @@ public class LoadingTest
     }
 
     [UnityTest]
-    public IEnumerator C_AfterMineInitialized()
+    public IEnumerator B_AfterMineInitialized()
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;
@@ -467,7 +460,7 @@ public class LoadingTest
     }
 
     [UnityTest]
-    public IEnumerator D_FinishTutorial()
+    public IEnumerator C_FinishTutorial()
     {
         SceneManager.LoadScene("Singleplayer");
         yield return null;

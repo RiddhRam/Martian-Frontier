@@ -423,12 +423,17 @@ public class RefineryUpgradePad : MonoBehaviour
         return mineRenderer.selectedMaterialNames[requiredOreIndex];
     }
 
+    public int GetRequiredOreIndex()
+    {
+        return requiredOreIndex;
+    }
+
     public void FlashCloseButton()
     {
         flashButton = true;
 
         Color originalColor = closeButtonImage.color;
-        Color darkColor = new(160/255f, 160/255f, 160/255f);
+        Color darkColor = new(160 / 255f, 160 / 255f, 160 / 255f);
 
         StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor, new(1.2f, 1.2f, 1.2f)));
     }

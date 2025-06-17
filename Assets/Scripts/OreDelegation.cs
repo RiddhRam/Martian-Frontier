@@ -5,7 +5,6 @@ using UnityEngine.Tilemaps;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Localization.Settings;
 using System.Collections;
-using System.Collections.Generic;
 
 public class OreDelegation : MonoBehaviour
 {
@@ -83,7 +82,7 @@ public class OreDelegation : MonoBehaviour
             // Always show the first ore no matter what
 
             // Only show the other ores if player has previously mined this ore
-            if (i != 0)
+            if (i != refineryUpgradePad.GetRequiredOreIndex())
             {
 
                 // If done tutorial
@@ -173,12 +172,16 @@ public class OreDelegation : MonoBehaviour
         // Resize the scroll view content height to fit the rows using the height of all panels
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
     }
+    
+    // 5.0.0 (47.1%), 5.0.5 (44.9%)
 
     // Clear grid when closing, then reprepare it when opening in case user changes language
-    public void ClearGrid() {
+    public void ClearGrid()
+    {
         int childCount = contentGO.transform.childCount;
 
-        for (int i = 0; i != childCount; i++) {
+        for (int i = 0; i != childCount; i++)
+        {
             Destroy(contentGO.transform.GetChild(i).gameObject);
         }
     }
