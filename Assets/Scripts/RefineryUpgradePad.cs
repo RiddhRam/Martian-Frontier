@@ -449,14 +449,15 @@ public class RefineryUpgradePad : MonoBehaviour
 
         // it's flipped on purpose. Button should stay red after being clicked
         Color originalColor = new(1, 0, 0);
-        Color darkColor = proceedPanelButtonImage.color;
+        // Expicitly set as white to make it feel brighter
+        Color darkColor = new(1, 1, 1);
 
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
     }
 
     private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor, Vector3? largeScale = null)
     {
-        float duration = 0.5f; // time to go from original to dark and back
+        float duration = 0.4f; // time to go from original to dark and back
         float t = 0f;
         bool goingDarker = true;
 

@@ -75,12 +75,23 @@ public class OreDelegation : MonoBehaviour
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
+        bool generateOtherOres = DataPersistenceManager.Instance.GetGameData().finishedTutorial;
+
         for (int i = 0; i != length; i++)
         {
             // Determine which ores to show
             // Always show the first ore no matter what
+
+            // Only show the other ores if player has previously mined this ore
             if (i != 0)
             {
+
+                // If done tutorial
+                if (!generateOtherOres)
+                {
+                    continue;
+                }
+
                 bool foundOre = false;
 
                 // Go through all discovered ores and see if this one was found

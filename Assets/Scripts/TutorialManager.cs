@@ -28,6 +28,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject refineryUpgradeBayPanel;
     public GameObject refineryProceedPanel;
     public GameObject overHeatTip;
+    public GameObject proceedArrow;
     public GameObject proceedTutorialInstruction;
     public Button refineryOresButton;
 
@@ -64,8 +65,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Go into mine
             else if (tutorialScreenIndex == 1)
             {
-
-                enterMineArrow.SetActive(true);
                 arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 1));
 
                 yield return new WaitUntil(() => IsInTheMine(playerMovement.transform.position.y));
@@ -146,7 +145,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 // Flip and show arrow
                 enterMineArrow.transform.eulerAngles = new(0, 0, 90);
                 enterMineArrow.transform.localPosition = new(-1083.79f, -1911.5f, 0);
-                enterMineArrow.SetActive(true);
                 arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 0));
 
                 yield return new WaitUntil(() => vehicleUpgradeBayPanel.activeSelf);
@@ -199,7 +197,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 // Flip and show arrow
                 enterMineArrow.transform.eulerAngles = new(0, 0, 270);
                 enterMineArrow.transform.localPosition = new(-1076.21f, -1911.5f, 0);
-                enterMineArrow.SetActive(true);
                 arrowAnimation = StartCoroutine(AnimateArrow(enterMineArrow, 2, 0));
 
                 yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
@@ -246,6 +243,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 // Indicate proceed button
                 refineryUpgradePad.FlashProceedPanelButton();
+                // Animate arrow too (and ensure proper placement)
+                RectTransform arrowRT = proceedArrow.GetComponent<RectTransform>();
+                Vector2 p = arrowRT.anchoredPosition;
+                p.y = -1030f;
+                arrowRT.anchoredPosition = p;
+                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
 
                 // Wait until they buy an upgrade
                 // Or if they close the panel
@@ -257,6 +260,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return null;
                 yield return null;
                 yield return null;
+
+                proceedArrow.SetActive(false);
+                if (arrowAnimation != null)
+                {
+                    StopCoroutine(arrowAnimation);
+                }
 
                 // If they closed the panel, drop the index back to 8
                 if (!refineryUpgradeBayPanel.activeSelf)
@@ -324,6 +333,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
         // axis 0 = x, axis 1 = y
+
+        arrow.SetActive(true);
 
         RectTransform rectTransform = arrow.GetComponent<RectTransform>();
         // Save the original position for reference
