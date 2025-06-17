@@ -95,7 +95,7 @@ public class NPCMovement : MonoBehaviour
         if (!stopMoving) {
             MoveVehicle();
         } else {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
         }
     }
 
@@ -118,7 +118,7 @@ public class NPCMovement : MonoBehaviour
             MoveVehicle();
             yield return null;
         }
-        rb.velocity = Vector2.zero;
+        rb.linearVelocity = Vector2.zero;
 
         yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
         RequestNewPosition();
@@ -288,13 +288,13 @@ public class NPCMovement : MonoBehaviour
     public void MoveVehicle() {
         // Make sure vehicle is trying to move
         if (joystickVec.x == 0 && joystickVec.y == 0) {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
         // Translation logic
         // Translate the vehicle position
-        rb.velocity = new Vector2(
+        rb.linearVelocity = new Vector2(
             joystickVec.x * playerSpeed,
             joystickVec.y * playerSpeed
         );

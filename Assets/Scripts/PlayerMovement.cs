@@ -75,13 +75,13 @@ public class PlayerMovement : MonoBehaviour
 
         // Make sure vehicle is trying to move
         if (stopMoving || (joystickVec.x == 0 && joystickVec.y == 0)) {
-            rb.velocity = Vector2.zero;
+            rb.linearVelocity = Vector2.zero;
             return;
         }
 
         // Translation logic
         // Translate the vehicle position
-        rb.velocity = new Vector2(
+        rb.linearVelocity = new Vector2(
             joystickVec.x * playerSpeed,
             joystickVec.y * playerSpeed
         );

@@ -22,7 +22,7 @@ public class ExplosiveChargeProjectile : MonoBehaviour
         float angleRad = (playerMovement.transform.eulerAngles.z + 90f) * Mathf.Deg2Rad;
 
         Vector2 rotation =  new Vector2(Mathf.Cos(angleRad), Mathf.Sin(angleRad)).normalized;
-        rb.velocity = rotation * 20f;
+        rb.linearVelocity = rotation * 20f;
     }
 
     void OnCollisionEnter2D(Collision2D collision)

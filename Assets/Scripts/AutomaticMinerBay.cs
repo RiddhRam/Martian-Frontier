@@ -28,7 +28,7 @@ public class AutomaticMinerBay : MonoBehaviour, IDataPersistence
 
         // Ignore if the Rigidbody2D is essentially stationary, this means the game just loaded
         var rb2d = collision.attachedRigidbody;
-        if (rb2d != null && rb2d.velocity.sqrMagnitude < 0.01f)
+        if (rb2d != null && rb2d.linearVelocity.sqrMagnitude < 0.01f)
             return;
 
 
