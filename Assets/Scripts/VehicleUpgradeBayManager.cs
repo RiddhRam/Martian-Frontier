@@ -164,22 +164,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         coolHoldButton.SetAction(() => PurchaseUpgrade("Cooldown"));
     }
 
-    void OnTriggerEnter2D(Collider2D collision) {
-
-        // Only the Player Trigger trigger can activate the pad, not the body or drill
-        // Only the player vehicle can open the UI panel on their local game
-        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
-        {
-            return;
-        }
-
-        // Ignore if the Rigidbody2D is essentially stationary, this means the game just loaded
-        var rb2d = collision.attachedRigidbody;
-        if (rb2d != null && rb2d.linearVelocity.sqrMagnitude < 0.01f)
-            return;
-
-        uIDelegation.HideAll();
-
+    public void PreparePanel()
+    {
         // Customizations
         DestroyPreviousVehicleDisplay();
         CreateNewVehicleDisplay();
@@ -187,8 +173,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Upgrades
         UpdateUpgradeDetails();
-
-        uIDelegation.RevealElement(upgradeBayPanel);
 
         // Stop player from moving;
         JoystickMovement.Instance.joystickVec = Vector2.zero;

@@ -48,7 +48,7 @@ public class RefineryUpgradePad : MonoBehaviour
     [Header("For Tutorial")]
     public bool flashButton;
     public Image closeButtonImage;
-    public Image limestoneUpgradeImage;
+    [HideInInspector] public Image limestoneUpgradeImage;
     public Image proceedPanelButtonImage;
 
     void Awake()
@@ -63,27 +63,12 @@ public class RefineryUpgradePad : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    public void PreparePanel()
     {
-
-        // Only the Player Trigger trigger can activate the pad, not the body or drill
-        // Only the player vehicle can open the UI panel on their local game
-        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
-        {
-            return;
-        }
-
-        // Ignore if the Rigidbody2D is essentially stationary, this means the game just loaded
-        var rb2d = collision.attachedRigidbody;
-        if (rb2d != null && rb2d.linearVelocity.sqrMagnitude < 0.01f)
-            return;
-
         // Update in case of translations
         UpdateUpgradeRequirementText();
 
-        uIDelegation.HideAll();
         oreDelegation.PrepareGrid();
-        uIDelegation.RevealElement(refineryScreen);
 
         // Stops player from moving
         JoystickMovement.Instance.joystickVec = new();
