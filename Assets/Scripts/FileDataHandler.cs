@@ -81,7 +81,7 @@ public class FileDataHandler
             // These types are't encrypted, material dictionary, or tilemap data
             if (fieldType == typeof(SerializableDictionary<Vector2Int, int>[,])) {
                 // Regular expression to find the contents within {}
-                string pattern = @"\{.*?\}";
+                /*string pattern = @"\{.*?\}";
 
                 // Match the pattern
                 MatchCollection matches = Regex.Matches(value, pattern);
@@ -128,7 +128,7 @@ public class FileDataHandler
                     }
                 }
 
-                correspondingField.SetValue(tempData, newArray);
+                correspondingField.SetValue(tempData, newArray);*/
             } 
             // value is a string, and we need to convert it to the right type
             else {

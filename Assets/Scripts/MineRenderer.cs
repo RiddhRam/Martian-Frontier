@@ -413,52 +413,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         largeFogOfWar.transform.position = new Vector3(0, -220 - ((rowLoaded + 1) * gridSize.y), 0);
     }
 
-    public void LoadTiles() {
-        int savedHighestRow = highestRow;
-        // highestRow is going to get reassigned in CreateTiles, so save it's value
-        // We create all tiles first, that way there's no error when revealing tiles when we run DestroyTiles
-        
-        // Destroy Generation Trigger
-
-        try{
-            Destroy(GameObject.Find("GenerationTriggers"));
-        } catch {
-        }
-
-        CreateGenTriggers();
-
-        for (int i = 0; i != savedHighestRow; i++) {
-            Destroy(GameObject.Find("Generate Row (" + (i + 1) + ")"));
-            // Create tiles for this row which populates unplacedTilemapsTileValues
-            CreateTiles(i + 1);
-        }
-
-        List<Vector2Int> tilesToDestroy = new();
-        HashSet<Vector2Int> tilesToReveal = new();
-
-        for (int j = 0; j != totalColumns; j++) {
-            for (int i = 0; i != savedHighestRow; i++) {
-                List<Vector2Int> tileKeys = new List<Vector2Int>(revealedTilemapsTileValues[j, i].Keys);
-
-                foreach (Vector2Int tileKey in tileKeys) {
-                    // If this tile is supposed to be destroyed, destroy it
-                    tilesToReveal.Add(new(tileKey.x, tileKey.y));
-                }
-
-                // Then we go through unplacedTilemapsTileValues, reveal the placed ones and set the destroyed ones to null
-                tileKeys = new List<Vector2Int>(destroyedTilemapsTileValues[j, i].Keys);
-                
-                foreach (Vector2Int tileKey in tileKeys) {
-                    // If this tile is supposed to be destroyed, destroy it
-                    tilesToDestroy.Add(new(tileKey.x, tileKey.y));
-                }
-            }
-        }
-
-        RevealTiles(tilesToReveal);
-        DestroyTiles(tilesToDestroy, true);
-    }
-
     public void CreateGenTriggers() {
         generatedRows = new bool[totalRows];
         // Create the new mine triggers
@@ -993,25 +947,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     private IEnumerator AsyncLoadData(GameData data) {
 
+        // MINE IS INITIALIZED IN REFINERY CONTROLLER
+        
         bool currentCloudLoadState = cloudLoading;
 
         // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
         yield return StartCoroutine(ReturnAllObjectsToPool());
-        
-        // this.materials = array of game objects for the materials
-        // data.materials = dictionary of MaterialManager values at string keys, where the strings are the ids
-        this.seed = data.seed;
-        Random.InitState(this.seed);
-        seedInUse = this.seed;
 
-        // If mine is already initialized, then this is not a new game
-        // This doesn't necessarily mean the player is new, just that a new mine is needed
-        this.mineInitialization = data.mineInitialization;
-
-        this.revealedTilemapsTileValues = data.revealedTilemapsTileValues;
-
-        this.destroyedTilemapsTileValues = data.destroyedTilemapsTileValues;
-        this.highestRow = data.highestRow;
         this.currentOresMined = data.currentOresMined;
         this.mineCount = data.mineCount;
 
@@ -1062,12 +1004,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             }
         }
 
-        // Finally load mine
-        if (mineInitialization == 2)
-        {
-            LoadTiles();
-        }
-
         // Initialize everything else
         refineryUpgradePad.oreUpgrades = data.oreUpgrades;
         refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
@@ -1101,11 +1037,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             return;
         }
 
-        data.revealedTilemapsTileValues = this.revealedTilemapsTileValues;
-        data.destroyedTilemapsTileValues = this.destroyedTilemapsTileValues;
-        data.seed = this.seed;
-        data.highestRow = this.highestRow;
-        data.mineInitialization = this.mineInitialization;
         data.currentOresMined = this.currentOresMined;
         data.mineCount = this.mineCount;
 
@@ -1492,10 +1423,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // The best mining position is approximately at the center of the vein's best line
         return new Vector2Int(Mathf.RoundToInt(center.x), Mathf.RoundToInt(center.y));
-    }
-
-    public SerializableDictionary<Vector2Int, int>[,] GetDestroyedTilemapsTileValues() {
-        return destroyedTilemapsTileValues;
     }
 
     public int GetSeed() {

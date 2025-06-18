@@ -114,8 +114,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
-        this.loadPlayerPos = data.playerPos;
-        this.loadRotate = data.playerRotation;
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
@@ -217,9 +215,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         if (!playerVehicle) {
             return;
         }
-
-        data.playerPos = playerVehicle.transform.parent.position;
-        data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
     }
 
     private float UpdateOriginalSpeed(float playerSpeed) {

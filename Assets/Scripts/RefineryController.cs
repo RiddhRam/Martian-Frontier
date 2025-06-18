@@ -302,19 +302,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (increaseBatteryCoroutine != null) {
             StopCoroutine(increaseBatteryCoroutine);
         }
-
-        this.refineryTimer = data.refineryTimer;
         
-        // Two cases when opening the game
-        // Case 1: Player left game while mine was resetting, or never initialized, so just reset the mine properly this time
-        if (data.mineInitialization == 0) {
-            resetMineCoroutine = StartCoroutine(ResetMine());
-        } 
-        // Case 2: Player left the game while refinery timer was counting down, so continue countdown
-        else if (refineryTimer != initialTimer) {
-            StartRefineryCountdown(refineryTimer);
-        }
-
+        StartCoroutine(ResetMine());
         UpdateRefineryProgressBars();
        
         doneLoading = true;
@@ -323,12 +312,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public void SaveData(ref GameData data) {
         data.materialsSold = this.materialsSold.ToString();
         data.askedForReview = this.askedForReview;
-
-        if (notSinglePlayerScene) {
-            return;
-        }
-
-        data.refineryTimer = this.refineryTimer;
     }
 
     private void SaveGame() {

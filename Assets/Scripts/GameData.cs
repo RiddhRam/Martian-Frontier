@@ -14,18 +14,9 @@ public class GameData
     public string materialsSold;
     public string moneyEarned;
     public double highestMined;
-    public Vector3 playerPos;
-    public float playerRotation;
     public List<string> vehiclesOwned;
     public string currentVehicle;
     
-    public int refineryTimer;
-    // Keep track of both in user used a vision boost when destroying tiles. Reveal all tiles first, then set destroyed ones to null
-    public SerializableDictionary<Vector2Int, int>[,] destroyedTilemapsTileValues;
-    public SerializableDictionary<Vector2Int, int>[,] revealedTilemapsTileValues;
-    public int seed;
-    public int highestRow;
-    public int mineInitialization;
     public int mineCount;
     // oreIndex: level
     public SerializableDictionary<int, int> oreUpgrades;
@@ -94,8 +85,6 @@ public class GameData
         // Starter cash
         this.userCash = "0";
         this.userXP = "0";
-        this.playerPos = new(0, 10, 0);
-        this.playerRotation = 180;
         this.blocksMined = "0";
         this.materialsSold = "0";
         this.moneyEarned = "0";
@@ -106,22 +95,6 @@ public class GameData
         this.vehiclesOwned = new List<string> { "GRINDER" };
         this.currentVehicle = "GRINDER";
 
-        this.refineryTimer = 120;
-        // SEARCH FOR [42] TO FIND ALL OCCURRENCES OF THE LENGTH, THERE MAY BE MORE IN DEPTH STUFF IN MineRenderer.cs
-        this.destroyedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];
-        this.revealedTilemapsTileValues = new SerializableDictionary<Vector2Int, int>[6, 42];
-        
-        for (int i = 0; i != this.destroyedTilemapsTileValues.GetLength(0); i++) {
-            for (int j = 0; j < this.destroyedTilemapsTileValues.GetLength(1); j++)
-            {
-                this.destroyedTilemapsTileValues[i, j] = new SerializableDictionary<Vector2Int, int>();
-                this.revealedTilemapsTileValues[i, j] = new SerializableDictionary<Vector2Int, int>();
-            }
-        }
-        
-        this.seed = 0;
-        this.highestRow = 0;
-        this.mineInitialization = 0;
         this.mineCount = 1;
         this.oreUpgrades = new();
 

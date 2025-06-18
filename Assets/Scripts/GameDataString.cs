@@ -8,18 +8,10 @@ public class GameDataString
     public string materialsSold;
     public string moneyEarned;
     public string highestMined;
-    public string playerPos;
-    public string playerRotation;
+    
     public string vehiclesOwned;
     public string currentVehicle;
 
-    public string refineryTimer;
-    public string destroyedTilemapsTileValues;
-    public string revealedTilemapsTileValues;
-    public string seed;
-    public string highestRow;
-    public string mineInitialization;
-    public string mineCount;
     public string oreUpgrades;
 
     public string finishedTutorial;
