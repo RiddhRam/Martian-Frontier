@@ -229,42 +229,42 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void SellOres(int[] materialsMined, bool isNPC) {
+    // Returns the cash added
+    public double SellOres(int[] materialsMined)
+    {
         // Track number of ores mined and cash earned
         int change = 0;
         double cashToAdd = 0;
 
         for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
         {
-            
+
             if (materialsMined[i] <= 0)
             {
                 continue;
             }
-            
+
             cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
             change += materialsMined[i];
         }
 
         // Update stats
         materialsSold += change;
-        playerState.NewMaterialsSold(change, isNPC);
+        playerState.NewMaterialsSold(change);
 
         // Should never be less than 0
-        if (cashToAdd <= 0) {
-            return;
+        if (cashToAdd <= 0)
+        {
+            return 0;
         }
 
         // Add cash
-        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
+        cashToAdd = (long)(cashToAdd * GetTotalProfitMultiplier());
         cashMadeThisMine += cashToAdd;
 
         playerState.AddCash(cashToAdd, true);
-        playerMovement.NewOreMined(cashToAdd);
 
-        if (tutorialManager == null) {
-            return;
-        }
+        return cashToAdd;
     }
 
     public void PlaySaleNoise() {

@@ -226,11 +226,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // Set agent type
         navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
 
+        Transform droneDetailsPanel = npcs[npcIndex].transform.GetChild(0).GetChild(0);
 
         DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
 
         // Set overheat progress bar values in the driller controller
-        Transform droneOverheatBar = npcs[npcIndex].transform.GetChild(0).GetChild(0).GetChild(1);
+        Transform droneOverheatBar = droneDetailsPanel.GetChild(1);
         drillerController.sliderImage = droneOverheatBar.GetChild(1).GetChild(0).GetComponent<Image>();
         drillerController.slider = droneOverheatBar.GetComponent<Slider>();
         drillerController.sliderTransform = droneOverheatBar.GetComponent<RectTransform>();
@@ -238,6 +239,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         drillerController.initialScale = drillerController.sliderTransform.localScale;
 
         speed = drillerController.GetPlayerSpeed();
+        drillerController.nPCMovement = nPCMovements[npcIndex];
+
+        // Set cash earned displays
+        nPCMovements[npcIndex].cashIconSpriteRenderer = droneDetailsPanel.GetChild(2).GetComponent<SpriteRenderer>();
+        nPCMovements[npcIndex].cashEarnedText = droneDetailsPanel.GetChild(3).GetComponent<TextMeshProUGUI>();
 
         SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex]);
 
@@ -305,16 +311,19 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         spriteRenderer.color = Color.red;   
     }
 
-    public void ResetNPCPos(int npcIndex) {
-        if (!spawnPointTaken[npcIndex] || npcs[npcIndex] == null) {
+    public void ResetNPCPos(int npcIndex)
+    {
+        if (!spawnPointTaken[npcIndex] || npcs[npcIndex] == null)
+        {
             return;
-        } 
+        }
 
         npcs[npcIndex].transform.position = npcSpawnPoints[npcIndex];
         npcs[npcIndex].transform.eulerAngles = new(0, 0, 90);
     }
 
     public void ResetAllNPCPos() {
+        
         for (int i = 0; i != npcCount; i++) {
             ResetNPCPos(i);
         }
@@ -349,6 +358,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
         int maxDrones = 6;
+        npcCount = 2;
 
         spawnPointTaken = new bool[maxDrones];
         npcs = new GameObject[maxDrones];
@@ -364,7 +374,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private IEnumerator PrepareGame() {
         yield return new WaitUntil(() => mineRenderer.soloMineLoaded);
         
-        for (int i = 0; i != 1; i++)
+        for (int i = 0; i != npcCount; i++)
         {
             CreateNPC(i);
         }

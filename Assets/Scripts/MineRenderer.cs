@@ -285,10 +285,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Reveal the entry blocks, by calling destroy the tiles above the first few surface blocks
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
-        DestroyTiles(initializeTiles, true, false);
+        DestroyTiles(initializeTiles, true);
         if (notSinglePlayerScene) {
             // Not an npc, and is loading, but if you change it to true, false, then the surrounding tiles are not revealed
-            DestroyTiles(coopInitializeTiles, false, true);
+            DestroyTiles(coopInitializeTiles, false);
         }
 
         mineInitialization = 2;
@@ -456,7 +456,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         RevealTiles(tilesToReveal);
-        DestroyTiles(tilesToDestroy, true, false);
+        DestroyTiles(tilesToDestroy, true);
     }
 
     public void CreateGenTriggers() {
@@ -638,7 +638,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
     }
 
-    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, bool isNPC, Vector3 vehiclePos = new(), bool playAudio = false) {
+    public void DestroyTiles(List<Vector2Int> tilesToDestroy, bool loading, Vector3 vehiclePos = new(), bool playAudio = false, NPCMovement nPCMovement = null) {
 
         oresMined = 0;
 
@@ -799,11 +799,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // If not loading
         if (!loading) {
-            // If not from an npc
-            if (!isNPC) {
-                playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
-                DailyChallengeDelegator.Instance.MinedOres(quantities);
-            }
+            playerStateScript.NewBlockMined(oresMined, tilesToDestroy.Count);
+            DailyChallengeDelegator.Instance.MinedOres(quantities);
 
             if (oresMined > 0 && playAudio)
             {
@@ -834,7 +831,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 }
 
                 // Finally pay player
-                refineryController.SellOres(newMaterials, isNPC);
+                if (nPCMovement)
+                {
+                    nPCMovement.NewOreMined(refineryController.SellOres(newMaterials));
+                }
             }
         }
 

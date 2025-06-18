@@ -10,6 +10,7 @@ public class DrillerController : MonoBehaviour
     [Header("Scripts")]
     private MineRenderer mineRenderer;
     public PlayerVehicleDelegation playerVehicleDelegation;
+    public NPCMovement nPCMovement;
 
     [SerializeField] private float playerSpeed;
     [SerializeField] private int drillTier;
@@ -131,11 +132,10 @@ public class DrillerController : MonoBehaviour
 
                 if (minedSomething)
                 {
-                    mineRenderer.DestroyTiles(currentTilePositions, false, false, (transform.position + transform.parent.position) / 2, true);
+                    mineRenderer.DestroyTiles(currentTilePositions, false, (transform.position + transform.parent.position) / 2, true, nPCMovement);
 
                     PlayAudio();
                 }
-
             }
 
             if (tileWorldPositions.Count > 0)

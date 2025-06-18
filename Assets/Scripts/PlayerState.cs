@@ -263,12 +263,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         blocksMined += amount;
     }
 
-    public void NewMaterialsSold(int amount, bool isNPC) {
+    public void NewMaterialsSold(int amount) {
         materialsSold++;
-
-        if (!isNPC) {
-            LeaderboardDelegator.Instance.AddOreScore(amount);
-        }
+        LeaderboardDelegator.Instance.AddOreScore(amount);
     }
 
     private void UpdateSubtractedAmount(GameObject objectBeingPurchased) {
