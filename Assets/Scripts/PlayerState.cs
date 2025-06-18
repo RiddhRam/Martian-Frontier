@@ -543,7 +543,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         // otherwise other scripts will overwrite the modificiations we make here
         data.playerPos = newGameData.playerPos;
         data.playerRotation = newGameData.playerRotation;
-        data.currentVehicle = playerVehicleDelegation.drillers[playerVehicleDelegation.GetNextVehicleIndex(data.mineCount)].name;
+        data.currentVehicle = VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs()[playerVehicleDelegation.GetNextVehicleIndex(data.mineCount)].name;
 
         data.highestMined = newGameData.highestMined;
         data.refineryTimer = newGameData.refineryTimer;

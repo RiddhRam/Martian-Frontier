@@ -7,19 +7,27 @@ using UnityEngine.UI;
 
 public class NPCManager : MonoBehaviour, IDataPersistence
 {
+    private static NPCManager _instance;
+    public static NPCManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<NPCManager>();
+            }
+            return _instance;
+        }
+    }
+
     [SerializeField] private GameObject npcPrefab;
 
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private bool[] spawnPointTaken;
     [SerializeField] private TextMeshProUGUI[] spawnPointNameTexts;
 
-    [SerializeField] private Sprite[] mapIcons;
     [SerializeField] public GameObject mapIconPrefab;
-    [SerializeField] private Sprite drillerIcon;
-    [SerializeField] private Sprite haulerIcon;
-
-    [SerializeField] private Transform playerVehicle;
-    private Vector3 playerSpawnPoint;
 
     [SerializeField] private GameObject[] npcs;
     private NavMeshAgent[] navMeshAgents;
@@ -27,34 +35,19 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
 
-    // How long the npcs play for
-    [SerializeField] private int[] nPCTimeRemaining;
-    [SerializeField] private int nPCEmptyTimer = 0;
-
     private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
     // Helps prevent race conditions with NPCMovement and LiveManageSession()
     private bool[] transitioningVehicle;
 
-    // How many npc haulers are active
-    private int highestDrillTier = 1;
-
     private int npcCount;
-    public bool drillingNeeded = false;
 
-    // The minimum value in the random number generator that determines whether or not NPC should spawn
-    // Setting greater than 0 gauarantees NPC will spawn
-    private int minNPCRNG = 0;
-
+    [Header("Scripts")]
     public MineRenderer mineRenderer;
-    [SerializeField] private PlayerState playerState;
-    [SerializeField] private GameObject lostInternetScreen;
-    [SerializeField] private MapRecordingMode mapRecordingMode;
-    [SerializeField] private Button toggleCamera;
+    public PlayerState playerState;
 
     private bool waitingInLobby = false;
 
     private readonly int sessionUpdateTimer = 5;
-    private readonly int[] drillerTierThresholds = {5, 11, 17};
     private readonly string[] botNames = {
         "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
         /*"Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
@@ -63,7 +56,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         "Shadow", "Frozen", "Glitchy", "Titan", "Infernal", "Chrome",
         "Echo", "Warped", "Venomous", "Hazard", "Stellar", "Jaded",
         "Atomic", "Grim", "Pixelated", "Blistered", "Cyber", "Fractal",
-        "Miner", "Driller", "Hauler", "Rover", "Seeker",
+        "Miner", "Rover", "Seeker",
         "Pioneer", "Scout", "Prospector", "Nomad", "Quaker", "Astronaut",
         "Digger", "Crawler", "Core", "Reactor", "Golem", "Harvester",
         "Excavator", "Sentinel", "Warden", "Breaker", "Scraper", "Forager",
@@ -174,56 +167,24 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         "Oreburst", "M1n3sl4sh",*/
     };
 
+    [Header("Cache")]
     readonly System.Random random = new();
-
-    // Cache
-    Coroutine liveSessionCoroutine;
     private Camera mainCamera;
 
     void Awake()
     {
         mainCamera = Camera.main;
-
-        if (mapRecordingMode.enabled) {
-            minNPCRNG = 1;
-        }
     }
 
-    public void PlacePlayer() {
-        int index = random.Next(0, spawnPoints.Length);
+    public void CreateNPC(int npcIndex)
+    {
 
-        playerSpawnPoint = spawnPoints[index].position;
-        spawnPointTaken[index] = true;
-
-        string playerName = PlayerPrefs.GetString("PlayerName");
-        spawnPointNameTexts[index].text = playerName.Substring(0, playerName.Length - 5);
-
-        SetMapIcon(playerVehicle.gameObject, playerSpawnPoint);
-
-        ResetPlayerPos();
-    }
-
-    public void ResetPlayerPos() {
-        playerVehicle.position = playerSpawnPoint;
-        playerVehicle.eulerAngles = new(0, 0, 90);
-        playerVehicle.GetChild(0).eulerAngles = new(0, 0, 270);
-    }
-
-    public void CreateNPC(int npcIndex, bool driller = true, bool newBot = true, int spawnSpecificIndex = -1) {
-        int number = random.Next(minNPCRNG, 10);
-
-        // 10% chance of player not spawning
-        if (number < 1 && newBot) {
-            return;
-        }
+        Debug.Log("Creating: " + npcIndex);
 
         npcs[npcIndex] = Instantiate(npcPrefab);
 
-        if (newBot) {
-            nPCNames[npcIndex] = GenerateBotName();
-            nPCTimeRemaining[npcIndex] = random.Next(300, 3600);
-            npcSpawnPoints[npcIndex] = GetSpawnPoint();
-        }
+        nPCNames[npcIndex] = GenerateBotName();
+        npcSpawnPoints[npcIndex] = GetSpawnPoint();
 
         System.Random seedRandom = new System.Random(nPCNames[npcIndex].GetHashCode());
 
@@ -235,30 +196,21 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].nPCManager = this;
 
         nPCMovements[npcIndex].npcNameText.text = nPCNames[npcIndex];
-        nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
+//        nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
         nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
-
-        
-        nPCMovements[npcIndex].rebirthText.text = nPCMovements[npcIndex].rebirthLevel.ToString();
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
 
-        spawnPointNameTexts[spawnIndex].text = nPCNames[npcIndex];
+        //spawnPointNameTexts[spawnIndex].text = nPCNames[npcIndex];
 
+        GameObject[] drillPrefabs = VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs();
         GameObject vehicle;
 
         // Agent types and indexes: Humanoid (0), Width 3 (1), Width 4 (2), Width 5 (3), Driller (4)
         float speed;
 
-        // Make sure player gets NPCs of the same drill tier
-        int max = drillerTierThresholds[highestDrillTier - 1];
-        int min = 0;
-
-        if (highestDrillTier != 1) {
-            min = drillerTierThresholds[highestDrillTier - 2];
-        }
-
-        int index = seedRandom.Next(min, max);
+        // Choose random drill
+        int index = seedRandom.Next(drillPrefabs.Length);
 
         // If its a Specter, drop the index by one. I haven't retested it yet
         /*if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
@@ -267,36 +219,40 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // If its a grinder, increment index. They are small and slow, not good for the NPC algorithm which needs fast or wide drills (mostly wide)
         if (garageDelegator.drillers[index].name.Contains("GRINDER")) {
             index++;
-        }
+        }*/
 
-        vehicle = Instantiate(garageDelegator.drillers[index]);*/
-
-        vehicle = null;
-
-        nPCMovements[npcIndex].drillTier = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetDrillTier();
+        vehicle = Instantiate(drillPrefabs[index]);
 
         // Set agent type
         navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
 
-        if (mapRecordingMode.enabled) {
-            // Gauarantee high speed Bore
-            speed = 10;
-        } else {
-            speed = vehicle.transform.GetChild(1).GetComponent<DrillerController>().GetPlayerSpeed();
-        }
-        
-        SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex], true);
-        
+
+        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
+
+        // Set overheat progress bar values in the driller controller
+        Transform droneOverheatBar = npcs[npcIndex].transform.GetChild(0).GetChild(0).GetChild(1);
+        drillerController.sliderImage = droneOverheatBar.GetChild(1).GetChild(0).GetComponent<Image>();
+        drillerController.slider = droneOverheatBar.GetComponent<Slider>();
+        drillerController.sliderTransform = droneOverheatBar.GetComponent<RectTransform>();
+        drillerController.sliderText = droneOverheatBar.GetChild(2).GetComponent<TextMeshProUGUI>();
+        drillerController.initialScale = drillerController.sliderTransform.localScale;
+
+        speed = drillerController.GetPlayerSpeed();
+
+        SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex]);
+
         // Must set speed after setting parent
         vehicle.transform.SetParent(npcs[npcIndex].transform, false);
         nPCMovements[npcIndex].SetSpeed(speed);
-        
+
         // Need to prevent drillers from clipping each other
         nPCMovements[npcIndex].sortingGroup.sortingOrder = (npcIndex + 2) * 2 + 2;
 
         npcs[npcIndex].transform.position = npcSpawnPoints[npcIndex];
 
         ResetNPCPos(npcIndex);
+
+        Debug.Log("Created Drone: " + npcIndex);
     }
 
     public string GenerateBotName() {
@@ -337,25 +293,16 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
     }
 
-
-    public void SetMapIcon(GameObject vehicleParent, Vector3 spawnPoint, bool driller = true) {
+    public void SetMapIcon(GameObject vehicleParent, Vector3 spawnPoint)
+    {
         GameObject mapIcon = Instantiate(mapIconPrefab);
         mapIcon.transform.SetParent(vehicleParent.transform, false);
 
         SpriteRenderer spriteRenderer = mapIcon.GetComponent<SpriteRenderer>();
 
-        // If player, use normal icon
-        if (playerSpawnPoint == spawnPoint) {
-            spriteRenderer.sprite = mapIcons[FindSpawnPointIndex(spawnPoint)];
-        } else {
-            if (driller) {
-                spriteRenderer.sprite = mapIcons[FindSpawnPointIndex(spawnPoint)];
-            } else {
-                spriteRenderer.sprite = haulerIcon;
-            }
-
-            spriteRenderer.color = spawnColours[FindSpawnPointIndex(spawnPoint)];
-        }
+        // Set sprite and icon
+        //spriteRenderer.color = spawnColours[FindSpawnPointIndex(spawnPoint)];     
+        spriteRenderer.color = Color.red;   
     }
 
     public void ResetNPCPos(int npcIndex) {
@@ -401,148 +348,51 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+        int maxDrones = 6;
 
-        spawnPointTaken = new bool[spawnPoints.Length];
-        // -1 because 1 spawn point goes to the player
-        npcCount = spawnPoints.Length - 1;
-        npcs = new GameObject[npcCount];
-        npcSpawnPoints = new Vector3[npcCount];
-        nPCMovements = new NPCMovement[npcCount];
-        nPCNames = new string[npcCount];
-        nPCTimeRemaining = new int[npcCount];
-        transitioningVehicle = new bool[npcCount];
-
-        navMeshAgents = new NavMeshAgent[npcCount];
+        spawnPointTaken = new bool[maxDrones];
+        npcs = new GameObject[maxDrones];
+        npcSpawnPoints = new Vector3[maxDrones];
+        nPCMovements = new NPCMovement[maxDrones];
+        nPCNames = new string[maxDrones];
+        transitioningVehicle = new bool[maxDrones];
+        navMeshAgents = new NavMeshAgent[maxDrones];
 
         StartCoroutine(PrepareGame());
     }
 
     private IEnumerator PrepareGame() {
-        yield return new WaitUntil(() => mineRenderer.coopMineLoaded);
-
-        PlacePlayer();
-        highestDrillTier = playerState.GetRecommendedDrillTier();
-
-        // Uncomment when recording
-        if (mapRecordingMode.enabled) {
-            npcCount = 2;
-            toggleCamera.onClick.Invoke();
-        }
-
-        for (int i = 0; i != npcCount; i++) {
+        yield return new WaitUntil(() => mineRenderer.soloMineLoaded);
+        
+        for (int i = 0; i != 1; i++)
+        {
             CreateNPC(i);
-        }
-
-        Time.timeScale = 6;
-        // 5 real seconds
-        if (!mapRecordingMode.enabled) {
-            yield return new WaitForSeconds(30);
-            Time.timeScale = 1;
         }
 
         try {
             StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
         } catch {
         }
-
-        StartCoroutine(RunLiveManageSession());
     }
 
-    private IEnumerator RunLiveManageSession() {
-        while (true) {
+    // NOT A SPAWN POINT, JUST A RANDOM COORDINATE IN THE LOBBY
+    public Vector3 GetRandomSpawnPosition()
+    {
 
-            if (liveSessionCoroutine == null) {
-                liveSessionCoroutine = StartCoroutine(LiveManageSession());
-            }
-
-            yield return new WaitForSeconds(5);
-        }
-    }
-
-    private IEnumerator LiveManageSession() {
-        while (true) {
-            yield return new WaitForSeconds(sessionUpdateTimer);
-
-            if (Application.internetReachability == NetworkReachability.NotReachable) {
-
-                for (int i = 0; i != npcCount; i++) {
-                    if (nPCMovements[i] != null) {
-                        nPCMovements[i].stopMoving = true;
-                    }
-                }
-
-                Time.timeScale = 0;
-
-                lostInternetScreen.SetActive(true);
-
-                yield break;
-            }
-
-            // Remove npcs if they are done playing
-            for (int i = 0; i != npcCount; i++) {
-                nPCTimeRemaining[i] -= sessionUpdateTimer;
-
-                // Object somehow disappeared
-                // usually happens when npc game object is destroyed when transitioning, then a new one doesnt spawn from CreateNPC because of RNG
-                if (nPCTimeRemaining[i] > 0 && npcs[i] == null && !transitioningVehicle[i]) {
-                    // Remove player without destroying gameobject
-                    RemoveNPC(i, true);
-                    Debug.Log("R: REMOVED ERROR " + i);
-                }
-                else if (nPCTimeRemaining[i] < 0 && npcs[i] != null && !transitioningVehicle[i]) {
-                    // Remove player normally
-                    RemoveNPC(i, false);
-                }
-            }
-
-            yield return new WaitUntil(() => !waitingInLobby);
-
-            // Fill empty NPC spot every 1 min
-            nPCEmptyTimer += sessionUpdateTimer;
-
-            if (nPCEmptyTimer > 60) {
-
-                for (int i = 0; i != npcCount; i++) {
-
-                    if (npcs[i] == null && !transitioningVehicle[i]) {
-                        int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[i]);
-
-                        // If no spawn index, then none was ever set
-                        if (spawnIndex == -1) {
-                            CreateNPC(i);
-                            break;
-                        }
-
-                        spawnPointTaken[spawnIndex] = false;
-                        CreateNPC(i);
-                        // Only bring 1 player max every time
-                        break;
-                    }
-                }
-
-                nPCEmptyTimer = 0;
-            }
-
-            highestDrillTier = playerState.GetRecommendedDrillTier();
-        }
-    }
-
-    public Vector3 GetRandomSpawnPosition() {
-
-        if (random.NextDouble() < 0.66) {
+        if (random.NextDouble() < 0.66)
+        {
             // In front of entrance
             return new(0, -2);
         }
-        
-        float x = (float) random.NextDouble() * (13 - 2) + 2;
-        float y = (float) random.NextDouble() * (19 - -1) + -1;
+
+        float x = (float)random.NextDouble() * (13 - 2) + 2;
+        float y = (float)random.NextDouble() * (19 - -1) + -1;
 
         return new(x, y);
     }
 
     public IEnumerator WaitInLobby() {
         waitingInLobby = true;
-        drillingNeeded = true;
         
         if (mineRenderer.mineInitialization == 0) {
             for (int i = 0; i != npcCount; i++) {
@@ -554,34 +404,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
         waitingInLobby = false;
-    }
-
-    public int Get1HaulerThreshold() {
-        return 250 + (110 * highestDrillTier);
-    }
-
-    public int Get2HaulerThreshold() {
-        return 550 + (110 * highestDrillTier);
-    }
-
-    public int Get3HaulerThreshold() {
-        return 700 + (110 * highestDrillTier);
-    }
-
-    public void RemoveNPC(int npcIndex, bool gameObjectDestroyed) {
-
-        int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[npcIndex]);
-
-        if (!gameObjectDestroyed) {
-            Destroy(npcs[npcIndex]);
-        }
-
-        npcs[npcIndex] = null;
-        
-        nPCTimeRemaining[npcIndex] = 0;
-
-        spawnPointNameTexts[spawnIndex].text = "";
-        spawnPointTaken[spawnIndex] = false;
     }
 
     public void SaveData(ref GameData data) {

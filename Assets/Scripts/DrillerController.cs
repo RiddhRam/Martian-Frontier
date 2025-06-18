@@ -2,16 +2,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Tilemaps;
+using UnityEngine.UI;
+using TMPro;
 
 public class DrillerController : MonoBehaviour
 {
-    private int radius;
+    [Header("Scripts")]
     private MineRenderer mineRenderer;
     public PlayerVehicleDelegation playerVehicleDelegation;
-    [SerializeField]
-    private float playerSpeed;
-    [SerializeField]
-    private int drillTier;
+
+    [SerializeField] private float playerSpeed;
+    [SerializeField] private int drillTier;
     // Does nothing, just for showing the user in the Garage
     public int width;
     public int endurance;
@@ -24,27 +25,40 @@ public class DrillerController : MonoBehaviour
     [Header("Upgrade Bay Info")]
     public int drillerIndex; // Position in the garage
     public int drillTypeIndex; // Corresponds to sprite's position in allNormalDrills in VehicleUpgradeBayManager
-    // Every second spent atttempting to mine a higher tier block, display an error
-    private int errorCounter = 400;
-    private int lastErrorCounter = 400;
+
+    [Header("Audio")]
     private AudioSource vehicleSoundEffects;
     private AudioClip[] drillBlockSoundEffects;
     private float[] drillBlockVolumes;
     // Same thing as the error counter, but with an actual timer
     private DateTime audioTimer = DateTime.Now;
     private int lastAudioUsed = -1;
-    private UIDelegation uiDelegation;
+    
+    [Header("Drilling")]
     private BoxCollider2D boxCollider2D;
     private Vector2 size;
     Vector2 rotatedOffset;
+    private int radius;
 
-    // Endurance
+    [Header("Endurance")]
     private float drillHeat = 0;
     private float lastMineTime = -Mathf.Infinity;
     private const float heatCooldownDelay = 0.6f;
     private int highestTierDrilled = 0;
 
-    // Cache
+    [Header("Overheat progress bar")]
+    public Image sliderImage;
+    public Slider slider;
+    public RectTransform sliderTransform;
+    public TextMeshProUGUI sliderText;
+    public Vector3 initialScale;
+    static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
+    static readonly Color coldColor = new(0f / 255f, 235f / 255f, 0f / 255f);
+    static readonly Color mid = new Color(1f, 146f/255f, 0f);
+    static readonly Color pulseColor = new Color(150f / 255f, 0f, 0f, 1f);
+    Color baseColor;
+
+    [Header("Cache")]
     // 40 should be more enough for drilling
     private readonly Collider2D[] colliders = new Collider2D[40];
     private Tilemap tilemap;
@@ -58,43 +72,30 @@ public class DrillerController : MonoBehaviour
     float time = 0;
     int count = 0;
     bool minedSomething;
-    public bool isNPC = false;
 
-    void Start() {
+    void Start()
+    {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
 
         boxCollider2D = GetComponent<BoxCollider2D>();
         // Get the bounds of the BoxCollider2D
         rotatedOffset = boxCollider2D.offset;
-        
-        radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
-        // DO NOT CHANGE THIS UNLESS DRILLER PREFAB STRUCTURE OR PLAYER STRUCTURE CHANGES
-        if (transform.parent.parent.name != "Player Vehicle")
-        {
-            isNPC = true;
-            return;
-        }
+        radius = Mathf.RoundToInt(GetComponent<BoxCollider2D>().size.x);
 
         vehicleSoundEffects = GameObject.Find("Vehicle Sound Effects").GetComponent<AudioSource>();
         drillBlockSoundEffects = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockSoundEffects;
         drillBlockVolumes = GameObject.Find("Sound Holder").GetComponent<SoundHolder>().drillBlockVolumes;
-        uiDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
     }
 
-    void FixedUpdate() {
+    // Can't use OverlapBoxNonAlloc anymore in Unity 6 and higher
+    void FixedUpdate()
+    {
 
-        // Used to reset the counters, that way when user backs up from tile then comes back, it displays the error again
-        if (lastErrorCounter == errorCounter && lastErrorCounter != 60) {
-            errorCounter = 400;
-        }
-        lastErrorCounter = errorCounter;
+        UpdateOverheatSlider(drillHeat / endurance, drillHeat);
 
-        if (!isNPC) {
-            playerVehicleDelegation.UpdateOverheatSlider(drillHeat / endurance, drillHeat);
-        }
-
-        if (drillHeat < endurance) {
+        if (drillHeat < endurance)
+        {
             size = boxCollider2D.bounds.size;
 
             // Calculate the corrected offset
@@ -104,8 +105,10 @@ public class DrillerController : MonoBehaviour
             int colliderCount = Physics2D.OverlapBoxNonAlloc(transform.position + correctedOffset, size, 0, colliders);
 
             // Destroy tiles
-            for (int i = 0; i < colliderCount; i++) {
-                if (!colliders[i].CompareTag("Mine Tag")) {
+            for (int i = 0; i < colliderCount; i++)
+            {
+                if (!colliders[i].CompareTag("Mine Tag"))
+                {
                     continue;
                 }
 
@@ -126,36 +129,35 @@ public class DrillerController : MonoBehaviour
                     }
                 }
 
-                if (minedSomething) {
-                    mineRenderer.DestroyTiles(currentTilePositions, false, isNPC, (transform.position + transform.parent.position)/2, true);
+                if (minedSomething)
+                {
+                    mineRenderer.DestroyTiles(currentTilePositions, false, false, (transform.position + transform.parent.position) / 2, true);
 
-                    if (!isNPC && JoystickMovement.Instance.joystickVec != Vector2.zero) {
-                        PlayAudio();
-                    }
+                    PlayAudio();
                 }
-                
+
             }
 
-            if (tileWorldPositions.Count > 0) {
+            if (tileWorldPositions.Count > 0)
+            {
                 minedSomething = true;
-            } else {
+            }
+            else
+            {
                 minedSomething = false;
             }
 
             tileWorldPositions.Clear();
             tileBasesToDestroy.Clear();
         }
-        else {
+        else
+        {
             minedSomething = false;
-        }
-
-        if (isNPC) {
-            return;
         }
 
         // Drill overheat
         float timeSinceLastMine = Time.time - lastMineTime;
-        
+
         if (minedSomething)
         {
             // if within chain window, add heat, irregardless of amount of blocks mined
@@ -189,30 +191,21 @@ public class DrillerController : MonoBehaviour
         highestTierDrilled = 0;
     }
 
-    public void ErrorWhenDrilling(string error, params object[] args) {
-        if (!isNPC) {
-            errorCounter++;
-            
-            // Dont spam the user with errors
-            if (errorCounter >= 400) {
-                uiDelegation.ShowError(error, args);
-                errorCounter = 0;
-            }
-        }
-    }
-
-    public void CheckToDestroyTile(Vector3Int currentTilePos) {
+    public void CheckToDestroyTile(Vector3Int currentTilePos)
+    {
 
         // Check if the tile exists
-        if (!tilemap.HasTile(currentTilePos)) {
+        if (!tilemap.HasTile(currentTilePos))
+        {
             return;
         }
 
         tileToDestroy = tilemap.GetTile(currentTilePos);
-        
+
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
-        if (highestTierDrilled < tileTier) {
+        if (highestTierDrilled < tileTier)
+        {
             highestTierDrilled = tileTier;
         }
 
@@ -221,32 +214,40 @@ public class DrillerController : MonoBehaviour
         tileBasesToDestroy.Add(tileToDestroy);
     }
 
-    public float GetPlayerSpeed() {
+    public float GetPlayerSpeed()
+    {
         return playerSpeed;
     }
 
-    public int GetDrillTier() {
+    public int GetDrillTier()
+    {
         return drillTier;
     }
 
-    public long GetPrice() {
+    public long GetPrice()
+    {
         return price;
     }
 
-    public void SetProfitMultiplier(float newProfitMultiplier) {
+    public void SetProfitMultiplier(float newProfitMultiplier)
+    {
         this.profitMultiplier = newProfitMultiplier;
     }
 
-    public float GetCoolRate() {
+    public float GetCoolRate()
+    {
         return coolRate;
     }
 
-    public void SetCoolRate(float newRate) {
+    public void SetCoolRate(float newRate)
+    {
         coolRate = newRate;
-    }  
+    }
 
-    public void PlayAudio() {
-        if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000) {
+    public void PlayAudio()
+    {
+        if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000)
+        {
             return;
         }
 
@@ -254,7 +255,8 @@ public class DrillerController : MonoBehaviour
         // Theoretically, this loop can get stuck forever but very unlikely
         randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
 
-        while (randomIndex == lastAudioUsed) {
+        while (randomIndex == lastAudioUsed)
+        {
             randomIndex = UnityEngine.Random.Range(0, drillBlockSoundEffects.Length);
         }
 
@@ -263,5 +265,56 @@ public class DrillerController : MonoBehaviour
         AudioDelegator.Instance.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
 
         audioTimer = DateTime.Now;
+    }
+    
+    public void UpdateOverheatSlider(float heatPercentage, float drillHeat)
+    {
+        // Progress
+        slider.value = heatPercentage;
+        // Text
+        sliderText.text = ((int)drillHeat).ToString();
+
+        // Calculate base colour
+        if (heatPercentage < 0.5f)
+        {
+            // 0 → 0.5 : blue → yellow
+            baseColor = Color.Lerp(coldColor, mid, heatPercentage * 2f);
+        }
+        else
+        {
+            // 0.5 → 1 : yellow → red
+            baseColor = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
+        }
+        
+        // Pulse the progress bar if heat percentage is above threshold
+        const float pulseThreshold = 0.80f;
+        const float pulseSpeed = 10f;
+        const float pulseScaleAmount = 0.1f;
+
+        if (heatPercentage > pulseThreshold)
+        {
+            // Calculate a 0-1 value representing how far we are past the pulseThreshold
+            float rampUpFactor = (heatPercentage - pulseThreshold) / (1f - pulseThreshold);
+
+            // Oscillation
+            float pulseValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
+
+            // Factor the 2 together
+            float pulseValueToUse = pulseValue * rampUpFactor;
+
+            // Lerp between the current base color and the bright pulse color
+            sliderImage.color = Color.Lerp(baseColor, pulseColor, pulseValueToUse);
+
+            // Pulse the size of the progress bar too
+            float scaleMultiplier = 1f + (pulseValueToUse * pulseScaleAmount);
+            sliderTransform.localScale = initialScale * scaleMultiplier;
+        }
+        // If heat is below threshold, make progress look normal
+        else
+        {
+            // Don't modify colour or scale
+            sliderImage.color = baseColor;
+            sliderTransform.localScale = initialScale;
+        }
     }
 }

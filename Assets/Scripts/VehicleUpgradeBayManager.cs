@@ -6,21 +6,45 @@ using UnityEngine.UI;
 
 public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 {
+    private static VehicleUpgradeBayManager _instance;
+    public static VehicleUpgradeBayManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<VehicleUpgradeBayManager>();
+            }
+            return _instance;
+        }
+    }
+
+    [Header("Driller Prefabs")]
+    public GameObject grinderDrill;
+    public GameObject twinDrill;
+    public GameObject viperDrill;
+    public GameObject boreDrill;
+    public GameObject tempestDrill;
+    public GameObject specterDrill;
+
+    private GameObject[] allDrillPrefabs;
+
     [Header("Drill Bodies")]
-    [SerializeField] Sprite[] grinderBodies;
-    [SerializeField] Sprite[] twinBodies;
-    [SerializeField] Sprite[] viperBodies;
-    [SerializeField] Sprite[] boreBodies;
-    [SerializeField] Sprite[] tempestBodies;
-    [SerializeField] Sprite[] specterBodies;
+    public Sprite[] grinderBodies;
+    public Sprite[] twinBodies;
+    public Sprite[] viperBodies;
+    public Sprite[] boreBodies;
+    public Sprite[] tempestBodies;
+    public Sprite[] specterBodies;
 
     private Sprite[][] allBodies;
 
     [Header("Drill Drillers")]
-    [SerializeField] Sprite[] baseDrills;
-    [SerializeField] Sprite[] wideDrills;
-    [SerializeField] RuntimeAnimatorController[] boreDrills;
-    [SerializeField] RuntimeAnimatorController[] boreUIDrills;
+    public Sprite[] baseDrills;
+    public Sprite[] wideDrills;
+    public RuntimeAnimatorController[] boreDrills;
+    public RuntimeAnimatorController[] boreUIDrills;
 
     private Sprite[][] allNormalDrills;
 
@@ -192,7 +216,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         (drillerController.transform.parent.GetChild(0).GetComponent<SpriteRenderer>().sprite, _) = GetBodySprite(drillerController.drillerIndex, drillerController.transform.parent.name);
 
         // Used so we can get the base values
-        DrillerController originalDrillerController = playerVehicleDelegation.drillers[drillerController.drillerIndex].transform.GetChild(1).GetComponent<DrillerController>();
+        DrillerController originalDrillerController = allDrillPrefabs[drillerController.drillerIndex].transform.GetChild(1).GetComponent<DrillerController>();
         
         drillerController.endurance = GetHeatLimit(originalDrillerController);
         drillerController.SetCoolRate(GetCoolRate(originalDrillerController));
@@ -721,7 +745,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
             coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
         }
-
     }
 
     public bool DrillUsesAnimation() {
@@ -734,9 +757,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+
+        allDrillPrefabs = new GameObject[] {
+            grinderDrill,
+            twinDrill,
+            viperDrill,
+            boreDrill,
+            tempestDrill,
+            specterDrill
+        };
         
-        allBodies = new Sprite[][]
-        {
+        allBodies = new Sprite[][] {
             grinderBodies,
             twinBodies,
             viperBodies,
@@ -769,17 +800,25 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         data.customizationsOwned = this.customizationsOwned;
     }
 
-    public void ToggleButtonColor(bool isCustomizations) {
-        if (isCustomizations) {
+    public GameObject[] GetAllDrillPrefabs()
+    {
+        return allDrillPrefabs;
+    }
+
+    public void ToggleButtonColor(bool isCustomizations)
+    {
+        if (isCustomizations)
+        {
             customizationsButtonImage.color = new(1, 0, 0, 1);
             customizationsButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);
 
-            upgradesButtonImage.color = new(1, 1, 1, 90/255f);
-            upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50/255f, 50/255f, 50/255f, 1);
-        } 
-        else {
-            customizationsButtonImage.color = new(1, 1, 1, 90/255f);
-            customizationsButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50/255f, 50/255f, 50/255f, 1);
+            upgradesButtonImage.color = new(1, 1, 1, 90 / 255f);
+            upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50 / 255f, 50 / 255f, 50 / 255f, 1);
+        }
+        else
+        {
+            customizationsButtonImage.color = new(1, 1, 1, 90 / 255f);
+            customizationsButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50 / 255f, 50 / 255f, 50 / 255f, 1);
 
             upgradesButtonImage.color = new(1, 0, 0, 1);
             upgradesButtonImage.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1, 1);

@@ -21,8 +21,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public TileBase[] tileValues;
     public Color[] tileColours;
 
-    public TextMeshProUGUI oresMinedText;
-
     // Height of the map, measured in tilemaps
     [SerializeField] private int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
@@ -60,7 +58,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // 2 = initialized
     public int mineInitialization = 0;
     public int mineCount;
-    private SerializableDictionary<string, int> oreUpgrades;
 
     public List<int> discoveredOres = new();
 
@@ -158,8 +155,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool alreadyBeingReturned = false;
     private bool notSinglePlayerScene = false;
 
-    public bool coopMineLoaded = false;
-    private bool soloMineLoaded = false;
+    public bool soloMineLoaded = false;
 
     int seedInUse;
 
@@ -800,8 +796,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             destroyTilemapsToEdit[i].SetTiles(tilesToSet, tilesBeingChanged);
         }
-        
-        oresMinedText.text = currentOresMined.ToString();
 
         // If not loading
         if (!loading) {
@@ -991,37 +985,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             StopCoroutine(_loadDataCoroutine);
         }
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("singleplayer"))
-        {
-            notSinglePlayerScene = false;
-            // This has to be done async so that we can return all objects to the pool when loading a cloud save
-            // Return objects happens over several frames to reduce lag
-            // Start the new coroutine and store its reference
-            _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
-            return;
-        }
-
-        notSinglePlayerScene = true;
-        StartCoroutine(LoadCoopLocal());
-    }
-
-    private IEnumerator LoadCoopLocal() {
-        
-        yield return StartCoroutine(ReturnAllObjectsToPool());
-
-        this.seed = (int)(System.DateTime.UtcNow - new System.DateTime(1970, 1, 1)).TotalSeconds;;
-        Random.InitState(this.seed);
-        seedInUse = this.seed;
-
-        InitializeMine();
-        DailyChallengeDelegator.Instance.Initialize();
-
-        coopMineLoaded = true;
-
-        try {
-            StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
-        } catch {
-        }
+        // This has to be done async so that we can return all objects to the pool first
+        // Return objects happens over several frames to reduce lag
+        // Start the new coroutine and store its reference
+        _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
     }
 
     private IEnumerator AsyncLoadData(GameData data) {

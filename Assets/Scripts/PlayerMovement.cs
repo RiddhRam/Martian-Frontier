@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     public Transform mainCamera;
     public Transform uiCamera;
     public PlayerState playerState;
-    public TextMeshProUGUI depthTracker;
     public bool stopMoving;
 
     [SerializeField] private float playerSpeed = 5f;
@@ -69,7 +68,6 @@ public class PlayerMovement : MonoBehaviour
         // Otherwise it gets stuck at the spawn
         // Smooth camera follow
         MoveCamera();
-        UpdateDepth();
 
         joystickVec = JoystickMovement.Instance.joystickVec;
 
@@ -164,10 +162,6 @@ public class PlayerMovement : MonoBehaviour
 
     public float GetSpeed() {
         return playerSpeed;
-    }
-
-    public void UpdateDepth() {
-        depthTracker.text = FormatPositionY((int) -(transform.position.y + 5));
     }
 
     private string FormatPositionY(int positionY)

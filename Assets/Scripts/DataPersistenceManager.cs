@@ -15,7 +15,7 @@ public class DataPersistenceManager : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<DataPersistenceManager>();
+                _instance = FindFirstObjectByType<DataPersistenceManager>();
             }
             return _instance;
         }

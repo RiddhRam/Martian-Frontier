@@ -10,8 +10,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public Sprite mineEntranceOff;
     public SpriteRenderer mineEntranceSpriteRenderer;
     public BoxCollider2D mineEntranceBoxCollider;
-
-    [SerializeField] private TextMeshProUGUI cashMadeThisMineText;
     
     public GameObject mine;
     public GameObject[] refineryProgressSliders;
@@ -41,7 +39,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public GameObject playerVehicle;
     public MineRenderer mineRenderer;
     public TutorialManager tutorialManager;
-    public NPCManager nPCManager;
     public UpgradesDelegator upgradesDelegator;
     [SerializeField] PlayerMovement playerMovement;
 
@@ -101,11 +98,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         resetMineCoroutine = StartCoroutine(ResetMine());
-
-        if (notSinglePlayerScene) {
-            nPCManager.ResetPlayerPos();
-            nPCManager.ResetAllNPCPos();
-        }
+        NPCManager.Instance.ResetAllNPCPos();
     }
 
     public void CallResetMineFromButton() {
@@ -132,8 +125,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceBoxCollider.isTrigger = false;
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
 
-        UpdateCashText();
-
         if (materialsSold >= 1000 && !askedForReview && doneLoading) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
@@ -151,11 +142,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         playerState.UpdateHighestMined(cashMadeThisMine);
         cashMadeThisMine = 0;
-        cashMadeThisMineText.text = "0";
 
-        if (nPCManager) {
-            StartCoroutine(nPCManager.WaitInLobby());
-        }
+        StartCoroutine(NPCManager.Instance.WaitInLobby());
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
         playerVehicle.transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
@@ -165,9 +153,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             StopCoroutine(increaseBatteryCoroutine);
         }
         increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialTimer));
-
-        mineRenderer.currentOresMined = 0;
-        mineRenderer.oresMinedText.text = "0";
 
         // Destroy all leftover materials, we do it this way, in case someone mined something 
         // just as the mine was shutting down, and the ore didn't have enough time to have 
@@ -276,15 +261,10 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         playerState.AddCash(cashToAdd, true);
         playerMovement.NewOreMined(cashToAdd);
-        UpdateCashText();
 
         if (tutorialManager == null) {
             return;
         }
-    }
-
-    private void UpdateCashText() {
-        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine, 1);
     }
 
     public void PlaySaleNoise() {

@@ -17,7 +17,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AdDelegator>();
+                _instance = FindFirstObjectByType<AdDelegator>();
             }
             return _instance;
         }

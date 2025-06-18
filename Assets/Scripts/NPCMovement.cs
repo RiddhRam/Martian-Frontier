@@ -9,8 +9,7 @@ using UnityEngine.Rendering;
 public class NPCMovement : MonoBehaviour
 {
 
-    [SerializeField]
-    private float playerSpeed = 5f;
+    [SerializeField] private float playerSpeed = 5f;
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
     Transform frontWheels;
@@ -20,14 +19,12 @@ public class NPCMovement : MonoBehaviour
 
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
-    public TextMeshProUGUI rebirthText; // Used to hold rebirth counter but now holds level, that's why its called rebirth text
     public Canvas worldSpaceCanvas;
 
-    public int rebirthLevel;
     public int drillTier;
     public bool stopMoving;
 
-    // Used in FixedUpdate, but declared here to reduce GC usage
+    [Header("Cache")]
     private Vector2 joystickVec;
     private float targetAngle;
     private float currentAngle;
@@ -62,6 +59,8 @@ public class NPCMovement : MonoBehaviour
         if (transitioning) {
             return;
         }
+
+        drillTier = nPCManager.playerState.GetRecommendedDrillTier();
 
         timer += Time.deltaTime;
 
@@ -105,10 +104,6 @@ public class NPCMovement : MonoBehaviour
     }
 
     public IEnumerator WaitInSpawnPosition(Vector3 newDestination) {
-        transitioning = true;
-
-        yield return null;
-
         transitioning = true;
         
         UpdateAgentDestination(newDestination);

@@ -18,7 +18,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<DailyChallengeDelegator>();
+                _instance = FindFirstObjectByType<DailyChallengeDelegator>();
             }
             return _instance;
         }

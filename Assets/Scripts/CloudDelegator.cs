@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.Services.Core;
 
-
 public class CloudDelegator : MonoBehaviour
 {
     [Header("Firebase")]
@@ -37,7 +36,7 @@ public class CloudDelegator : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<CloudDelegator>();
+                _instance = FindFirstObjectByType<CloudDelegator>();
             }
             return _instance;
         }

@@ -18,7 +18,7 @@ public class AnalyticsDelegator : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AnalyticsDelegator>();
+                _instance = FindFirstObjectByType<AnalyticsDelegator>();
             }
             return _instance;
         }
