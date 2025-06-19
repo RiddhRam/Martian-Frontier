@@ -23,15 +23,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     [SerializeField] private GameObject npcPrefab;
 
-    [SerializeField] private Transform[] spawnPoints;
-    [SerializeField] private bool[] spawnPointTaken;
-    [SerializeField] private TextMeshProUGUI[] spawnPointNameTexts;
+    [SerializeField] private Transform spawnPoint;
 
     [SerializeField] public GameObject mapIconPrefab;
 
     [SerializeField] private GameObject[] npcs;
     private NavMeshAgent[] navMeshAgents;
-    private Vector3[] npcSpawnPoints;
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
 
@@ -184,24 +181,20 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         npcs[npcIndex] = Instantiate(npcPrefab);
 
         nPCNames[npcIndex] = GenerateBotName();
-        npcSpawnPoints[npcIndex] = GetSpawnPoint();
 
         System.Random seedRandom = new System.Random(nPCNames[npcIndex].GetHashCode());
 
         npcs[npcIndex].name = nPCNames[npcIndex] + " " + npcIndex;
 
-        int spawnIndex = FindSpawnPointIndex(npcSpawnPoints[npcIndex]);
         nPCMovements[npcIndex] = npcs[npcIndex].GetComponent<NPCMovement>();
         nPCMovements[npcIndex].npcIndex = npcIndex;
         nPCMovements[npcIndex].nPCManager = this;
 
         nPCMovements[npcIndex].npcNameText.text = nPCNames[npcIndex];
-//        nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
+        // nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
         nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
-
-        //spawnPointNameTexts[spawnIndex].text = nPCNames[npcIndex];
 
         GameObject[] drillPrefabs = VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs();
         GameObject vehicle;
@@ -245,7 +238,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].cashIconSpriteRenderer = droneDetailsPanel.GetChild(2).GetComponent<SpriteRenderer>();
         nPCMovements[npcIndex].cashEarnedText = droneDetailsPanel.GetChild(3).GetComponent<TextMeshProUGUI>();
 
-        SetMapIcon(npcs[npcIndex], npcSpawnPoints[npcIndex]);
+        SetMapIcon(npcIndex);
 
         // Must set speed after setting parent
         vehicle.transform.SetParent(npcs[npcIndex].transform, false);
@@ -253,8 +246,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         // Need to prevent drillers from clipping each other
         nPCMovements[npcIndex].sortingGroup.sortingOrder = (npcIndex + 2) * 2 + 2;
-
-        npcs[npcIndex].transform.position = npcSpawnPoints[npcIndex];
 
         ResetNPCPos(npcIndex);
 
@@ -299,10 +290,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
     }
 
-    public void SetMapIcon(GameObject vehicleParent, Vector3 spawnPoint)
+    public void SetMapIcon(int droneIndex)
     {
         GameObject mapIcon = Instantiate(mapIconPrefab);
-        mapIcon.transform.SetParent(vehicleParent.transform, false);
+        mapIcon.transform.SetParent(npcs[droneIndex].transform, false);
 
         SpriteRenderer spriteRenderer = mapIcon.GetComponent<SpriteRenderer>();
 
@@ -313,12 +304,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void ResetNPCPos(int npcIndex)
     {
-        if (!spawnPointTaken[npcIndex] || npcs[npcIndex] == null)
+        if (npcs[npcIndex] == null)
         {
             return;
         }
 
-        npcs[npcIndex].transform.position = npcSpawnPoints[npcIndex];
+        npcs[npcIndex].transform.position = spawnPoint.position;
         npcs[npcIndex].transform.eulerAngles = new(0, 0, 90);
     }
 
@@ -329,40 +320,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
     }
 
-    public Vector3 GetSpawnPoint() {
-        Vector3 spawnPoint = new();
-
-        for (int i = 0; i != spawnPoints.Length; i++) {
-            if (spawnPointTaken[i]) {
-                continue;
-            }
-        
-            spawnPoint = spawnPoints[i].position;
-            spawnPointTaken[i] = true;
-            break;
-        }
-
-        return spawnPoint;
-    }
-
-    public int FindSpawnPointIndex(Vector3 spawnPoint) {
-
-        for (int i = 0; i != spawnPoints.Length; i++) {
-            if (spawnPoints[i].position == spawnPoint) {
-                return i;
-            }
-        }
-
-        return -1;
-    }
-
     public void LoadData(GameData data) {
         int maxDrones = 6;
         npcCount = 2;
 
-        spawnPointTaken = new bool[maxDrones];
         npcs = new GameObject[maxDrones];
-        npcSpawnPoints = new Vector3[maxDrones];
         nPCMovements = new NPCMovement[maxDrones];
         nPCNames = new string[maxDrones];
         transitioningVehicle = new bool[maxDrones];

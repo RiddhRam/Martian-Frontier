@@ -1192,6 +1192,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation, int drillTier)
     {
+        // If not initialized yet
+        if (mineInitialization != 2)
+        {
+            return new(0, -6);
+        }
         // Find all ore tiles within the search area
         List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius, drillTier);
         
