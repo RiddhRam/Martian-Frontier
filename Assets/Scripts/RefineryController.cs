@@ -164,7 +164,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Initialize and uncover map
         mineRenderer.InitializeMine();
-        fogOfWarSprite.sortingOrder = 3;
+        fogOfWarSprite.sortingOrder = 1;
 
         PostMineReset();
 
