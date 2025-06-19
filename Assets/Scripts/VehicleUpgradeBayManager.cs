@@ -157,7 +157,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         3_500_000_000_000_000UL,6_500_000_000_000_000UL,12_000_000_000_000_000UL,22_000_000_000_000_000UL,40_000_000_000_000_000UL
     };
 
-    
+
     // 51 values
     private static readonly float[] upgradeCoolValues = new float[] {
         0.50f, 0.58f, 0.68f, 0.79f, 0.92f, 1.1f,  1.2f,  1.4f,  1.7f,  2f,
@@ -193,8 +193,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public void PreparePanel()
     {
         // Customizations
-        DestroyPreviousVehicleDisplay();
-        CreateNewVehicleDisplay();
+        //DestroyPreviousVehicleDisplay();
+        //CreateNewVehicleDisplay();
         //GenerateCustomizationsDisplays();
 
         // Upgrades
@@ -230,7 +230,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         //drillerController.SetCoolRate(GetCoolRate(allDronesKey));
     }
 
-    private int GetDrillUpgradeLevel(string drillName, string upgradeType) {
+    private int GetDrillUpgradeLevel(string drillName, string upgradeType)
+    {
         drillName = allDronesKey;
 
         if (!vehicleUpgradeLevels.ContainsKey(drillName))
@@ -238,7 +239,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return 0;
         }
 
-        if (upgradeType == "Cooldown") {
+        if (upgradeType == "Cooldown")
+        {
             return vehicleUpgradeLevels[drillName].coolLevel;
         }
 
@@ -261,17 +263,21 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     // Find the selected body sprite the user chose
-    private (Sprite bodySprite, int spriteIndex) GetBodySprite(int drillerIndex, string drillName) {
+    public (Sprite bodySprite, int spriteIndex) GetBodySprite(int drillerIndex, string drillName)
+    {
 
         // If they didn't choose any, return the first one, which is supposed to be Vertex
-        if (!vehicleCustomizations.ContainsKey(drillName)) {
+        if (!vehicleCustomizations.ContainsKey(drillName))
+        {
             return (allBodies[drillerIndex][0], 0);
         }
 
         string bodySpriteName = vehicleCustomizations[drillName].body;
 
-        for (int i = 0; i != allBodies[drillerIndex].Length; i++) {
-            if (bodySpriteName == allBodies[drillerIndex][i].name) {
+        for (int i = 0; i != allBodies[drillerIndex].Length; i++)
+        {
+            if (bodySpriteName == allBodies[drillerIndex][i].name)
+            {
                 return (allBodies[drillerIndex][i], i);
             }
         }
@@ -281,18 +287,22 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     // Find the selected drill animator the user chose
-    private (RuntimeAnimatorController uiRuntimeAnimatorController, RuntimeAnimatorController runtimeAnimatorController, int animatorIndex) GetDrillAnimator(string drillName) {
+    private (RuntimeAnimatorController uiRuntimeAnimatorController, RuntimeAnimatorController runtimeAnimatorController, int animatorIndex) GetDrillAnimator(string drillName)
+    {
         // Currently only bore drills are animated so it's simple
 
         // If they didn't choose any, return the first one, which is supposed to be Vertex
-        if (!vehicleCustomizations.ContainsKey(drillName)) {
+        if (!vehicleCustomizations.ContainsKey(drillName))
+        {
             return (boreUIDrills[0], boreDrills[0], 0);
         }
 
         string bodySpriteName = vehicleCustomizations[drillName].drill;
 
-        for (int i = 0; i != boreDrills.Length; i++) {
-            if (bodySpriteName == boreDrills[i].name) {
+        for (int i = 0; i != boreDrills.Length; i++)
+        {
+            if (bodySpriteName == boreDrills[i].name)
+            {
                 return (boreUIDrills[i], boreDrills[i], i);
             }
         }
@@ -301,17 +311,21 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return (boreUIDrills[0], boreDrills[0], 0);
     }
 
-    private (Sprite drillSprite, int spriteIndex) GetDrillSprite(int drillTypeIndex, string drillName) {
+    private (Sprite drillSprite, int spriteIndex) GetDrillSprite(int drillTypeIndex, string drillName)
+    {
 
         // If they didn't choose any, return the first one, which is supposed to be Vertex
-        if (!vehicleCustomizations.ContainsKey(drillName)) {
+        if (!vehicleCustomizations.ContainsKey(drillName))
+        {
             return (allNormalDrills[drillTypeIndex][0], 0);
         }
 
         string bodySpriteName = vehicleCustomizations[drillName].drill;
 
-        for (int i = 0; i != allNormalDrills[drillTypeIndex].Length; i++) {
-            if (bodySpriteName == allNormalDrills[drillTypeIndex][i].name) {
+        for (int i = 0; i != allNormalDrills[drillTypeIndex].Length; i++)
+        {
+            if (bodySpriteName == allNormalDrills[drillTypeIndex][i].name)
+            {
                 return (allNormalDrills[drillTypeIndex][i], i);
             }
         }
@@ -319,7 +333,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Fallback
         return (allNormalDrills[drillTypeIndex][0], 0);
     }
-    
+
     // Remove the display from the upgrade bay
     private void DestroyPreviousVehicleDisplay()
     {
@@ -614,6 +628,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         vehicleCustomizations[drillerController.transform.parent.name].body = customization;
     }
 */
+
     private void UpdateUpgradesDictionary(int upgrade, string type)
     {
         // Make a new one if non existent and initialize to 0
@@ -630,7 +645,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         vehicleUpgradeLevels[drillerController.transform.parent.name].heatLevel += upgrade;*/
-        
+
         // Make a new one if non existent and initialize to 0
         if (!vehicleUpgradeLevels.ContainsKey(allDronesKey))
         {
@@ -638,7 +653,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // Change by amount
-        if (type == "Cooldown") {
+        if (type == "Cooldown")
+        {
             vehicleUpgradeLevels[allDronesKey].coolLevel += upgrade;
             return;
         }
@@ -646,46 +662,47 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         vehicleUpgradeLevels[allDronesKey].heatLevel += upgrade;
     }
 
-/*
-    public void PurchaseCustomization()
-    {
-        if (!playerState.VerifyEnoughGems(customizationGemPrice))
+    /*
+        public void PurchaseCustomization()
         {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
-            return;
-        }
-
-        playerState.SubtractGems(customizationGemPrice);
-
-        string customizationName;
-
-        Transform spriteTransform = selectedOutline.transform.GetChild(0);
-        if (drillIsSelected)
-        {
-            if (DrillUsesAnimation())
+            if (!playerState.VerifyEnoughGems(customizationGemPrice))
             {
-                customizationName = spriteTransform.GetComponent<Animator>().runtimeAnimatorController.name;
+                uIDelegation.ShowError("NOT ENOUGH GEMS!");
+                return;
+            }
+
+            playerState.SubtractGems(customizationGemPrice);
+
+            string customizationName;
+
+            Transform spriteTransform = selectedOutline.transform.GetChild(0);
+            if (drillIsSelected)
+            {
+                if (DrillUsesAnimation())
+                {
+                    customizationName = spriteTransform.GetComponent<Animator>().runtimeAnimatorController.name;
+                }
+                else
+                {
+                    customizationName = spriteTransform.GetComponent<Image>().sprite.name;
+                }
             }
             else
             {
                 customizationName = spriteTransform.GetComponent<Image>().sprite.name;
             }
+
+            customizationName += drillerController.transform.parent.name;
+            customizationName = customizationName.ToLower();
+
+            customizationsOwned.Add(customizationName);
+
+            buyButton.SetActive(false);
+
+            EquipCustomization();
         }
-        else
-        {
-            customizationName = spriteTransform.GetComponent<Image>().sprite.name;
-        }
+    */
 
-        customizationName += drillerController.transform.parent.name;
-        customizationName = customizationName.ToLower();
-
-        customizationsOwned.Add(customizationName);
-
-        buyButton.SetActive(false);
-
-        EquipCustomization();
-    }
-*/
     // Returns false if player can't afford upgrade, true otherwise
     public bool PurchaseUpgrade(string type)
     {
@@ -724,7 +741,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return true;
     }
 
-    public void UpdateUpgradeDetails(string flashPower = null) {
+    public void UpdateUpgradeDetails(string flashPower = null)
+    {
         int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
 
         // Update heat limit
@@ -763,7 +781,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
             heatUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[heatLevel]);
         }
-        
+
         int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
 
         // Update cool rate
@@ -783,17 +801,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             }
             coolValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(coolValueText));
         }
-        
+
         // If max level
-        if (coolLevel >= upgradeCoolPrices.Length) {
+        if (coolLevel >= upgradeCoolPrices.Length)
+        {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
             coolUpgradePriceText.text = "MAX";
-        } else {
+        }
+        else
+        {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
-            coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195/255f, 0);
+            coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
             coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[coolLevel];
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
@@ -801,8 +822,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
     }
 
-    public bool DrillUsesAnimation() {
-        if (drillerController.GetComponent<Animator>()) {
+    public bool DrillUsesAnimation()
+    {
+        if (drillerController.GetComponent<Animator>())
+        {
             return true;
         }
 
@@ -820,7 +843,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             tempestDrill,
             specterDrill
         };
-        
+
         allBodies = new Sprite[][] {
             grinderBodies,
             twinBodies,
@@ -880,7 +903,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     // For tutorial
-    public void FlashUpgradeButton() {
+    public void FlashUpgradeButton()
+    {
         flashButton = true;
         Image heatUpgradeButtonImage = heatUpgradePriceText.transform.parent.parent.GetComponent<Image>();
 
@@ -890,7 +914,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         StartCoroutine(FlashButton(heatUpgradeButtonImage, originalColor, darkColor));
     }
 
-    public void FlashCloseButton() {
+    public void FlashCloseButton()
+    {
         flashButton = true;
 
         Color originalColor = closeButtonImage.color;
@@ -899,8 +924,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
     }
 
-    private IEnumerator FlashUpgradeValueText(TextMeshProUGUI valueText) {
-        Color start = new(9/255f, 176/255f, 9/255f);
+    private IEnumerator FlashUpgradeValueText(TextMeshProUGUI valueText)
+    {
+        Color start = new(9 / 255f, 176 / 255f, 9 / 255f);
         Color target = Color.black;
 
         valueText.color = start;
@@ -921,7 +947,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         valueText.color = target;
     }
 
-    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor) {
+    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor)
+    {
         float duration = 0.5f; // time to go from original to dark and back
         float t = 0f;
         bool goingDarker = true;
@@ -947,13 +974,27 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         buttonImage.color = originalColor;
     }
 
-    public bool BoughtOneUpgrade() {
-        foreach (var key in vehicleUpgradeLevels.Keys) {
-            if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0) {
+    public bool BoughtOneUpgrade()
+    {
+        foreach (var key in vehicleUpgradeLevels.Keys)
+        {
+            if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0)
+            {
                 return true;
             }
         }
 
         return false;
     }
+
+    public Sprite[] GetAllDrillBodySprites(int drillerIndex)
+    {
+        return allBodies[drillerIndex];
+    }
+
+    public Sprite[] GetAllDrillDrillerSprites(int drillTypeIndex)
+    {
+        return allNormalDrills[drillTypeIndex];
+    }
+    
 }

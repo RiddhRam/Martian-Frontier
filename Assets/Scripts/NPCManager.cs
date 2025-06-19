@@ -188,8 +188,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCNames[npcIndex] = GenerateBotName(npcIndex);
 
         // Choose a random factor to multiply by, so adjacent levels aren't too similar
-        int multiplicationFactor = new System.Random(snapshotGameData.mineCount).Next(1, 31);
-        Debug.Log(multiplicationFactor * (npcIndex + snapshotGameData.mineCount));
+        int multiplicationFactor = new System.Random(snapshotGameData.mineCount).Next(0, 61);
         System.Random seedRandom = new System.Random(multiplicationFactor * (npcIndex + snapshotGameData.mineCount));
 
         nPCMovements[npcIndex] = npcs[npcIndex].GetComponent<NPCMovement>();
@@ -209,7 +208,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         float speed;
 
         // Choose random drill
-        int index = seedRandom.Next(drillPrefabs.Length);
+        //int index = seedRandom.Next(drillPrefabs.Length);
+        int index = npcIndex;
 
         // If its a Specter, drop the index by one. I haven't retested it yet
         /*if (garageDelegator.drillers[index].name.Contains("SPECTER")) {
@@ -222,12 +222,30 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         vehicle = Instantiate(drillPrefabs[index]);
 
+        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
+
+        Sprite[] bodySprites = VehicleUpgradeBayManager.Instance.GetAllDrillBodySprites(index);
+        // Set sprite
+        vehicle.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = bodySprites[seedRandom.Next(bodySprites.Length)];
+        // If there's an animator on the drill, change that
+        // Otherwise change the spriterenderer
+        Animator drillAnimator = vehicle.transform.GetChild(1).GetComponent<Animator>();
+
+        if (drillAnimator)
+        {
+            RuntimeAnimatorController[] runtimeAnimatorControllers = VehicleUpgradeBayManager.Instance.boreDrills;
+            drillAnimator.runtimeAnimatorController = runtimeAnimatorControllers[seedRandom.Next(runtimeAnimatorControllers.Length)];
+        }
+        else
+        {
+            Sprite[] drillerSprites = VehicleUpgradeBayManager.Instance.GetAllDrillDrillerSprites(drillerController.drillTypeIndex);
+            vehicle.transform.GetChild(1).GetComponent<SpriteRenderer>().sprite = drillerSprites[seedRandom.Next(drillerSprites.Length)];
+        }
+
         // Set agent type
         navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
 
         Transform droneDetailsPanel = npcs[npcIndex].transform.GetChild(0).GetChild(0);
-
-        DrillerController drillerController = vehicle.transform.GetChild(1).GetComponent<DrillerController>();
 
         // Set overheat progress bar values in the driller controller
         Transform droneOverheatBar = droneDetailsPanel.GetChild(1);
@@ -324,7 +342,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         snapshotGameData = data;
 
         int maxDrones = 6;
-        npcCount = 4;
+        npcCount = 6;
 
         npcs = new GameObject[maxDrones];
         nPCMovements = new NPCMovement[maxDrones];
