@@ -171,6 +171,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [Header("Cache")]
     readonly System.Random random = new();
     private Camera mainCamera;
+    // Only used to reference mineCount, because mineCount is used for random seed generation
+    GameData snapshotGameData;
 
     void Awake()
     {
@@ -179,16 +181,16 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void CreateNPC(int npcIndex)
     {
-
         Debug.Log("Creating: " + npcIndex);
 
         npcs[npcIndex] = Instantiate(npcPrefab);
 
         nPCNames[npcIndex] = GenerateBotName(npcIndex);
 
-        System.Random seedRandom = new System.Random(nPCNames[npcIndex].GetHashCode());
-
-        npcs[npcIndex].name = nPCNames[npcIndex] + " " + npcIndex;
+        // Choose a random factor to multiply by, so adjacent levels aren't too similar
+        int multiplicationFactor = new System.Random(snapshotGameData.mineCount).Next(1, 31);
+        Debug.Log(multiplicationFactor * (npcIndex + snapshotGameData.mineCount));
+        System.Random seedRandom = new System.Random(multiplicationFactor * (npcIndex + snapshotGameData.mineCount));
 
         nPCMovements[npcIndex] = npcs[npcIndex].GetComponent<NPCMovement>();
         nPCMovements[npcIndex].npcIndex = npcIndex;
@@ -252,6 +254,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].sortingGroup.sortingOrder = (npcIndex + 2) * 2 + 2;
 
         ResetNPCPos(npcIndex);
+
+        npcs[npcIndex].name = nPCNames[npcIndex] + " " + drillPrefabs[index].name;
     }
 
     public string GenerateBotName(int droneIndex)
@@ -317,6 +321,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
+        snapshotGameData = data;
+
         int maxDrones = 6;
         npcCount = 4;
 

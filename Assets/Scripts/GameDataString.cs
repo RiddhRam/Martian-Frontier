@@ -12,6 +12,7 @@ public class GameDataString
     public string vehiclesOwned;
     public string currentVehicle;
 
+    public string mineCount;
     public string oreUpgrades;
 
     public string finishedTutorial;

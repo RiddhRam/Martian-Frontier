@@ -136,6 +136,7 @@ public class GameCameraController : MonoBehaviour
         uiCamera.transform.position = mainCamera.transform.position;
     }
 
+    /*
     void OnDrawGizmosSelected()
     {
         if (cameraBounds.size.x > 0 && cameraBounds.size.y > 0)
@@ -145,7 +146,7 @@ public class GameCameraController : MonoBehaviour
             // The size of the Gizmo cube should be the size of the Rect.
             Gizmos.DrawWireCube(cameraBounds.center, cameraBounds.size);
         }
-    }
+    }*/
 
     public void SetDroneToFollow(Transform newDroneToFollow)
     {

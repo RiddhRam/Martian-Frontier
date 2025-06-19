@@ -960,8 +960,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         this.discoveredOres = data.discoveredOres;
 
         // Choose a random factor to multiply by, so adjacent levels aren't too similar
-        var factorDecider = new System.Random(this.mineCount);
-        int multiplicationFactor = factorDecider.Next(0, 31);
+        int multiplicationFactor = new System.Random(this.mineCount).Next(0, 31);
 
         // Build a list of all original indices (0-14)
         List<int> indices = Enumerable.Range(0, oreDelegation.materialNames.Length).ToList();
