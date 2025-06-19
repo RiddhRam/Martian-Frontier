@@ -1,8 +1,12 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameCameraController : MonoBehaviour
 {
     public Rect cameraBounds;
+
+    public Transform droneToFollow;
+    const float cameraFollowSpeed = 5f;
 
     private bool zoomingEnabled = true;
     public float zoomOutMin;
@@ -36,29 +40,30 @@ public class GameCameraController : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-        // Only used for panning, not zooming
-        if (Input.GetMouseButtonDown(0) && !zooming)
+        // First part: Only used for panning, not zooming
+        // Second part: If zooming, but now there's only 1 input, then start position will be from where user last released the screen
+        // Maybe delete the second part
+        if ((Input.GetMouseButtonDown(0) && !zooming) || (zooming && Input.touchCount == 1))
         {
             // Record mouse start position
             touchStart = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         }
 
-        // If zooming, but now there's only 1 input, then start position will be from where user last released the screen
-        // Maybe delete this
-
-        if (zooming && Input.touchCount == 1)
-        {
-            touchStart = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-        }
-
+        // If less than 2 inputs, then player is panning, not zooming
         if (Input.touchCount < 2)
         {
             zooming = false;
         }
 
-        // Zoom
-        if (Input.touchCount == 2)
+        // If following a drone
+        if (droneToFollow)
+        {
+            Vector3 targetPosition = new(droneToFollow.position.x, droneToFollow.position.y, transform.position.z);
+            transform.position = Vector3.Lerp(transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
+            uiCamera.transform.position = transform.position;
+        }
+        // If 2 or more inputs, player is zooming
+        else if (Input.touchCount >= 2)
         {
             Touch touchZero = Input.GetTouch(0);
             Touch touchOne = Input.GetTouch(1);
@@ -73,7 +78,7 @@ public class GameCameraController : MonoBehaviour
             Zoom(difference * 0.01f);
             zooming = true;
         }
-        // Pan
+        // Pan if mouse clicked
         else if (Input.GetMouseButton(0))
         {
             // Pan the camera in the direction by getting the mouse position and comparing to initiali position
@@ -98,7 +103,6 @@ public class GameCameraController : MonoBehaviour
         mainCamera.orthographicSize = Mathf.Clamp(mainCamera.orthographicSize - increment, zoomOutMin, zoomOutMax);
         uiCamera.orthographicSize = mainCamera.orthographicSize;
     }
-
 
     // Disabled when a UI panel is open
     public void ToggleZooming(bool newValue)
@@ -131,7 +135,7 @@ public class GameCameraController : MonoBehaviour
         mainCamera.transform.position = new Vector3(clampedX, clampedY, camPos.z);
         uiCamera.transform.position = mainCamera.transform.position;
     }
-    
+
     void OnDrawGizmosSelected()
     {
         if (cameraBounds.size.x > 0 && cameraBounds.size.y > 0)
@@ -143,4 +147,23 @@ public class GameCameraController : MonoBehaviour
         }
     }
 
+    public void SetDroneToFollow(Transform newDroneToFollow)
+    {
+        droneToFollow = newDroneToFollow;
+
+        StartCoroutine(LerpCamera(25));
+    }
+
+    private IEnumerator LerpCamera(float targetValue)
+    {
+        float startValue = mainCamera.orthographicSize;
+        float time = 0f;
+
+        while (time < 0.5f)
+        {
+            time += Time.deltaTime;
+            mainCamera.orthographicSize = Mathf.Lerp(startValue, targetValue, time / 0.5f);
+            yield return null;
+        }
+    }
 }

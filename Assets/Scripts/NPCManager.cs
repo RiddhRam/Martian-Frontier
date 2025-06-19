@@ -32,9 +32,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
 
-    private readonly Color[] spawnColours = {new(246/255f, 4/255f, 3/255f), new(57/255f, 255/255f, 21/255f), new(2/255f, 191/255f, 255f/255f), new(255f/255, 166/255f, 2/255f)};
+    private readonly Color[] spawnColours = { new(246 / 255f, 4 / 255f, 3 / 255f), new(57 / 255f, 255 / 255f, 21 / 255f), new(2 / 255f, 191 / 255f, 255f / 255f), new(255f / 255, 166 / 255f, 2 / 255f) };
     // Helps prevent race conditions with NPCMovement and LiveManageSession()
-    private bool[] transitioningVehicle;
 
     private int npcCount;
 
@@ -47,8 +46,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private readonly int sessionUpdateTimer = 5;
     private readonly string[] botNames = {
         "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
-        /*"Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
-        "Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
+        "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
+        /*"Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
         "Radiant", "Pyro", "Blazing", "Silent", "Nebula", "Electric",
         "Shadow", "Frozen", "Glitchy", "Titan", "Infernal", "Chrome",
         "Echo", "Warped", "Venomous", "Hazard", "Stellar", "Jaded",
@@ -164,6 +163,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         "Oreburst", "M1n3sl4sh",*/
     };
 
+    [Header("Camera Controls")]
+    private int droneCameraIndex;
+    public Image toggleCameraModeButton;
+    public GameObject cameraIterateControls;
+
     [Header("Cache")]
     readonly System.Random random = new();
     private Camera mainCamera;
@@ -180,7 +184,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         npcs[npcIndex] = Instantiate(npcPrefab);
 
-        nPCNames[npcIndex] = GenerateBotName();
+        nPCNames[npcIndex] = GenerateBotName(npcIndex);
 
         System.Random seedRandom = new System.Random(nPCNames[npcIndex].GetHashCode());
 
@@ -248,46 +252,35 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].sortingGroup.sortingOrder = (npcIndex + 2) * 2 + 2;
 
         ResetNPCPos(npcIndex);
-
-        Debug.Log("Created Drone: " + npcIndex);
     }
 
-    public string GenerateBotName() {
+    public string GenerateBotName(int droneIndex)
+    {
         // Decide how many words to use (1 or 2)
-        int wordCount = random.Next(1, 3);
-        string botName = "";
+        /*string botName;
 
-        for (int i = 0; i < wordCount; i++)
+        // Choose name
+        while (true)
         {
-            string word = botNames[random.Next(botNames.Length)];
-            int style = random.Next(3); // 0 = caps, 1 = lower, 2 = as is
+            botName = botNames[random.Next(botNames.Length)];
 
-            switch (style)
+            // Make sure name is unique
+            for (int i = 0; i != npcCount; i++)
             {
-                case 0: word = word.ToUpper(); 
-                    break;
-                case 1: word = word.ToLower(); 
-                    break;
-                // case 2: leave as is
+                // Name is not unique, choose another
+                if (nPCNames[i] != null && botName == nPCNames[i])
+                {
+                    continue;
+                }
             }
+        }*/
 
-            botName += word;
-        }
-
-        // Determine the number of digits (0 to 3)
-        int digitCount = random.Next(4);
-
-        if (digitCount == 0) {
-            return botName;
-        }
-
-        botName += random.Next((int) Math.Pow(10, digitCount)); // Random digit from 0 to 9
-
-        return botName;
+        return (droneIndex + 1).ToString();
     }
 
-    public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier) {        
-        return mineRenderer.FindBestMiningPosition(3, 15, new((int) pos.x, (int) pos.y), rotation, drillTier);
+    public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier)
+    {
+        return mineRenderer.FindBestMiningPosition(3, 15, new((int)pos.x, (int)pos.y), rotation, drillTier);
     }
 
     public void SetMapIcon(int droneIndex)
@@ -299,7 +292,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         // Set sprite and icon
         //spriteRenderer.color = spawnColours[FindSpawnPointIndex(spawnPoint)];     
-        spriteRenderer.color = Color.red;   
+        spriteRenderer.color = Color.red;
     }
 
     public void ResetNPCPos(int npcIndex)
@@ -313,38 +306,73 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         npcs[npcIndex].transform.eulerAngles = new(0, 0, 90);
     }
 
-    public void ResetAllNPCPos() {
-        
-        for (int i = 0; i != npcCount; i++) {
+    public void ResetAllNPCPos()
+    {
+
+        for (int i = 0; i != npcCount; i++)
+        {
             ResetNPCPos(i);
         }
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
         int maxDrones = 6;
-        npcCount = 2;
+        npcCount = 4;
 
         npcs = new GameObject[maxDrones];
         nPCMovements = new NPCMovement[maxDrones];
         nPCNames = new string[maxDrones];
-        transitioningVehicle = new bool[maxDrones];
         navMeshAgents = new NavMeshAgent[maxDrones];
 
         StartCoroutine(PrepareGame());
     }
 
-    private IEnumerator PrepareGame() {
+    private IEnumerator PrepareGame()
+    {
         yield return new WaitUntil(() => mineRenderer.soloMineLoaded);
-        
+
         for (int i = 0; i != npcCount; i++)
         {
             CreateNPC(i);
         }
 
-        try {
+        try
+        {
             StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
-        } catch {
         }
+        catch
+        {
+        }
+    }
+
+    public void SaveData(ref GameData data)
+    {
+
+    }
+
+    public IEnumerator WaitInLobby()
+    {
+        waitingInLobby = true;
+
+        if (mineRenderer.mineInitialization == 0)
+        {
+            for (int i = 0; i != npcCount; i++)
+            {
+                if (nPCMovements[i] != null)
+                {
+                    StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition()));
+                }
+            }
+        }
+
+        yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
+        waitingInLobby = false;
+    }
+
+    public Color[] GetSpawnColors()
+    {
+        return spawnColours;
     }
 
     // NOT A SPAWN POINT, JUST A RANDOM COORDINATE IN THE LOBBY
@@ -363,26 +391,48 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return new(x, y);
     }
 
-    public IEnumerator WaitInLobby() {
-        waitingInLobby = true;
-        
-        if (mineRenderer.mineInitialization == 0) {
-            for (int i = 0; i != npcCount; i++) {
-                if (nPCMovements[i] != null) {
-                    StartCoroutine(nPCMovements[i].WaitInSpawnPosition(GetRandomSpawnPosition()));
-                }
-            } 
+    public void ToggleCameraMode()
+    {
+        GameCameraController gameCameraController = mainCamera.GetComponent<GameCameraController>();
+
+        // If camera is following a drone, tell it to stop
+        if (gameCameraController.droneToFollow)
+        {
+            gameCameraController.droneToFollow = null;
+
+            // Update UI
+            toggleCameraModeButton.color = new(1, 64/255f, 129/255f);
+            cameraIterateControls.SetActive(false);
+            return;
         }
 
-        yield return new WaitUntil(() => mineRenderer.mineInitialization != 0);
-        waitingInLobby = false;
+        // Otherwise, tell it to follow a drone
+        droneCameraIndex = 0;
+        gameCameraController.SetDroneToFollow(npcs[droneCameraIndex].transform);
+
+        // Update UI
+        toggleCameraModeButton.color = new(1, 0, 0);
+        cameraIterateControls.SetActive(true);
     }
 
-    public void SaveData(ref GameData data) {
+    public void SwitchDroneCamera(int direction)
+    {
+        // direction = 1, go forward. direction = -1, go backward
+        int startIndex = droneCameraIndex;
+        int index = droneCameraIndex;
 
-    }
-
-    public Color[] GetSpawnColors() {
-        return spawnColours;
+        // Find the next available drone camera and search in the right direction
+        do
+        {
+            // Have to subtract direction, not add
+            index = (index - direction + npcs.Length) % npcs.Length;
+            if (npcs[index] != null)
+            {
+                droneCameraIndex = index;
+                mainCamera.GetComponent<GameCameraController>().SetDroneToFollow(npcs[index].transform);
+                return;
+            }
+        }
+        while (index != startIndex);
     }
 }

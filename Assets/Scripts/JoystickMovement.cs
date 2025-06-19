@@ -12,7 +12,7 @@ public class JoystickMovement : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<JoystickMovement>();
+                _instance = FindFirstObjectByType<JoystickMovement>();
             }
             return _instance;
         }
