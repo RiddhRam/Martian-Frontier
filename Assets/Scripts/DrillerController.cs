@@ -18,10 +18,8 @@ public class DrillerController : MonoBehaviour
     public int width;
     public int endurance;
     private float coolRate = 0.5f; // 0.5f * 50fps = 25/second
-    [SerializeField]
-    private long price;
-    [SerializeField]
-    private float profitMultiplier;
+    [SerializeField] private long price;
+    [SerializeField] private float profitMultiplier;
 
     [Header("Upgrade Bay Info")]
     public int drillerIndex; // Position in the garage
@@ -92,6 +90,8 @@ public class DrillerController : MonoBehaviour
     // Can't use OverlapBoxNonAlloc anymore in Unity 6 and higher
     void FixedUpdate()
     {
+        // Update endurance each iteration in case it updates. This way there's no need to set a listener
+        endurance = VehicleUpgradeBayManager.Instance.GetHeatLimit("");
 
         UpdateOverheatSlider(drillHeat / endurance, drillHeat);
 
@@ -184,7 +184,7 @@ public class DrillerController : MonoBehaviour
             // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
-                drillHeat = Mathf.Max(0, (int)(drillHeat - coolRate));
+                drillHeat = Mathf.Max(0, (int)(drillHeat - VehicleUpgradeBayManager.Instance.GetCoolRate("")));
             }
         }
 

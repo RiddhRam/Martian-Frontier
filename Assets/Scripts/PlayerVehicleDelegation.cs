@@ -87,7 +87,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // In production this loads before the upgrade bay for some reason, whichever loads second should call the function
         if (vehicleUpgradeBayManager.loaded)
         {
-            vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
+            //vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
         }
 
         AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
