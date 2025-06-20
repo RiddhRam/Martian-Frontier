@@ -43,7 +43,7 @@ public class RefineryUpgradePad : MonoBehaviour
     double cashProceedAmount;
 
     const float orePriceMultiplierPerLevel = 1.08f;
-    const float oreUpgradePriceMultiplierPerLevel = 1.2f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.23f;
 
     [Header("For Tutorial")]
     public bool flashButton;

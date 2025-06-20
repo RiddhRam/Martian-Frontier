@@ -78,9 +78,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     [Header("Upgrades Display")]
     public Slider heatUpgradeSlider;
     public Slider coolUpgradeSlider;
+    public Slider droneUpgradeSlider;
 
     public TextMeshProUGUI heatUpgradePriceText;
     public TextMeshProUGUI coolUpgradePriceText;
+    public TextMeshProUGUI droneUpgradePriceText;
 
     [Header("Other Scripts")]
     public UIDelegation uIDelegation;
@@ -168,8 +170,16 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         1000f
     };
 
+    private static readonly ulong[] upgradeDronePrices = new ulong[]
+    {
+        5,            60_000UL,            3_500_000UL,           210_000_000UL,           13_000_000_000UL,
+        530_000_000_000UL
+    };
+    private int maxDroneCount;
+
     private Coroutine heatValueTextCoroutine;
     private Coroutine coolValueTextCoroutine;
+    private Coroutine droneValueTextCoroutine;
 
     const string allDronesKey = "ALL DRONES";
 
@@ -188,6 +198,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         HoldButton coolHoldButton = coolButton.gameObject.AddComponent<HoldButton>();
         coolHoldButton.SetAction(() => PurchaseUpgrade("Cooldown"));
+
+        // Set drone button click listener and hold to purchase
+        Transform droneButton = droneUpgradePriceText.transform.parent.parent;
+        droneButton.GetComponent<Button>().onClick.AddListener(() => PurchaseUpgrade("Drones"));
+
+        HoldButton droneHoldButton = droneButton.gameObject.AddComponent<HoldButton>();
+        droneHoldButton.SetAction(() => PurchaseUpgrade("Drones"));
     }
 
     public void PreparePanel()
@@ -239,12 +256,18 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return 0;
         }
 
+        if (upgradeType == "Heat")
+        {
+            return vehicleUpgradeLevels[drillName].heatLevel;
+        }
+
         if (upgradeType == "Cooldown")
         {
             return vehicleUpgradeLevels[drillName].coolLevel;
         }
 
-        return vehicleUpgradeLevels[drillName].heatLevel;
+        // "Drones"
+        return vehicleUpgradeLevels[drillName].droneLevel;
     }
 
     public int GetHeatLimit(string keyName)
@@ -260,6 +283,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // 6 per level (0.12f per update, and 50fps)
         //return upgradeCoolValues[GetDrillUpgradeLevel(keyName, "Cooldown")];
         return upgradeCoolValues[GetDrillUpgradeLevel(allDronesKey, "Cooldown")];
+    }
+
+    public int GetDroneCount(string keyName)
+    {
+        // Number of drones = drone level
+        return GetDrillUpgradeLevel(allDronesKey, "Drones");
     }
 
     // Find the selected body sprite the user chose
@@ -649,7 +678,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Make a new one if non existent and initialize to 0
         if (!vehicleUpgradeLevels.ContainsKey(allDronesKey))
         {
-            vehicleUpgradeLevels[allDronesKey] = new VehicleUpgrade(0, 0);
+            vehicleUpgradeLevels[allDronesKey] = new VehicleUpgrade(0, 0, 0);
+        }
+
+        if (type == "Heat")
+        {
+            vehicleUpgradeLevels[allDronesKey].heatLevel += upgrade;
+            return;
         }
 
         // Change by amount
@@ -659,7 +694,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             return;
         }
 
-        vehicleUpgradeLevels[allDronesKey].heatLevel += upgrade;
+        // "Drones"
+        vehicleUpgradeLevels[allDronesKey].droneLevel += upgrade;
     }
 
     /*
@@ -714,9 +750,15 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
         }
+        else if (type == "Heat")
+        {
+            // Using same prices as cooldown prices for now
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+        }
         else
         {
-            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+            upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones")];
+            NPCManager.Instance.CreateNPC();
         }
 
         // Transact amount
@@ -820,6 +862,44 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
             coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
         }
+
+        int droneLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones");
+
+        // Update drone
+        // Slider is offset by 1
+        droneUpgradeSlider.value = droneLevel + 1;
+
+        TextMeshProUGUI droneValueText = droneUpgradeSlider.transform.GetChild(2).GetComponent<TextMeshProUGUI>();
+        droneValueText.text = GetDroneCount("").ToString();
+
+        if (flashPower == "Drones")
+        {
+            // Flash text
+            if (droneValueTextCoroutine != null)
+            {
+                StopCoroutine(droneValueTextCoroutine);
+            }
+            droneValueTextCoroutine = StartCoroutine(FlashUpgradeValueText(droneValueText));
+        }
+
+        // If max level
+        if (droneLevel >= maxDroneCount)
+        {
+            droneUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
+            droneUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
+
+            droneUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(false);
+            droneUpgradePriceText.text = "MAX";
+        }
+        else
+        {
+            droneUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
+            droneUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
+            droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeDronePrices[droneLevel];
+
+            droneUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
+            droneUpgradePriceText.text = playerState.FormatPrice(upgradeDronePrices[droneLevel]);
+        }
     }
 
     public bool DrillUsesAnimation()
@@ -862,6 +942,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         this.vehicleCustomizations = data.vehicleCustomizations;
         this.customizationsOwned = data.customizationsOwned;
 
+        maxDroneCount = GetMaxDroneCount(data.mineCount);
+
         // In production this loads after PlayerVehicleDelegation for some reason, whichever loads second should call the function
         /*if (playerVehicleDelegation.loaded) {
             MatchPlayerDrillToDrill();
@@ -875,6 +957,24 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
         data.vehicleCustomizations = this.vehicleCustomizations;
         data.customizationsOwned = this.customizationsOwned;
+    }
+
+    public int GetMaxDroneCount(int mineCount)
+    {
+        if (mineCount <= 2)
+        {
+            return mineCount;
+        }
+        if (mineCount <= 4)
+        {
+            return 3;
+        }
+        if (mineCount <= 5)
+        {
+            return 4;
+        }
+
+        return 6;
     }
 
     public GameObject[] GetAllDrillPrefabs()
