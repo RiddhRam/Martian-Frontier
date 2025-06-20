@@ -163,8 +163,7 @@ public class OreDelegation : MonoBehaviour
     // 5.0.0 (47.1%), 5.0.5 (44.9%)
 
     // Clear grid when closing, then reprepare it when opening in case user changes language
-    public void ClearGrid()
-    {
+    public void ClearGrid() {
         int childCount = contentGO.transform.childCount;
 
         for (int i = 0; i != childCount; i++)

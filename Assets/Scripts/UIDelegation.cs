@@ -69,31 +69,38 @@ public class UIDelegation : MonoBehaviour
     }
 
     // Used when opening the map, or closing
-    public void ToggleCamera() {
+    // MAP CAMERA, NOT MAIN CAMERA
+    public void ToggleCamera()
+    {
         mapCamera.SetActive(!mapCamera.activeSelf);
 
         // Make sure its active
-        if (!mapCamera.activeSelf) {
+        if (!mapCamera.activeSelf)
+        {
             return;
         }
 
-        float aspectRatio = (float) Screen.height / Screen.width;
+        float aspectRatio = (float)Screen.height / Screen.width;
 
-        if (aspectRatio >= 1.7) {
+        if (aspectRatio >= 1.7)
+        {
             aspectRatio /= 1.12f;
-        } else {
+        }
+        else
+        {
             aspectRatio /= 1.15f;
         }
-        
+
         // Create a new RenderTexture
-        renderTexture = new RenderTexture((int) (Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
+        renderTexture = new RenderTexture((int)(Screen.height / aspectRatio), Screen.height, 24, RenderTextureFormat.ARGB32); // 24 is the depth buffer bit size
         renderTexture.depthStencilFormat = UnityEngine.Experimental.Rendering.GraphicsFormat.S8_UInt;
         renderTexture.Create();
 
         // Assign the RenderTexture to the mapCamera's target texture
         mapCamera.GetComponent<Camera>().targetTexture = renderTexture;
         mapCameraView.GetComponent<RawImage>().texture = renderTexture;
-        if (teleportCameraView) {
+        if (teleportCameraView)
+        {
             teleportCameraView.GetComponent<RawImage>().texture = renderTexture;
         }
     }

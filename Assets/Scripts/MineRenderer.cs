@@ -19,6 +19,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
     // These are used to reveal which tile is at a position, includes base rock tile, and ores
     public TileBase[] tileValues;
+    // The colour of the particles to show when an ore is destroyed
     public Color[] tileColours;
 
     // Height of the map, measured in tilemaps
@@ -1197,6 +1198,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // If not initialized yet
         if (mineInitialization != 2)
         {
+            Debug.Log("MINE NOT INITIALIZED");
             return new(0, -6);
         }
         // Find all ore tiles within the search area
@@ -1204,6 +1206,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no ore tiles found
         if (oreTiles.Count == 0) {
+            Debug.Log("NO ORES!");
             return new(0, -6);
         }
             
@@ -1212,6 +1215,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no veins found
         if (veins.Count == 0) {
+            Debug.Log("NO VEINS!");
             return new(0, -6);
         }
 
@@ -1227,44 +1231,49 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     private const float SEARCH_ANGLE = 60f;
+    List<Vector2Int> tilesSearched = new();
 
     private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius, int drillTier)
     {
+        tilesSearched.Clear();
         List<Vector2Int> oreTiles = new List<Vector2Int>();
 
         // Convert rotation to radians and calculate the angular range
         float rotationRad = (currentRotation - 90) * Mathf.Deg2Rad;
         float minAngle = rotationRad - SEARCH_ANGLE * Mathf.Deg2Rad;
         float maxAngle = rotationRad + SEARCH_ANGLE * Mathf.Deg2Rad;
-        
+
         // Search all tiles within the max radius
         for (int x = currentPosition.x - maxRadius; x <= currentPosition.x + maxRadius; x++)
         {
             for (int y = currentPosition.y - maxRadius; y <= currentPosition.y + maxRadius; y++)
             {
                 // Map starts below this
-                if (y > -6) {
+                if (y > -6)
+                {
                     continue;
                 }
 
                 Vector2Int tilePos = new Vector2Int(x, y);
                 Vector2Int relativePos = currentPosition - tilePos;
-                
+
                 // Calculate distance from current position
                 float distance = relativePos.magnitude;
-                
+
                 // Skip if outside the radius bounds
                 if (distance < minRadius || distance > maxRadius)
-                    continue;        
+                    continue;
+
+                tilesSearched.Add(tilePos);
 
                 // Calculate angle to this tile
-                float angle = Mathf.Atan2(relativePos.y, relativePos.x);
-                
+                /*float angle = Mathf.Atan2(relativePos.y, relativePos.x);
+
                 // Normalize angle to [0, 2π] for proper comparison
                 while (angle < 0) angle += 2 * Mathf.PI;
                 while (minAngle < 0) minAngle += 2 * Mathf.PI;
                 while (maxAngle < 0) maxAngle += 2 * Mathf.PI;
-                
+
                 // Handle angle wrap-around
                 bool inAngleRange;
                 if (minAngle > maxAngle) // Crossing 0/360 degrees
@@ -1276,52 +1285,64 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     inAngleRange = angle >= minAngle && angle <= maxAngle;
                 }
 
-                if (Mathf.DeltaAngle(angle * Mathf.Rad2Deg, currentRotation * Mathf.Rad2Deg) < 20) {
+                if (Mathf.DeltaAngle(angle * Mathf.Rad2Deg, currentRotation * Mathf.Rad2Deg) < 20)
+                {
                     inAngleRange = false;
                 }
-                
+
                 // Skip if not in angular range
-                if (!inAngleRange) {
+                if (!inAngleRange)
+                {
                     continue;
-                }
+                }*/
 
                 Vector2Int thisTilemapPos = CalculateTileMapPos(tilePos);
-                
-                // Check if this tile has ore
-                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value))
+
+                // Make sure this tile exist, matches the drill tier, and is an ore
+                if (unplacedTilemapsTileValues[thisTilemapPos.x, thisTilemapPos.y].TryGetValue(tilePos, out int value) && oreDelegation.VerifyIfOre(value) && (GetTileTier(tileValues[value]) == drillTier))
                 {
                     oreTiles.Add(tilePos);
                 }
             }
         }
-        
+
         return oreTiles;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = new Color(1, 0, 0, 0.3f); // Red with 30% opacity
+
+        foreach (var tile in tilesSearched)
+        {
+            Gizmos.DrawCube(new(tile.x, tile.y), new(0.5f, 0.5f, 0.5f));
+        }
     }
 
     private List<List<Vector2Int>> FindConnectedVeins(List<Vector2Int> oreTiles)
     {
         List<List<Vector2Int>> veins = new();
         HashSet<Vector2Int> visitedTiles = new();
-        
+
         foreach (Vector2Int oreTile in oreTiles)
         {
             // Skip if this tile has already been processed
             if (visitedTiles.Contains(oreTile))
                 continue;
-                
+
             // Start a new vein
             List<Vector2Int> currentVein = new();
             Queue<Vector2Int> tilesToProcess = new();
-            
+
             tilesToProcess.Enqueue(oreTile);
             visitedTiles.Add(oreTile);
-            
+
             // Process all connected tiles
             while (tilesToProcess.Count > 0)
             {
                 Vector2Int currentTile = tilesToProcess.Dequeue();
                 currentVein.Add(currentTile);
-                
+
                 // Check all adjacent tiles (4-way connectivity currently, no need to check diagonal)
                 Vector2Int[] adjacentOffsets = new Vector2Int[]
                 {
@@ -1330,15 +1351,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     new Vector2Int(0, 1),
                     new Vector2Int(0, -1)
                 };
-                
+
                 foreach (Vector2Int offset in adjacentOffsets)
                 {
                     Vector2Int adjacentTile = currentTile + offset;
-                    
+
                     // Skip if already visited
                     if (visitedTiles.Contains(adjacentTile))
                         continue;
-                        
+
                     // Check if this adjacent tile is in our list of ore tiles
                     if (oreTiles.Contains(adjacentTile))
                     {
@@ -1347,11 +1368,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     }
                 }
             }
-            
+
             // Add this vein to our list of veins
             veins.Add(currentVein);
         }
-        
+
         return veins;
     }
 

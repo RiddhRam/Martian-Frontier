@@ -95,17 +95,16 @@ public class NPCMovement : MonoBehaviour
         // If npc is close or timer reached then choose a new spot
         if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer)
         {
-            //RequestNewPosition();
-            UpdateAgentDestination(GetRandomPosition());
+            RequestNewPosition();
+            Debug.Log("Regular new");
         }
 
         // (0, -6, 0) means theres a problem with requesting new position
-        /*if (Math.Abs(dest.y + 6) < 0.1)
+        if (Math.Abs(dest.y + 6) < 0.1)
         {
-
             // If its a driller, just drill to some random spot
             UpdateAgentDestination(GetRandomPosition());
-        }*/
+        }
 
         joystickVec = direction;
 
@@ -141,7 +140,6 @@ public class NPCMovement : MonoBehaviour
 
         yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
         RequestNewPosition();
-        yield return new WaitForSeconds((float)random.NextDouble() * 2);
 
         agent.enabled = false;
         agent.enabled = true;
@@ -152,11 +150,10 @@ public class NPCMovement : MonoBehaviour
     public Vector3 GetRandomPosition()
     {
         timer = 0;
-        // SCRIPT HAS 2 ALGORITHMS. FIRST ONE RUNS WHEN TILEMAPS ARE GENERATED, SECOND ONE RUNS AT THE START OF A NEW MINE
+        Debug.Log("Random because");
+        // SCRIPT HAS 2 ALGORITHMS. FIRST ONE RUNS WHEN TILEMAPS ARE GENERATED, SECOND ONE USUALLY RUNS AT THE START OF A NEW MINE
 
         // START OF FIRST ALGORITHM, only works when tilemaps are generated, so later in the game not at the start
-        Debug.Log("Get random!");
-
         SerializableDictionary<Vector2Int, int>[,] unplacedTilemapsTileValues = nPCManager.mineRenderer.unplacedTilemapsTileValues;
 
         int rowsPerTier = unplacedTilemapsTileValues.GetLength(1) / nPCManager.mineRenderer.oresPerTier.Length; // 18 * 3
@@ -232,17 +229,13 @@ public class NPCMovement : MonoBehaviour
             {
                 // Choose a random ore tile
                 Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
-                Debug.Log(chosenCell);
+
                 return new(chosenCell.x, chosenCell.y, 0);
             }
         }
         // END OF FIRST ALGORITHM
 
-        // START OF SECOND ALGORITHM
-        Debug.Log("SECOND ALGORITHM!");
-
-        // Second algorithm, usually used at the start of the game
-
+        // START OF SECOND ALGORITHM, usually used at the start of the game
         int maxY;
         int minY;
 
