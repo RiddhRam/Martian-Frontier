@@ -40,7 +40,7 @@ public class DrillerController : MonoBehaviour
     private int radius;
 
     [Header("Endurance")]
-    private float drillHeat = 0;
+    public float drillHeat = 0;
     private float lastMineTime = -Mathf.Infinity;
     private const float heatCooldownDelay = 0.6f;
     private int highestTierDrilled = 0;
@@ -156,36 +156,46 @@ public class DrillerController : MonoBehaviour
         }
 
         // Drill overheat
-        float timeSinceLastMine = Time.time - lastMineTime;
+        //float timeSinceLastMine = Time.time - lastMineTime;
 
         if (minedSomething)
         {
             // if within chain window, add heat, irregardless of amount of blocks mined
-            if (timeSinceLastMine <= heatCooldownDelay)
+            /*if (timeSinceLastMine <= heatCooldownDelay)
             {
-                // 0.34f = fixed coefficency
-                // 0.09f = average time since last mine for small drills. 
-                // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
-                // 0.17f / 0.09f = 1.88f which helps balance the larger drills
-                float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
 
-                drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+            // 0.34f = fixed coefficent
+            // 0.09f = average time since last mine for small drills. 
+            // Helps nerf larger drillers, which have more time in between mining (about double, so they use half the endurance)
+            // 0.17f / 0.09f = 1.88f which helps balance the larger drills
+            float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
+
+            drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+            
 
                 // Gives average time since last mine
                 /*time += timeSinceLastMine;
                 count++;
                 Debug.Log(time/count);*/
-            }
+            //}*/
 
-            lastMineTime = Time.time;
+            float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f;
+            drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
+
+            //lastMineTime = Time.time;
         }
-        else
+        /*else
         {
             // if player stopped mining and drill has some heat, cool it down
             if (timeSinceLastMine > heatCooldownDelay && drillHeat > 0f)
             {
                 drillHeat = Mathf.Max(0, (int)(drillHeat - VehicleUpgradeBayManager.Instance.GetCoolRate("")));
             }
+        }*/
+
+        if (drillHeat >= endurance)
+        {
+            nPCMovement.StartCooldownDrill();
         }
 
         highestTierDrilled = 0;

@@ -257,6 +257,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         speed = drillerController.GetPlayerSpeed();
         drillerController.nPCMovement = nPCMovements[npcIndex];
+        nPCMovements[npcIndex].drillerController = drillerController;
 
         // Set cash earned displays
         nPCMovements[npcIndex].cashIconSpriteRenderer = droneDetailsPanel.GetChild(2).GetComponent<SpriteRenderer>();

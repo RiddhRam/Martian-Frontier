@@ -8,21 +8,25 @@ using UnityEngine.AI;
 using UnityEngine.Rendering;
 public class NPCMovement : MonoBehaviour
 {
+    public int npcIndex;
+    public int drillTier;
 
+    [Header("Scripts")]
+    public NPCManager nPCManager;
+    public DrillerController drillerController;
+
+    [Header("Movement")]
+    public NavMeshAgent agent;
     [SerializeField] private float playerSpeed = 5f;
     private Rigidbody2D rb;
     private float lastRotation; // To track the last rotation angle
     Transform frontWheels;
-    public int npcIndex;
-    public NPCManager nPCManager;
-    public NavMeshAgent agent;
+    public bool stopMoving;
 
+    [Header("Visual")]
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
     public Canvas worldSpaceCanvas;
-
-    public int drillTier;
-    public bool stopMoving;
 
     [Header("Cache")]
     private Vector2 joystickVec;
@@ -48,6 +52,8 @@ public class NPCMovement : MonoBehaviour
     public TextMeshProUGUI cashEarnedText;
     public SpriteRenderer cashIconSpriteRenderer;
     private static readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
+
+    private Coroutine cooldownDrill;
 
     // Start is called before the first frame update
     void Start()
@@ -332,7 +338,8 @@ public class NPCMovement : MonoBehaviour
         UpdateAgentDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
     }
 
-    public void MoveVehicle() {
+    public void MoveVehicle()
+    {
         // Make sure vehicle is trying to move
         if (joystickVec.x == 0 && joystickVec.y == 0)
         {
@@ -371,7 +378,8 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
-    private void SteerWheel(Transform frontWheels, float tempLastRotation, float newAngle) {
+    private void SteerWheel(Transform frontWheels, float tempLastRotation, float newAngle)
+    {
 
         // Might fail after changing vehicle
         try
@@ -446,16 +454,18 @@ public class NPCMovement : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
     }
-    
-    public void NewOreMined(double cashEarned) {
+
+    public void NewOreMined(double cashEarned)
+    {
         cashToShow += cashEarned;
-        
-        if (floatingTextCoroutine != null) {
+
+        if (floatingTextCoroutine != null)
+        {
             StopCoroutine(floatingTextCoroutine);
         }
         floatingTextCoroutine = StartCoroutine(ShowFloatingText());
     }
-    
+
     private IEnumerator ShowFloatingText()
     {
 
@@ -485,5 +495,33 @@ public class NPCMovement : MonoBehaviour
         cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
         // Reset for next time
         cashToShow = 0;
+    }
+
+    public void StartCooldownDrill()
+    {
+        if (cooldownDrill == null)
+        {
+            cooldownDrill = StartCoroutine(CooldownDrill());
+        }
+    }
+
+    private IEnumerator CooldownDrill()
+    {
+        // Drill should pause checking for ores and moving while cooling down
+        transitioning = true;
+        stopMoving = true;
+        rb.linearVelocity = Vector2.zero;
+
+        // Cooldown drill
+        while (drillerController.drillHeat > 0)
+        {
+            drillerController.drillHeat = Mathf.Max(0, (int)(drillerController.drillHeat - VehicleUpgradeBayManager.Instance.GetCoolRate("")));
+            yield return new WaitForFixedUpdate();
+        }
+
+        // Drill can resume
+        transitioning = false;
+        stopMoving = false;
+        cooldownDrill = null;
     }
 }
