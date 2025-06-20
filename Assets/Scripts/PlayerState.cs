@@ -484,16 +484,18 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return currentLevel + percentageToNextLevel;
     }
 
-    public int GetRecommendedDrillTier() {
+    public int GetRecommendedDrillTier()
+    {
         // Roughly based on the median of the value the total value of each tier in each mine
         // These numbers are lower than the median, roughly a third of tier 1 and tier 2 respectively
-        if (highestMined < 20_000) {
+        /*if (highestMined < 20_000) {
             return 1;
         } else if (highestMined < 150_000) {
             return 2;
         }
 
-        return 3;
+        return 3;*/
+        return 1;
     }
 
     public BigInteger GetBlocksMined() {

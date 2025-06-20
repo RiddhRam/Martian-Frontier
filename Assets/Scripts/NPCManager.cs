@@ -342,7 +342,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         snapshotGameData = data;
 
         int maxDrones = 6;
-        npcCount = 6;
+        npcCount = 1;
 
         npcs = new GameObject[maxDrones];
         nPCMovements = new NPCMovement[maxDrones];

@@ -71,7 +71,7 @@ public class RefineryUpgradePad : MonoBehaviour
         oreDelegation.PrepareGrid();
 
         // Stops player from moving
-        JoystickMovement.Instance.joystickVec = new();
+        //JoystickMovement.Instance.joystickVec = new();
     }
 
     public void SwitchTabs(string newTab)

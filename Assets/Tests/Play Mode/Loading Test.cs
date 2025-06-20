@@ -239,16 +239,7 @@ public class LoadingTest
         Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(refineryController.askForReviewScreen.name, "Ask For Review");
         Assert.False(refineryController.askedForReview);
-
-        int refineryProgressCount = 2;
-        bool[] refineryActiveValues = { true, false };
-        Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
-        for (int i = 0; i != refineryProgressCount; i++)
-        {
-            Assert.True(refineryController.refineryProgressSliders[i].name.Contains("Refinery Progress Slider - "));
-            Assert.AreEqual(refineryActiveValues[i], refineryController.refineryProgressSliders[i].transform.parent.gameObject.activeSelf);
-        }
-
+        Assert.True(refineryController.refineryProgressSlider.name.Contains("Refinery Progress Slider - UI"));
         Assert.AreEqual(refineryController.UISoundEffects.name, "UI Sound Effects");
         Assert.AreEqual(refineryController.oreSoundEffects.name, "Ore Sound Effects");
         Assert.AreEqual(refineryController.oreSaleSoundEffect.name, "Ore Sale");
@@ -412,15 +403,8 @@ public class LoadingTest
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
         Assert.AreEqual(refineryController.mine.name, "Mine");
         Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
-
-        int refineryProgressCount = 2;
-        Assert.AreEqual(refineryController.refineryProgressSliders.Length, refineryProgressCount);
-        for (int i = 0; i != refineryProgressCount; i++)
-        {
-            Transform refineryControllerTransform = refineryController.refineryProgressSliders[i].transform;
-            Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "2:00");
-        }
-
+        Transform refineryControllerTransform = refineryController.refineryProgressSlider.transform;
+        Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "100%");
         Assert.AreEqual(refineryController.GetInitialTimer(), 120);
         Assert.AreEqual(refineryController.GetRefineryTimer(), 120);
 

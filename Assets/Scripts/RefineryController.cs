@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -12,19 +13,23 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public BoxCollider2D mineEntranceBoxCollider;
     
     public GameObject mine;
-    public GameObject[] refineryProgressSliders;
-    public GameObject[] refineryProgressSlidersText;
-    public PlayerState playerState;
     public GameObject askForReviewScreen;
-
+    [Header("Progress bars")]
+    public Slider refineryProgressSlider;
+    public TextMeshProUGUI refineryProgressSliderText;
+    
+    [Header("Audio")]
     public AudioSource UISoundEffects;
     public AudioSource oreSoundEffects;
     public AudioClip oreSaleSoundEffect;
     public AudioClip batteryRechargeSoundEffect;
 
     public int refineryTimer;
-    // 5 Mins
+    public int refineryBattery;
+    // 2 Mins
     private const int initialTimer = 120;
+    // 300 ores
+    private const int initialBattery = 500;
     // The cash made during the current refinery timer, resets to 0 when mine resets
     double cashMadeThisMine;
 
@@ -36,6 +41,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     public Transform largeFogOfWar;
 
+    [Header("Scripts")]
+    public PlayerState playerState;
     public GameObject playerVehicle;
     public MineRenderer mineRenderer;
     public TutorialManager tutorialManager;
@@ -65,31 +72,31 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         StartRefineryCountdown(initialTimer);
     }
 
-    public void StartRefineryCountdown(int timer = initialTimer) {
+    public void StartRefineryCountdown(int battery = initialBattery) {
         // Mining in progress
         if (countdownCoroutine != null) {
             return;
         }
 
-        countdownCoroutine = StartCoroutine(RefineryCountdown(timer));
+        countdownCoroutine = StartCoroutine(RefineryCountdown(battery));
     }
 
-    private IEnumerator RefineryCountdown(int timer) {
+    private IEnumerator RefineryCountdown(int battery) {
         // Wait for mine to load before continuing
         // Sometimes refienry controller loads, then starts mine reset, and then mine loads while refinery thinks mine reset
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
 
-        refineryTimer = timer;
+        refineryBattery = battery;
 
-        while (refineryTimer > 0) {
+        while (refineryBattery > 0)
+        {
             UpdateRefineryProgressBars();
-            yield return new WaitForSecondsRealtime(1f);
-            refineryTimer--;
+            yield return null;
         }
 
         PlaySaleNoise();
 
-        // Shouldnt be possible but just in case
+        // Shouldn't be possible but just in case
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
         }
@@ -152,7 +159,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (increaseBatteryCoroutine != null) {
             StopCoroutine(increaseBatteryCoroutine);
         }
-        increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialTimer));
+        increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
         // Destroy all leftover materials, we do it this way, in case someone mined something 
         // just as the mine was shutting down, and the ore didn't have enough time to have 
@@ -196,37 +203,31 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            refineryTimer = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
+            refineryBattery = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
             UpdateRefineryProgressBars();
             yield return null; // Wait for the next frame
         }
 
         // Ensure the final value is exactly the target
-        refineryTimer = initialTimer;
-
-        for (int i = 0; i != refineryProgressSliders.Length; i++) {
-            refineryProgressSliders[i].GetComponent<Slider>().value = refineryTimer;
-        }
+        refineryBattery = initialBattery;
+        refineryProgressSlider.value = initialBattery;
 
         doneAnimation = true;
     }
 
     private void UpdateRefineryProgressBars() {
+        refineryProgressSlider.maxValue = initialBattery;
+        refineryProgressSlider.value = refineryBattery;
 
-        for (int i = 0; i != refineryProgressSliders.Length; i++) {
-            refineryProgressSliders[i].GetComponent<Slider>().maxValue = initialTimer;
-            refineryProgressSliders[i].GetComponent<Slider>().value = refineryTimer;
+        float percentage = Mathf.Round(refineryBattery * 100f / initialBattery);
+        if (percentage == 100 && refineryBattery < initialBattery)
+        {
+            percentage = 99;
         }
 
-        int minutes = refineryTimer / 60;
-        int seconds = refineryTimer % 60;
+        string barText = $"{percentage}%";
 
-        // Round up to nearest int
-        string barText = $"{minutes}:{seconds:D2}";
-
-        for (int i = 0; i != refineryProgressSlidersText.Length; i++) {
-            refineryProgressSlidersText[i].GetComponent<TextMeshProUGUI>().text = barText;
-        }
+        refineryProgressSliderText.text = barText;
     }
 
     // Returns the cash added
@@ -239,13 +240,22 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
         {
 
-            if (materialsMined[i] <= 0)
+            if (materialsMined[i] <= 0 || refineryBattery <= 0)
             {
                 continue;
             }
 
-            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
-            change += materialsMined[i];
+            int itemsSold = 0;
+
+            while (materialsMined[i] > 0 && refineryBattery > 0)
+            {
+                itemsSold++;
+                materialsMined[i]--;
+                refineryBattery--;
+            }
+
+            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * itemsSold;
+            change += itemsSold;
         }
 
         // Update stats
