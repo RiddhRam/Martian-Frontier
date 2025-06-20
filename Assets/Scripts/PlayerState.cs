@@ -484,6 +484,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return currentLevel + percentageToNextLevel;
     }
 
+    public int tier;
     public int GetRecommendedDrillTier()
     {
         // Roughly based on the median of the value the total value of each tier in each mine
@@ -495,7 +496,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         }
 
         return 3;*/
-        return 1;
+        //return 1;
+        return tier;
     }
 
     public BigInteger GetBlocksMined() {

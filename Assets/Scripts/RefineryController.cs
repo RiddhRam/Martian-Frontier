@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -148,6 +147,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         playerState.UpdateHighestMined(cashMadeThisMine);
+        Debug.Log(cashMadeThisMine);
         cashMadeThisMine = 0;
 
         StartCoroutine(NPCManager.Instance.WaitInLobby());
@@ -171,7 +171,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Initialize and uncover map
         mineRenderer.InitializeMine();
-        fogOfWarSprite.sortingOrder = 1;
+        fogOfWarSprite.sortingOrder = 2;
 
         PostMineReset();
 

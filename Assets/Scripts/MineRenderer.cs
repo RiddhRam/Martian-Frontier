@@ -59,7 +59,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public int mineInitialization = 0;
     public int mineCount;
 
-    public List<int> discoveredOres = new();
+    public HashSet<int> discoveredOres = new();
 
     // Indicates the index of new tiers in tileValues
     public int[] tierThresholds = new int[3];
@@ -158,6 +158,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public bool soloMineLoaded = false;
 
     int seedInUse;
+
+    // Not related to seed, only used for choosing ores for this mine, and drone mining positions
+    System.Random rng;
 
 
     void Awake()
@@ -966,7 +969,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         List<int> indices = Enumerable.Range(0, oreDelegation.materialNames.Length).ToList();
 
         // Shuffle deterministically with the seed
-        System.Random rng = new(multiplicationFactor * this.mineCount);
+        rng = new(multiplicationFactor * this.mineCount);
         for (int i = 0; i != indices.Count; i++)
         {
             int j = rng.Next(i, indices.Count);          // inclusive-exclusive
@@ -1211,12 +1214,15 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         if (veins.Count == 0) {
             return new(0, -6);
         }
-            
+
         // Find the largest vein
-        List<Vector2Int> largestVein = FindLargestVein(veins);
+        //List<Vector2Int> bestVein = FindLargestVein(veins);
+
+        // Choose a random vein
+        List<Vector2Int> bestVein = veins[rng.Next(veins.Count)];
         
-        Vector2Int position = CalculateBestMiningPosition(largestVein, currentRotation);
-        // Calculate the best mining position based on the largest vein
+        Vector2Int position = CalculateBestMiningPosition(bestVein, currentRotation);
+        // Calculate the best mining position based on the selected vein
         return new(position.x, position.y);
     }
 

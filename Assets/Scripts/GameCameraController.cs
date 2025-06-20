@@ -38,7 +38,7 @@ public class GameCameraController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
         // First part: Only used for panning, not zooming
         // Second part: If zooming, but now there's only 1 input, then start position will be from where user last released the screen

@@ -78,7 +78,7 @@ public class FileDataHandler
 
             var value = field.GetValue(dataJson).ToString();;
             
-            // These types are't encrypted, material dictionary, or tilemap data
+            // These types are't encrypted, tilemap data or other large fields
             if (fieldType == typeof(SerializableDictionary<Vector2Int, int>[,])) {
                 // Regular expression to find the contents within {}
                 /*string pattern = @"\{.*?\}";
@@ -169,7 +169,11 @@ public class FileDataHandler
                     else if (fieldType == typeof(List<int>)) {
                         List<int> deserializedValue = JsonConvert.DeserializeObject<List<int>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
-                    } 
+                    }
+                    else if (fieldType == typeof(HashSet<int>)) {
+                        HashSet<int> deserializedValue = JsonConvert.DeserializeObject<HashSet<int>>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
                     else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>))
                     {
                         // Same as below intDictData
@@ -349,7 +353,7 @@ public class FileDataHandler
         {
             object fieldValue = field.GetValue(data);
 
-            // These can become very large, they store the data of all destroyed and revealed blocks 
+            // This can become very large, it stores the data of all destroyed and revealed blocks 
             // encryption is not needed and takes too long
             if (fieldValue is SerializableDictionary<Vector2Int, int>[,] dictionaryArray)
             {
@@ -446,6 +450,19 @@ public class FileDataHandler
             else if (fieldValue is List<int>)
             {
                 List<int> value = (List<int>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is HashSet<int>)
+            {
+                HashSet<int> value = (HashSet<int>)fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 

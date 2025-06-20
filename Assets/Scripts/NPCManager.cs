@@ -302,7 +302,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public Vector3 RequestNewMiningPosition(Vector3 pos, float rotation, int drillTier)
     {
-        return mineRenderer.FindBestMiningPosition(3, 15, new((int)pos.x, (int)pos.y), rotation, drillTier);
+        return mineRenderer.FindBestMiningPosition(1, 15, new((int)pos.x, (int)pos.y), rotation, drillTier);
     }
 
     public void SetMapIcon(int droneIndex)

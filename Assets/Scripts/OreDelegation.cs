@@ -85,27 +85,14 @@ public class OreDelegation : MonoBehaviour
             if (i != refineryUpgradePad.GetRequiredOreIndex())
             {
 
-                // If done tutorial
+                // If not done tutorial
                 if (!generateOtherOres)
                 {
                     continue;
                 }
-
-                bool foundOre = false;
-
-                // Go through all discovered ores and see if this one was found
-                for (int j = 0; j < mineRenderer.discoveredOres.Count; j++)
-                {
-                    // Ore was discovered
-                    if (i == mineRenderer.discoveredOres[j])
-                    {
-                        foundOre = true;
-                        break;
-                    }
-                }
-
-                // If not found, don't show it
-                if (!foundOre)
+                
+                // If not found ore yet
+                if (!mineRenderer.discoveredOres.Contains(i))
                 {
                     continue;
                 }
