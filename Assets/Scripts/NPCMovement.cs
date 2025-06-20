@@ -102,7 +102,6 @@ public class NPCMovement : MonoBehaviour
         if (Vector3.Distance(transform.position, dest) < 0.5f || timer > maxTimer)
         {
             RequestNewPosition();
-            Debug.Log("Regular new");
         }
 
         // (0, -6, 0) means theres a problem with requesting new position
@@ -156,7 +155,6 @@ public class NPCMovement : MonoBehaviour
     public Vector3 GetRandomPosition()
     {
         timer = 0;
-        Debug.Log("Random because");
         // SCRIPT HAS 2 ALGORITHMS. FIRST ONE RUNS WHEN TILEMAPS ARE GENERATED, SECOND ONE USUALLY RUNS AT THE START OF A NEW MINE
 
         // START OF FIRST ALGORITHM, only works when tilemaps are generated, so later in the game not at the start

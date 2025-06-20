@@ -1198,7 +1198,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // If not initialized yet
         if (mineInitialization != 2)
         {
-            Debug.Log("MINE NOT INITIALIZED");
             return new(0, -6);
         }
         // Find all ore tiles within the search area
@@ -1206,7 +1205,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no ore tiles found
         if (oreTiles.Count == 0) {
-            Debug.Log("NO ORES!");
             return new(0, -6);
         }
             
@@ -1215,7 +1213,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no veins found
         if (veins.Count == 0) {
-            Debug.Log("NO VEINS!");
             return new(0, -6);
         }
 
