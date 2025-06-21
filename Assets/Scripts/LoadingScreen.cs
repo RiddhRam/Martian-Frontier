@@ -60,7 +60,7 @@ public class LoadingScreen : MonoBehaviour
     public IEnumerator IncrementLoadedItems(GameObject name)
     {
         loadedItems++;
-        Debug.Log(loadedItems + ": " + name.name);
+        //Debug.Log(loadedItems + ": " + name.name);
         yield break;
     }
 }

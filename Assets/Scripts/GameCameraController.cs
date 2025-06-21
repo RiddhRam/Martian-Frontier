@@ -6,91 +6,195 @@ public class GameCameraController : MonoBehaviour
     public Rect cameraBounds;
 
     public Transform droneToFollow;
-    const float cameraFollowSpeed = 5f;
 
+    [Header("Config")]
     private bool zoomingEnabled = true;
     public float zoomOutMin;
     public float zoomOutMax;
+    public float zoomSpeed = 0.06f;
+    public float zoomScrollSpeed = 3.15f;
+    public float zoomSmoothTime = 0.15f;
+    private float targetOrthographicSize;
 
-    // Used for panning
-    private Vector3 touchStart;
+    private Vector3 positionVelocity;
+    private float zoomVelocity;
 
+    private Vector3 lastPanPosition;
+    private Vector3 targetPosition;
+    public float positionSmoothTime = 0.03f;
+    
     private bool zooming = false;
 
+    [Header("References")]
     private Camera mainCamera;
     // Keep uiCamera in same spot and size as the main camera
     public Camera uiCamera;
+
 
     void Awake()
     {
         mainCamera = Camera.main;
 
-        // First, calculate the orthographic size required to fit the bounds' height.
-        float orthoSizeY = cameraBounds.size.y / 2f;
-
-        // Then, calculate the orthographic size required to fit the bounds' width, based on the camera's aspect ratio.
-        float orthoSizeX = cameraBounds.size.x / (2f * mainCamera.aspect);
-
-        // The true maximum zoom-out level is the *smaller* of these two values.
-        // This ensures that both width and height fit within the camera's view.
-        // We also take the minimum of this calculated value and the user-defined zoomOutMax.
-        zoomOutMax = Mathf.Min(zoomOutMax, orthoSizeY, orthoSizeX);
+        // Initialize targets to the camera's starting state
+        targetPosition = transform.position;
+        targetOrthographicSize = mainCamera.orthographicSize;
     }
 
     // Update is called once per frame
-    void FixedUpdate()
+    void Update()
     {
-        // First part: Only used for panning, not zooming
-        // Second part: If zooming, but now there's only 1 input, then start position will be from where user last released the screen
-        // Maybe delete the second part
-        if ((Input.GetMouseButtonDown(0) && !zooming) || (zooming && Input.touchCount == 1))
+        // If we are following a drone, manual controls are disabled.
+        if (droneToFollow != null)
         {
-            // Record mouse start position
-            touchStart = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            return;
         }
 
-        // If less than 2 inputs, then player is panning, not zooming
-        if (Input.touchCount < 2)
+        // Handle user input for panning and zooming.
+        // These methods will only update the 'target' variables, not move the camera directly.
+        if (Input.touchCount >= 2)
         {
-            zooming = false;
+            // Pinch gesture handles both panning and zooming simultaneously.
+            HandlePinchGesture();
         }
-
-        // If following a drone
-        if (droneToFollow)
-        {
-            Vector3 targetPosition = new(droneToFollow.position.x, droneToFollow.position.y, transform.position.z);
-            transform.position = Vector3.Lerp(transform.position, targetPosition, cameraFollowSpeed * Time.deltaTime);
-            uiCamera.transform.position = transform.position;
-        }
-        // If 2 or more inputs, player is zooming
-        else if (Input.touchCount >= 2)
-        {
-            Touch touchZero = Input.GetTouch(0);
-            Touch touchOne = Input.GetTouch(1);
-
-            Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
-            Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
-
-            float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
-            float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
-
-            float difference = currentMagnitude - prevMagnitude;
-            Zoom(difference * 0.01f);
-            zooming = true;
-        }
-        // Pan if mouse clicked
         else if (Input.GetMouseButton(0))
         {
-            // Pan the camera in the direction by getting the mouse position and comparing to initiali position
-            Vector3 direction = touchStart - mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            mainCamera.transform.position += direction;
+            // Single finger/mouse drag for panning.
+            HandlePanGesture();
         }
 
-        // Zoom with mouse scrollwheel
-        Zoom(Input.GetAxis("Mouse ScrollWheel"));
+        // Handle zooming with the mouse scroll wheel for desktop/editor convenience.
+        HandleMouseScrollZoom();
+    }
 
-        // Keep camera in bounds
-        ClampCameraPos();
+    void LateUpdate()
+    {
+        // If a drone is being followed, update the target position.
+        if (droneToFollow != null)
+        {
+            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y, transform.position.z);
+        }
+
+        // Before moving, clamp the target position to ensure it's within the defined bounds.
+        ClampTargetPosition();
+
+        // Smoothly interpolate the camera's actual position and size towards their targets.
+        // SmoothDamp provides a fluid, frame-rate independent movement.
+        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref positionVelocity, positionSmoothTime);
+        mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, targetOrthographicSize, ref zoomVelocity, zoomSmoothTime);
+        
+        // Ensure the UI camera always matches the main camera's properties.
+        SyncUICamera();
+    }
+
+    private void HandlePanGesture()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            // When the pan begins, record the starting world position.
+            lastPanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            // Each frame, calculate how far the mouse has moved in world space since the last frame.
+            Vector3 currentPanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 panDelta = lastPanPosition - currentPanPosition;
+            
+            // Add this difference to our target position.
+            targetPosition += panDelta;
+        }
+    }
+
+    private void HandlePinchGesture()
+    {
+        Touch touchZero = Input.GetTouch(0);
+        Touch touchOne = Input.GetTouch(1);
+
+        // --- Panning (while pinching) ---
+        // Calculate the midpoint of the touches in both the current and previous frame.
+        Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
+        Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
+        Vector2 prevMidpoint = (touchZeroPrevPos + touchOnePrevPos) / 2f;
+        Vector2 currentMidpoint = (touchZero.position + touchOne.position) / 2f;
+
+        // Convert these screen midpoints to world positions and find the difference.
+        Vector3 panOffset = mainCamera.ScreenToWorldPoint(prevMidpoint) - mainCamera.ScreenToWorldPoint(currentMidpoint);
+        targetPosition += panOffset;
+
+        // --- Zooming ---
+        // Calculate the distance between fingers in the previous and current frame.
+        float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+        float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
+        float magnitudeDifference = currentMagnitude - prevMagnitude;
+
+        // Apply this difference to the target orthographic size.
+        if (zoomingEnabled)
+        {
+             // Note: Here we directly modify the target size. For even smoother feel, you could lerp this value as well,
+             // but smoothing the camera's size in LateUpdate already achieves a great result.
+             targetOrthographicSize = Mathf.Clamp(targetOrthographicSize - magnitudeDifference * zoomSpeed, zoomOutMin, zoomOutMax);
+        }
+    }
+
+    private void HandleMouseScrollZoom()
+    {
+        if (!zoomingEnabled) return;
+
+        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        if (scroll != 0)
+        {
+            // For scroll wheel, we zoom in on the mouse cursor's position.
+            Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+            float originalSize = targetOrthographicSize;
+            
+            // Update the target size
+            targetOrthographicSize = Mathf.Clamp(targetOrthographicSize - scroll * zoomScrollSpeed, zoomOutMin, zoomOutMax);
+
+            // Calculate how the world point under the mouse shifts due to the zoom, and correct the camera position.
+            // This makes the zoom centered on the mouse cursor.
+            Vector3 newMouseWorldPos = ScreenToWorldPointAtSize(Input.mousePosition, mainCamera.transform.position, targetOrthographicSize);
+            targetPosition += (mouseWorldPos - newMouseWorldPos);
+        }
+    }
+    
+    private void ClampTargetPosition()
+    {
+        // Use the target orthographic size to calculate the camera's view dimensions.
+        float camHeight = targetOrthographicSize * 2f;
+        float camWidth = camHeight * mainCamera.aspect;
+        
+        // Calculate the min/max coordinates the camera's center can be at.
+        float minX = cameraBounds.xMin + camWidth / 2f;
+        float maxX = cameraBounds.xMax - camWidth / 2f;
+        float minY = cameraBounds.yMin + camHeight / 2f;
+        float maxY = cameraBounds.yMax - camHeight / 2f;
+
+        // Clamp the target position to these limits.
+        float clampedX = Mathf.Clamp(targetPosition.x, minX, maxX);
+        float clampedY = Mathf.Clamp(targetPosition.y, minY, maxY);
+        
+        targetPosition = new Vector3(clampedX, clampedY, targetPosition.z);
+    }
+
+    private void SyncUICamera()
+    {
+        if (uiCamera == null) return;
+        uiCamera.transform.position = transform.position;
+        uiCamera.orthographicSize = mainCamera.orthographicSize;
+    }
+    
+    // Helper function to calculate a screen point to world point with a custom orthographic size.
+    private Vector3 ScreenToWorldPointAtSize(Vector3 screenPosition, Vector3 cameraPosition, float orthoSize)
+    {
+        // Create a temporary camera to perform the calculation without altering the main camera.
+        GameObject tempCamGo = new GameObject("TempCam");
+        Camera tempCam = tempCamGo.AddComponent<Camera>();
+        tempCam.orthographic = true;
+        tempCam.orthographicSize = orthoSize;
+        tempCam.transform.position = cameraPosition;
+
+        Vector3 worldPoint = tempCam.ScreenToWorldPoint(screenPosition);
+        Destroy(tempCamGo);
+        return worldPoint;
     }
 
     private void Zoom(float increment)
@@ -152,19 +256,20 @@ public class GameCameraController : MonoBehaviour
     {
         droneToFollow = newDroneToFollow;
 
-        StartCoroutine(LerpCamera(25));
+        StartCoroutine(LerpZoom(25f, 0.5f));
     }
 
-    private IEnumerator LerpCamera(float targetValue)
+    private IEnumerator LerpZoom(float targetSize, float duration)
     {
-        float startValue = mainCamera.orthographicSize;
+        float startValue = targetOrthographicSize;
         float time = 0f;
 
-        while (time < 0.5f)
+        while (time < duration)
         {
+            targetOrthographicSize = Mathf.Lerp(startValue, targetSize, time / duration);
             time += Time.deltaTime;
-            mainCamera.orthographicSize = Mathf.Lerp(startValue, targetValue, time / 0.5f);
             yield return null;
         }
+        targetOrthographicSize = targetSize;
     }
 }

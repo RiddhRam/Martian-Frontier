@@ -783,7 +783,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return true;
     }
 
-    public void UpdateUpgradeDetails(string flashPower = null)
+    public void UpdateUpgradeDetails(string flashPower = "")
     {
         int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
 
