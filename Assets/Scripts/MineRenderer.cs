@@ -1228,11 +1228,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     }
 
     private const float SEARCH_ANGLE = 60f;
-    List<Vector2Int> tilesSearched = new();
 
     private List<Vector2Int> FindOreTilesInRange(Vector2Int currentPosition, float currentRotation, int minRadius, int maxRadius, int drillTier)
     {
-        tilesSearched.Clear();
         List<Vector2Int> oreTiles = new List<Vector2Int>();
 
         // Convert rotation to radians and calculate the angular range
@@ -1260,8 +1258,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 // Skip if outside the radius bounds
                 if (distance < minRadius || distance > maxRadius)
                     continue;
-
-                tilesSearched.Add(tilePos);
 
                 // Calculate angle to this tile
                 /*float angle = Mathf.Atan2(relativePos.y, relativePos.x);
@@ -1304,16 +1300,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         return oreTiles;
-    }
-
-    void OnDrawGizmos()
-    {
-        Gizmos.color = new Color(1, 0, 0, 0.3f); // Red with 30% opacity
-
-        foreach (var tile in tilesSearched)
-        {
-            Gizmos.DrawCube(new(tile.x, tile.y), new(0.5f, 0.5f, 0.5f));
-        }
     }
 
     private List<List<Vector2Int>> FindConnectedVeins(List<Vector2Int> oreTiles)

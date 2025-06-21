@@ -83,7 +83,7 @@ public class GameData
 
     public GameData() {
         // Starter cash
-        this.userCash = "0";
+        this.userCash = "5";
         this.userXP = "0";
         this.blocksMined = "0";
         this.materialsSold = "0";

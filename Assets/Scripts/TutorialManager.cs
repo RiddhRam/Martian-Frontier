@@ -392,6 +392,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
+        this.finishedTutorial = true;
+        // temporary disable
+        return;
         this.finishedTutorial = data.finishedTutorial;
         this.tutorialScreenIndex = data.tutorialScreenIndex;
 

@@ -28,19 +28,17 @@ public class LoadingScreen : MonoBehaviour
     /* Scripts with IDataPersistence have at least 1 thing to be loaded
         SOME CONTAIN DUPLICATES IN CASE OF IF STATEMENTS OR ERROR CATCHING
 
-        LoadData() (10 total)
-        AdDelegator, AutomaticMinerBay, DailyChallengeDelegator, VehicleUpgradeBayManager, LeaderboardDelegator, MineRenderer, PlayerState, PlayerVehicleDelegation, RefineryController, SupplyCrateDelegator, UpgradePanelsDelegator
+        LoadData() (14 total)
+        AdDelegator, DailyChallengeDelegator, VehicleUpgradeBayManager, LeaderboardDelegator, MineRenderer, MiniGameChooser, NPCManager, PlayerState, RefineryController, RefineryUpgradeBay, SupplyCrateDelegator, TutorialManager, UpgradePanelsDelegator, VehicleUpgradeBayManager
         
         Extras:
+        (3 total)
         CloudDelegator: Awake() (1 total) (initial load) || LoadGameDataFromCloud() (1 total) (async) || OnSignedIn() (1 total) when changing scenes but still logged in
-        MineRender: AsyncLoadData() (1 total) runs asynchronously, may interfere with cloud loading screen
-        
-        MiniGameChooser: LoadData() (1 total), only in singleplayer
-        TutorialManager: LoadData() (1 total), only in singleplayer
-        NPCManager: LoadData() (1 total), only in co-op local
+        MineRenderer: AsyncLoadData() (1 total) runs asynchronously
+        NPCManager: PrepareGame() (1 total) runs asynchronously
 
-        Total as of Jun 6 2025: 15
-        Last check: Jun 6 2025
+        Total as of Jun 20 2025: 17
+        Last check: Jun 20 2025
     */
 
     private float rotationSpeed = 200f; // Speed of buffer rotation in degrees per second
@@ -62,7 +60,7 @@ public class LoadingScreen : MonoBehaviour
     public IEnumerator IncrementLoadedItems(GameObject name)
     {
         loadedItems++;
-        //Debug.Log(loadedItems + ": " + name.name);
+        Debug.Log(loadedItems + ": " + name.name);
         yield break;
     }
 }
