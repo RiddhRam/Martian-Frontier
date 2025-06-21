@@ -30,7 +30,6 @@ public class GameCameraController : MonoBehaviour
     // Keep uiCamera in same spot and size as the main camera
     public Camera uiCamera;
 
-
     void Awake()
     {
         mainCamera = Camera.main;
@@ -41,14 +40,8 @@ public class GameCameraController : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        // If we are following a drone, manual controls are disabled.
-        if (droneToFollow != null)
-        {
-            return;
-        }
-
         // Handle user input for panning and zooming.
         // These methods will only update the 'target' variables, not move the camera directly.
         if (Input.touchCount >= 2)
@@ -56,29 +49,32 @@ public class GameCameraController : MonoBehaviour
             // Pinch gesture handles both panning and zooming simultaneously.
             HandlePinchGesture();
         }
-        else if (Input.GetMouseButton(0))
-        {
-            // Single finger/mouse drag for panning.
-            HandlePanGesture();
-        }
 
         // Handle zooming with the mouse scroll wheel for desktop/editor convenience.
         HandleMouseScrollZoom();
-    }
-
-    void LateUpdate()
-    {
-        // If a drone is being followed, update the target position.
-        if (droneToFollow != null)
+        // If we are not following a drone, check for manual input.
+        if (droneToFollow == null)
         {
+            if (Input.GetMouseButton(0))
+            {
+                // Single finger/mouse drag for panning.
+                HandlePanGesture();
+            }
+        }
+        else // --- Drone Following Logic (part of original LateUpdate) ---
+        {
+            // If a drone is being followed, update the target position.
+            // It's often better to do this after the drone's own FixedUpdate has run.
             targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y, transform.position.z);
         }
+
+        // --- Camera Movement Logic (formerly in LateUpdate) ---
 
         // Before moving, clamp the target position to ensure it's within the defined bounds.
         ClampTargetPosition();
 
         // Smoothly interpolate the camera's actual position and size towards their targets.
-        // SmoothDamp provides a fluid, frame-rate independent movement.
+        // In FixedUpdate, this movement is tied to the physics timestep.
         transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref positionVelocity, positionSmoothTime);
         mainCamera.orthographicSize = Mathf.SmoothDamp(mainCamera.orthographicSize, targetOrthographicSize, ref zoomVelocity, zoomSmoothTime);
         

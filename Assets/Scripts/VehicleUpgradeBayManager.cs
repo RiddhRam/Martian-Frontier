@@ -748,16 +748,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Throws an out of bounds error when player uses hold to purchase, but doesn't matter because it doesn't break anything
         if (type == "Cooldown")
         {
-            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
+            //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel("", "Cooldown")];
         }
         else if (type == "Heat")
         {
             // Using same prices as cooldown prices for now
-            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+            //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
+            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel("", "Heat")];
         }
         else
         {
-            upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones")];
+            //upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones")];
+            upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel("", "Drones")];
             NPCManager.Instance.CreateNPC();
         }
 
@@ -778,14 +781,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 
-        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
+        //AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
+        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel("", type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
 
         return true;
     }
 
+    //2025-06-20 21:06:38.489 3989 4101 Error Unity NullReferenceException: Object reference not set to an instance of an object.
+    //2025-06-20 21:06:38.489 3989 4101 Error Unity   at VehicleUpgradeBayManager.UpdateUpgradeDetails (System.String flashPower) [0x00000] in <00000000000000000000000000000000>:0 
+
     public void UpdateUpgradeDetails(string flashPower = "")
     {
-        int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
+        //int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
+        int heatLevel = GetDrillUpgradeLevel("", "Heat");
 
         // Update heat limit
         // Slider is offset by 6
@@ -824,7 +832,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             heatUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[heatLevel]);
         }
 
-        int coolLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown");
+        int coolLevel = GetDrillUpgradeLevel("", "Cooldown");
 
         // Update cool rate
         // Slider is offset by 6
@@ -863,7 +871,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
         }
 
-        int droneLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones");
+        int droneLevel = GetDrillUpgradeLevel("", "Drones");
 
         // Update drone
         // Slider is offset by 1
