@@ -130,35 +130,30 @@ public class RefineryUpgradePad : MonoBehaviour
     // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount) {
 
-        // ore 0, level 25
+        // ore 0, level 10
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
             requiredOreUpgradeLevel = upgradeMilestones[0];
         }
-        // ore 1, level 25
+        // ore 1, level 50
         else if (mineCount == 2)
         {
             requiredOreIndex = 1;
-            requiredOreUpgradeLevel = upgradeMilestones[1];
+            requiredOreUpgradeLevel = upgradeMilestones[2];
         }
-        // 50
+        // 100
         else if (mineCount == 3)
         {
             requiredOreIndex = 5;
-            requiredOreUpgradeLevel = upgradeMilestones[2];
+            requiredOreUpgradeLevel = upgradeMilestones[5];
         }
         else if (mineCount >= 4)
         {
             requiredOreIndex = 8;
 
-            // 100
-            if (mineCount == 4)
-            {
-                requiredOreUpgradeLevel = upgradeMilestones[4];
-            }
             // 200
-            else if (mineCount == 5)
+            if (mineCount <= 5)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }

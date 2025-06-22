@@ -28,7 +28,7 @@ public class GameCameraController : MonoBehaviour
     // Keep uiCamera in same spot and size as the main camera
     public Camera uiCamera;
 
-    private void OnDrawGizmos()
+    /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
 
@@ -41,7 +41,7 @@ public class GameCameraController : MonoBehaviour
         Gizmos.DrawLine(topRight, bottomRight);
         Gizmos.DrawLine(bottomRight, bottomLeft);
         Gizmos.DrawLine(bottomLeft, topLeft);
-    }
+    }*/
 
     void Awake()
     {
