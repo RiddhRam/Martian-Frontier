@@ -86,7 +86,7 @@ public class GameCameraController : MonoBehaviour
         HandleMouseScrollZoom();
     }
     
-    // NEW: Handles panning with a single finger, using touch phases for robust control.
+    // Handles panning with a single finger, using touch phases for robust control.
     private void HandleSingleTouchPan()
     {
         // Only if not following a drone
@@ -146,72 +146,85 @@ public class GameCameraController : MonoBehaviour
     // This new logic centers the zoom on the pinch midpoint, preventing wobble.
     private void HandlePinchGesture()
     {
+        // These calculations are always needed to determine the pinch distance.
         Touch touchZero = Input.GetTouch(0);
         Touch touchOne = Input.GetTouch(1);
-        
         Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
         Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
 
-        Vector2 prevMidpointScreen = (touchZeroPrevPos + touchOnePrevPos) / 2f;
-        Vector2 currentMidpointScreen = (touchZero.position + touchOne.position) / 2f;
-        
-        Vector3 prevMidpointWorld = mainCamera.ScreenToWorldPoint(prevMidpointScreen);
-        Vector3 currentMidpointWorld = mainCamera.ScreenToWorldPoint(currentMidpointScreen);
-
-        // Panning (while pinching)
-        // We still allow panning while pinching by tracking the movement of the pinch's midpoint.
-        // Only if not following a drone
-        if (droneToFollow == null)
+        if (!zoomingEnabled)
         {
-            Vector3 panOffset = prevMidpointWorld - currentMidpointWorld;
-            targetPosition += panOffset;
             return;
         }
-        
-        // Zooming
-        if (zoomingEnabled)
+
+        // ZOOMING LOGIC
+        // This part runs whether we are following a drone or not.
+
+        // Store the camera's size before we apply the zoom this frame.
+        float originalOrthographicSize = targetOrthographicSize;
+
+        // Calculate how much the distance between fingers has changed.
+        float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
+        float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
+        float magnitudeDifference = currentMagnitude - prevMagnitude;
+
+        // Apply this change to the target zoom level.
+        targetOrthographicSize -= magnitudeDifference * zoomSpeed;
+        targetOrthographicSize = Mathf.Clamp(targetOrthographicSize, zoomOutMin, zoomOutMax);
+
+        if (droneToFollow != null)
         {
-            // Get the world position of the midpoint before the zoom.
-            Vector3 worldPosBeforeZoom = ScreenToWorldPointAtSize(currentMidpointScreen, targetPosition, targetOrthographicSize);
-            
-            // Calculate the distance between fingers.
-            float prevMagnitude = (touchZeroPrevPos - touchOnePrevPos).magnitude;
-            float currentMagnitude = (touchZero.position - touchOne.position).magnitude;
-            float magnitudeDifference = currentMagnitude - prevMagnitude;
-
-            // Apply the zoom based on the change in distance.
-            targetOrthographicSize -= magnitudeDifference * zoomSpeed;
-            // Clamp immediately to prevent issues in the next calculation.
-            targetOrthographicSize = Mathf.Clamp(targetOrthographicSize, zoomOutMin, zoomOutMax);
-
-            // Get the world position of the midpoint *after* the zoom.
-            Vector3 worldPosAfterZoom = ScreenToWorldPointAtSize(currentMidpointScreen, targetPosition, targetOrthographicSize);
-
-            // Correct the camera position to keep the midpoint stationary.
-            targetPosition += (worldPosBeforeZoom - worldPosAfterZoom);
+            return;
         }
+
+        // POSITIONAL LOGIC
+        // We ONLY adjust the camera's position if we are NOT following a drone.
+        Vector2 currentMidpointScreen = (touchZero.position + touchOne.position) / 2f;
+
+        // Get the world position of the pinch-midpoint using the size BEFORE this frame's zoom.
+        Vector3 worldPosBeforeZoom = ScreenToWorldPointAtSize(currentMidpointScreen, targetPosition, originalOrthographicSize);
+
+        // Get the world position of the same screen midpoint using the size AFTER this frame's zoom.
+        Vector3 worldPosAfterZoom = ScreenToWorldPointAtSize(currentMidpointScreen, targetPosition, targetOrthographicSize);
+
+        // Apply the difference as a correction. This simultaneously handles panning (by tracking the midpoint)
+        // and zoom-to-point anchoring, keeping the gesture stable and intuitive.
+        targetPosition += (worldPosBeforeZoom - worldPosAfterZoom);
     }
 
     private void HandleMouseScrollZoom()
     {
         if (!zoomingEnabled) return;
-        Debug.Log("Mouse scroll zoom");
 
         float scroll = Input.GetAxis("Mouse ScrollWheel");
-        if (Mathf.Abs(scroll) > 0.01f)
-        {
-            // Get the world position of the mouse cursor before the zoom.
-            Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
-            
-            // Update the target size.
-            targetOrthographicSize -= scroll * zoomScrollSpeed;
-            // Clamp immediately.
-            targetOrthographicSize = Mathf.Clamp(targetOrthographicSize, zoomOutMin, zoomOutMax);
 
-            // Get the world position of the mouse cursor *after* the zoom and correct the camera position.
-            Vector3 newMouseWorldPos = ScreenToWorldPointAtSize(Input.mousePosition, targetPosition, targetOrthographicSize);
-            targetPosition += (mouseWorldPos - newMouseWorldPos);
+        if (Mathf.Abs(scroll) < 0.01f)
+        {
+            return;
         }
+
+        // ZOOMING LOGIC
+        // This part runs whether we are following a drone or not.
+
+        // Get the world position of the mouse cursor before the zoom.
+        Vector3 mouseWorldPos = mainCamera.ScreenToWorldPoint(Input.mousePosition);
+
+        // Update the target size.
+        targetOrthographicSize -= scroll * zoomScrollSpeed;
+        // Clamp immediately.
+        targetOrthographicSize = Mathf.Clamp(targetOrthographicSize, zoomOutMin, zoomOutMax);
+
+        if (droneToFollow != null)
+        {
+            return;
+        }
+
+        // POSITIONAL LOGIC
+        // We ONLY adjust the camera's position if we are NOT following a drone.
+
+        // Get the world position of the mouse cursor after the zoom and correct the camera position.
+        Vector3 newMouseWorldPos = ScreenToWorldPointAtSize(Input.mousePosition, targetPosition, targetOrthographicSize);
+        targetPosition += (mouseWorldPos - newMouseWorldPos);
     }
     
     private void ClampTargetPosition()
@@ -241,7 +254,7 @@ public class GameCameraController : MonoBehaviour
         uiCamera.orthographicSize = mainCamera.orthographicSize;
     }
     
-    // NEW: Replaced the inefficient helper that created a new Camera every frame.
+    // Replaced the inefficient helper that created a new Camera every frame.
     // This version uses math to calculate the world point for a given ortho size.
     private Vector3 ScreenToWorldPointAtSize(Vector3 screenPosition, Vector3 cameraPosition, float orthoSize)
     {
