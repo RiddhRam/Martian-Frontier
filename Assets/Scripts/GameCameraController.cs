@@ -28,6 +28,21 @@ public class GameCameraController : MonoBehaviour
     // Keep uiCamera in same spot and size as the main camera
     public Camera uiCamera;
 
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.green;
+
+        Vector3 topLeft     = new Vector3(cameraBounds.xMin, cameraBounds.yMax, 0);
+        Vector3 topRight    = new Vector3(cameraBounds.xMax, cameraBounds.yMax, 0);
+        Vector3 bottomRight = new Vector3(cameraBounds.xMax, cameraBounds.yMin, 0);
+        Vector3 bottomLeft  = new Vector3(cameraBounds.xMin, cameraBounds.yMin, 0);
+
+        Gizmos.DrawLine(topLeft, topRight);
+        Gizmos.DrawLine(topRight, bottomRight);
+        Gizmos.DrawLine(bottomRight, bottomLeft);
+        Gizmos.DrawLine(bottomLeft, topLeft);
+    }
+
     void Awake()
     {
         mainCamera = Camera.main;
