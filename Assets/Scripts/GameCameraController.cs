@@ -21,6 +21,7 @@ public class GameCameraController : MonoBehaviour
 
     private Vector3 lastMousePanPosition;
     private Vector3 targetPosition;
+    const int targetZPos = -10;
     public float positionSmoothTime = 0.03f;
 
     [Header("References")]
@@ -48,7 +49,7 @@ public class GameCameraController : MonoBehaviour
         mainCamera = Camera.main;
 
         // Initialize targets to the camera's starting state
-        targetPosition = transform.position;
+        targetPosition = new(transform.position.x, transform.position.y, targetZPos);
         targetOrthographicSize = mainCamera.orthographicSize;
     }
 
@@ -60,7 +61,7 @@ public class GameCameraController : MonoBehaviour
         // This ensures we get the drone's latest position for the frame.
         if (droneToFollow != null)
         {
-            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y, transform.position.z);
+            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y, targetZPos);
         }
 
         // Handle user input for panning and zooming.
@@ -120,6 +121,7 @@ public class GameCameraController : MonoBehaviour
             
             // Calculate the difference in world space.
             Vector3 panDelta = previousWorldPos - currentWorldPos;
+            panDelta.z = targetZPos;
             
             // Add this difference to our target position.
             targetPosition += panDelta;
@@ -145,10 +147,11 @@ public class GameCameraController : MonoBehaviour
             // Each frame, calculate how far the mouse has moved in world space since the last frame.
             Vector3 currentMousePanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector3 panDelta = lastMousePanPosition - currentMousePanPosition;
+            panDelta.z = targetZPos;
 
             // Add this difference to our target position.
             targetPosition += panDelta;
-
+            
             // IMPORTANT: For this style of panning, we do NOT update lastMousePanPosition every frame.
             // If you want the camera to move with the mouse delta each frame, you should do that instead.
             // For now, this implementation mimics the original script's behavior but is isolated to the mouse.
@@ -259,7 +262,7 @@ public class GameCameraController : MonoBehaviour
         float clampedX = Mathf.Clamp(targetPosition.x, minX, maxX);
         float clampedY = Mathf.Clamp(targetPosition.y, minY, maxY);
         
-        targetPosition = new Vector3(clampedX, clampedY, targetPosition.z);
+        targetPosition = new Vector3(clampedX, clampedY, targetZPos);
     }
 
     private void SyncUICamera()

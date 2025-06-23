@@ -256,7 +256,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         Transform droneDetailsPanel = npcs[npcIndex].transform.GetChild(0).GetChild(0);
 
         // Set overheat progress bar values in the driller controller
-        Transform droneOverheatBar = droneDetailsPanel.GetChild(1);
+        Transform droneOverheatBar = droneDetailsPanel.GetChild(0);
         drillerController.sliderImage = droneOverheatBar.GetChild(1).GetChild(0).GetComponent<Image>();
         drillerController.slider = droneOverheatBar.GetComponent<Slider>();
         drillerController.sliderTransform = droneOverheatBar.GetComponent<RectTransform>();
@@ -268,8 +268,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].drillerController = drillerController;
 
         // Set cash earned displays
-        nPCMovements[npcIndex].cashIconSpriteRenderer = droneDetailsPanel.GetChild(2).GetComponent<SpriteRenderer>();
-        nPCMovements[npcIndex].cashEarnedText = droneDetailsPanel.GetChild(3).GetComponent<TextMeshProUGUI>();
+        nPCMovements[npcIndex].cashIconSpriteRenderer = droneDetailsPanel.GetChild(1).GetComponent<SpriteRenderer>();
+        nPCMovements[npcIndex].cashEarnedText = droneDetailsPanel.GetChild(2).GetComponent<TextMeshProUGUI>();
 
         SetMapIcon(npcIndex);
 

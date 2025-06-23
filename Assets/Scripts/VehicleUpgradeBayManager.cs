@@ -891,7 +891,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // If max level
-        if (droneLevel >= maxDroneCount)
+        if (droneLevel >= upgradeDronePrices.Length)
         {
             droneUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             droneUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
