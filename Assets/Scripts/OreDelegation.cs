@@ -79,24 +79,19 @@ public class OreDelegation : MonoBehaviour
         for (int i = 0; i != length; i++)
         {
             // Determine which ores to show
-            // Always show the first ore no matter what
 
+            bool foundOre = true;
+            // Always show the required ore no matter what
             // Only show the other ores if player has previously mined this ore
             if (i != refineryUpgradePad.GetRequiredOreIndex())
             {
-
-                // If not done tutorial
-                if (!generateOtherOres)
+                // If not done tutorial or not found ore yet
+                if (!generateOtherOres || !mineRenderer.discoveredOres.Contains(i))
                 {
-                    continue;
-                }
-                
-                // If not found ore yet
-                if (!mineRenderer.discoveredOres.Contains(i))
-                {
-                    continue;
+                    foundOre = false;
                 }
             }
+
             GameObject newMaterialPanel = Instantiate(oreMaterialPanel);
             Transform panelTransform = newMaterialPanel.transform;
             // Add panel to the content scroll view of the right tier panel
@@ -109,40 +104,62 @@ public class OreDelegation : MonoBehaviour
 
             // Set outline colour and top bar colour
             orePanelOutlines[i] = panelTransform.GetChild(0).GetChild(0).GetComponent<Outline>();
-            orePanelOutlines[i].effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
-
             orePanelOutlineBars[i] = panelTransform.GetChild(0).GetChild(1).GetComponent<Image>();
-            orePanelOutlineBars[i].color = oreTileColours[GetOriginalTileIndexByName(oreName)];
-
-            // Set the price, level, name, image and upgrade button
             materialPriceTexts[i] = panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
-            materialPriceTexts[i].text = refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(refineryUpgradePad.GetActualMaterialPrice(i)));
-
             materialLevelTexts[i] = panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>();
-            materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", refineryUpgradePad.GetOreUpgradeLevel(i));
-
-            panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
-
-            panelTransform.GetChild(4).GetComponent<Image>().sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
-
             materialUpgradePriceTexts[i] = panelTransform.GetChild(5).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
 
-            // Save as its own variable, otherwise it keeps a reference to the variable i
-            int oreIndex = i;
-            // Add onclick listener and hold button component
-            panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
-            // Hold to purchase
-            HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
-            holdButton.SetAction(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
-            // Button affordability
-            buttonAffordabilities[i] = panelTransform.GetChild(5).GetComponent<ButtonAffordability>();
+            if (foundOre)
+            {
+                // If found the ore, show its price, level, name, image and colours
+                orePanelOutlines[i].effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
+                orePanelOutlineBars[i].color = oreTileColours[GetOriginalTileIndexByName(oreName)];
 
-            levelProgressBars[i] = panelTransform.GetChild(6).GetComponent<Slider>();
+                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
 
-            milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
+                materialPriceTexts[i].text = refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(refineryUpgradePad.GetActualMaterialPrice(i)));
+                materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", refineryUpgradePad.GetOreUpgradeLevel(i));
 
-            // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
-            UpdateOreMaterialPanel(i, false, false);
+                Image image = panelTransform.GetChild(4).GetComponent<Image>();
+                image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
+                image.color = new(1, 1, 1);
+
+                // Save as its own variable, otherwise it keeps a reference to the variable i
+                int oreIndex = i;
+                // Add onclick listener and hold button component
+                panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+                // Hold to purchase
+                HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
+                holdButton.SetAction(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+                // Button affordability
+                buttonAffordabilities[i] = panelTransform.GetChild(5).GetComponent<ButtonAffordability>();
+
+                levelProgressBars[i] = panelTransform.GetChild(6).GetComponent<Slider>();
+
+                milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
+
+                // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
+                UpdateOreMaterialPanel(i, false, false);
+            }
+            else
+            {
+                orePanelOutlines[i].effectColor = Color.black;
+                orePanelOutlineBars[i].color = Color.black;
+
+                // If not found, then show as mystery ore
+                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "?";
+
+                materialPriceTexts[i].text = "?";
+
+                materialLevelTexts[i].text = "--";
+                materialLevelTexts[i].color = Color.white;
+
+                panelTransform.GetChild(5).GetComponent<Button>().interactable = false;
+
+                Destroy(panelTransform.GetChild(5).GetComponent<ButtonAffordability>());
+
+                materialUpgradePriceTexts[i].text = "--";
+            }
 
             if (i == 0)
             {
