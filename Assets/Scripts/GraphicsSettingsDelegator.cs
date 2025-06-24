@@ -16,7 +16,7 @@ public class GraphicsSettingsDelegator : MonoBehaviour
         motionQuality = newFrameRateIndex;
 
         PlayerPrefs.SetInt("Motion Quality", motionQuality);
-        //Application.targetFrameRate = frameRates[motionQuality];
+        Application.targetFrameRate = frameRates[motionQuality];
     }  
 
     public void UpdateText() {
