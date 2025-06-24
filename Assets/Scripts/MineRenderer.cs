@@ -2,9 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using TMPro;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 
 public class MineRenderer : MonoBehaviour, IDataPersistence
@@ -23,11 +21,11 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public Color[] tileColours;
 
     // Height of the map, measured in tilemaps
-    [SerializeField] private int totalRows = 42;
+    private const int totalRows = 42;
     // Width of the map, measured in tilemaps, calculated by using gridSize and mapHalfLength
     private int totalColumns;
     // Half the width of the map, measured in tiles
-    private readonly int mapHalfLength = 75;
+    private const int mapHalfLength = 75;
     private readonly Vector2Int gridSize = new(25, 12);
     // Array of tile values for each chunk in each tilemap (row)
     // [chunk row] [tile world x-coordinate] [tile world y-coordinate]
@@ -45,6 +43,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // string = tilemap gameobject name
     // public so DrillerController can easily use it
     public Dictionary<string, Tilemap> tilemapsDictionary = new();
+    // Used for manual frustum culling
+    public List<TilemapRenderer> tilemapRenderers = new();
     // Array of the tilemap Game objects, same as above, but in a 2d array rather than a dictionary with the string as the key
     public Tilemap[,] tilemaps;
 
@@ -71,6 +71,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public UpgradesDelegator upgradesDelegator;
     public RefineryController refineryController;
     public RefineryUpgradePad refineryUpgradePad;
+
+    [Header("Cameras")]
+    // For culling
+    public List<Camera> cameras;
 
     private Dictionary<string, int> quantities = new();
 
@@ -163,7 +167,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Not related to seed, only used for choosing ores for this mine, and drone mining positions
     System.Random rng;
 
-
     void Awake()
     {
         totalColumns = mapHalfLength * 2 / gridSize.x;
@@ -196,7 +199,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 mapCount++;
                 // 6 tilemaps per row
-                if (mapCount % 6 == 0)
+                if (mapCount % (mapHalfLength / gridSize.x * 2) == 0)
                 {
                     // We reached the next row
                     columnCount = 0;
@@ -210,11 +213,13 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
                 mineTilemapGameObject.transform.SetParent(transform);
                 mineTilemapGameObject.name = "Column " + (totalColumns - columnCount) + ", Row " + (totalRows - rowCount);
-                ReturnTilemapObject(mineTilemapGameObject, i * 25, j * -gridSize.y - 5);
+
+                ReturnTilemapObject(mineTilemapGameObject, i * gridSize.x, j * -gridSize.y - 5);
 
                 // Get the component once, then no need to do it again later
                 Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
                 tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
+                tilemapRenderers.Add(mineTilemapGameObject.GetComponent<TilemapRenderer>());
             }
         }
 
@@ -250,37 +255,66 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             particlePool.Enqueue(ps);
         }
     }
+    
+    // Cull tilemaps that are not in any active camera view
+    void Update()
+    {
+        foreach (var camera in cameras)
+        {
+            if (!camera.isActiveAndEnabled)
+            {
+                return;
+            }
+
+            var planes = GeometryUtility.CalculateFrustumPlanes(camera);
+            foreach (var tm in tilemapRenderers)
+            {
+                bool visible = GeometryUtility.TestPlanesAABB(planes, tm.bounds);
+                tm.enabled = visible;
+            }
+        }
+    }
 
     // Called when game first loads, and the RefineryController calls this when it's battery reaches 0
-    public void InitializeMine() {
+    public void InitializeMine()
+    {
 
         // If mineInitialization == 1 then the user already saw the first few blocks before they left the game
         // Don't make a new seed, just use the last one
-        if (mineInitialization < 2) {
+        if (mineInitialization < 2)
+        {
             // My birthday: Dec 8
             System.DateTime epoch = new System.DateTime(2024, 12, 8, 0, 0, 0, System.DateTimeKind.Utc);
 
-            if (seed == 0) {
+            if (seed == 0)
+            {
                 // Tutorial map, limestone close to the surface
                 seed = 11036764;
-            } else {
+            }
+            else
+            {
                 seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             }
-            
+
             Random.InitState(seed);
             seedInUse = seed;
         }
 
         // Clear all dictionaries in reveal and destroyed array
         // unplacedTilemapsTileValues will be populated as each row is created
-        for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++) {
-            for (int j = 0; j != unplacedTilemapsTileValues.GetLength(1); j++) {
+        for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++)
+        {
+            for (int j = 0; j != unplacedTilemapsTileValues.GetLength(1); j++)
+            {
 
                 // Try to avoid using new() to keep memory usage down
-                if (destroyedTilemapsTileValues[i, j] == null) {
+                if (destroyedTilemapsTileValues[i, j] == null)
+                {
                     destroyedTilemapsTileValues[i, j] = new();
                     revealedTilemapsTileValues[i, j] = new();
-                } else {
+                }
+                else
+                {
                     destroyedTilemapsTileValues[i, j].Clear();
                     revealedTilemapsTileValues[i, j].Clear();
                 }
@@ -295,7 +329,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         CreateGenTriggers();
         // Change limit to 5 to create first 4 rows
         // Change limit to totalRows + 1 to create entire map
-        for (int i = 1; i != 5; i++) {
+        for (int i = 1; i != 5; i++)
+        {
             CreateTiles(i);
         }
 
@@ -311,7 +346,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         // Even though there's no tiles here, it uses to vision radius to reveal other tiles around it
         // This is better than calling RevealTiles it doesn't just reveal the first few surface blocks
         DestroyTiles(initializeTiles, true);
-        if (notSinglePlayerScene) {
+        if (notSinglePlayerScene)
+        {
             // Not an npc, and is loading, but if you change it to true, false, then the surrounding tiles are not revealed
             DestroyTiles(coopInitializeTiles, false);
         }
@@ -404,6 +440,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             // Now place ore veins throughout the chunk
             GenerateOreVeins(unplacedTilemapsTileValue, i, chunkRow, level);
+
+            mineTilemap.CompressBounds();
 
             unplacedTilemapsTileValues[chunkColumn-1, chunkRow-1] = unplacedTilemapsTileValue;
             tilemaps[chunkColumn-1, chunkRow-1] = mineTilemap;

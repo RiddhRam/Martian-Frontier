@@ -171,7 +171,6 @@ public class DrillerController : MonoBehaviour
             float heatToAdd = (int)Mathf.Pow(highestTierDrilled, 5) * 0.34f * (timeSinceLastMine / 0.09f);
 
             drillHeat = Mathf.Min(endurance, drillHeat + heatToAdd);
-            
 
                 // Gives average time since last mine
                 /*time += timeSinceLastMine;
