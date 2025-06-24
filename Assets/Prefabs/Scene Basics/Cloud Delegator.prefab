@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 3065044627847531195}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.8741763, y: -117.13795, z: 0.092071936}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,15 +44,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 018aae1dea3e34d57affff0bcf049a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  dependencyStatus: 0
   userNameText: {fileID: 0}
   loginPanel: {fileID: 0}
   userPanel: {fileID: 0}
-  askToLogOut: {fileID: 0}
   askToChangeName: {fileID: 0}
-  askToDeleteAccount: {fileID: 0}
-  newName: {fileID: 0}
   forceUpdate: {fileID: 0}
+  passwordResetEmailSent: {fileID: 0}
+  newName: {fileID: 0}
+  logInEmail: {fileID: 0}
+  logInPassword: {fileID: 0}
+  signUpEmail: {fileID: 0}
+  signUpPassword: {fileID: 0}
   uIDelegation: {fileID: 0}
-  dataPersistenceManager: {fileID: 0}
-  loadingScreen: {fileID: 0}
-  leaderboardDelegator: {fileID: 0}
+  doingSigninProcess: 0

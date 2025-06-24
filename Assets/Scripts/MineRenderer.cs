@@ -178,22 +178,43 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         mineTilemaps = new List<GameObject>();
 
+        // Used for naming
+        int columnCount = 2;
+        int rowCount = -1;
+        int mapCount = -1;
+        
         // unplacedTilemapsTileValues will be populated as each row is created
         // These ones are done right now
-        for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++) {
-            for (int j = 0; j != unplacedTilemapsTileValues.GetLength(1); j++) {
-                // Avoid using new() to keep memory usage down
+        for (int i = 0; i != unplacedTilemapsTileValues.GetLength(0); i++)
+        {
+            for (int j = 0; j != unplacedTilemapsTileValues.GetLength(1); j++)
+            {
                 destroyedTilemapsTileValues[i, j] = new();
                 revealedTilemapsTileValues[i, j] = new();
 
                 GameObject mineTilemapGameObject = Instantiate(mineTilemapPrefab);
+
+                mapCount++;
+                // 6 tilemaps per row
+                if (mapCount % 6 == 0)
+                {
+                    // We reached the next row
+                    columnCount = 0;
+                    rowCount++;
+                }
+                else
+                {
+                    // Same row next column
+                    columnCount++;
+                }
+
                 mineTilemapGameObject.transform.SetParent(transform);
-                mineTilemapGameObject.name = "Column " + (i+1) + ", Row " + (j+1);
+                mineTilemapGameObject.name = "Column " + (totalColumns - columnCount) + ", Row " + (totalRows - rowCount);
                 ReturnTilemapObject(mineTilemapGameObject, i * 25, j * -gridSize.y - 5);
 
                 // Get the component once, then no need to do it again later
                 Tilemap mineTilemap = mineTilemapGameObject.GetComponent<Tilemap>();
-                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);               
+                tilemapsDictionary.Add(mineTilemapGameObject.name, mineTilemap);
             }
         }
 
