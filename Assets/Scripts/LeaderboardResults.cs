@@ -15,7 +15,7 @@ public class LeaderboardResults
     private DateTime endTime;
     // Unique integer for the user (part of seed) so each user has a different leaderboard, even with the same endTime
     public int uniqueUserInt;
-    const int averageOresMinedPerRound = 10;
+    const int averageOresMinedPerRound = 34;
     const int minutesPerRound = 2;
     private const int totalTournamentSeconds = 172_800; // 2 days
     Random rng;
