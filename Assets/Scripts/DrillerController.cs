@@ -67,6 +67,7 @@ public class DrillerController : MonoBehaviour
     readonly List<Vector2Int> currentTilePositions = new();
     readonly List<Vector3> tileWorldPositions = new();
     readonly List<TileBase> tileBasesToDestroy = new();
+    System.Random rng = new();
 
     float time = 0;
     int count = 0;
@@ -255,7 +256,16 @@ public class DrillerController : MonoBehaviour
 
     public void PlayAudio()
     {
+        // Wait at least 1000 miliseconds before playing audio again
         if ((DateTime.Now - audioTimer).TotalMilliseconds < 1000)
+        {
+            return;
+        }
+
+        audioTimer = DateTime.Now;
+
+        // 50% chance of not playing audio
+        if (rng.NextDouble() < 0.66)
         {
             return;
         }
@@ -272,8 +282,6 @@ public class DrillerController : MonoBehaviour
         lastAudioUsed = randomIndex;
 
         AudioDelegator.Instance.PlayAudio(vehicleSoundEffects, drillBlockSoundEffects[randomIndex], drillBlockVolumes[randomIndex]);
-
-        audioTimer = DateTime.Now;
     }
     
     public void UpdateOverheatSlider(float heatPercentage, float drillHeat)

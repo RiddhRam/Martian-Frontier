@@ -87,6 +87,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     [SerializeField] AudioSource orePickUpSequenceAudioSource;
     private float lastOreMinedTime;
 
+    [Header("Cache")]
     private readonly Queue<ParticleSystem> particlePool = new();
     private List<GameObject> mineTilemaps;
     private readonly List<Vector2Int> initializeTiles = new() { new(-4, -4), new(-3, -4), new(-2, -4), new(-1, -4), new(0, -4), new(1, -4), new(2, -4), new(3, -4)};
@@ -161,8 +162,9 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     private bool notSinglePlayerScene = false;
 
     public bool soloMineLoaded = false;
-
     int seedInUse;
+
+    private NPCMovement causeOfWhirrAudio;
 
     // Not related to seed, only used for choosing ores for this mine, and drone mining positions
     System.Random rng;
@@ -821,23 +823,37 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             if (oresMined > 0 && playAudio)
             {
-                // Must mine at least once per 0.4s in order to keep audio going
-                float timeSinceLastMine = Time.time - lastOreMinedTime;
-                const float volume = 0.75f;
-                if (timeSinceLastMine >= 0.4f)
+                if (causeOfWhirrAudio == null)
                 {
-                    // Play ore pick up audio
-                    StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
-
-                    lastOreMinedTime = Time.time;
+                    causeOfWhirrAudio = nPCMovement;
                 }
-                // If audio is fading out or faded out already, then skip the 0.4s timer, and play right away
-                else if (AudioDelegator.Instance.audioTimer <= 0f)
-                {
-                    // Play ore pick up audio
-                    StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
 
-                    lastOreMinedTime = Time.time;
+                
+                if (causeOfWhirrAudio == nPCMovement)
+                {
+                    float timeSinceLastMine = Time.time - lastOreMinedTime;
+                    const float volume = 0.5f;
+                    
+                    if (timeSinceLastMine >= 0.4f)
+                    {
+                        // Play ore pick up audio, or add to the timer
+                        StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, false));
+
+                        lastOreMinedTime = Time.time;
+                    }
+                    // If audio is fading out or faded out already, then play from the start
+                    else if (AudioDelegator.Instance.audioTimer <= 0f)
+                    {
+                        // Play ore pick up audio from the start
+                        StartCoroutine(AudioDelegator.Instance.PlayTimedAudio(orePickUpSequenceAudioSource, orePickUpAudioClip, volume, true));
+
+                        lastOreMinedTime = Time.time;
+                    }
+                }
+
+                if (AudioDelegator.Instance.audioTimer <= 0f)
+                {
+                    causeOfWhirrAudio = null;
                 }
 
                 // Track which ores are being sold so the player can get paid

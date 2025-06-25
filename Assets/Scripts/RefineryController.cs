@@ -59,18 +59,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
 
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        // Even if the mine entrance collider is set to not be a trigger, the drill attached to the drillers is still a trigger
-        // So this function is called even while mine is restting
-        // Make sure the mine entrance is not closed before starting
-        if (!mineEntranceBoxCollider.isTrigger) {
-            return;
-        }
-
-        StartRefineryCountdown(initialTimer);
-    }
-
     public void StartRefineryCountdown(int battery = initialBattery) {
         // Mining in progress
         if (countdownCoroutine != null) {
