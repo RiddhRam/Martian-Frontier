@@ -147,7 +147,7 @@ public class OreDelegation : MonoBehaviour
                 orePanelOutlineBars[i].color = Color.black;
 
                 // If not found, then show as mystery ore
-                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = "?";
+                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("NOT FOUND");
 
                 materialPriceTexts[i].text = "?";
 

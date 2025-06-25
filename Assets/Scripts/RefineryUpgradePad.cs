@@ -33,17 +33,81 @@ public class RefineryUpgradePad : MonoBehaviour
     public GameObject proceedPanel;
 
     [Header("Proceed Panel")]
-    public TextMeshProUGUI mineCounter;
+    public TextMeshProUGUI mineName;
+    public TextMeshProUGUI nextMineName;
     public TextMeshProUGUI upgradeRequirement;
     public TextMeshProUGUI cashProceedAmountText;
     public Button proceedButton;
+    static readonly string[] mineNames = new string[]
+    {
+        "Ares Landing",
+        "Olympus City",
+        "Endurance Point",
+        "Fortitude",
+        "New Houston",
+        "The Dustbowl",
+        "Redview",
+        "The Nexus",
+        "Orbital Gate",
+        "Red Vista",
+        "Neo Terminal",
+        "Port Nova",
+        "Kiruna II",
+        "Red London",
+        "Obelisk",
+        "Armstrong Spire",
+        "Hope's Landing",
+        "Glory's Claim",
+        "Unity Station",
+        "Pioneer's Rest",
+        "Barsoom",
+        "Breakthrough",
+        "Last Refuge",
+        "Solitude",
+        "The Quarry",
+        "Ridgegate",
+        "Rustpoint",
+        "Silica Spire",
+        "The Quarry",
+        "Ironstone",
+        "Bedrock Bastion",
+        "Pyrite Point",
+        "Vulcan's Forge",
+        "Solace",
+        "The Spire",
+        "Bradbury",
+        "Sky-Hub",
+        "Kepler's Landing",
+        "Goddard's Reach",
+        "Rustpoint",
+        "Cinderpit",
+        "The Warren",
+        "Skybreak Mine",
+        "The Terminus",
+        "Farpoint",
+        "The Drillhead",
+        "Red Fissure",
+        "The Windbreak",
+        "Marsgrad",
+        "Port Armstrong",
+        "Prospect Point",
+        "Dawn's Reach",
+        "Horizon's Gate",
+        "Outcrop Oasis",
+        "Red Rock",
+        "Elysium City",
+        "Westgate",
+        "The Spire",
+        "Echo Base",
+        "Lookout"
+    };
 
     int requiredOreIndex;
     int requiredOreUpgradeLevel;
     double cashProceedAmount;
 
     const float orePriceMultiplierPerLevel = 1.08f;
-    const float oreUpgradePriceMultiplierPerLevel = 1.23f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.20f;
 
     [Header("For Tutorial")]
     public bool flashButton;
@@ -109,24 +173,6 @@ public class RefineryUpgradePad : MonoBehaviour
         currentTab = newTab;
     }
 
-    // Indicate next vehicle for unlock
-    public void SetProceedPanelVehicle(GameObject nextDrill)
-    {
-        Transform nextDrillTransform = Instantiate(nextDrill).transform;
-
-        // Move to panel and scale down
-        nextDrillTransform.SetParent(proceedPanel.transform.GetChild(1));
-        nextDrillTransform.localScale = new(0.8f, 0.8f, 0.8f);
-
-        // Update positioning
-        RectTransform rt = nextDrillTransform.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = Vector2.zero;
-        rt.sizeDelta = new(-rt.sizeDelta.x, 100);
-    }
-
     // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount) {
 
@@ -171,7 +217,14 @@ public class RefineryUpgradePad : MonoBehaviour
 
     private void UpdateUpgradeRequirementText()
     {        
-        mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineRenderer.mineCount);
+        // The current name is the value at the index of mineCount. 
+        // It will wrap back around to the start of the array if mineCount is greater than or equal to the length of the array
+        mineName.text = mineNames[mineRenderer.mineCount % mineNames.Length];
+
+        // Same as above, but index is incremented by 1
+        nextMineName.text = mineNames[(mineRenderer.mineCount + 1) % mineNames.Length];
+
+        // Requirement to reach next level
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
     }
 

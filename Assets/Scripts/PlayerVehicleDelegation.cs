@@ -119,10 +119,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         loading = true;
         FindVehicle(currentVehicle);
         loaded = true;
-
-        // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
-        int nextIndex = GetNextVehicleIndex(data.mineCount);
-        refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING
