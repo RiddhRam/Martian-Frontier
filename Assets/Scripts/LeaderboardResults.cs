@@ -165,7 +165,6 @@ public class LeaderboardResults
 
     private void InitializeLeaderboard()
     {
-        
         // Add player
         player = new("You", "Player");
         player.SetScore(playerLS);

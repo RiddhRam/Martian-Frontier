@@ -58,14 +58,14 @@ public class UIDelegation : MonoBehaviour
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element) {
         element.SetActive(true);
-        mainCameraController.ToggleZooming(false);
+        mainCameraController.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
     }
 
     // Used when closing a secondary element
     public void HideElement(GameObject element) {
         element.SetActive(false);
-        mainCameraController.ToggleZooming(true);
+        mainCameraController.ToggleMovement(true);
     }
 
     // Used when opening the map, or closing

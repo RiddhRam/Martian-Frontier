@@ -14,6 +14,7 @@ public class GameDataString
 
     public string mineCount;
     public string oreUpgrades;
+    public string targetDepth;
 
     public string finishedTutorial;
     public string askedForReview;

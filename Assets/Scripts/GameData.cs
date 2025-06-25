@@ -18,8 +18,9 @@ public class GameData
     public string currentVehicle;
     
     public int mineCount;
-    // oreIndex: level
+    // key: oreIndex. value: level
     public SerializableDictionary<int, int> oreUpgrades;
+    public int targetDepth;
 
     public bool finishedTutorial;
     public bool askedForReview;
@@ -97,6 +98,7 @@ public class GameData
 
         this.mineCount = 1;
         this.oreUpgrades = new();
+        this.targetDepth = 1;
 
         this.finishedTutorial = false;
         this.askedForReview = false;

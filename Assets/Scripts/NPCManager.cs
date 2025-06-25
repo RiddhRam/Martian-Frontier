@@ -45,9 +45,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     private readonly int sessionUpdateTimer = 5;
     private readonly string[] botNames = {
-        "Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
+        /*"Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
         "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
-        /*"Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
+        "Zephyr", "Void", "Gritty", "Vortex", "Redshift", "Orbital",
         "Radiant", "Pyro", "Blazing", "Silent", "Nebula", "Electric",
         "Shadow", "Frozen", "Glitchy", "Titan", "Infernal", "Chrome",
         "Echo", "Warped", "Venomous", "Hazard", "Stellar", "Jaded",

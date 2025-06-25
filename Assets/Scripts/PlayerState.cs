@@ -3,22 +3,25 @@ using System.Collections.Generic;
 using System.Numerics;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
 {
+    [Header("Displays")]
     public GameObject[] cashDisplays;
     public GameObject[] gemDisplays;
     public GameObject[] xpDisplays;
     public GameObject[] creditDisplays;
     public GameObject[] gemCashPurchasePanels;
 
+    [Header("Player Data")]
     // Can't serialize field on BigIntegers
     private BigInteger userCash;
-    [SerializeField]
     // Use this to verify the amount of money to add or subtract across verifications
-    private BigInteger savedAmountSubtract;
+    [SerializeField] private BigInteger savedAmountSubtract;
     private BigInteger userXP;
     private BigInteger blocksMined;
     public BigInteger materialsSold;
@@ -28,22 +31,25 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     private BigInteger userCredits;
     private double highestMined;
     private List<string> vehiclesOwned = new();
+    public int targetDepth;
 
+    [Header("Scripts")]
     [SerializeField] private RefineryController refineryController;
     [SerializeField] private SupplyCrateDelegator supplyCrateDelegator;
     [SerializeField] private PlayerVehicleDelegation playerVehicleDelegation;
 
+    [Header("Cheats")]
     private int freeMoneyToAdd = 0;
     [SerializeField] private GameObject cashSliderGO;
     [SerializeField] private GameObject cashTextGO;
     private Slider cashSlider;
     private TextMeshProUGUI cashText;
+
+    [Header("Other")]
     private Slider[] xpDisplaysSliders;
     private TextMeshProUGUI[] xpDisplaysText;
-
-    private bool notSinglePlayerScene;
-
-    [SerializeField] private GameObject ResetMineButton;
+    public Slider targetDepthSlider;
+    public TextMeshProUGUI targetDepthText;
     [SerializeField] private GameObject betaScreen;
 
     string levelString;
@@ -51,13 +57,12 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public bool loaded = false;
     bool specialGameMode = false;
 
-    // Can't constantly be saving the game when an ore so only call it once in a while
+    // Can't constantly be saving the game when an ore is mined so only call it once in a while
     int miningCount = 0;
-    const int miningSaveInterval = 100;
+    const int miningSaveInterval = 150;
 
     void Awake()
     {
-
         // Credits are used for special game modes
         if (creditDisplays.Length > 0)
         {
@@ -479,11 +484,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
             betaScreen.SetActive(true);
         }
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
-        {
-            notSinglePlayerScene = true;
-        }
-
         this.userCash = BigInteger.Parse(data.userCash);
         this.userXP = BigInteger.Parse(data.userXP);
         this.blocksMined = BigInteger.Parse(data.blocksMined);
@@ -495,13 +495,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         this.userCredits = BigInteger.Parse(data.userCredits);
 
         this.highestMined = data.highestMined;
+        SetTargetDepth(data.targetDepth);
 
         loaded = true;
-
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
-        {
-            ResetMineButton.SetActive(false);
-        }
 
         UpdateCashDisplays();
         UpdateGemDisplays();
@@ -522,6 +518,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.gemsEarned = this.gemsEarned.ToString();
         data.userCredits = this.userCredits.ToString();
         data.highestMined = this.highestMined;
+        data.targetDepth = this.targetDepth;
     }
 
     public float GetUserLevel()
@@ -542,7 +539,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         return currentLevel + percentageToNextLevel;
     }
 
-    public int tier;
     public int GetRecommendedDrillTier()
     {
         // Roughly based on the median of the value the total value of each tier in each mine
@@ -555,7 +551,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         return 3;*/
         //return 1;
-        return tier;
+        return targetDepth;
     }
 
     public BigInteger GetBlocksMined()
@@ -612,6 +608,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.highestMined = newGameData.highestMined;
 
         data.mineCount++;
+        data.targetDepth = newGameData.targetDepth;
 
         data.vehicleUpgradeLevels = newGameData.vehicleUpgradeLevels;
         data.oreUpgrades = newGameData.oreUpgrades;
@@ -648,6 +645,37 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void SetTargetDepth(int newDepth)
     {
-        tier = newDepth;
+        // -1 means it was called from the On Value Changed function of the slider
+        if (newDepth == -1)
+        {
+            if (targetDepthSlider.value == 0)
+            {
+                targetDepthSlider.value = 1;
+            }
+
+            newDepth = (int)targetDepthSlider.value;
+        }
+
+        targetDepth = newDepth;
+
+        targetDepthSlider.value = targetDepth;
+
+        targetDepthText.text = GetLocalizedValue("DEPTH: {0}", targetDepth);
+    }
+    
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        StringTableEntry entry = table.GetEntry(key); ;
+
+        // If no translation, just return the key
+        if (entry == null)
+        {
+            return string.Format(key, args);
+        }
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
     }
 }

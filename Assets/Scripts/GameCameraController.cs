@@ -8,7 +8,7 @@ public class GameCameraController : MonoBehaviour
     public Transform droneToFollow;
 
     [Header("Config")]
-    private bool zoomingEnabled = true;
+    private bool movementEnabled = true;
     public float zoomOutMin; // Sensible default
     public float zoomOutMax; // Sensible default
     public float zoomSpeed = 0.04f; // Adjusted for new pinch logic
@@ -82,6 +82,8 @@ public class GameCameraController : MonoBehaviour
 
     private void HandleInput()
     {
+        if (!movementEnabled) return;
+        
         if (Input.touchCount >= 2)
         {
             // Pinch gesture handles both panning and zooming simultaneously.
@@ -170,11 +172,6 @@ public class GameCameraController : MonoBehaviour
         Vector2 touchZeroPrevPos = touchZero.position - touchZero.deltaPosition;
         Vector2 touchOnePrevPos = touchOne.position - touchOne.deltaPosition;
 
-        if (!zoomingEnabled)
-        {
-            return;
-        }
-
         // ZOOMING LOGIC
         // This part runs whether we are following a drone or not.
 
@@ -212,8 +209,6 @@ public class GameCameraController : MonoBehaviour
 
     private void HandleMouseScrollZoom()
     {
-        if (!zoomingEnabled) return;
-
         float scroll = Input.GetAxis("Mouse ScrollWheel");
 
         if (Mathf.Abs(scroll) < 0.01f)
@@ -292,9 +287,9 @@ public class GameCameraController : MonoBehaviour
         return new Vector3(cameraPosition.x + worldX, cameraPosition.y + worldY, cameraPosition.z);
     }
 
-    public void ToggleZooming(bool newValue)
+    public void ToggleMovement(bool newValue)
     {
-        zoomingEnabled = newValue;
+        movementEnabled = newValue;
     }
     
     public void SetDroneToFollow(Transform newDroneToFollow)
