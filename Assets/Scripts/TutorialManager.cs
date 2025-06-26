@@ -34,6 +34,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     private int highestLevelReached;
     public GameObject cameraInstruction;
     public GameObject loadingScreen;
+    public GameObject targetDepthPanel;
 
     [Header("Notice Icons")]
     public GameObject leaderboardNoticeIcon;
@@ -73,18 +74,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 typingMesssage = StartCoroutine(TypeOutMessage("LET'S BUY OUR FIRST DRONE!"));
 
-                RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
-
-                Vector2 p = arrowRT.anchoredPosition;
-                p.y = 563f;
-                arrowRT.anchoredPosition = p;
-
-                arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
-                arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
-
-                arrowRT.rotation = Quaternion.Euler(0, 0, 180);
-
-                arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+                PointToGarage();
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
@@ -154,19 +144,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to garage
             else if (tutorialScreenIndex == 5)
             {
-                RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
-
-                Vector2 p = arrowRT.anchoredPosition;
-
-                p.y = 563f;
-                arrowRT.anchoredPosition = p;
-
-                arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
-                arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
-
-                arrowRT.rotation = Quaternion.Euler(0, 0, 180);
-
-                arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+                PointToGarage();
 
                 // Wait for panel to open, or player to not have enough cash saved
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf || playerState.GetUserCash() < 5_000);
@@ -359,7 +337,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         sessionDelegator.UnlockTeam();
-        Destroy(TutorialUIParent);
     }
 
     private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
@@ -438,6 +415,73 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         instructionText.text = output;
     }
 
+    private void PointToGarage()
+    {
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+
+        Vector2 p = arrowRT.anchoredPosition;
+
+        p.y = 563f;
+        arrowRT.anchoredPosition = p;
+
+        arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
+
+        arrowRT.rotation = Quaternion.Euler(0, 0, 180);
+
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+    }
+
+    private IEnumerator TeachAboutTargetDepth()
+    {
+        if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
+        {
+            PointToGarage();
+        }
+
+        // Wait for panel to open
+        yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
+
+        if (arrowAnimation != null)
+        {
+            StopCoroutine(arrowAnimation);
+        }
+
+        pointToGarageArrow.SetActive(false);
+
+        // Wait for player to buy a drone
+        yield return new WaitUntil(() => VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade());
+
+        // Wait for panel to close
+        yield return new WaitUntil(() => !droneUpgradeBayPanel.activeSelf);
+
+        // Tell them to open the target depth panel up
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+
+        Vector2 p = arrowRT.anchoredPosition;
+        p.y = 2410f;
+        arrowRT.anchoredPosition = p;
+
+        arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(67f, arrowRT.offsetMax.y);
+
+        arrowRT.rotation = Quaternion.Euler(0, 0, 0);
+
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+
+        yield return new WaitUntil(() => targetDepthPanel.activeSelf);
+
+        if (arrowAnimation != null)
+        {
+            StopCoroutine(arrowAnimation);
+        }
+
+        pointToGarageArrow.SetActive(false);
+
+        // Now the player knows about target depth
+        this.highestLevelReached = 2;
+    }
+
     private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
@@ -455,6 +499,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
+
+        TutorialUIParent.SetActive(true);
 
         this.finishedTutorial = data.finishedTutorial;
         this.tutorialScreenIndex = data.tutorialScreenIndex;
@@ -492,12 +538,20 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         
         this.highestLevelReached = data.mineCount;
 
+        // If first time reaching level 2, tell them how target depth works.
+        if (data.highestLevelReached == 1)
+        {
+            StartCoroutine(TeachAboutTargetDepth());
+
+            // Keep it at 1 for now, until we know for sure the player knows about target depth
+            this.highestLevelReached = 1;
+        }
+
         try
         {
             if (this.finishedTutorial)
             {
                 sessionDelegator.UnlockTeam();
-                Destroy(TutorialUIParent);
                 return;
             }
         }

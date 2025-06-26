@@ -195,29 +195,38 @@ public class RefineryUpgradePad : MonoBehaviour
             requiredOreIndex = 0;
             requiredOreUpgradeLevel = upgradeMilestones[0];
         }
-        // ore 1, level 50
+        // ore 3, level 50
         else if (mineCount == 2)
         {
-            requiredOreIndex = 1;
+            requiredOreIndex = 3;
             requiredOreUpgradeLevel = upgradeMilestones[2];
         }
-        // 100
         else if (mineCount == 3)
         {
+            requiredOreIndex = 4;
+            requiredOreUpgradeLevel = upgradeMilestones[3];
+        }
+        else if (mineCount == 4)
+        {
             requiredOreIndex = 5;
+            requiredOreUpgradeLevel = upgradeMilestones[4];
+        }
+        else if (mineCount == 5)
+        {
+            requiredOreIndex = 6;
             requiredOreUpgradeLevel = upgradeMilestones[5];
         }
-        else if (mineCount >= 4)
+        else if (mineCount >= 6)
         {
             requiredOreIndex = 8;
 
             // 200
-            if (mineCount <= 5)
+            if (mineCount <= 7)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }
             // 250
-            else if (mineCount >= 6)
+            else if (mineCount >= 8)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[7];
             }
@@ -558,8 +567,15 @@ public class RefineryUpgradePad : MonoBehaviour
     }
     
     public bool BoughtOneUpgrade() {
-        foreach (var key in oreUpgrades.Keys) {
-            if (oreUpgrades[key] > 0) {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] > 0)
+            {
                 return true;
             }
         }

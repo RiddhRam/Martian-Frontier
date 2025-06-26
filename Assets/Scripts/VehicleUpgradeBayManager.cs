@@ -1097,6 +1097,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public bool BoughtOneDroneUpgrade()
     {
+        if (vehicleUpgradeLevels == null)
+        {
+            return false;
+        }
+
         foreach (var key in vehicleUpgradeLevels.Keys)
         {
             if (vehicleUpgradeLevels[key].droneLevel > 0)
@@ -1110,6 +1115,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public bool BoughtOneOtherUpgrade()
     {
+        if (vehicleUpgradeLevels == null)
+        {
+            return false;
+        }
+        
         foreach (var key in vehicleUpgradeLevels.Keys)
         {
             if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0)
