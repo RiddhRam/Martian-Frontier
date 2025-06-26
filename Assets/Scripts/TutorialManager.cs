@@ -211,8 +211,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
+                // Use top-stretch positioning
+                arrowRT.anchorMin = new Vector2(0, 1); // left-top
+                arrowRT.anchorMax = new Vector2(1, 1); // right-top
+                arrowRT.pivot = new Vector2(0.5f, 1);   // top center
+
                 Vector2 p = arrowRT.anchoredPosition;
-                p.y = 1840f;
+                p.y = -1443;
                 arrowRT.anchoredPosition = p;
 
                 arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
@@ -419,9 +424,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     {
         RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
+        // Use bottom-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
+        arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
+        arrowRT.pivot = new Vector2(0.5f, 0); // top center
+
         Vector2 p = arrowRT.anchoredPosition;
 
-        p.y = 563f;
+        p.y = 733f;
         arrowRT.anchoredPosition = p;
 
         arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
@@ -458,8 +468,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Tell them to open the target depth panel up
         RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
+        // Use top-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 1); // left-top
+        arrowRT.anchorMax = new Vector2(1, 1); // right-top
+        arrowRT.pivot = new Vector2(0.5f, 1);   // top center
+
         Vector2 p = arrowRT.anchoredPosition;
-        p.y = 2410f;
+        p.y = -873;
         arrowRT.anchoredPosition = p;
 
         arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
