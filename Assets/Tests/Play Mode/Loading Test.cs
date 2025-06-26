@@ -70,7 +70,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(15, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(17, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
 
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
@@ -113,14 +113,14 @@ public class LoadingTest
         Assert.AreEqual(soundHolder.drillBlockSoundEffects[1].name, "Drill Block 2");
         Assert.AreEqual(soundHolder.drillBlockSoundEffects[2].name, "Drill Block 3");
 
-        Assert.AreEqual(soundHolder.drillBlockVolumes[0], 0.025, 0.001);
-        Assert.AreEqual(soundHolder.drillBlockVolumes[1], 0.05, 0.001);
-        Assert.AreEqual(soundHolder.drillBlockVolumes[2], 0.1, 0.001);
+        Assert.AreEqual(soundHolder.drillBlockVolumes[0], 0.02, 0.001);
+        Assert.AreEqual(soundHolder.drillBlockVolumes[1], 0.04, 0.001);
+        Assert.AreEqual(soundHolder.drillBlockVolumes[2], 0.075, 0.001);
 
         // Ads
         AdDelegator adDelegator = AdDelegator.Instance;
 
-        Assert.True(adDelegator.adButton.activeSelf);
+        Assert.True(!adDelegator.adButton.activeSelf);
         Assert.AreEqual(adDelegator.movementJoystick.name, "Movement Joystick");
         Assert.AreEqual(adDelegator.tutorial.name, "Tutorial");
         Assert.AreEqual(adDelegator.customAdScreen.name, "Custom Ad Screen");
@@ -230,11 +230,11 @@ public class LoadingTest
         // Refinery Controller
         RefineryController refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
 
-        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
-        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
+        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Mine Entrance");
         Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
         Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
-        Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Refinery Controller");
+        Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Mine Entrance");
         Assert.AreEqual(refineryController.mine.name, "Mine");
         Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
         Assert.AreEqual(refineryController.askForReviewScreen.name, "Ask For Review");
@@ -256,10 +256,9 @@ public class LoadingTest
         Assert.AreEqual(UIDelegation.Instance.mapCamera.name, "Map Camera");
         Assert.AreEqual(UIDelegation.Instance.mapCameraView.name, "Map Camera View");
 
-        string[] primaryElementNames = { "Important Info", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom" };
-        int primaryElementCount = 6;
-        Assert.AreEqual(primaryElementCount, UIDelegation.Instance.primaryElements.Length);
-        for (int i = 0; i != primaryElementCount; i++)
+        string[] primaryElementNames = { "Important Info", "Settings", "Left Sidebar", "Right Sidebar", "Bottom" };
+        Assert.AreEqual(primaryElementNames.Length, UIDelegation.Instance.primaryElements.Length);
+        for (int i = 0; i != primaryElementNames.Length; i++)
         {
             Assert.AreEqual(UIDelegation.Instance.primaryElements[i].name, primaryElementNames[i]);
         }
@@ -269,18 +268,12 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = UIDelegation.Instance.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {
             Assert.AreEqual(safeAreaChildrenNames[i], uISafeArea.GetChild(i).name);
         }
-
-        // Joystick Movement
-        JoystickMovement joystickMovement = JoystickMovement.Instance;
-
-        Assert.AreEqual(joystickMovement.joystick.name, "Joystick Center");
-        Assert.AreEqual(joystickMovement.joystickBG.name, "Joystick Background");
 
         // Material Profit Panel
         /*ProfitPanelDelegator profitPanelDelegator = playerState.materialProfitPanel.GetComponent<ProfitPanelDelegator>();
@@ -294,23 +287,9 @@ public class LoadingTest
         Assert.AreEqual(profitPanelDelegator.adBoostTimer.name, "Timer");
         Assert.AreEqual(profitPanelDelegator.levelBoostText.name, "Level Boost Text");*/
 
-        // Garage Panel
-        PlayerVehicleDelegation playerVehicleDelegation = GameObject.Find("Player Vehicle").GetComponent<PlayerVehicleDelegation>();
-
         // Custom Ad Screen
         CustomAdScreen customAdScreen = adDelegator.customAdScreen.GetComponent<CustomAdScreen>();
         Assert.AreEqual(customAdScreen.bufferCircle.name, "Buffer Circle");
-
-        // Player Vehicle
-        Assert.AreEqual(playerVehicleDelegation.currentVehicle, "GRINDER");
-        Assert.AreEqual(playerVehicleDelegation.playerVehicle.name, "GRINDER");
-
-        GameObject playerVehicle = GameObject.Find("Player Vehicle");
-        Assert.True(playerVehicle.transform.GetChild(1).gameObject.activeSelf);
-
-        PlayerMovement playerMovement = playerVehicle.GetComponent<PlayerMovement>();
-        Assert.AreEqual(playerMovement.mainCamera, Camera.main.gameObject.transform);
-        Assert.False(playerMovement.freezeCamera);
 
         yield return null;
 
@@ -395,16 +374,10 @@ public class LoadingTest
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
         // Refinery Controller
         RefineryController refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
-        Assert.AreEqual(refineryController.mineEntranceSpriteRenderer.gameObject.name, "Refinery Controller");
-        Assert.AreEqual(refineryController.mineEntranceBoxCollider.gameObject.name, "Refinery Controller");
-        Assert.AreEqual(refineryController.mineEntranceOn.name, "Lobby Spritesheet_2");
-        Assert.AreEqual(refineryController.mineEntranceOff.name, "Lobby Spritesheet_3");
-        Assert.AreEqual(refineryController.mine.name, "Mine");
-        Assert.AreEqual(refineryController.playerState.gameObject.name, "PlayerState");
         Transform refineryControllerTransform = refineryController.refineryProgressSlider.transform;
         Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "100%");
-        Assert.AreEqual(refineryController.GetInitialTimer(), 120);
-        Assert.AreEqual(refineryController.GetRefineryTimer(), 120);
+        Assert.AreEqual(refineryController.GetInitialBattery(), 500);
+        Assert.AreEqual(refineryController.refineryBattery, 500);
 
         // Mine Renderer
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());

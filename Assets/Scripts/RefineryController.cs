@@ -186,7 +186,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
 
-        AudioDelegator.Instance.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.35f);
 
         while (elapsed < duration)
         {
@@ -277,8 +277,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return initialTimer;
     }
 
-    public void LoadData(GameData data) {
-        if (!data.finishedTutorial) {
+    public int GetInitialBattery()
+    {
+        return initialBattery;
+    }
+
+    public void LoadData(GameData data)
+    {
+        if (!data.finishedTutorial)
+        {
             firstTimePlaying = true;
         }
 
@@ -289,21 +296,24 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
         this.askedForReview = data.askedForReview;
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
             return;
         }
-        
-        if (resetMineCoroutine != null) {
+
+        if (resetMineCoroutine != null)
+        {
             StopCoroutine(resetMineCoroutine);
         }
-        if (increaseBatteryCoroutine != null) {
+        if (increaseBatteryCoroutine != null)
+        {
             StopCoroutine(increaseBatteryCoroutine);
         }
-        
+
         StartCoroutine(ResetMine());
         UpdateRefineryProgressBars();
-       
+
         doneLoading = true;
     }
 
