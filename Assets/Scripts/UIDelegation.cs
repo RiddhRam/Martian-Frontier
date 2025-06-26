@@ -33,12 +33,10 @@ public class UIDelegation : MonoBehaviour
     public GameObject materialButton;
     public GameObject errorMessage;
 
-    private GameCameraController mainCameraController;
     public OreDelegation oreDelegation;
 
     void Start()
     {
-        mainCameraController = Camera.main.GetComponent<GameCameraController>();
 
         if (!oreDelegation) {
             Debug.Log("No ore delegation");
@@ -72,14 +70,14 @@ public class UIDelegation : MonoBehaviour
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element) {
         element.SetActive(true);
-        mainCameraController.ToggleMovement(false);
+        GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
     }
 
     // Used when closing a secondary element
     public void HideElement(GameObject element) {
         element.SetActive(false);
-        mainCameraController.ToggleMovement(true);
+        GameCameraController.Instance.ToggleMovement(true);
     }
 
     // Used when opening the map, or closing

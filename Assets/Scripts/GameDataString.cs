@@ -13,6 +13,7 @@ public class GameDataString
     public string currentVehicle;
 
     public string mineCount;
+    public string highestLevelReached;
     public string oreUpgrades;
     public string targetDepth;
 

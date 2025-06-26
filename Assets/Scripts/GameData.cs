@@ -18,6 +18,8 @@ public class GameData
     public string currentVehicle;
     
     public int mineCount;
+    // Helps with onboarding, we can track if its the first time a player reaches a new mine
+    public int highestLevelReached;
     // key: oreIndex. value: level
     public SerializableDictionary<int, int> oreUpgrades;
     public int targetDepth;
@@ -97,6 +99,7 @@ public class GameData
         this.currentVehicle = "GRINDER";
 
         this.mineCount = 1;
+        this.highestLevelReached = 0;
         this.oreUpgrades = new();
         this.targetDepth = 1;
 

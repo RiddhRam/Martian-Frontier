@@ -3,6 +3,20 @@ using UnityEngine;
 
 public class GameCameraController : MonoBehaviour
 {
+    private static GameCameraController _instance;
+    public static GameCameraController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<GameCameraController>();
+            }
+            return _instance;
+        }
+    }
+
     public Rect cameraBounds;
 
     public Transform droneToFollow;
@@ -29,6 +43,9 @@ public class GameCameraController : MonoBehaviour
     // Keep uiCamera in same spot and size as the main camera
     public Camera uiCamera;
 
+    [Header("UI")]
+    public GameObject instruction;
+
     /*private void OnDrawGizmos()
     {
         Gizmos.color = Color.green;
@@ -53,10 +70,14 @@ public class GameCameraController : MonoBehaviour
         targetOrthographicSize = mainCamera.orthographicSize;
     }
 
-    // Using LateUpdate for camera work can prevent visual stuttering,
-    // as it runs after all FixedUpdate and Update calls are complete.
     void FixedUpdate()
     {
+        // If game is loading, don't allow any camera movement
+        if (LoadingScreen.Instance != null && LoadingScreen.Instance.gameObject.activeSelf)
+        {
+            return;
+        }
+
         // If a drone is being followed, update the target position.
         // This ensures we get the drone's latest position for the frame.
         if (droneToFollow != null)
@@ -83,21 +104,25 @@ public class GameCameraController : MonoBehaviour
     private void HandleInput()
     {
         if (!movementEnabled) return;
-        
+
         if (Input.touchCount >= 2)
         {
             // Pinch gesture handles both panning and zooming simultaneously.
             HandlePinchGesture();
+            // Disable instruction
+            instruction.SetActive(false);
         }
         else if (Input.touchCount == 1)
         {
             // Single finger for panning.
             HandleSingleTouchPan();
+            instruction.SetActive(false);
         }
         // Fallback to mouse input if no touches are detected.
         else if (Input.GetMouseButton(0))
         {
             HandleMousePan();
+            instruction.SetActive(false);
         }
 
         // Handle zooming with the mouse scroll wheel for desktop/editor convenience.

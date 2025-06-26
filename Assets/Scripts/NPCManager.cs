@@ -436,12 +436,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void ToggleCameraMode()
     {
-        GameCameraController gameCameraController = mainCamera.GetComponent<GameCameraController>();
 
         // If camera is following a drone, tell it to stop
-        if (gameCameraController.droneToFollow)
+        if (GameCameraController.Instance.droneToFollow)
         {
-            gameCameraController.droneToFollow = null;
+            GameCameraController.Instance.droneToFollow = null;
 
             // Update UI
             toggleCameraModeButton.color = new(1, 64/255f, 129/255f);
@@ -451,7 +450,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         // Otherwise, tell it to follow a drone
         droneCameraIndex = 0;
-        gameCameraController.SetDroneToFollow(npcs[droneCameraIndex].transform);
+        GameCameraController.Instance.SetDroneToFollow(npcs[droneCameraIndex].transform);
 
         // Update UI
         toggleCameraModeButton.color = new(1, 0, 0);
@@ -472,7 +471,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             if (npcs[index] != null)
             {
                 droneCameraIndex = index;
-                mainCamera.GetComponent<GameCameraController>().SetDroneToFollow(npcs[index].transform);
+                GameCameraController.Instance.SetDroneToFollow(npcs[index].transform);
                 return;
             }
         }

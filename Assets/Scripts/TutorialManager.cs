@@ -29,14 +29,24 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     [Header("Other")]
     public GameObject TutorialUIParent;
     public TextMeshProUGUI instructionText;
-    public GameObject playerMessage;
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
+    private int highestLevelReached;
+    public GameObject cameraInstruction;
     public GameObject loadingScreen;
 
     [Header("Notice Icons")]
     public GameObject leaderboardNoticeIcon;
     public GameObject premiumShopNoticeIcon;
+
+    [Header("UI Buttons")]
+    public GameObject dailyChallengeButton;
+    public GameObject dailyChallengePlaceholder;
+    public GameObject supplyCrateButton;
+    public GameObject leaderboardButton;
+    public GameObject targetDepthButton;
+    public GameObject targetDepthPlaceholder;
+    public GameObject adButton;
 
     private Coroutine arrowAnimation;
     private Coroutine typingMesssage;
@@ -327,7 +337,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         refineryOresButton.interactable = true;
         proceedTutorialInstruction.SetActive(false);
         refineryUpgradeBayPanel.SetActive(false);
+        supplyCrateButton.SetActive(true);
         UIDelegation.Instance.RevealAll();
+        GameCameraController.Instance.ToggleMovement(true);
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
@@ -442,11 +454,43 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         return string.Format(entry.LocalizedValue, args);
     }
 
-    public void LoadData(GameData data)
-    {
+    public void LoadData(GameData data) {
 
         this.finishedTutorial = data.finishedTutorial;
         this.tutorialScreenIndex = data.tutorialScreenIndex;
+
+        // Hide supply crate button until done tutorial, and tell player how to use the camera
+        if (!this.finishedTutorial)
+        {
+            supplyCrateButton.SetActive(false);
+            cameraInstruction.SetActive(true);
+        }
+
+        // Hide daily challenge and target depth button until second level. And the ad button too.
+        if (data.mineCount < 2)
+        {
+            dailyChallengeButton.SetActive(false);
+            dailyChallengePlaceholder.SetActive(true);
+
+            targetDepthButton.SetActive(false);
+            targetDepthPlaceholder.SetActive(true);
+
+            adButton.SetActive(false);
+        }
+
+        // Hide leaderboard button until third level
+        if (data.mineCount < 3)
+        {
+            leaderboardButton.SetActive(false);
+        }
+
+        // If its the first time the player is reaching this left, draw attention to the leaderboard
+        if (data.highestLevelReached < 3)
+        {
+            leaderboardNoticeIcon.SetActive(true);
+        }
+        
+        this.highestLevelReached = data.mineCount;
 
         try
         {
@@ -470,9 +514,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         StartCoroutine(DisplayTutorial());
     }
 
-    public void SaveData(ref GameData data) {
+    public void SaveData(ref GameData data)
+    {
         data.finishedTutorial = this.finishedTutorial;
         data.tutorialScreenIndex = this.tutorialScreenIndex;
+        data.highestLevelReached = this.highestLevelReached;
     }
 
 }
