@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using TMPro;
 using UnityEngine;
+using UnityEngine.Localization.Settings;
+using UnityEngine.Localization.Tables;
 using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
@@ -25,6 +28,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     [Header("Other")]
     public GameObject TutorialUIParent;
+    public TextMeshProUGUI instructionText;
     public GameObject playerMessage;
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
@@ -35,6 +39,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject premiumShopNoticeIcon;
 
     private Coroutine arrowAnimation;
+    private Coroutine typingMesssage;
 
     private IEnumerator DisplayTutorial()
     {
@@ -44,7 +49,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         while (tutorialScreenIndex <= 12)
         {
             Debug.Log(tutorialScreenIndex);
-            
+
             AnalyticsDelegator.Instance.TutorialStep(tutorialScreenIndex);
 
             // Load mine
@@ -56,6 +61,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to garage
             else if (tutorialScreenIndex == 1)
             {
+                typingMesssage = StartCoroutine(TypeOutMessage("LET'S BUY OUR FIRST DRONE!"));
+
                 RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
                 Vector2 p = arrowRT.anchoredPosition;
@@ -75,6 +82,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 if (arrowAnimation != null)
                 {
                     StopCoroutine(arrowAnimation);
+                }
+
+                if (typingMesssage != null)
+                {
+                    StopCoroutine(typingMesssage);
+                    instructionText.transform.parent.gameObject.SetActive(false);
                 }
 
                 pointToGarageArrow.SetActive(false);
@@ -117,12 +130,16 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Save for first drone upgrade
             else if (tutorialScreenIndex == 4)
             {
-                StartCoroutine(FlashMessage(playerMessage, 3, 0.3f));
+                typingMesssage = StartCoroutine(TypeOutMessage("SAVE UP FOR THE FIRST UPGRADE!"));
 
                 // Wait for player to accumulate enough cash for first upgrade
                 yield return new WaitUntil(() => playerState.GetUserCash() >= 5_000);
 
-                playerMessage.SetActive(false);
+                if (typingMesssage != null)
+                {
+                    StopCoroutine(typingMesssage);
+                    instructionText.transform.parent.gameObject.SetActive(false);
+                }
             }
             // Point to garage
             else if (tutorialScreenIndex == 5)
@@ -202,6 +219,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to refinery upgrades
             else if (tutorialScreenIndex == 9)
             {
+                typingMesssage = StartCoroutine(TypeOutMessage("LET'S IMPROVE THE REFINERY TO MAKE MORE MONEY!"));
+
                 RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
                 Vector2 p = arrowRT.anchoredPosition;
@@ -221,6 +240,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 if (arrowAnimation != null)
                 {
                     StopCoroutine(arrowAnimation);
+                }
+
+                if (typingMesssage != null)
+                {
+                    StopCoroutine(typingMesssage);
+                    instructionText.transform.parent.gameObject.SetActive(false);
                 }
 
                 pointToGarageArrow.SetActive(false);
@@ -291,9 +316,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 // Wait for refiner upgrade panel to close, or player clicks ok
                 yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf || !refineryUpgradeBayPanel.activeSelf);
-            }
 
-            // Tutorial done
+                RefineryUpgradePad.Instance.flashButton = false;
+            }
 
             tutorialScreenIndex++;
         }
@@ -306,23 +331,24 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
+
         finishedTutorial = true;
 
-        try {
+        try
+        {
             playerState.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
 
             AnalyticsDelegator.Instance.FinishTutorial();
-        } catch (Exception ex) {  
+        }
+        catch (Exception ex)
+        {
             Debug.Log(ex.Message);
         }
 
-        leaderboardNoticeIcon.SetActive(true);
-        
         sessionDelegator.UnlockTeam();
         Destroy(TutorialUIParent);
     }
-
 
     private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
         // axis 0 = x, axis 1 = y
@@ -376,50 +402,77 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
     }
 
-    public bool IsInTheMine(float y) {
-        if (y < -7f) {
-            return true;
+    private IEnumerator TypeOutMessage(string messageKey)
+    {
+        string messageToType = GetLocalizedValue(messageKey);
+
+        instructionText.transform.parent.gameObject.SetActive(true);
+
+        // Clear previous text
+        instructionText.text = "";
+
+        const float delay = 0.05f; // 20 characters per second
+
+        string output = "";
+
+        foreach (char letter in messageToType)
+        {
+            output += letter;
+            instructionText.text = output + "|";
+
+            yield return new WaitForSeconds(delay);
         }
 
-        return false;
+        instructionText.text = output;
     }
 
-    public void LoadData(GameData data) {
+    private string GetLocalizedValue(string key, params object[] args)
+    {
+        var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
+
+        StringTableEntry entry = table.GetEntry(key); ;
+
+        // If no translation, just return the key
+        if (entry == null)
+        {
+            return string.Format(key, args);
+        }
+
+        // Use string.Format to replace placeholders with arguments
+        return string.Format(entry.LocalizedValue, args);
+    }
+
+    public void LoadData(GameData data)
+    {
 
         this.finishedTutorial = data.finishedTutorial;
         this.tutorialScreenIndex = data.tutorialScreenIndex;
 
-        try {
-            if (this.finishedTutorial) {
+        try
+        {
+            if (this.finishedTutorial)
+            {
                 sessionDelegator.UnlockTeam();
                 Destroy(TutorialUIParent);
                 return;
             }
-        } catch {
+        }
+        catch
+        {
             return;
         }
 
-        if (tutorialScreenIndex == 0) {
+        if (tutorialScreenIndex == 0)
+        {
             AnalyticsDelegator.Instance.StartTutorial();
         }
-    
+
         StartCoroutine(DisplayTutorial());
     }
 
     public void SaveData(ref GameData data) {
         data.finishedTutorial = this.finishedTutorial;
         data.tutorialScreenIndex = this.tutorialScreenIndex;
-    }
-
-    // Reveal a single element, typically a secondary element, and only used after HideAll()
-    public void RevealElement(GameObject element) {
-        element.SetActive(true);
-        AnalyticsDelegator.Instance.OpenTutorialUIPanel(element.name);
-    }
-
-    // Used when closing a secondary element
-    public void HideElement(GameObject element) {
-        element.SetActive(false);
     }
 
 }
