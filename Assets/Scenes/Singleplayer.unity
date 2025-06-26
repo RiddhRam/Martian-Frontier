@@ -1034,11 +1034,6 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 6934587686185133404, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &146430658 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 3809045150242018053, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &147285889 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6409696679235898241, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -1930,6 +1925,11 @@ MonoBehaviour:
 --- !u!1 &418298731 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 1195907341862998775, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &420964245 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8547401211438773216, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!82 &421432858 stripped
@@ -22795,7 +22795,6 @@ MonoBehaviour:
   currentCoopVehicle: 
   playerVehicle: {fileID: 0}
   vehicleUpgradeBayManager: {fileID: 8101979660548351021}
-  refineryUpgradePad: {fileID: 7847548825646038571}
   loaded: 0
   firstTimePlaying: 0
 --- !u!1 &1016199296
@@ -24391,28 +24390,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerState: {fileID: 276248154}
-  playerMovement: {fileID: 1012335947}
-  playerVehicleDelegation: {fileID: 1012335949}
   refineryController: {fileID: 422203783}
-  refineryUpgradePad: {fileID: 7847548825646038571}
   supplyCrateDelegator: {fileID: 1923834004}
   sessionDelegator: {fileID: 2047223847}
-  upgradesDelegator: {fileID: 153313349}
-  vehicleUpgradeBayManager: {fileID: 8101979660548351021}
-  playerHeatSlider: {fileID: 97286647}
-  ResetMine: {fileID: 1364814341}
-  TutorialUIParent: {fileID: 1535989321296887836}
-  powerIndicator: {fileID: 146430658}
-  enterMineArrow: {fileID: 1597789842}
-  movementJoystick: {fileID: 1828223865}
-  playerMessage: {fileID: 1264632800}
-  vehicleUpgradeBayPanel: {fileID: 721501532}
+  pointToGarageArrow: {fileID: 420964245}
+  droneUpgradeBayPanel: {fileID: 721501532}
   refineryUpgradeBayPanel: {fileID: 1333755067}
   refineryProceedPanel: {fileID: 912706346}
-  overHeatTip: {fileID: 5893465902896828831}
   proceedArrow: {fileID: 881092908}
   proceedTutorialInstruction: {fileID: 2049502565}
   refineryOresButton: {fileID: 307355231}
+  TutorialUIParent: {fileID: 1535989321296887836}
+  playerMessage: {fileID: 1264632800}
   finishedTutorial: 0
   tutorialScreenIndex: 0
   loadingScreen: {fileID: 457367999}
@@ -26404,11 +26393,6 @@ MonoBehaviour:
 --- !u!1 &1828223857 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7853129322559924103, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
---- !u!224 &1828223865 stripped
-RectTransform:
-  m_CorrespondingSourceObject: {fileID: 3555816984175652615, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!114 &1832172853 stripped
@@ -30080,7 +30064,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 336536532862525398, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 327.59247
+      value: 327.59244
       objectReference: {fileID: 0}
     - target: {fileID: 336536532862525398, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -30664,7 +30648,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 851172943035663033, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 861498959077158339, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -31129,10 +31113,6 @@ PrefabInstance:
     - target: {fileID: 1374889871933495008, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 1845.7905
-      objectReference: {fileID: 0}
-    - target: {fileID: 1377818355636583177, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      propertyPath: m_Color.g
-      value: 0.84313726
       objectReference: {fileID: 0}
     - target: {fileID: 1391016971688380612, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -32241,6 +32221,10 @@ PrefabInstance:
     - target: {fileID: 2499779738866421298, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2501473488864605444, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2512714986006572583, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Layer
@@ -33385,6 +33369,14 @@ PrefabInstance:
     - target: {fileID: 3700728098880289551, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3700728098880289551, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 420
+      objectReference: {fileID: 0}
+    - target: {fileID: 3700728098880289551, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 200
       objectReference: {fileID: 0}
     - target: {fileID: 3700728098880289551, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
@@ -34576,19 +34568,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4805501338740033465, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4805501338740033465, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4805501338740033465, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 210
       objectReference: {fileID: 0}
     - target: {fileID: 4805501338740033465, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -111.23
       objectReference: {fileID: 0}
     - target: {fileID: 4809214261252554897, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -35240,7 +35232,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5369686741077605965, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 117.89252
+      value: 117.89261
       objectReference: {fileID: 0}
     - target: {fileID: 5369686741077605965, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -35704,7 +35696,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5734671613992369059, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5755563237071238351, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -36774,6 +36766,10 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 5
       objectReference: {fileID: 0}
+    - target: {fileID: 6883293982667919758, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: 'm_ActiveFontFeatures.Array.data[0]'
+      value: 1801810542
+      objectReference: {fileID: 0}
     - target: {fileID: 6896458959057762017, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Layer
       value: 5
@@ -37181,6 +37177,22 @@ PrefabInstance:
     - target: {fileID: 7236696781668951945, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260585261074841799, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260585261074841799, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260585261074841799, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7260585261074841799, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7261227607431454841, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
@@ -37922,6 +37934,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -530.1401
       objectReference: {fileID: 0}
+    - target: {fileID: 8056876607650916387, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 8059084575090947998, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
@@ -38145,6 +38161,10 @@ PrefabInstance:
     - target: {fileID: 8219558633953627924, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_Layer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8229896378586221573, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8230459512852724500, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -38584,6 +38604,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8543158269657827765, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8547401211438773216, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8547472899390279360, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -39102,10 +39126,6 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -83.1785
       objectReference: {fileID: 0}
-    - target: {fileID: 9053600549710724545, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: -604.02
-      objectReference: {fileID: 0}
     - target: {fileID: 9055767744331071742, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0
@@ -39347,11 +39367,6 @@ PrefabInstance:
 --- !u!224 &5893465902896828830 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 1374889871933495008, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-  m_PrefabInstance: {fileID: 5893465902896828829}
-  m_PrefabAsset: {fileID: 0}
---- !u!1 &5893465902896828831 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 851172943035663033, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
 --- !u!224 &5893465902896828833 stripped
@@ -39943,7 +39958,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6d8ae4c71e7f74521b89ca64d35aa095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  uIDelegation: {fileID: 319486926}
   oreDelegation: {fileID: 6070635390797036893}
   playerState: {fileID: 276248154}
   mineRenderer: {fileID: 1093208307}

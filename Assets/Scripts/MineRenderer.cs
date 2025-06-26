@@ -70,7 +70,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     public OreDelegation oreDelegation;
     public UpgradesDelegator upgradesDelegator;
     public RefineryController refineryController;
-    public RefineryUpgradePad refineryUpgradePad;
 
     [Header("Cameras")]
     // For culling
@@ -1083,8 +1082,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         // Initialize everything else
-        refineryUpgradePad.oreUpgrades = data.oreUpgrades;
-        refineryUpgradePad.SetProceedPanelRequirement(this.mineCount);
+        RefineryUpgradePad.Instance.oreUpgrades = data.oreUpgrades;
+        RefineryUpgradePad.Instance.SetProceedPanelRequirement(this.mineCount);
         DailyChallengeDelegator.Instance.Initialize();
         
         if (currentCloudLoadState == cloudLoading)
@@ -1120,7 +1119,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         data.discoveredOres = this.discoveredOres;
 
-        data.oreUpgrades = refineryUpgradePad.oreUpgrades;
+        data.oreUpgrades = RefineryUpgradePad.Instance.oreUpgrades;
     }
 
     public Vector2Int CalculateTileMapPos(Vector2Int tilePos) {

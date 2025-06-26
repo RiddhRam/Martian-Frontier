@@ -31,7 +31,6 @@ public class OreBlasterAdDelegator : MonoBehaviour
     public OreBlasterRoundManager oreBlasterRoundManager;
     public OreBlasterUpgrades oreBlasterUpgrades;
     public OreBlaster oreBlaster;
-    public UIDelegation uIDelegation;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -264,7 +263,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
 
     public void ConvertToCredits(int gemCount) {
         if (!playerState.VerifyEnoughGems(gemCount)) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 

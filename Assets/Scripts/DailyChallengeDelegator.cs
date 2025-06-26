@@ -230,7 +230,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 // For using random ores (set in AddOreBasedOnTier)
                 //oreName = oreNeeded[oreNeededCounter];
                 // For using the required ore to move to next level
-                oreName = mineRenderer.refineryUpgradePad.GetRequiredOreName();
+                oreName = RefineryUpgradePad.Instance.GetRequiredOreName();
                 oreNeededCounter++;
             }
 
@@ -292,7 +292,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 }*/
                 // For using the required ore to move to next level
 
-                if (selectedChallenges[i] == 2 && mineRenderer.refineryUpgradePad.GetRequiredOreName() == key)
+                if (selectedChallenges[i] == 2 && RefineryUpgradePad.Instance.GetRequiredOreName() == key)
                 {
                     challengeProgress[i] += quantities[key];
                     oreNeededCounter++;

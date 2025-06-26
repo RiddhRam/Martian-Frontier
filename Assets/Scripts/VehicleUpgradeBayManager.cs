@@ -85,7 +85,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public TextMeshProUGUI droneUpgradePriceText;
 
     [Header("Other Scripts")]
-    public UIDelegation uIDelegation;
     public PlayerState playerState;
     public PlayerVehicleDelegation playerVehicleDelegation;
     [SerializeField] AudioDelegator audioDelegator;
@@ -782,7 +781,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 
         //AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
-        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel("", type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
+        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel("", type), RefineryUpgradePad.Instance.mineRenderer.mineCount);
 
         return true;
     }
@@ -816,6 +815,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // If max level
         if (heatLevel >= upgradeCoolPrices.Length)
         {
+            Destroy(heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
@@ -855,6 +855,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // If max level
         if (coolLevel >= upgradeCoolPrices.Length)
         {
+            Destroy(coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
@@ -891,8 +892,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // If max level
-        if (droneLevel >= upgradeDronePrices.Length)
+        if (droneLevel >= maxDroneCount)
         {
+            Destroy(droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
             droneUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
             droneUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(1, 0, 0);
 
@@ -1011,7 +1013,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     // For tutorial
-    public void FlashUpgradeButton()
+    public void FlashHeatUpgradeButton()
     {
         flashButton = true;
         Image heatUpgradeButtonImage = heatUpgradePriceText.transform.parent.parent.GetComponent<Image>();
@@ -1020,6 +1022,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         Color darkColor = originalColor * 0.7f;
 
         StartCoroutine(FlashButton(heatUpgradeButtonImage, originalColor, darkColor));
+    }
+
+    public void FlashDroneUpgradeButton()
+    {
+        flashButton = true;
+        Image droneUpgradeButtonImage = droneUpgradePriceText.transform.parent.parent.GetComponent<Image>();
+
+        Color originalColor = droneUpgradeButtonImage.color;
+        Color darkColor = originalColor * 0.7f;
+
+        StartCoroutine(FlashButton(droneUpgradeButtonImage, originalColor, darkColor));
     }
 
     public void FlashCloseButton()
@@ -1082,7 +1095,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         buttonImage.color = originalColor;
     }
 
-    public bool BoughtOneUpgrade()
+    public bool BoughtOneDroneUpgrade()
+    {
+        foreach (var key in vehicleUpgradeLevels.Keys)
+        {
+            if (vehicleUpgradeLevels[key].droneLevel > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool BoughtOneOtherUpgrade()
     {
         foreach (var key in vehicleUpgradeLevels.Keys)
         {

@@ -6,6 +6,20 @@ using UnityEngine.UI;
 
 public class UIDelegation : MonoBehaviour
 {
+    private static UIDelegation _instance;
+    public static UIDelegation Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<UIDelegation>();
+            }
+            return _instance;
+        }
+    }
+
     public GameObject mapCamera;
     public GameObject mapCameraView;
     public GameObject teleportCameraView;

@@ -16,7 +16,6 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public GameObject doubleRewardsButtons;
 
     public TextMeshProUGUI[] crateDisplays;
-    public UIDelegation uIDelegation;
     public PlayerState playerState;
     public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
@@ -103,7 +102,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public void OpenAllCrates() {
         if (cratesAvailable <= 0) {
-            uIDelegation.ShowError("NO CRATES AVAILABLE!");
+            UIDelegation.Instance.ShowError("NO CRATES AVAILABLE!");
             return;
         }
         StartOpeningCrate(true);
@@ -111,7 +110,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public void OpenOneCrate() {
         if (cratesAvailable <= 0) {
-            uIDelegation.ShowError("NO CRATES AVAILABLE!");
+            UIDelegation.Instance.ShowError("NO CRATES AVAILABLE!");
             return;
         }
         StartOpeningCrate(false);

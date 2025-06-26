@@ -92,7 +92,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         resetMineCoroutine = StartCoroutine(ResetMine());
-        NPCManager.Instance.ResetAllNPCPos();
     }
 
     public void CallResetMineFromButton() {
@@ -137,7 +136,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         playerState.UpdateHighestMined(cashMadeThisMine);
         Debug.Log(cashMadeThisMine);
         cashMadeThisMine = 0;
-
+        
+        NPCManager.Instance.ResetAllNPCPos();
         StartCoroutine(NPCManager.Instance.WaitInLobby());
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
@@ -242,7 +242,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
                 refineryBattery--;
             }
 
-            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * itemsSold;
+            cashToAdd += RefineryUpgradePad.Instance.GetActualMaterialPrice(i) * itemsSold;
             change += itemsSold;
         }
 

@@ -7,8 +7,21 @@ using UnityEngine.UI;
 // Is also the controller for the upgrade panel
 public class RefineryUpgradePad : MonoBehaviour
 {
+    private static RefineryUpgradePad _instance;
+    public static RefineryUpgradePad Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<RefineryUpgradePad>();
+            }
+            return _instance;
+        }
+    }
+
     [Header("Scripts")]
-    [SerializeField] UIDelegation uIDelegation;
     [SerializeField] OreDelegation oreDelegation;
     public PlayerState playerState;
     public MineRenderer mineRenderer;
@@ -268,7 +281,7 @@ public class RefineryUpgradePad : MonoBehaviour
         // If not finished tutorial, you can not continue yet
         if (!DataPersistenceManager.Instance.GetGameData().finishedTutorial)
         {
-            uIDelegation.ShowError("FINISH THE TUTORIAL FIRST!");
+            UIDelegation.Instance.ShowError("FINISH THE TUTORIAL FIRST!");
             return;
         }
 

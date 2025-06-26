@@ -9,7 +9,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 {
     [SerializeField] private PlayerState playerState;
     [SerializeField] private CreditMagnet creditMagnet;
-    [SerializeField] private UIDelegation uIDelegation;
     [SerializeField] MagnetHaulerDailyChallengeDelegator magnetHaulerDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
@@ -33,7 +32,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
         if (!playerState.VerifyEnoughCredits(upgradePrices[level]))
         {
-            uIDelegation.ShowError("NOT ENOUGH CREDITS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH CREDITS!");
             return;
         }
 

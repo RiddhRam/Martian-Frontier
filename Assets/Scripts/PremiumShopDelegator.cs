@@ -7,7 +7,6 @@ using System;
 public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
 {
     public PlayerState playerState;
-    public UIDelegation uIDelegation;
     public SupplyCrateDelegator supplyCrateDelegator;
     
     private IStoreController storeController;
@@ -34,7 +33,7 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
         GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
 
         if (gemCashPurchasePanel.gemPrice > playerState.GetUserGems()) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
@@ -169,16 +168,12 @@ public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason) {
         Debug.Log("Purchase Failed: " + failureReason);
-        if (uIDelegation != null) {
-            uIDelegation.ShowError("Purchase Failed: " + failureReason);
-        }
+        UIDelegation.Instance.ShowError("Purchase Failed: " + failureReason);
     }
 
     public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription) {
         Debug.Log("Purchase Failed: " + failureDescription);
-        if (uIDelegation != null) {
-            uIDelegation.ShowError("Purchase Failed: " + failureDescription.message);
-        }
+        UIDelegation.Instance.ShowError("Purchase Failed: " + failureDescription.message);
     }
 
     public void OnInitializeFailed(InitializationFailureReason error, string message) {

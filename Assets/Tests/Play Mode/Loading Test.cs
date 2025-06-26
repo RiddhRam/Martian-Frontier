@@ -253,24 +253,22 @@ public class LoadingTest
         Assert.AreEqual(refineryController.fogOfWarSprite.gameObject.name, "Large Fog Of War");
 
         // UI Delegation
-        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-
-        Assert.AreEqual(uIDelegation.mapCamera.name, "Map Camera");
-        Assert.AreEqual(uIDelegation.mapCameraView.name, "Map Camera View");
+        Assert.AreEqual(UIDelegation.Instance.mapCamera.name, "Map Camera");
+        Assert.AreEqual(UIDelegation.Instance.mapCameraView.name, "Map Camera View");
 
         string[] primaryElementNames = { "Important Info", "Movement Joystick", "Settings", "Left Sidebar", "Supply Crate", "Bottom" };
         int primaryElementCount = 6;
-        Assert.AreEqual(primaryElementCount, uIDelegation.primaryElements.Length);
+        Assert.AreEqual(primaryElementCount, UIDelegation.Instance.primaryElements.Length);
         for (int i = 0; i != primaryElementCount; i++)
         {
-            Assert.AreEqual(uIDelegation.primaryElements[i].name, primaryElementNames[i]);
+            Assert.AreEqual(UIDelegation.Instance.primaryElements[i].name, primaryElementNames[i]);
         }
 
-        Assert.AreEqual(uIDelegation.materialButton.name, "Material Button");
-        Assert.AreEqual(uIDelegation.errorMessage.name, "Error Message");
+        Assert.AreEqual(UIDelegation.Instance.materialButton.name, "Material Button");
+        Assert.AreEqual(UIDelegation.Instance.errorMessage.name, "Error Message");
 
         // Safe Area - Make sure correct order
-        Transform uISafeArea = uIDelegation.transform.GetChild(0);
+        Transform uISafeArea = UIDelegation.Instance.transform.GetChild(0);
         string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Map Close", "Supply Crate", "Left Sidebar", "Settings", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Upgrade Bay Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
@@ -435,10 +433,8 @@ public class LoadingTest
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i + 5) + ")");
         }
 
-        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-
-        Assert.False(uIDelegation.mapCamera.activeSelf);
-        Assert.False(uIDelegation.mapCamera.GetComponent<MapRecordingMode>().enabled);
+        Assert.False(UIDelegation.Instance.mapCamera.activeSelf);
+        Assert.False(UIDelegation.Instance.mapCamera.GetComponent<MapRecordingMode>().enabled);
 
         yield return null;
     }
@@ -592,10 +588,9 @@ public class LoadingTest
         Assert.True(foundButton);
 
         // ALl primary elements closed
-        UIDelegation uIDelegation = GameObject.Find("UI").GetComponent<UIDelegation>();
-        for (int i = 0; i != uIDelegation.primaryElements.Length; i++)
+        for (int i = 0; i != UIDelegation.Instance.primaryElements.Length; i++)
         {
-            Assert.False(uIDelegation.primaryElements[i].activeSelf);
+            Assert.False(UIDelegation.Instance.primaryElements[i].activeSelf);
         }
 
         // Make sure the panel opened

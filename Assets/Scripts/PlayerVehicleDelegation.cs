@@ -15,7 +15,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
     [Header("Other Scripts")]
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
-    public RefineryUpgradePad refineryUpgradePad;
     private bool notSinglePlayerScene = false;
     public bool loaded = false;
 

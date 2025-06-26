@@ -9,7 +9,6 @@ using System.Collections;
 public class OreDelegation : MonoBehaviour
 {
     private MineRenderer mineRenderer;
-    private RefineryUpgradePad refineryUpgradePad;
 
     [Header("Important Values")]
     public string[] materialNames;
@@ -41,7 +40,6 @@ public class OreDelegation : MonoBehaviour
 
     void Awake() {
         mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        refineryUpgradePad = mineRenderer.refineryUpgradePad;
         oresPerTier = mineRenderer.oresPerTier;
 
         int tileCount = oresPerTier.Length;
@@ -83,7 +81,7 @@ public class OreDelegation : MonoBehaviour
             bool foundOre = true;
             // Always show the required ore no matter what
             // Only show the other ores if player has previously mined this ore
-            if (i != refineryUpgradePad.GetRequiredOreIndex())
+            if (i != RefineryUpgradePad.Instance.GetRequiredOreIndex())
             {
                 // If not done tutorial or not found ore yet
                 if (!generateOtherOres || !mineRenderer.discoveredOres.Contains(i))
@@ -117,8 +115,8 @@ public class OreDelegation : MonoBehaviour
 
                 panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
 
-                materialPriceTexts[i].text = refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(refineryUpgradePad.GetActualMaterialPrice(i)));
-                materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", refineryUpgradePad.GetOreUpgradeLevel(i));
+                materialPriceTexts[i].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(i)));
+                materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(i));
 
                 Image image = panelTransform.GetChild(4).GetComponent<Image>();
                 image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
@@ -127,10 +125,10 @@ public class OreDelegation : MonoBehaviour
                 // Save as its own variable, otherwise it keeps a reference to the variable i
                 int oreIndex = i;
                 // Add onclick listener and hold button component
-                panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+                panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
                 // Hold to purchase
                 HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
-                holdButton.SetAction(() => refineryUpgradePad.PurchaseOreUpgrade(oreIndex));
+                holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
                 // Button affordability
                 buttonAffordabilities[i] = panelTransform.GetChild(5).GetComponent<ButtonAffordability>();
 
@@ -163,7 +161,7 @@ public class OreDelegation : MonoBehaviour
 
             if (i == 0)
             {
-                refineryUpgradePad.limestoneUpgradeImage = newMaterialPanel.transform.GetChild(5).GetComponent<Image>();
+                RefineryUpgradePad.Instance.limestoneUpgradeImage = newMaterialPanel.transform.GetChild(5).GetComponent<Image>();
             }
         }
 
@@ -192,19 +190,19 @@ public class OreDelegation : MonoBehaviour
     public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone)
     {
         // Update text
-        materialPriceTexts[oreIndex].text = refineryUpgradePad.playerState.FormatPrice(new System.Numerics.BigInteger(refineryUpgradePad.GetActualMaterialPrice(oreIndex)));
-        materialLevelTexts[oreIndex].text = GetLocalizedValue("LEVEL {0}", refineryUpgradePad.GetOreUpgradeLevel(oreIndex));
+        materialPriceTexts[oreIndex].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(oreIndex)));
+        materialLevelTexts[oreIndex].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex));
 
         Transform buttonTransform = materialUpgradePriceTexts[oreIndex].transform.parent.parent;
         Button button = buttonTransform.GetComponent<Button>();
 
-        System.Numerics.BigInteger newPrice = new(refineryUpgradePad.GetMaterialUpgradePrice(oreIndex));
+        System.Numerics.BigInteger newPrice = new(RefineryUpgradePad.Instance.GetMaterialUpgradePrice(oreIndex));
 
         // If player can't afford, make it disabled initially. Otherwise it will show up as interactable for a split second
-        button.interactable = !(newPrice > refineryUpgradePad.playerState.GetUserCash());
+        button.interactable = !(newPrice > RefineryUpgradePad.Instance.playerState.GetUserCash());
         
         // 500 is max level currently
-        if (refineryUpgradePad.GetOreUpgradeLevel(oreIndex) >= refineryUpgradePad.GetMaxOreLevel())
+        if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) >= RefineryUpgradePad.Instance.GetMaxOreLevel())
         {
             // Hide price tag, show MAX text
             buttonTransform.GetChild(0).gameObject.SetActive(false);
@@ -225,15 +223,15 @@ public class OreDelegation : MonoBehaviour
         else
         {
             // Update price text
-            materialUpgradePriceTexts[oreIndex].text = refineryUpgradePad.playerState.FormatPrice(newPrice);
+            materialUpgradePriceTexts[oreIndex].text = RefineryUpgradePad.Instance.playerState.FormatPrice(newPrice);
             buttonAffordabilities[oreIndex].price = newPrice;
         }
 
-        int lastMilestone = refineryUpgradePad.GetLastOreMilestone(oreIndex);
+        int lastMilestone = RefineryUpgradePad.Instance.GetLastOreMilestone(oreIndex);
 
         // Update progress bar
-        levelProgressBars[oreIndex].maxValue = refineryUpgradePad.GetNextOreMilestone(oreIndex) - lastMilestone;
-        levelProgressBars[oreIndex].value = refineryUpgradePad.GetOreUpgradeLevel(oreIndex) - lastMilestone;
+        levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
+        levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
 
         // If we should flash the outline (an upgrade was made)
         if (flashOutline)

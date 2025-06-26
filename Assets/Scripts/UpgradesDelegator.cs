@@ -14,7 +14,6 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     [SerializeField] private MineRenderer mineRenderer;
     [SerializeField] private PlayerState playerState;
     [SerializeField] private GameObject explosionEffect;
-    [SerializeField] private UIDelegation uIDelegation;
     [SerializeField] private GameObject teleportPanel;
     [SerializeField] private Image powerIconImage;
     [SerializeField] private Button powerButton;
@@ -308,9 +307,9 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
 
     [ContextMenu("Show Teleporter")]
     private void ShowTeleporter() {
-        uIDelegation.HideAll();
-        uIDelegation.ToggleCamera();
-        uIDelegation.RevealElement(teleportPanel);
+        UIDelegation.Instance.HideAll();
+        UIDelegation.Instance.ToggleCamera();
+        UIDelegation.Instance.RevealElement(teleportPanel);
     }
 
     public void Teleport(Vector3 newPosition) {
@@ -321,16 +320,16 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         playerVehicle.position = new(newPosition.x, newPosition.y);
 
         // Back to game
-        uIDelegation.HideElement(teleportPanel);
-        uIDelegation.RevealAll();
-        uIDelegation.ToggleCamera();
+        UIDelegation.Instance.HideElement(teleportPanel);
+        UIDelegation.Instance.RevealAll();
+        UIDelegation.Instance.ToggleCamera();
 
         AudioDelegator.Instance.PlayAudio(powerUpAudioSource, powerUpAudioClips[2], audioVolumes[2]);
         StartCoroutine(StartCooldownTimer(cooldown));
     }
 
     public void InvalidTeleportLocation() {
-        uIDelegation.ShowError("INVALID LOCATION!");
+        UIDelegation.Instance.ShowError("INVALID LOCATION!");
     }
 
     public void UpgradePower(string powerName) {
@@ -346,7 +345,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
         int powerLevel = GetPowerLevel(powerName);
 
         if (!playerState.VerifyEnoughGems(powers[powerIndex].Prices[powerLevel])) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
@@ -460,7 +459,7 @@ public class UpgradesDelegator : MonoBehaviour, IDataPersistence
     {
         if (!playerState.VerifyEnoughGems(GetUnlockPrice()))
         {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
