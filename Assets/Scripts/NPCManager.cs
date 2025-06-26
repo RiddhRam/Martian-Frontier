@@ -189,8 +189,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             droneCount++;
         }
 
-        Debug.Log("Creating: " + npcIndex);
-
         npcs[npcIndex] = Instantiate(npcPrefab);
 
         nPCNames[npcIndex] = GenerateBotName(npcIndex);

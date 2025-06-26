@@ -40,7 +40,7 @@ public class NPCMovement : MonoBehaviour
     Vector2 direction;
     readonly System.Random random = new();
     public float timer = 0;
-    private readonly float maxTimer = 20f;
+    private const float maxTimer = 10f;
 
     public bool transitioning = false;
 
