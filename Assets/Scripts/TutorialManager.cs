@@ -550,11 +550,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         {
             leaderboardNoticeIcon.SetActive(true);
         }
-        
+
         this.highestLevelReached = data.mineCount;
 
         // If first time reaching level 2, tell them how target depth works.
-        if (data.highestLevelReached == 1)
+        if (data.highestLevelReached == 1 && data.mineCount >= 2)
         {
             StartCoroutine(TeachAboutTargetDepth());
 

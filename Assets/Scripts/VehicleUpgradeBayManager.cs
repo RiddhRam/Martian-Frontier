@@ -55,6 +55,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public Transform displayPanel;
     private Transform drillToCopy;
+    public GameObject upgradeBayNoticeIcon;
 
     [Header("Buttons")]
     public Image customizationsButtonImage;
@@ -179,6 +180,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private Coroutine heatValueTextCoroutine;
     private Coroutine coolValueTextCoroutine;
     private Coroutine droneValueTextCoroutine;
+
+    // Used so we can track if an upgrade is available or not
+    private List<ButtonAffordability> buttons = new();
+    private List<TextMeshProUGUI> priceTexts = new();
 
     const string allDronesKey = "ALL DRONES";
 
@@ -786,9 +791,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return true;
     }
 
-    //2025-06-20 21:06:38.489 3989 4101 Error Unity NullReferenceException: Object reference not set to an instance of an object.
-    //2025-06-20 21:06:38.489 3989 4101 Error Unity   at VehicleUpgradeBayManager.UpdateUpgradeDetails (System.String flashPower) [0x00000] in <00000000000000000000000000000000>:0 
-
     public void UpdateUpgradeDetails(string flashPower = "")
     {
         //int heatLevel = GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat");
@@ -922,6 +924,31 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return false;
     }
 
+    private IEnumerator NotifyPlayerOfUpgrades(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        while (true)
+        {
+
+            bool affordable = false;
+            
+            for (int i = 0; i != buttons.Count; i++)
+            {
+                // If player can afford an upgrade, enable the notice icon, otherwise disable it
+                if (buttons[i].CanAfford() && priceTexts[i].text != "MAX")
+                {
+                    affordable = true;
+                    break;
+                }
+            }
+
+            upgradeBayNoticeIcon.SetActive(affordable);
+
+            yield return new WaitForSecondsRealtime(1);
+        }
+    }
+
     public void LoadData(GameData data)
     {
 
@@ -958,6 +985,23 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         /*if (playerVehicleDelegation.loaded) {
             MatchPlayerDrillToDrill();
         }*/
+
+        buttons.Add(heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
+        buttons.Add(coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
+        buttons.Add(droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
+
+        priceTexts.Add(heatUpgradePriceText.GetComponent<TextMeshProUGUI>());
+        priceTexts.Add(coolUpgradePriceText.GetComponent<TextMeshProUGUI>());
+        priceTexts.Add(droneUpgradePriceText.GetComponent<TextMeshProUGUI>());
+
+        // If still in the tutorial, wait a bit before starting to not mix up the player
+        float delay = 0;
+        if (!data.finishedTutorial)
+        {
+            delay = 20f;
+        }
+
+        StartCoroutine(NotifyPlayerOfUpgrades(delay));
 
         loaded = true;
     }

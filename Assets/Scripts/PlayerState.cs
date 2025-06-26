@@ -10,6 +10,20 @@ using UnityEngine.UI;
 
 public class PlayerState : MonoBehaviour, IDataPersistence
 {
+    private static PlayerState _instance;
+    public static PlayerState Instance 
+    {
+        get  
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<PlayerState>();
+            }
+            return _instance;
+        }
+    }
+
     [Header("Displays")]
     public GameObject[] cashDisplays;
     public GameObject[] gemDisplays;
