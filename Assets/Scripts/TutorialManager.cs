@@ -23,7 +23,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     }
 
     [Header("Scripts")]
-    public PlayerState playerState;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
     public SessionDelegator sessionDelegator;
@@ -146,7 +145,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 typingMesssage = StartCoroutine(TypeOutMessage("SAVE UP FOR THE FIRST UPGRADE!"));
 
                 // Wait for player to accumulate enough cash for first upgrade
-                yield return new WaitUntil(() => playerState.GetUserCash() >= 5_000);
+                yield return new WaitUntil(() => PlayerState.Instance.GetUserCash() >= 5_000);
 
                 if (typingMesssage != null)
                 {
@@ -160,7 +159,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 PointToGarage();
 
                 // Wait for panel to open, or player to not have enough cash saved
-                yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf || playerState.GetUserCash() < 5_000);
+                yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf || PlayerState.Instance.GetUserCash() < 5_000);
 
                 if (arrowAnimation != null)
                 {
@@ -170,7 +169,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 pointToGarageArrow.SetActive(false);
 
                 // if not enough cash saved, go back
-                if (playerState.GetUserCash() < 5_000)
+                if (PlayerState.Instance.GetUserCash() < 5_000)
                 {
                     tutorialScreenIndex = 4;
                     continue;
@@ -215,7 +214,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             else if (tutorialScreenIndex == 8)
             {
                 // Wait for player to accumulate enough cash for first upgrade
-                yield return new WaitUntil(() => (double)playerState.GetUserCash() >= RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
+                yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
             }
             // Point to refinery upgrades
             else if (tutorialScreenIndex == 9)
@@ -241,7 +240,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
 
                 // Wait for panel to open, or player to not have enough cash saved
-                yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf || (double)playerState.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
+                yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf || (double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
 
                 if (arrowAnimation != null)
                 {
@@ -257,7 +256,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 pointToGarageArrow.SetActive(false);
 
                 // if not enough cash saved, go back
-                if ((double)playerState.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0))
+                if ((double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0))
                 {
                     tutorialScreenIndex = 8;
                     continue;
@@ -344,7 +343,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try
         {
-            playerState.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
+            PlayerState.Instance.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
             supplyCrateDelegator.ChangeCrateCount(1);
 
             AnalyticsDelegator.Instance.FinishTutorial();

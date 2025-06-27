@@ -676,6 +676,11 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
         targetDepthText.text = GetLocalizedValue("DEPTH: {0}", targetDepth);
     }
+
+    public void SetMaxTargetDepth(int maxDepth)
+    {
+        targetDepthSlider.maxValue = maxDepth;
+    }
     
     private string GetLocalizedValue(string key, params object[] args)
     {

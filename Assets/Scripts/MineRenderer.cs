@@ -1162,6 +1162,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         DataPersistenceManager.Instance.SaveGame();
     }
 
+    // Get tiles tier 
     public int GetTileTier(TileBase tileToIdentify)
     {
         tileTier = 1;
@@ -1176,7 +1177,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             for (int j = 0; j != tierThresholds.Length; j++)
             {
-                if (tierThresholds[j] <= i + 1)
+                if (tierThresholds[j] <= i)
                 {
                     tileTier = j + 1;
                 }
@@ -1186,6 +1187,36 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         }
 
         return tileTier;
+    }
+
+    public int GetOreTierByIndex(int oreIndex)
+    {
+        int tier = 1;
+
+        int oreCounter = 0;
+
+        for (int i = 0; i != oresPerTier.Length; i++)
+        {
+            for (int j = 0; j != oresPerTier[i]; j++)
+            {
+                // Find the same ore index
+                if (oreCounter != oreIndex)
+                {
+                    oreCounter++;
+                }
+                // If we found it, it's in this tier
+                else
+                {
+                    return tier;
+                }
+            }
+
+            // Check the next tier
+            tier++;
+        }
+
+        // Shouldn't reach here
+        return 1;
     }
 
     public GameObject GetTilemapObject()

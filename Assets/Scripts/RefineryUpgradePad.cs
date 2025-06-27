@@ -321,6 +321,8 @@ public class RefineryUpgradePad : MonoBehaviour
             }
         }
 
+        PlayerState.Instance.SetMaxTargetDepth(MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex));
+
         UpdateUpgradeRequirementText();
 
         CheckIfProceedAvailable();

@@ -5,6 +5,7 @@ using UnityEngine.Tilemaps;
 using UnityEngine.Localization.Tables;
 using UnityEngine.Localization.Settings;
 using System.Collections;
+using System;
 
 public class OreDelegation : MonoBehaviour
 {
@@ -73,7 +74,9 @@ public class OreDelegation : MonoBehaviour
         buttonAffordabilities = new ButtonAffordability[length];
 
         int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
-        int requiredOreIndexTier = MineRenderer.Instance.GetTileTier(MineRenderer.Instance.tileValues[requiredOreIndex]);
+        int requiredOreIndexTier = MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex);
+
+        int generatedPanels = 0;
 
         for (int i = 0; i != length; i++)
         {
@@ -86,7 +89,7 @@ public class OreDelegation : MonoBehaviour
             if (i != requiredOreIndex)
             {
                 // If tier is higher than the required ores tier
-                if (MineRenderer.Instance.GetTileTier(MineRenderer.Instance.tileValues[i]) > requiredOreIndexTier)
+                if (MineRenderer.Instance.GetOreTierByIndex(i) > requiredOreIndexTier)
                 {
                     break;
                 }
@@ -167,13 +170,18 @@ public class OreDelegation : MonoBehaviour
                 materialUpgradePriceTexts[i].text = "--";
             }
 
+            generatedPanels++;
+
+            // For tutorial
             if (i == 0)
             {
                 RefineryUpgradePad.Instance.limestoneUpgradeImage = newMaterialPanel.transform.GetChild(5).GetComponent<Image>();
             }
         }
 
-        int rows = 3;
+        // 3 per row
+        int rows = (int) Math.Ceiling(generatedPanels / 3d);
+
         // 130 = vertical padding
         // (rows - 1) * 150 = spacing between each row
         float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 130 + ((rows - 1) * 150);
@@ -182,8 +190,6 @@ public class OreDelegation : MonoBehaviour
         // Resize the scroll view content height to fit the rows using the height of all panels
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
     }
-    
-    // 5.0.0 (47.1%), 5.0.5 (44.9%)
 
     // Clear grid when closing, then reprepare it when opening in case user changes language
     public void ClearGrid() {
