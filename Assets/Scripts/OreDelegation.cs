@@ -9,6 +9,20 @@ using System;
 
 public class OreDelegation : MonoBehaviour
 {
+    private static OreDelegation _instance;
+    public static OreDelegation Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<OreDelegation>();
+            }
+            return _instance;
+        }
+    }
+
     private MineRenderer mineRenderer;
 
     [Header("Important Values")]

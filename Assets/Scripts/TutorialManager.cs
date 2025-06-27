@@ -320,8 +320,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 // Wait for refiner upgrade panel to close, or player clicks ok
                 yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf || !refineryUpgradeBayPanel.activeSelf);
-
-                RefineryUpgradePad.Instance.flashButton = false;
             }
 
             tutorialScreenIndex++;
@@ -332,6 +330,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         //refineryOresButton.onClick.Invoke();
         proceedTutorialInstruction.SetActive(false);
         refineryUpgradeBayPanel.SetActive(false);
+        OreDelegation.Instance.ClearGrid();
 
         UIDelegation.Instance.RevealAll();
         GameCameraController.Instance.ToggleMovement(true);
@@ -516,6 +515,50 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         this.highestLevelReached = 2;
     }
 
+    private IEnumerator RemindAboutProceedRequirement()
+    {
+        yield return new WaitUntil(() => this.highestLevelReached == 2);
+
+
+        // Point to refinery upgrades
+        PointSomewhere(0, 499, 827, 827, 1, 90, 0);
+
+        // Wait for panel open
+        yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
+
+        if (arrowAnimation != null)
+        {
+            StopCoroutine(arrowAnimation);
+        }
+
+        pointToGarageArrow.SetActive(false);
+
+        RefineryUpgradePad.Instance.FlashProceedPanelButton();
+        arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1, false));
+
+        // Wait for panel to open, or they closed the whole thing
+        yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
+        if (arrowAnimation != null)
+        {
+            StopCoroutine(arrowAnimation);
+        }
+
+        proceedArrow.SetActive(false);
+        RefineryUpgradePad.Instance.flashButton = false;
+
+        refineryOresButton.interactable = false;
+
+        // Wait for message to stay
+        yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
+
+        // Wait for refiner upgrade panel to close, or player clicks ok
+        yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf);
+
+        // Go back to normal
+        proceedTutorialInstruction.SetActive(false);
+        refineryOresButton.interactable = true;
+    }
+
     private string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
@@ -584,6 +627,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             // Keep it at 1 for now, until we know for sure the player knows about target depth
             this.highestLevelReached = 1;
+
+            // This will start immediately after the last one is done
+            StartCoroutine(RemindAboutProceedRequirement());
         }
 
         try
