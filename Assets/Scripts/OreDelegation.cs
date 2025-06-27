@@ -72,19 +72,27 @@ public class OreDelegation : MonoBehaviour
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
-        bool generateOtherOres = DataPersistenceManager.Instance.GetGameData().finishedTutorial;
+        int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
+        int requiredOreIndexTier = MineRenderer.Instance.GetTileTier(MineRenderer.Instance.tileValues[requiredOreIndex]);
 
         for (int i = 0; i != length; i++)
         {
             // Determine which ores to show
-
             bool foundOre = true;
+
             // Always show the required ore no matter what
-            // Only show the other ores if player has previously mined this ore
-            if (i != RefineryUpgradePad.Instance.GetRequiredOreIndex())
+            // Only show the other ores if player has previously mined this ore, otherwise show it as a mystery ore
+            // If the ore's tier is greater than the tier of the required ore, don't show anything at all
+            if (i != requiredOreIndex)
             {
-                // If not done tutorial or not found ore yet
-                if (!generateOtherOres || !mineRenderer.discoveredOres.Contains(i))
+                // If tier is higher than the required ores tier
+                if (MineRenderer.Instance.GetTileTier(MineRenderer.Instance.tileValues[i]) > requiredOreIndexTier)
+                {
+                    break;
+                }
+
+                // If not found ore yet
+                if (!mineRenderer.discoveredOres.Contains(i))
                 {
                     foundOre = false;
                 }
@@ -201,8 +209,7 @@ public class OreDelegation : MonoBehaviour
         // If player can't afford, make it disabled initially. Otherwise it will show up as interactable for a split second
         button.interactable = !(newPrice > RefineryUpgradePad.Instance.playerState.GetUserCash());
         
-        // 500 is max level currently
-        if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) >= RefineryUpgradePad.Instance.GetMaxOreLevel())
+        if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) >= RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel())
         {
             // Hide price tag, show MAX text
             buttonTransform.GetChild(0).gameObject.SetActive(false);

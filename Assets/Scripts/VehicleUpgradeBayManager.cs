@@ -923,9 +923,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         return false;
     }
 
-    private IEnumerator NotifyPlayerOfUpgrades(float delay)
+    private IEnumerator NotifyPlayerOfUpgrades()
     {
-        yield return new WaitForSeconds(delay);
+        // If still in the tutorial, wait a bit before starting to not mix up the player
+        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
 
         while (true)
         {
@@ -994,14 +995,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         buttons.Add(coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
         buttons.Add(droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
 
-        // If still in the tutorial, wait a bit before starting to not mix up the player
-        float delay = 0;
-        if (!data.finishedTutorial)
-        {
-            delay = 30f;
-        }
-
-        StartCoroutine(NotifyPlayerOfUpgrades(delay));
+        StartCoroutine(NotifyPlayerOfUpgrades());
 
         loaded = true;
     }

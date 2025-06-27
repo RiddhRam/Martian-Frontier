@@ -8,6 +8,19 @@ using UnityEngine.UI;
 
 public class TutorialManager : MonoBehaviour, IDataPersistence
 {
+    private static TutorialManager _instance;
+    public static TutorialManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<TutorialManager>();
+            }
+            return _instance;
+        }
+    }
 
     [Header("Scripts")]
     public PlayerState playerState;

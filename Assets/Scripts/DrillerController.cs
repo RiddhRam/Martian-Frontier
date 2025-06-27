@@ -214,6 +214,7 @@ public class DrillerController : MonoBehaviour
 
         // Make sure the drill is capable of destroying this tile
         int tileTier = mineRenderer.GetTileTier(tileToDestroy);
+
         if (highestTierDrilled < tileTier)
         {
             highestTierDrilled = tileTier;

@@ -162,8 +162,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         fogOfWarSprite.sortingOrder = 2;
 
         PostMineReset();
-
-        SaveGame();
     }
 
     public void PostMineReset() {

@@ -1168,6 +1168,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         for (int i = 0; i != tileValues.Length; i++)
         {
+            // Find the right tile index
             if (tileToIdentify != tileValues[i])
             {
                 continue;
@@ -1175,7 +1176,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
             for (int j = 0; j != tierThresholds.Length; j++)
             {
-                if (tierThresholds[j] <= i)
+                if (tierThresholds[j] <= i + 1)
                 {
                     tileTier = j + 1;
                 }

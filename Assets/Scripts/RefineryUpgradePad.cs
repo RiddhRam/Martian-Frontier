@@ -147,18 +147,13 @@ public class RefineryUpgradePad : MonoBehaviour
 
     void Start()
     {
-        float delay = 0;
-        if (!DataPersistenceManager.Instance.GetGameData().finishedTutorial)
-        {
-            delay = 60f;
-        }
-
-        StartCoroutine(NotifyPlayerOfUpgrades(delay));
+        StartCoroutine(NotifyPlayerOfUpgrades());
     }
 
-    private IEnumerator NotifyPlayerOfUpgrades(float delay)
+    private IEnumerator NotifyPlayerOfUpgrades()
     {
-        yield return new WaitForSeconds(delay);
+        // If still in the tutorial, wait a bit before starting to not mix up the player
+        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
 
         int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
         
@@ -283,11 +278,11 @@ public class RefineryUpgradePad : MonoBehaviour
     // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount) {
 
-        // ore 0, level 10
+        // ore 0, level 25
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
-            requiredOreUpgradeLevel = upgradeMilestones[0];
+            requiredOreUpgradeLevel = upgradeMilestones[1];
         }
         // ore 3, level 50
         else if (mineCount == 2)
@@ -577,6 +572,11 @@ public class RefineryUpgradePad : MonoBehaviour
     public int GetRequiredOreIndex()
     {
         return requiredOreIndex;
+    }
+
+    public int GetRequiredOreUpgradeLevel()
+    {
+        return requiredOreUpgradeLevel;
     }
 
     public void FlashCloseButton()
