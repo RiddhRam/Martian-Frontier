@@ -257,7 +257,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Buy an upgrade
             else if (tutorialScreenIndex == 10)
             {
-                RefineryUpgradePad.Instance.FlashOreUpgradeButton();
+                // If player re opens the game after quitting at step 10, it throws an error here
+                try
+                {
+                    RefineryUpgradePad.Instance.FlashOreUpgradeButton();
+                }
+                catch
+                {
+                }
 
                 // Wait until purchase, or panel closes
                 yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtOneUpgrade() || !refineryUpgradeBayPanel.activeSelf);
@@ -322,6 +329,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         // Make sure everything is back to normal
         refineryOresButton.interactable = true;
+        //refineryOresButton.onClick.Invoke();
         proceedTutorialInstruction.SetActive(false);
         refineryUpgradeBayPanel.SetActive(false);
 
