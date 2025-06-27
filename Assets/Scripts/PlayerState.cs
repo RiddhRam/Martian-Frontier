@@ -630,6 +630,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.discoveredOres = newGameData.discoveredOres;
 
         data.userCash = newGameData.userCash;
+        data.cratesAvailable++;
 
         data.cooldownTimer = newGameData.cooldownTimer;
 

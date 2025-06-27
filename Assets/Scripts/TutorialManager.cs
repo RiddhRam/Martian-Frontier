@@ -86,7 +86,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 typingMesssage = StartCoroutine(TypeOutMessage("LET'S BUY OUR FIRST DRONE!"));
 
-                PointToGarage();
+                PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
@@ -156,7 +156,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to garage
             else if (tutorialScreenIndex == 5)
             {
-                PointToGarage();
+                PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
 
                 // Wait for panel to open, or player to not have enough cash saved
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf || PlayerState.Instance.GetUserCash() < 5_000);
@@ -221,23 +221,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 typingMesssage = StartCoroutine(TypeOutMessage("LET'S IMPROVE THE REFINERY TO MAKE MORE MONEY!"));
 
-                RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
-
-                // Use top-stretch positioning
-                arrowRT.anchorMin = new Vector2(0, 1); // left-top
-                arrowRT.anchorMax = new Vector2(1, 1); // right-top
-                arrowRT.pivot = new Vector2(0.5f, 1);   // top center
-
-                Vector2 p = arrowRT.anchoredPosition;
-                p.y = -1443;
-                arrowRT.anchoredPosition = p;
-
-                arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
-                arrowRT.offsetMax = new Vector2(67f, arrowRT.offsetMax.y);
-
-                arrowRT.rotation = Quaternion.Euler(0, 0, 0);
-
-                arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+                PointSomewhere(0, 499, 827, 827, 1, 90, 0);
 
                 // Wait for panel to open, or player to not have enough cash saved
                 yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf || (double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
@@ -287,7 +271,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             else if (tutorialScreenIndex == 11)
             {
                 RefineryUpgradePad.Instance.FlashProceedPanelButton();
-                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
+                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1, false));
 
                 // Wait for panel to open, or they closed the whole thing
                 yield return new WaitUntil(() => refineryProceedPanel.activeSelf || !refineryUpgradeBayPanel.activeSelf);
@@ -332,7 +316,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         refineryOresButton.interactable = true;
         proceedTutorialInstruction.SetActive(false);
         refineryUpgradeBayPanel.SetActive(false);
-        supplyCrateButton.SetActive(true);
+
         UIDelegation.Instance.RevealAll();
         GameCameraController.Instance.ToggleMovement(true);
 
@@ -344,7 +328,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         try
         {
             PlayerState.Instance.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
-            supplyCrateDelegator.ChangeCrateCount(1);
 
             AnalyticsDelegator.Instance.FinishTutorial();
         }
@@ -356,14 +339,22 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         sessionDelegator.UnlockTeam();
     }
 
-    private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
+    private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis, bool resetPos) {
         // axis 0 = x, axis 1 = y
 
         arrow.SetActive(true);
 
         RectTransform rectTransform = arrow.GetComponent<RectTransform>();
-        // Save the original position for reference
-        Vector2 originalPos = rectTransform.anchoredPosition;
+        Vector2 originalPos;
+        // Save the original position for reference. resetPos is only true if its using the point to garage arrow
+        if (resetPos)
+        {
+            originalPos = new(0, 0);
+        }
+        else
+        {
+            originalPos = rectTransform.anchoredPosition;
+        }
 
         const float speed = 3f;      // Controls the speed of the oscillation
 
@@ -432,33 +423,43 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         instructionText.text = output;
     }
 
-    private void PointToGarage()
+    private void PointSomewhere(int positionType, int y, int left, int right, int axis, int amplitude, int zRotation)
     {
-        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+        RectTransform arrowRT = pointToGarageArrow.transform.parent.GetComponent<RectTransform>();
 
-        // Use bottom-stretch positioning
-        arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
-        arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
-        arrowRT.pivot = new Vector2(0.5f, 0); // top center
+        // 0 = top-stretch, 1 = bottom-stretch
+        if (positionType == 0)
+        {
+            arrowRT.anchorMin = new Vector2(0, 1); // left-top
+            arrowRT.anchorMax = new Vector2(1, 1); // right-top
+            arrowRT.pivot = new Vector2(0.5f, 1);   // top center
+        }
+        else if (positionType == 1)
+        {
+            arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
+            arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
+            arrowRT.pivot = new Vector2(0.5f, 0); // top center
+        }
 
         Vector2 p = arrowRT.anchoredPosition;
 
-        p.y = 733f;
+        p.y = y;
         arrowRT.anchoredPosition = p;
 
-        arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
-        arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
+        arrowRT.offsetMin = new Vector2(left, arrowRT.offsetMin.y);
+        // make sure right is negative
+        arrowRT.offsetMax = new Vector2(right, arrowRT.offsetMax.y);
 
-        arrowRT.rotation = Quaternion.Euler(0, 0, 180);
+        arrowRT.rotation = Quaternion.Euler(0, 0, zRotation);
 
-        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, amplitude, axis, true));
     }
 
     private IEnumerator TeachAboutTargetDepth()
     {
         if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
         {
-            PointToGarage();
+            PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
         }
 
         // Wait for panel to open
@@ -477,24 +478,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Wait for panel to close
         yield return new WaitUntil(() => !droneUpgradeBayPanel.activeSelf);
 
-        // Tell them to open the target depth panel up
-        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
-
-        // Use top-stretch positioning
-        arrowRT.anchorMin = new Vector2(0, 1); // left-top
-        arrowRT.anchorMax = new Vector2(1, 1); // right-top
-        arrowRT.pivot = new Vector2(0.5f, 1);   // top center
-
-        Vector2 p = arrowRT.anchoredPosition;
-        p.y = -873;
-        arrowRT.anchoredPosition = p;
-
-        arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
-        arrowRT.offsetMax = new Vector2(67f, arrowRT.offsetMax.y);
-
-        arrowRT.rotation = Quaternion.Euler(0, 0, 0);
-
-        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+        PointSomewhere(0, 1042, 827, 827, 1, 90, 0);
 
         yield return new WaitUntil(() => targetDepthPanel.activeSelf);
 
@@ -535,15 +519,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Hide supply crate button until done tutorial, and tell player how to use the camera
         if (!this.finishedTutorial)
         {
-            supplyCrateButton.SetActive(false);
             cameraInstruction.SetActive(true);
         }
 
-        // Hide daily challenge and target depth button until second level. And the ad button too.
+        // Hide supply crate and target depth button until second level. And the ad button too.
         if (data.mineCount < 2)
         {
-            dailyChallengeButton.SetActive(false);
-            dailyChallengePlaceholder.SetActive(true);
+            supplyCrateButton.SetActive(false);
 
             targetDepthButton.SetActive(false);
             targetDepthPlaceholder.SetActive(true);
@@ -551,8 +533,15 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             adButton.SetActive(false);
         }
 
-        // Hide leaderboard button until third level
+        // Hide daily challenge button until third level
         if (data.mineCount < 3)
+        {
+            dailyChallengeButton.SetActive(false);
+            dailyChallengePlaceholder.SetActive(true);
+        }
+
+        // Hide leaderboard button until fourth level
+        if (data.mineCount < 4)
         {
             leaderboardButton.SetActive(false);
         }
