@@ -7,6 +7,20 @@ using UnityEngine.Tilemaps;
 
 public class MineRenderer : MonoBehaviour, IDataPersistence
 {
+    private static MineRenderer _instance;
+    public static MineRenderer Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<MineRenderer>();
+            }
+            return _instance;
+        }
+    }
+
     // Have to change through hierarchy not through here
     [SerializeField] private int visionRadius;
     public GameObject largeFogOfWar;

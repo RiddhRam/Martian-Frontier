@@ -183,7 +183,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     // Used so we can track if an upgrade is available or not
     private List<ButtonAffordability> buttons = new();
-    private List<TextMeshProUGUI> priceTexts = new();
 
     const string allDronesKey = "ALL DRONES";
 
@@ -753,18 +752,18 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         if (type == "Cooldown")
         {
             //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
-            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel("", "Cooldown")];
+            upgradePrice = GetCoolPrice();
         }
         else if (type == "Heat")
         {
             // Using same prices as cooldown prices for now
             //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
-            upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel("", "Heat")];
+            upgradePrice = GetHeatPrice();
         }
         else
         {
             //upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones")];
-            upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel("", "Drones")];
+            upgradePrice = GetDronePrice();
             NPCManager.Instance.CreateNPC();
         }
 
@@ -828,10 +827,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             heatUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
-            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[heatLevel];
+            heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = GetHeatPrice();
 
             heatUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            heatUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[heatLevel]);
+            heatUpgradePriceText.text = playerState.FormatPrice(GetHeatPrice());
         }
 
         int coolLevel = GetDrillUpgradeLevel("", "Cooldown");
@@ -868,10 +867,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             coolUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
-            coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeCoolPrices[coolLevel];
+            coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = GetCoolPrice();
 
             coolUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            coolUpgradePriceText.text = playerState.FormatPrice(upgradeCoolPrices[coolLevel]);
+            coolUpgradePriceText.text = playerState.FormatPrice(GetCoolPrice());
         }
 
         int droneLevel = GetDrillUpgradeLevel("", "Drones");
@@ -907,10 +906,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             droneUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = true;
             droneUpgradePriceText.transform.parent.parent.GetComponent<Image>().color = new(0, 195 / 255f, 0);
-            droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = upgradeDronePrices[droneLevel];
+            droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>().price = GetDronePrice();
 
             droneUpgradePriceText.transform.parent.GetChild(0).gameObject.SetActive(true);
-            droneUpgradePriceText.text = playerState.FormatPrice(upgradeDronePrices[droneLevel]);
+            droneUpgradePriceText.text = playerState.FormatPrice(GetDronePrice());
         }
     }
 
@@ -930,17 +929,22 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         while (true)
         {
-
             bool affordable = false;
-            
+
+            System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
+
             for (int i = 0; i != buttons.Count; i++)
             {
-                // If player can afford an upgrade, enable the notice icon, otherwise disable it
-                if (buttons[i].CanAfford() && priceTexts[i].text != "MAX")
+                // If player can afford an upgrade and its not maxed, enable the notice icon, otherwise disable it
+                if ((i == 0 && (GetDrillUpgradeLevel("", "Heat") >= upgradeCoolPrices.Length || cash < GetHeatPrice()))
+                || (i == 1 && (GetDrillUpgradeLevel("", "Cooldown") >= upgradeCoolPrices.Length || cash < GetCoolPrice()))
+                || (i == 2 && (GetDrillUpgradeLevel("", "Drones") >= maxDroneCount || cash < GetDronePrice())))
                 {
-                    affordable = true;
-                    break;
+                    continue;
                 }
+
+                affordable = true;
+                break;
             }
 
             upgradeBayNoticeIcon.SetActive(affordable);
@@ -990,15 +994,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         buttons.Add(coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
         buttons.Add(droneUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
 
-        priceTexts.Add(heatUpgradePriceText.GetComponent<TextMeshProUGUI>());
-        priceTexts.Add(coolUpgradePriceText.GetComponent<TextMeshProUGUI>());
-        priceTexts.Add(droneUpgradePriceText.GetComponent<TextMeshProUGUI>());
-
         // If still in the tutorial, wait a bit before starting to not mix up the player
         float delay = 0;
         if (!data.finishedTutorial)
         {
-            delay = 20f;
+            delay = 30f;
         }
 
         StartCoroutine(NotifyPlayerOfUpgrades(delay));
@@ -1163,7 +1163,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             return false;
         }
-        
+
         foreach (var key in vehicleUpgradeLevels.Keys)
         {
             if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0)
@@ -1184,5 +1184,16 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     {
         return allNormalDrills[drillTypeIndex];
     }
+
+    private ulong GetHeatPrice() {
+        return upgradeCoolPrices[GetDrillUpgradeLevel("", "Heat")];
+    }
+
+    private ulong GetCoolPrice() {
+        return upgradeCoolPrices[GetDrillUpgradeLevel("", "Cooldown")];
+    }
     
+    private ulong GetDronePrice() {
+        return upgradeDronePrices[GetDrillUpgradeLevel("", "Drones")];
+    }
 }

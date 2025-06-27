@@ -128,6 +128,11 @@ public class RefineryUpgradePad : MonoBehaviour
     [HideInInspector] public Image limestoneUpgradeImage;
     public Image proceedPanelButtonImage;
 
+    [Header("Notice Icons")]
+    public GameObject upgradeBayNoticeIcon;
+    public GameObject oresTabNoticeIcon;
+    public GameObject proceedTabNoticeIcon;
+
     void Awake()
     {
         // Store this for reference later
@@ -137,6 +142,95 @@ public class RefineryUpgradePad : MonoBehaviour
         for (int i = 0; i != materialPrices.Length; i++)
         {
             originalMaterialPrices[i] = (long)materialPrices[i];
+        }
+    }
+
+    void Start()
+    {
+        float delay = 0;
+        if (!DataPersistenceManager.Instance.GetGameData().finishedTutorial)
+        {
+            delay = 60f;
+        }
+
+        StartCoroutine(NotifyPlayerOfUpgrades(delay));
+    }
+
+    private IEnumerator NotifyPlayerOfUpgrades(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
+        
+        while (true)
+        {
+            // Do this everytime, in case mine renderer took too long to load the first time
+            int[] oresPerTier = MineRenderer.Instance.oresPerTier;
+
+            int tier = PlayerState.Instance.GetRecommendedDrillTier();
+            if (tier < 1)
+            {
+                tier = 1;
+            }
+
+            bool affordable = false;
+            int oreCounter = 0;
+
+            System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
+            
+            for (int i = 0; i != tier; i++)
+            {
+                // If not at the right tier yet (tier is not zero-indexed so subtract 1)
+                if (i < tier - 1)
+                {
+                    oreCounter += oresPerTier[i];
+                    continue;
+                }
+
+
+                for (int j = 0; j != oresPerTier[i]; j++)
+                {
+                    // Not max level, and can afford
+                    if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < maxLevel && (double)cash >= GetMaterialUpgradePrice(oreCounter))
+                    {
+                        affordable = true;
+
+                        break;
+                    }
+
+                    oreCounter++;
+                }
+
+                break;
+            }
+
+            if (!affordable)
+            {
+                if (GetOreUpgradeLevel(requiredOreIndex) != maxLevel && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
+                {
+                    affordable = true;
+                }
+            }
+
+            bool showIcon = affordable;
+
+            bool canProceed = false;
+
+            if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
+            {
+                affordable = false;
+                showIcon = true;
+                canProceed = true;
+            }
+
+            // If we can upgrade a relevant ore
+            oresTabNoticeIcon.SetActive(affordable);
+            // If we can proceed, or we can upgrade a relevant ore, the notice icon will be active
+            upgradeBayNoticeIcon.SetActive(showIcon);
+            // If we can proceed
+            proceedTabNoticeIcon.SetActive(canProceed);
+
+            yield return new WaitForSecondsRealtime(1);
         }
     }
 
@@ -356,6 +450,7 @@ public class RefineryUpgradePad : MonoBehaviour
         oreUpgrades[oreIndex] = 1;
     }
 
+    // How much the ore is worth when selling
     public double GetActualMaterialPrice(int oreIndex)
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
@@ -401,6 +496,7 @@ public class RefineryUpgradePad : MonoBehaviour
         return multiplier;
     }
 
+    // How much the upgrade costs
     public double GetMaterialUpgradePrice(int oreIndex)
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);

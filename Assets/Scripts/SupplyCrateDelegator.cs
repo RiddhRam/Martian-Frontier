@@ -41,7 +41,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
-    private readonly int blocksNeededToDestroy = 5000;
+    private const int blocksNeededToDestroy = 8000;
 
     public bool adWatchedAlready = false;
 
@@ -49,7 +49,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
 
         for (int i = 0; i != blocksNeededBars.Length; i++) {
-            blocksNeededBars[i].value = progressToNextCrate;
+            blocksNeededBars[i].value = (float) progressToNextCrate / blocksNeededToDestroy;
         }
 
         blocksNeededMiniBarText.text = blocksLeft.ToString();
