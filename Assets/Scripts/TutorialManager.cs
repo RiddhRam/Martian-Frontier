@@ -45,8 +45,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     private int highestLevelReached;
     public GameObject cameraInstruction;
-    public GameObject loadingScreen;
     public GameObject targetDepthPanel;
+    public Button cameraModeSwitch;
 
     [Header("Notice Icons")]
     public GameObject leaderboardNoticeIcon;
@@ -66,8 +66,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator DisplayTutorial()
     {
-        // Wait for the loading screen to be deactivated
-        yield return new WaitUntil(() => !loadingScreen.activeSelf);
+        // Wait for all items to be loaded
+        yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
+
+        // If player reopens the game after the step where they follow the drone, make them follow the drone again
+        if (tutorialScreenIndex >= 5)
+        {
+            MakePlayerFollowDrone();
+        }
 
         while (tutorialScreenIndex <= 12)
         {
@@ -142,6 +148,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Save for first drone upgrade
             else if (tutorialScreenIndex == 4)
             {
+                MakePlayerFollowDrone();
+
                 typingMesssage = StartCoroutine(TypeOutMessage("SAVE UP FOR THE FIRST UPGRADE!"));
 
                 // Wait for player to accumulate enough cash for first upgrade
@@ -337,6 +345,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         sessionDelegator.UnlockTeam();
+    }
+
+    private void MakePlayerFollowDrone() {
+        // Make player follow their drone
+        cameraModeSwitch.onClick.Invoke();
+        // Don't need this since the camera is following the drone
+        cameraInstruction.SetActive(false);
     }
 
     private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis, bool resetPos) {

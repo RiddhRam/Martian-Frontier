@@ -352,7 +352,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         if (data.vehicleUpgradeLevels.ContainsKey("ALL DRONES"))
         {
             droneCount = data.vehicleUpgradeLevels["ALL DRONES"].droneLevel;
-
         }
         else
         {
@@ -446,6 +445,13 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             return;
         }
 
+        // If player has no drones
+        if (droneCount == 0)
+        {
+            UIDelegation.Instance.ShowError("YOU DON'T HAVE ANY DRONES!");
+            return;
+        }
+
         // Otherwise, tell it to follow a drone
         droneCameraIndex = 0;
         GameCameraController.Instance.SetDroneToFollow(npcs[droneCameraIndex].transform);
@@ -457,6 +463,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void SwitchDroneCamera(int direction)
     {
+        if (droneCount == 1)
+        {
+            UIDelegation.Instance.ShowError("YOU ONLY HAVE 1 DRONE!");
+            return;
+        }
+
         // direction = 1, go forward. direction = -1, go backward
         int startIndex = droneCameraIndex;
         int index = droneCameraIndex;
