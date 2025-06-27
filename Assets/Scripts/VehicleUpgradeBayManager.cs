@@ -170,12 +170,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         1000f
     };
 
+    // 6 values
     private static readonly ulong[] upgradeDronePrices = new ulong[]
     {
         5,            60_000UL,            3_500_000UL,           210_000_000UL,           13_000_000_000UL,
         530_000_000_000UL
     };
+
+    // Maximum upgrade level for drones
     private int maxDroneCount;
+    // Maximum upgrade level for other upgrades
+    private int maxOtherCount;
 
     private Coroutine heatValueTextCoroutine;
     private Coroutine coolValueTextCoroutine;
@@ -814,7 +819,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // If max level
-        if (heatLevel >= upgradeCoolPrices.Length)
+        if (heatLevel >= maxOtherCount)
         {
             Destroy(heatUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
             heatUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -854,7 +859,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // If max level
-        if (coolLevel >= upgradeCoolPrices.Length)
+        if (coolLevel >= maxOtherCount)
         {
             Destroy(coolUpgradePriceText.transform.parent.parent.GetComponent<ButtonAffordability>());
             coolUpgradePriceText.transform.parent.parent.GetComponent<Button>().interactable = false;
@@ -937,8 +942,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             for (int i = 0; i != buttons.Count; i++)
             {
                 // If player can afford an upgrade and its not maxed, enable the notice icon, otherwise disable it
-                if ((i == 0 && (GetDrillUpgradeLevel("", "Heat") >= upgradeCoolPrices.Length || cash < GetHeatPrice()))
-                || (i == 1 && (GetDrillUpgradeLevel("", "Cooldown") >= upgradeCoolPrices.Length || cash < GetCoolPrice()))
+                if ((i == 0 && (GetDrillUpgradeLevel("", "Heat") >= maxOtherCount || cash < GetHeatPrice()))
+                || (i == 1 && (GetDrillUpgradeLevel("", "Cooldown") >= maxOtherCount || cash < GetCoolPrice()))
                 || (i == 2 && (GetDrillUpgradeLevel("", "Drones") >= maxDroneCount || cash < GetDronePrice())))
                 {
                     continue;
@@ -985,6 +990,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         this.customizationsOwned = data.customizationsOwned;
 
         maxDroneCount = GetMaxDroneCount(data.mineCount);
+        maxOtherCount = GetMaxOtherLevel(data.mineCount);
 
         // In production this loads after PlayerVehicleDelegation for some reason, whichever loads second should call the function
         /*if (playerVehicleDelegation.loaded) {
@@ -1007,6 +1013,37 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         data.customizationsOwned = this.customizationsOwned;
     }
 
+    public int GetMaxOtherLevel(int mineCount)
+    {
+        if (mineCount <= 1)
+        {
+            return 1;
+        }
+        if (mineCount <= 2)
+        {
+            return 10;
+        }
+        if (mineCount <= 3)
+        {
+            return 15;
+        }
+        if (mineCount <= 4)
+        {
+            return 20;
+        }
+        if (mineCount <= 5)
+        {
+            return 25;
+        }
+        if (mineCount <= 6)
+        {
+            return 30;
+        }
+        
+
+        return upgradeHeatValues.Length;
+    }
+
     public int GetMaxDroneCount(int mineCount)
     {
         if (mineCount <= 2)
@@ -1017,9 +1054,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             return 3;
         }
-        if (mineCount <= 5)
+        if (mineCount <= 6)
         {
             return 4;
+        }
+        if (mineCount <= 8)
+        {
+            return 5;
         }
 
         return 6;

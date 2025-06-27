@@ -41,7 +41,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
-    private const int blocksNeededToDestroy = 8000;
+    private const int blocksNeededToDestroy = 6500;
 
     public bool adWatchedAlready = false;
 
