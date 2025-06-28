@@ -284,38 +284,43 @@ public class RefineryUpgradePad : MonoBehaviour
             requiredOreIndex = 0;
             requiredOreUpgradeLevel = upgradeMilestones[1];
         }
-        // ore 3, level 50
+        // ore 2, level 50
         else if (mineCount == 2)
         {
-            requiredOreIndex = 3;
+            requiredOreIndex = 2;
             requiredOreUpgradeLevel = upgradeMilestones[2];
         }
         else if (mineCount == 3)
         {
-            requiredOreIndex = 4;
+            requiredOreIndex = 3;
             requiredOreUpgradeLevel = upgradeMilestones[3];
         }
         else if (mineCount == 4)
         {
-            requiredOreIndex = 5;
+            requiredOreIndex = 4;
             requiredOreUpgradeLevel = upgradeMilestones[4];
         }
         else if (mineCount == 5)
         {
+            requiredOreIndex = 5;
+            requiredOreUpgradeLevel = upgradeMilestones[5];
+        }
+        else if (mineCount == 6)
+        {
             requiredOreIndex = 6;
             requiredOreUpgradeLevel = upgradeMilestones[5];
         }
-        else if (mineCount >= 6)
+        else if (mineCount >= 7)
         {
             requiredOreIndex = 8;
 
             // 200
-            if (mineCount <= 7)
+            if (mineCount <= 8)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }
             // 250
-            else if (mineCount >= 8)
+            else if (mineCount >= 9)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[7];
             }

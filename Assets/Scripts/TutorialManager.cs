@@ -512,13 +512,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         pointToGarageArrow.SetActive(false);
 
         // Now the player knows about target depth
-        this.highestLevelReached = 2;
+        this.highestLevelReached = 3;
     }
 
     private IEnumerator RemindAboutProceedRequirement()
     {
-        yield return new WaitUntil(() => this.highestLevelReached == 2);
-
+        yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
         // Point to refinery upgrades
         PointSomewhere(0, 499, 827, 827, 1, 90, 0);
@@ -588,22 +587,22 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             cameraInstruction.SetActive(true);
         }
 
-        // Hide supply crate and target depth button until second level. And the ad button too.
+        // Hide supply crate until second level. And the ad button too.
         if (data.mineCount < 2)
         {
             supplyCrateButton.SetActive(false);
 
-            targetDepthButton.SetActive(false);
-            targetDepthPlaceholder.SetActive(true);
-
             adButton.SetActive(false);
         }
 
-        // Hide daily challenge button until third level
+        // Hide daily challenge and target depth button until third level
         if (data.mineCount < 3)
         {
             dailyChallengeButton.SetActive(false);
             dailyChallengePlaceholder.SetActive(true);
+
+            targetDepthButton.SetActive(false);
+            targetDepthPlaceholder.SetActive(true);
         }
 
         // Hide leaderboard button until fourth level
@@ -620,16 +619,18 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         this.highestLevelReached = data.mineCount;
 
-        // If first time reaching level 2, tell them how target depth works.
+        // Remind player how to reach the next level
         if (data.highestLevelReached == 1 && data.mineCount >= 2)
+        {
+            StartCoroutine(RemindAboutProceedRequirement());
+        }
+        // If first time reaching level 3, tell them how target depth works.
+        else if (data.highestLevelReached == 2 && data.mineCount >= 3)
         {
             StartCoroutine(TeachAboutTargetDepth());
 
-            // Keep it at 1 for now, until we know for sure the player knows about target depth
-            this.highestLevelReached = 1;
-
-            // This will start immediately after the last one is done
-            StartCoroutine(RemindAboutProceedRequirement());
+            // Keep it at 2 for now, until we know for sure the player knows about target depth
+            this.highestLevelReached = 2;
         }
 
         try

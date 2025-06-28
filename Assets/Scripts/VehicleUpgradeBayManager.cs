@@ -1021,7 +1021,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
         if (mineCount <= 2)
         {
-            return 10;
+            return 5;
         }
         if (mineCount <= 3)
         {
