@@ -317,9 +317,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 // Wait for message to stay
                 yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
-
-                // Wait for refiner upgrade panel to close, or player clicks ok
-                yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf || !refineryUpgradeBayPanel.activeSelf);
             }
 
             tutorialScreenIndex++;
@@ -327,13 +324,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         // Make sure everything is back to normal
         refineryOresButton.interactable = true;
-        //refineryOresButton.onClick.Invoke();
         proceedTutorialInstruction.SetActive(false);
-        refineryUpgradeBayPanel.SetActive(false);
-        OreDelegation.Instance.ClearGrid();
-
-        UIDelegation.Instance.RevealAll();
-        GameCameraController.Instance.ToggleMovement(true);
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
@@ -342,7 +333,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         try
         {
-            PlayerState.Instance.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
+            //PlayerState.Instance.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
 
             AnalyticsDelegator.Instance.FinishTutorial();
         }

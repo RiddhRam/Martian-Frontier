@@ -289,7 +289,10 @@ public class DataPersistenceManager : MonoBehaviour
         return false;
     }
 
-    public GameData GetGameData() {
+    // Ideally, don't read game data from this, because it may not be synced with the real-time value. 
+    // Access the script that holds this data directly
+    public GameData GetGameData()
+    {
         return this.gameData;
     }
 

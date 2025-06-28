@@ -615,6 +615,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         ref GameData data = ref DataPersistenceManager.Instance.GetGameDataRef();
         GameData newGameData = new();
 
+        // In case player finished tutorial level early (they already know the game)
+        data.finishedTutorial = true;
+
         // Modify it directly and then save without calling on other scripts
         // otherwise other scripts will overwrite the modificiations we make here
         data.currentVehicle = VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs()[playerVehicleDelegation.GetNextVehicleIndex(data.mineCount)].name;

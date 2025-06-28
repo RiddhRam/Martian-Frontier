@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
@@ -120,10 +119,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // If there is internet
         internetReachable = true;
         ToggleDisplay();
-
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            return;
-        }
         
         timer++;
 
@@ -324,11 +319,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         try {
             LogAnalytics("Lobby");
         } catch {
-        }
-
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            LobbyRewardSuccess();
-            return;
         }
 
         // ADMOB DISABLE
@@ -603,10 +593,18 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         yield break;
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
 
-        if (!data.finishedTutorial) {
+        if (!data.finishedTutorial)
+        {
             firstTimePlaying = true;
+        }
+        
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 1) {
+            // No ads in tutorial
+            disableAds = true;
+            return;
         }
     }
 

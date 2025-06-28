@@ -383,13 +383,6 @@ public class RefineryUpgradePad : MonoBehaviour
             return;
         }
 
-        // If not finished tutorial, you can not continue yet
-        if (!DataPersistenceManager.Instance.GetGameData().finishedTutorial)
-        {
-            UIDelegation.Instance.ShowError("FINISH THE TUTORIAL FIRST!");
-            return;
-        }
-
         // Player can proceed
         playerState.ProceedToNextMine();
     }
