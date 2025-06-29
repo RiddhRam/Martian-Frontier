@@ -152,8 +152,8 @@ public class RefineryUpgradePad : MonoBehaviour
 
     private IEnumerator NotifyPlayerOfUpgrades()
     {
-        // If still in the tutorial, wait a bit before starting to not mix up the player
-        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
+        // If still in the tutorial, wait a bit to not mix up the player.
+        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial || TutorialManager.Instance.tutorialScreenIndex >= 11);
 
         int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
         
@@ -584,9 +584,9 @@ public class RefineryUpgradePad : MonoBehaviour
         flashButton = true;
 
         Color originalColor = closeButtonImage.color;
-        Color darkColor = new(160 / 255f, 160 / 255f, 160 / 255f);
+        Color darkColor = originalColor * 0.7f;
 
-        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor, new(1.2f, 1.2f, 1.2f)));
+        StartCoroutine(FlashButton(closeButtonImage, originalColor, darkColor));
     }
 
     public void FlashOreUpgradeButton()
@@ -611,43 +611,20 @@ public class RefineryUpgradePad : MonoBehaviour
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
     }
 
-    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor, Vector3? largeScale = null)
+    private IEnumerator FlashButton(Image buttonImage, Color originalColor, Color darkColor)
     {
-        float duration = 0.4f; // time to go from original to dark and back
+        float duration = 0.5f; // time to go from original to dark and back
         float t = 0f;
         bool goingDarker = true;
-
-        RectTransform rectTransform = null;
-        Vector3 initialScale = Vector3.zero;
-
-        // If large scale is provided, then we need to animate the scale too
-        if (largeScale.HasValue)
-        {
-            rectTransform = buttonImage.GetComponent<RectTransform>();
-            initialScale = rectTransform.localScale;
-        }
 
         while (flashButton)
         {
             t += Time.deltaTime / duration;
 
-            // Color
-            // Darken
             if (goingDarker)
                 buttonImage.color = Color.Lerp(originalColor, darkColor, t);
-            // Brighten
             else
                 buttonImage.color = Color.Lerp(darkColor, originalColor, t);
-            
-            // Scale, if provided
-            if (largeScale.HasValue)
-            {
-                Vector3 big = largeScale.Value;
-                if (goingDarker)
-                    rectTransform.localScale = Vector3.Lerp(initialScale, big, t);
-                else
-                    rectTransform.localScale = Vector3.Lerp(big, initialScale, t);
-            }
 
             if (t >= 1f)
             {
@@ -658,10 +635,9 @@ public class RefineryUpgradePad : MonoBehaviour
             yield return null;
         }
 
-        // Return to original colour
         buttonImage.color = originalColor;
     }
-    
+
     public bool BoughtOneUpgrade() {
         if (oreUpgrades == null)
         {
@@ -671,6 +647,24 @@ public class RefineryUpgradePad : MonoBehaviour
         foreach (var key in oreUpgrades.Keys)
         {
             if (oreUpgrades[key] > 0)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    public bool BoughtThreeUpgrades()
+    {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] >= 3)
             {
                 return true;
             }

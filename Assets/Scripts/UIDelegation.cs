@@ -32,6 +32,7 @@ public class UIDelegation : MonoBehaviour
     //private string[] materialNames;
     public GameObject materialButton;
     public GameObject errorMessage;
+    public GameObject backgroundDarkness;
 
     public OreDelegation oreDelegation;
 
@@ -68,16 +69,20 @@ public class UIDelegation : MonoBehaviour
     }
 
     // Reveal a single element, typically a secondary element, and only used after HideAll()
-    public void RevealElement(GameObject element) {
+    public void RevealElement(GameObject element)
+    {
         element.SetActive(true);
         GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
+        backgroundDarkness.SetActive(true);
     }
 
     // Used when closing a secondary element
-    public void HideElement(GameObject element) {
+    public void HideElement(GameObject element)
+    {
         element.SetActive(false);
         GameCameraController.Instance.ToggleMovement(true);
+        backgroundDarkness.SetActive(false);
     }
 
     // Used when opening the map, or closing
