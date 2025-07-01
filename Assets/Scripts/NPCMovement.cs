@@ -28,6 +28,8 @@ public class NPCMovement : MonoBehaviour
     public TextMeshProUGUI npcNameText;
     public Canvas worldSpaceCanvas;
     public Transform droneDetails;
+    public Transform line;
+    public Transform noticeIcon;
     public RectTransform button;
 
     [Header("Cache")]
@@ -67,7 +69,8 @@ public class NPCMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         StartCoroutine(SetButtonSize());
-
+        StartCoroutine(HoldLineStill());
+        StartCoroutine(AnimateNoticeIcon());
         StartCoroutine(HoldCanvasStill());
     }
 
@@ -455,9 +458,72 @@ public class NPCMovement : MonoBehaviour
         button.sizeDelta = new(x, y);
     }
 
+    private IEnumerator HoldLineStill()
+    {
+        while (true)
+        {
+            line.rotation = normalRotation;
+            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+
+            // Calculate new position based on rotation
+            float x = Mathf.Sin(angle) * 6f;
+            float y = Mathf.Cos(angle) * 6f;
+
+            line.localPosition = new Vector3(x, y, 0);
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private IEnumerator AnimateNoticeIcon()
+    {
+        Vector3 normalScale = noticeIcon.localScale;
+        Vector3 bloatScale = normalScale * 1.4f;
+        float interval = 2f;
+        float animDuration = 0.2f;
+        float nextBloatTime = Time.time + interval;
+
+        while (true)
+        {
+            // always reset rotation each frame
+            noticeIcon.rotation = normalRotation;
+
+            // check if it’s time to bloat
+            if (Time.time >= nextBloatTime)
+            {
+                // SCALE UP
+                float t = 0f;
+                while (t < animDuration)
+                {
+                    t += Time.deltaTime;
+                    float frac = t / animDuration;
+                    noticeIcon.localScale = Vector3.Lerp(normalScale, bloatScale, frac);
+                    noticeIcon.rotation = normalRotation;  // keep rotation locked during anim
+                    yield return null;
+                }
+
+                // SCALE DOWN
+                t = 0f;
+                while (t < animDuration)
+                {
+                    t += Time.deltaTime;
+                    float frac = t / animDuration;
+                    noticeIcon.localScale = Vector3.Lerp(bloatScale, normalScale, frac);
+                    noticeIcon.rotation = normalRotation;  // keep rotation locked during anim
+                    yield return null;
+                }
+
+                // ensure exact reset
+                noticeIcon.localScale = normalScale;
+                nextBloatTime = Time.time + interval;
+            }
+
+            yield return null;
+        }
+    }
+
     private IEnumerator HoldCanvasStill()
     {
-
         while (true)
         {
             droneDetails.rotation = normalRotation;

@@ -75,7 +75,8 @@ public class OreDelegation : MonoBehaviour
         }
     }
 
-    public void PrepareGrid() {
+    public void PrepareGrid()
+    {
 
         // Make sure everything else is clear for sure
         ClearGrid();
@@ -102,7 +103,7 @@ public class OreDelegation : MonoBehaviour
 
             // Always show the required ore no matter what
             // Only show the other ores if player has previously mined this ore, otherwise show it as a mystery ore
-            // If the ore's tier is greater than the tier of the required ore, don't show anything at all
+            // If the ore's tier is greater than the tier of the required ore, don't show anything at all after this index
             if (i != requiredOreIndex)
             {
                 // If tier is higher than the required ores tier
@@ -115,6 +116,12 @@ public class OreDelegation : MonoBehaviour
                 if (!mineRenderer.discoveredOres.Contains(i))
                 {
                     foundOre = false;
+
+                    // If not found, and index is higher (but still same tier) then don't show anything at all after this index
+                    if (i > requiredOreIndex)
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -138,8 +145,8 @@ public class OreDelegation : MonoBehaviour
             if (foundOre)
             {
                 // If found the ore, show its price, level, name, image and colours
-                orePanelOutlines[i].effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
-                orePanelOutlineBars[i].color = oreTileColours[GetOriginalTileIndexByName(oreName)];
+                //orePanelOutlines[i].effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
+                //orePanelOutlineBars[i].color = oreTileColours[GetOriginalTileIndexByName(oreName)];
 
                 panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
 
@@ -197,15 +204,35 @@ public class OreDelegation : MonoBehaviour
         }
 
         // 3 per row
-        int rows = (int) Math.Ceiling(generatedPanels / 3d);
+        int rows = (int)Math.Ceiling(generatedPanels / 3d);
 
-        // 30 = vertical padding
-        // (rows - 1) * 90 = spacing between each row
-        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 30 + ((rows - 1) * 30);
-        
+        GridLayoutGroup contentGridLayoutGroup = contentGO.GetComponent<GridLayoutGroup>();
+        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + contentGridLayoutGroup.padding.top + contentGridLayoutGroup.padding.bottom + ((rows - 1) * contentGridLayoutGroup.spacing.y);
+
+        // Clamp height
+        float minHeight = contentGO.transform.parent.parent.parent.GetComponent<RectTransform>().sizeDelta.y;
+        if (bigContentHeight < minHeight)
+        {
+            bigContentHeight = minHeight;
+        }
+
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
+
         // Resize the scroll view content height to fit the rows using the height of all panels
-        //bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
+        bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
+
+        // If theres only 1 row, it will be in the Middle-Center by default
+        // If there's more, make it Upper-Center
+        if (rows > 1)
+        {
+            contentGridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
+        }
+        // If larger than the minimum height, then scroll down automatically
+        if (bigContentHeight > minHeight)
+        {
+            // 0 = bottom, 1 = top
+            contentGO.transform.parent.parent.GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
+        }
     }
 
     // Clear grid when closing, then reprepare it when opening in case user changes language
@@ -283,7 +310,8 @@ public class OreDelegation : MonoBehaviour
     private IEnumerator FlashOrePanelOutline(Outline outlineToFlash, Image outlineBarToFlash)
     {
         Color originalColor = outlineToFlash.effectColor;
-        Color darkerColor = originalColor * 0.5f; // Darken by reducing brightness
+        // Don't multiply the alpha by 0.5
+        Color darkerColor = new Color(originalColor.r * 0.5f, originalColor.g * 0.5f, originalColor.b * 0.5f, originalColor.a);
 
         float duration = 0.25f;
         float halfDuration = duration / 2f;

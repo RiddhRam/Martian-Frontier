@@ -578,6 +578,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Method to select an ore based on depth
     private int SelectOreBasedOnDepth(int chunkRow, int level)
     {
+        // Only use limestone for level 1
+        if (mineCount == 1)
+            return 1;
+            
         // Define the ore range for this tier
         minOreIndex = tierThresholds[level] + 1;
         maxOreIndex = tierThresholds[level] + oresPerTier[level];

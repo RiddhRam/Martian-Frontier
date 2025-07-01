@@ -129,9 +129,7 @@ public class RefineryUpgradePad : MonoBehaviour
     public Image proceedPanelButtonImage;
 
     [Header("Notice Icons")]
-    public GameObject upgradeBayNoticeIcon;
-    public GameObject oresTabNoticeIcon;
-    public GameObject proceedTabNoticeIcon;
+    public GameObject proceedNoticeIcon;
 
     void Awake()
     {
@@ -173,6 +171,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
             System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
             
+            // Check if we can afford any upgrade at or above the selected target depth
             for (int i = 0; i != tier; i++)
             {
                 // If not at the right tier yet (tier is not zero-indexed so subtract 1)
@@ -199,6 +198,7 @@ public class RefineryUpgradePad : MonoBehaviour
                 break;
             }
 
+            // If we can't afford any upgrades at or above the selected target depth, then explicity check if we can afford the required ore
             if (!affordable)
             {
                 if (GetOreUpgradeLevel(requiredOreIndex) != maxLevel && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
@@ -207,23 +207,24 @@ public class RefineryUpgradePad : MonoBehaviour
                 }
             }
 
-            bool showIcon = affordable;
-
             bool canProceed = false;
 
             if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
             {
-                affordable = false;
-                showIcon = true;
                 canProceed = true;
             }
 
-            // If we can upgrade a relevant ore
-            oresTabNoticeIcon.SetActive(affordable);
-            // If we can proceed, or we can upgrade a relevant ore, the notice icon will be active
-            upgradeBayNoticeIcon.SetActive(showIcon);
-            // If we can proceed
-            proceedTabNoticeIcon.SetActive(canProceed);
+            // Toggle all icons on the drones
+            for (int i = 0; i != NPCManager.Instance.upgradeNoticeIcons.Length; i++)
+            {
+                if (NPCManager.Instance.upgradeNoticeIcons[i] == null)
+                    continue;
+
+                NPCManager.Instance.upgradeNoticeIcons[i].SetActive(affordable);
+            }
+
+            // Toggle the icon on the proceed button
+            proceedNoticeIcon.SetActive(canProceed);
 
             yield return new WaitForSecondsRealtime(1);
         }
@@ -278,13 +279,13 @@ public class RefineryUpgradePad : MonoBehaviour
     // Set next requirement needed
     public void SetProceedPanelRequirement(int mineCount) {
 
-        // ore 0, level 25
+        // ore 1, level 25
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
             requiredOreUpgradeLevel = upgradeMilestones[1];
         }
-        // ore 2, level 50
+        // ore 3, level 50
         else if (mineCount == 2)
         {
             requiredOreIndex = 2;

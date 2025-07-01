@@ -59,6 +59,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject targetDepthButton;
     public GameObject targetDepthPlaceholder;
     public GameObject adButton;
+    public GameObject cameraControls;
 
     private Coroutine arrowAnimation;
     private Coroutine typingMesssage;
@@ -627,12 +628,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             cameraInstruction.SetActive(true);
         }
 
-        // Hide supply crate until second level. And the ad button too.
+        // Hide supply crate, ad button and camera controls until second level
         if (data.mineCount < 2)
         {
             supplyCrateButton.SetActive(false);
-
             adButton.SetActive(false);
+            cameraControls.SetActive(false);
         }
 
         // Hide daily challenge and target depth button until third level

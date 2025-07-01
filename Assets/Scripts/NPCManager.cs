@@ -26,6 +26,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField] public GameObject mapIconPrefab;
 
     [SerializeField] private GameObject[] npcs;
+    public GameObject[] upgradeNoticeIcons;
     private NavMeshAgent[] navMeshAgents;
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
@@ -165,6 +166,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public Image toggleCameraModeButton;
     public GameObject cameraIterateControls;
     public GameObject refineryUpgradePanel;
+    public GameObject closeRefineryButton;
     public GameObject importantInfo;
 
     [Header("Cache")]
@@ -204,6 +206,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
         nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
         nPCMovements[npcIndex].button.GetComponent<Button>().onClick.AddListener(() => DroneTapped(npcIndex));
+        upgradeNoticeIcons[npcIndex] = nPCMovements[npcIndex].noticeIcon.gameObject;
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
 
@@ -251,7 +254,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // Set agent type
         navMeshAgents[npcIndex].agentTypeID = NavMesh.GetSettingsByIndex(4).agentTypeID;
 
-        Transform droneDetailsPanel = npcs[npcIndex].transform.GetChild(0).GetChild(0);
+        Transform droneDetailsPanel = nPCMovements[npcIndex].droneDetails;
 
         // Set overheat progress bar values in the driller controller
         Transform droneOverheatBar = droneDetailsPanel.GetChild(0);
@@ -359,6 +362,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         npcs = new GameObject[maxDrones];
+        upgradeNoticeIcons = new GameObject[maxDrones];
         nPCMovements = new NPCMovement[maxDrones];
         nPCNames = new string[maxDrones];
         navMeshAgents = new NavMeshAgent[maxDrones];
@@ -420,7 +424,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         if (random.NextDouble() < 0.66)
         {
             // In front of entrance
-            return new(0, -1);
+            return new(0, 0);
         }
 
         // x in [‑6, 6)
@@ -431,14 +435,21 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return new(x, y);
     }
 
-    private void DroneTapped(int droneIndex)
+    public void DroneTapped(int droneIndex)
     {
+
+        if (droneIndex == -1)
+        {
+            HideRefineryPanel();
+            return;
+        }
+
         // If not following a drone or following another drone, then start following the one that was just tapped
         if (GameCameraController.Instance.droneToFollow != npcs[droneIndex].transform)
         {
             GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
             ShowUIControls();
-            
+
             // if active, disable (whether player tapped the same drone or new drone)
             if (refineryUpgradePanel.activeSelf)
             {
@@ -454,7 +465,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             return;
         }
 
-        // If inactive, enable (only if player tapped same drone)
+        // If inactive, enable (only if player tapped same drone that they are currently following)
         if (!refineryUpgradePanel.activeSelf)
         {
             // Call this so that it zooms back in. We do this so the player isn't zoomed out too far when the panel opens
@@ -464,10 +475,17 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             UIDelegation.Instance.HideAll();
             // Re-reveal important info panel. It gets hidden in HideAll()
-            UIDelegation.Instance.RevealElement(importantInfo, false);
+            UIDelegation.Instance.RevealElement(importantInfo);
+            UIDelegation.Instance.ToggleBackgroundDarkness(false);
 
             OreDelegation.Instance.PrepareGrid();
-            UIDelegation.Instance.RevealElement(refineryUpgradePanel, false);
+            UIDelegation.Instance.RevealElement(refineryUpgradePanel);
+            UIDelegation.Instance.ToggleBackgroundDarkness(false);
+
+            UIDelegation.Instance.RevealElement(closeRefineryButton);
+            UIDelegation.Instance.ToggleBackgroundDarkness(false);
+
+            //nPCMovements[droneIndex].line.gameObject.SetActive(true);
         }
     }
 
