@@ -196,13 +196,13 @@ public class OreDelegation : MonoBehaviour
         // 3 per row
         int rows = (int) Math.Ceiling(generatedPanels / 3d);
 
-        // 130 = vertical padding
-        // (rows - 1) * 150 = spacing between each row
-        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 130 + ((rows - 1) * 150);
+        // 30 = vertical padding
+        // (rows - 1) * 90 = spacing between each row
+        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + 30 + ((rows - 1) * 30);
         
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
         // Resize the scroll view content height to fit the rows using the height of all panels
-        bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
+        //bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
     }
 
     // Clear grid when closing, then reprepare it when opening in case user changes language

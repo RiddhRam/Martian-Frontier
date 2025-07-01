@@ -27,6 +27,8 @@ public class NPCMovement : MonoBehaviour
     public SortingGroup sortingGroup;
     public TextMeshProUGUI npcNameText;
     public Canvas worldSpaceCanvas;
+    public Transform droneDetails;
+    public RectTransform button;
 
     [Header("Cache")]
     private Vector2 joystickVec;
@@ -63,6 +65,8 @@ public class NPCMovement : MonoBehaviour
         agent.updateRotation = false;
 
         rb = GetComponent<Rigidbody2D>();
+
+        StartCoroutine(SetButtonSize());
 
         StartCoroutine(HoldCanvasStill());
     }
@@ -435,19 +439,35 @@ public class NPCMovement : MonoBehaviour
 
     }
 
+    private IEnumerator SetButtonSize()
+    {
+        // Wait for driller controller to load
+        yield return new WaitUntil(() => drillerController != null);
+
+        // Get the references
+        Transform drillParent = drillerController.transform.parent;
+        BoxCollider2D drillBody = drillParent.GetChild(0).GetComponent<BoxCollider2D>();
+
+        // Set the size
+        float x = drillParent.localScale.x * drillBody.size.x;
+        float y = drillParent.localScale.y * drillBody.size.y;
+
+        button.sizeDelta = new(x, y);
+    }
+
     private IEnumerator HoldCanvasStill()
     {
 
         while (true)
         {
-            worldSpaceCanvas.transform.rotation = normalRotation;
+            droneDetails.rotation = normalRotation;
             float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
 
             // Calculate new position based on rotation
             float x = Mathf.Sin(angle) * 4.2f;
             float y = Mathf.Cos(angle) * 4.2f;
 
-            worldSpaceCanvas.transform.localPosition = new Vector3(x, y, 0);
+            droneDetails.localPosition = new Vector3(x, y, 0);
 
             yield return new WaitForEndOfFrame();
         }

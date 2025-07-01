@@ -69,20 +69,20 @@ public class UIDelegation : MonoBehaviour
     }
 
     // Reveal a single element, typically a secondary element, and only used after HideAll()
-    public void RevealElement(GameObject element)
+    public void RevealElement(GameObject element, bool backgroundOverlay = true)
     {
         element.SetActive(true);
         GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
-        backgroundDarkness.SetActive(true);
+        backgroundDarkness.SetActive(backgroundOverlay);
     }
 
     // Used when closing a secondary element
-    public void HideElement(GameObject element)
+    public void HideElement(GameObject element, bool backgroundOverlay = false)
     {
         element.SetActive(false);
         GameCameraController.Instance.ToggleMovement(true);
-        backgroundDarkness.SetActive(false);
+        backgroundDarkness.SetActive(backgroundOverlay);
     }
 
     // Used when opening the map, or closing

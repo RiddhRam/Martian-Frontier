@@ -36,8 +36,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject refineryProceedPanel;
     public GameObject proceedArrow;
     public GameObject proceedTutorialInstruction;
-    public Button refineryOresButton;
-    public GameObject refineryButtonTabs;
 
     [Header("Other")]
     public GameObject TutorialUIParent;
@@ -70,9 +68,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Wait for all items to be loaded
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
-        // Don't show these until we want to teach them about how to proceed to next level
-        refineryButtonTabs.SetActive(false);
-
         // If player reopens the game after the step where they follow the drone, make them follow the drone again
         if (tutorialScreenIndex >= 5)
         {
@@ -96,7 +91,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 typingMesssage = StartCoroutine(TypeOutMessage("LET'S BUY OUR FIRST DRONE!"));
 
-                PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
+                PointToGarage();
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
@@ -168,7 +163,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to garage
             else if (tutorialScreenIndex == 5)
             {
-                PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
+                PointToGarage();
 
                 // Wait for panel to open, or player to not have enough cash saved
                 yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf || PlayerState.Instance.GetUserCash() < 5_000);
@@ -233,7 +228,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 typingMesssage = StartCoroutine(TypeOutMessage("LET'S IMPROVE THE REFINERY TO MAKE MORE MONEY!"));
 
-                PointSomewhere(0, 499, 827, 827, 1, 90, 0);
+                PointToRefinery();
 
                 // Wait for panel to open, or player to not have enough cash saved
                 yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf || (double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
@@ -309,7 +304,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to refinery upgrades
             else if (tutorialScreenIndex == 13)
             {
-                PointSomewhere(0, 499, 827, 827, 1, 90, 0);
+                PointToRefinery();
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
@@ -324,10 +319,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Point to proceed panel
             else if (tutorialScreenIndex == 14)
             {
-                refineryButtonTabs.SetActive(true);
-
                 RefineryUpgradePad.Instance.FlashProceedPanelButton();
-                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1, false));
+                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
 
                 // Wait for panel to open, or they closed the whole thing
                 yield return new WaitUntil(() => refineryProceedPanel.activeSelf || !refineryUpgradeBayPanel.activeSelf);
@@ -354,8 +347,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Close refinery upgrades
             else if (tutorialScreenIndex == 15)
             {
-                refineryButtonTabs.SetActive(true);
-                refineryOresButton.interactable = false;
 
                 // Wait for message to stay
                 yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
@@ -365,9 +356,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         // Make sure everything is back to normal
-        refineryOresButton.interactable = true;
         proceedTutorialInstruction.SetActive(false);
-        refineryButtonTabs.SetActive(true);
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
@@ -395,22 +384,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         cameraInstruction.SetActive(false);
     }
 
-    private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis, bool resetPos) {
+    private IEnumerator AnimateArrow(GameObject arrow, float amplitude, int axis) {
         // axis 0 = x, axis 1 = y
 
         arrow.SetActive(true);
 
         RectTransform rectTransform = arrow.GetComponent<RectTransform>();
-        Vector2 originalPos;
-        // Save the original position for reference. resetPos is only true if its using the point to garage arrow
-        if (resetPos)
-        {
-            originalPos = new(0, 0);
-        }
-        else
-        {
-            originalPos = rectTransform.anchoredPosition;
-        }
+        // Save the original position for reference
+        Vector2 originalPos = rectTransform.anchoredPosition;
 
         const float speed = 3f;      // Controls the speed of the oscillation
 
@@ -479,62 +460,90 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         instructionText.text = output;
     }
 
-    private void PointSomewhere(int positionType, int y, int left, int right, int axis, int amplitude, int zRotation)
+    private void PointToGarage()
     {
-        RectTransform arrowRT = pointToGarageArrow.transform.parent.GetComponent<RectTransform>();
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
-        // 0 = top-stretch, 1 = bottom-stretch
-        if (positionType == 0)
-        {
-            arrowRT.anchorMin = new Vector2(0, 1); // left-top
-            arrowRT.anchorMax = new Vector2(1, 1); // right-top
-            arrowRT.pivot = new Vector2(0.5f, 1);   // top center
-        }
-        else if (positionType == 1)
-        {
-            arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
-            arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
-            arrowRT.pivot = new Vector2(0.5f, 0); // top center
-        }
+        // Use bottom-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
+        arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
+        arrowRT.pivot = new Vector2(0.5f, 0); // top center
 
         Vector2 p = arrowRT.anchoredPosition;
 
-        p.y = y;
+        p.y = 733f;
         arrowRT.anchoredPosition = p;
 
-        arrowRT.offsetMin = new Vector2(left, arrowRT.offsetMin.y);
-        // make sure right is negative
-        arrowRT.offsetMax = new Vector2(right, arrowRT.offsetMax.y);
+        arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
 
-        arrowRT.rotation = Quaternion.Euler(0, 0, zRotation);
+        arrowRT.rotation = Quaternion.Euler(0, 0, 180);
 
-        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, amplitude, axis, true));
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+    }
+
+    private void PointToRefinery()
+    {
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+
+        // Use top-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 1); // left-top
+        arrowRT.anchorMax = new Vector2(1, 1); // right-top
+        arrowRT.pivot = new Vector2(0.5f, 1);   // top center
+
+        Vector2 p = arrowRT.anchoredPosition;
+        p.y = -1443;
+        arrowRT.anchoredPosition = p;
+
+        arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(67f, arrowRT.offsetMax.y);
+
+        arrowRT.rotation = Quaternion.Euler(0, 0, 0);
+
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
     }
 
     private IEnumerator TeachAboutTargetDepth()
     {
         if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
         {
-            PointSomewhere(1, -1422, -568, -568, 1, 90, 180);
+            PointToGarage();
+
+            // Wait for panel to open
+            yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
+
+            if (arrowAnimation != null)
+            {
+                StopCoroutine(arrowAnimation);
+            }
+
+            pointToGarageArrow.SetActive(false);
+
+            // Wait for player to buy a drone
+            yield return new WaitUntil(() => VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade());
         }
-
-        // Wait for panel to open
-        yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
-
-        if (arrowAnimation != null)
-        {
-            StopCoroutine(arrowAnimation);
-        }
-
-        pointToGarageArrow.SetActive(false);
-
-        // Wait for player to buy a drone
-        yield return new WaitUntil(() => VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade());
 
         // Wait for panel to close
         yield return new WaitUntil(() => !droneUpgradeBayPanel.activeSelf);
 
-        PointSomewhere(0, 1042, 827, 827, 1, 90, 0);
+        // Tell them to open the target depth panel up
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+
+        // Use top-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 1); // left-top
+        arrowRT.anchorMax = new Vector2(1, 1); // right-top
+        arrowRT.pivot = new Vector2(0.5f, 1);   // top center
+
+        Vector2 p = arrowRT.anchoredPosition;
+        p.y = -873;
+        arrowRT.anchoredPosition = p;
+
+        arrowRT.offsetMin = new Vector2(1580f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(67f, arrowRT.offsetMax.y);
+
+        arrowRT.rotation = Quaternion.Euler(0, 0, 0);
+
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
 
         yield return new WaitUntil(() => targetDepthPanel.activeSelf);
 
@@ -554,7 +563,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
         // Point to refinery upgrades
-        PointSomewhere(0, 499, 827, 827, 1, 90, 0);
+        PointToRefinery();
 
         // Wait for panel open
         yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
@@ -567,7 +576,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         pointToGarageArrow.SetActive(false);
 
         RefineryUpgradePad.Instance.FlashProceedPanelButton();
-        arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1, false));
+        arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
 
         // Wait for panel to open, or they closed the whole thing
         yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
@@ -579,8 +588,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         proceedArrow.SetActive(false);
         RefineryUpgradePad.Instance.flashButton = false;
 
-        refineryOresButton.interactable = false;
-
         // Wait for message to stay
         yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
 
@@ -589,7 +596,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         // Go back to normal
         proceedTutorialInstruction.SetActive(false);
-        refineryOresButton.interactable = true;
     }
 
     private string GetLocalizedValue(string key, params object[] args)

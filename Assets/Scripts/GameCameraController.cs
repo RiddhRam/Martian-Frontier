@@ -82,7 +82,9 @@ public class GameCameraController : MonoBehaviour
         // This ensures we get the drone's latest position for the frame.
         if (droneToFollow != null)
         {
-            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y, targetZPos);
+            // Make the drone be in the lower half of the screen by adding 4.4 to the cameras y pos.
+            // This makes it easier to tap the drone
+            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y + 4.4f, targetZPos);
         }
 
         // Handle user input for panning and zooming.

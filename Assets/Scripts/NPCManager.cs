@@ -22,9 +22,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     }
 
     [SerializeField] private GameObject npcPrefab;
-
     [SerializeField] private Transform spawnPoint;
-
     [SerializeField] public GameObject mapIconPrefab;
 
     [SerializeField] private GameObject[] npcs;
@@ -43,7 +41,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     private bool waitingInLobby = false;
 
-    private readonly int sessionUpdateTimer = 5;
     private readonly string[] botNames = {
         /*"Crimson", "Rusty", "Lunar", "Solar", "Astro", "Quantum",
         "Nova", "Phantom", "Obsidian", "Cobalt", "Plasma", "Ironclad",
@@ -167,6 +164,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private int droneCameraIndex;
     public Image toggleCameraModeButton;
     public GameObject cameraIterateControls;
+    public GameObject refineryUpgradePanel;
+    public GameObject importantInfo;
 
     [Header("Cache")]
     readonly System.Random random = new();
@@ -204,6 +203,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         nPCMovements[npcIndex].npcNameText.text = nPCNames[npcIndex];
         // nPCMovements[npcIndex].npcNameText.color = spawnColours[spawnIndex];
         nPCMovements[npcIndex].worldSpaceCanvas.worldCamera = mainCamera;
+        nPCMovements[npcIndex].button.GetComponent<Button>().onClick.AddListener(() => DroneTapped(npcIndex));
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
 
@@ -431,6 +431,47 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         return new(x, y);
     }
 
+    private void DroneTapped(int droneIndex)
+    {
+        // If not following a drone or following another drone, then start following the one that was just tapped
+        if (GameCameraController.Instance.droneToFollow != npcs[droneIndex].transform)
+        {
+            GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
+            ShowUIControls();
+            // if active, disable (whether player tapped the same drone or new drone)
+            if (refineryUpgradePanel.activeSelf)
+            {
+                HideRefineryPanel();
+            }
+            return;
+        }
+
+        // if active, disable (whether player tapped the same drone or new drone)
+        if (refineryUpgradePanel.activeSelf)
+        {
+            HideRefineryPanel();
+            return;
+        }
+
+        // If inactive, enable (only if player tapped same drone)
+        if (!refineryUpgradePanel.activeSelf)
+        {
+            UIDelegation.Instance.HideAll();
+            // Re-reveal important info panel. It gets hidden in HideAll()
+            UIDelegation.Instance.RevealElement(importantInfo, false);
+
+            OreDelegation.Instance.PrepareGrid();
+            UIDelegation.Instance.RevealElement(refineryUpgradePanel, false);
+        }
+    }
+
+    private void HideRefineryPanel()
+    {
+        UIDelegation.Instance.HideElement(refineryUpgradePanel);
+        OreDelegation.Instance.ClearGrid();
+        UIDelegation.Instance.RevealAll();
+    }
+
     public void ToggleCameraMode()
     {
 
@@ -440,7 +481,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             GameCameraController.Instance.droneToFollow = null;
 
             // Update UI
-            toggleCameraModeButton.color = new(1, 64/255f, 129/255f);
+            toggleCameraModeButton.color = new(1, 64 / 255f, 129 / 255f);
             cameraIterateControls.SetActive(false);
             return;
         }
@@ -457,8 +498,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         GameCameraController.Instance.SetDroneToFollow(npcs[droneCameraIndex].transform);
 
         // Update UI
-        toggleCameraModeButton.color = new(1, 0, 0);
-        cameraIterateControls.SetActive(true);
+        ShowUIControls();
     }
 
     public void SwitchDroneCamera(int direction)
@@ -486,5 +526,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             }
         }
         while (index != startIndex);
+    }
+
+    private void ShowUIControls()
+    {
+        toggleCameraModeButton.color = new(1, 0, 0);
+        cameraIterateControls.SetActive(true);
     }
 }
