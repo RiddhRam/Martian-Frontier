@@ -449,8 +449,8 @@ public class NPCMovement : MonoBehaviour
         BoxCollider2D drillBody = drillParent.GetChild(0).GetComponent<BoxCollider2D>();
 
         // Set the size
-        float x = drillParent.localScale.x * drillBody.size.x;
-        float y = drillParent.localScale.y * drillBody.size.y;
+        float x = drillParent.localScale.x * drillBody.size.x + 3f;
+        float y = drillParent.localScale.y * drillBody.size.y + 3f;
 
         button.sizeDelta = new(x, y);
     }

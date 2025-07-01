@@ -77,6 +77,9 @@ public class OreDelegation : MonoBehaviour
 
     public void PrepareGrid() {
 
+        // Make sure everything else is clear for sure
+        ClearGrid();
+
         int length = mineRenderer.selectedMaterialNames.Length;
         orePanelOutlines = new Outline[length];
         orePanelOutlineBars = new Image[length];

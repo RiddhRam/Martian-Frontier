@@ -438,6 +438,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         {
             GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
             ShowUIControls();
+            
             // if active, disable (whether player tapped the same drone or new drone)
             if (refineryUpgradePanel.activeSelf)
             {
@@ -456,6 +457,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // If inactive, enable (only if player tapped same drone)
         if (!refineryUpgradePanel.activeSelf)
         {
+            // Call this so that it zooms back in. We do this so the player isn't zoomed out too far when the panel opens
+            // If they are zoomed out too far, and close to the edge of the map, the camera clamping will cause the drone
+            // to be off screen, and then the player can't close the panel
+            GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
+
             UIDelegation.Instance.HideAll();
             // Re-reveal important info panel. It gets hidden in HideAll()
             UIDelegation.Instance.RevealElement(importantInfo, false);

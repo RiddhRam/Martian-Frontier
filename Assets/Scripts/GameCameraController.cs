@@ -45,6 +45,11 @@ public class GameCameraController : MonoBehaviour
 
     [Header("UI")]
     public GameObject instruction;
+    public RectTransform refineryUpgradePanelRect;
+    public float param1 = 4f;
+    public float param2 = 2f;
+    public float param3 = 2f;
+    public float bottomY;
 
     /*private void OnDrawGizmos()
     {
@@ -82,9 +87,21 @@ public class GameCameraController : MonoBehaviour
         // This ensures we get the drone's latest position for the frame.
         if (droneToFollow != null)
         {
-            // Make the drone be in the lower half of the screen by adding 4.4 to the cameras y pos.
-            // This makes it easier to tap the drone
-            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y + 4.4f, targetZPos);
+            // Make the drone be in the lower half of the screen by adding to the cameras y pos.
+            // This makes it easier to tap the drone, players finger doesn't need to reach as far
+            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y + 4.7f, targetZPos);
+
+            // Push drone further down, so the refinery upgrade panel can take the center
+            if (NPCManager.Instance.refineryUpgradePanel.activeSelf)
+            {
+                float screenCenterY = Screen.height / 2.5f;
+
+                // Calculate world-space offset
+                float worldUnitsPerPixel = (targetOrthographicSize * 2f) / Screen.height;
+                float worldOffsetY = screenCenterY * worldUnitsPerPixel;
+
+                targetPosition.y = droneToFollow.position.y + worldOffsetY;
+            }
         }
 
         // Handle user input for panning and zooming.
