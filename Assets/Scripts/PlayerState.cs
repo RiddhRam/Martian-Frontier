@@ -141,8 +141,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void AddGems(int gemsToAdd)
     {
-        Debug.Log("Adding");
-
         userGems += gemsToAdd;
         gemsEarned += gemsToAdd;
 
