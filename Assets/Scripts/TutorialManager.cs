@@ -282,7 +282,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         {
             //PlayerState.Instance.RewardPlayerWithGems(10000, "YOU FINISHED THE TUTORIAL!");
 
-            AnalyticsDelegator.Instance.FinishTutorial();
+            DoneTutorial();
         }
         catch (Exception ex)
         {
@@ -292,7 +292,25 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         sessionDelegator.UnlockTeam();
     }
 
-    private void MakePlayerFollowDrone() {
+    public void DoneTutorial()
+    {
+        // Only send event once
+        if (!finishedTutorial)
+        {
+            try
+            {
+                AnalyticsDelegator.Instance.FinishTutorial();
+            }
+            catch
+            {
+            }
+        }
+
+        this.finishedTutorial = true;
+    }
+
+    private void MakePlayerFollowDrone()
+    {
         // Make player follow their drone
         cameraModeSwitch.onClick.Invoke();
         // Don't need this since the camera is following the drone
@@ -418,10 +436,52 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
     }
 
+    private IEnumerator PointToDrill()
+    {
+        yield return new WaitUntil(() => NPCManager.Instance.pointToDrillArrow != null);
+
+        GameObject arrow = NPCManager.Instance.pointToDrillArrow;
+        StartCoroutine(AnimateArrow(arrow, 1.5f, 1));
+
+        // How long they must consecutively afford something before we show the arrow
+        const float requiredHoldTime = 5f;
+        float affordStartTime = -1f;
+
+        while (true)
+        {
+            // If they can afford something, show the arrow
+            if (RefineryUpgradePad.Instance.CanAffordAnUpgrade())
+            {
+                // first time it becomes affordable, stamp the time
+                if (affordStartTime < 0f)
+                    affordStartTime = Time.realtimeSinceStartup;
+
+                // Don't need arrow if panel is open
+                else if (refineryUpgradeBayPanel.activeSelf || refineryProceedPanel.activeSelf)
+                {
+                    affordStartTime = Time.realtimeSinceStartup;
+                    arrow.SetActive(false);
+                }
+                    
+                // if it's been affordable for >= requiredHoldTime, show the arrow
+                if (Time.realtimeSinceStartup - affordStartTime >= requiredHoldTime)
+                    arrow.SetActive(true);
+            }
+            // Otherwise hide it
+            else
+            {
+                affordStartTime = -1f;
+                arrow.SetActive(false);
+            }
+
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+    }
+
     private IEnumerator TeachAboutTargetDepth()
     {
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
-        
+
         if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
         {
             PointToGarage();
@@ -528,7 +588,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             cameraInstruction.SetActive(true);
         }
 
-        // Hide supply crate, ad button and camera controls until second level. Hide proceed button until that step is ready
+        // Hide supply crate, ad button and camera controls until second level. Hide proceed button until that step is ready.
+        // Point to the drill if needed
         if (data.mineCount < 2)
         {
             supplyCrateButton.SetActive(false);
@@ -536,6 +597,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             cameraControls.SetActive(false);
 
             proceedButton.SetActive(false);
+
+            StartCoroutine(PointToDrill());
         }
 
         // Hide daily challenge and target depth button until third level

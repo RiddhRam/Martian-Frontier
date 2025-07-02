@@ -256,7 +256,7 @@ public class LoadingTest
         Assert.AreEqual(UIDelegation.Instance.mapCamera.name, "Map Camera");
         Assert.AreEqual(UIDelegation.Instance.mapCameraView.name, "Map Camera View");
 
-        string[] primaryElementNames = { "Important Info", "Settings", "Left Sidebar", "Right Sidebar", "Bottom", "Arrow Holder" };
+        string[] primaryElementNames = { "Important Info", "Settings", "Left Sidebar", "Right Sidebar", "Bottom", "Tutorial" };
         Assert.AreEqual(primaryElementNames.Length, UIDelegation.Instance.primaryElements.Length);
         for (int i = 0; i != primaryElementNames.Length; i++)
         {
@@ -267,8 +267,8 @@ public class LoadingTest
         Assert.AreEqual(UIDelegation.Instance.errorMessage.name, "Error Message");
 
         // Safe Area - Make sure correct order
-        Transform uISafeArea = UIDelegation.Instance.transform.GetChild(0);
-        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Arrow Holder", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel",  "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
+        Transform uISafeArea = UIDelegation.Instance.transform.GetChild(1);
+        string[] safeAreaChildrenNames = { "Important Info", "Map Camera Panel", "Movement Joystick", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Close Refinery", "Refinery Upgrade Panel", "Proceed Panel", "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {

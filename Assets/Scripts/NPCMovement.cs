@@ -28,9 +28,10 @@ public class NPCMovement : MonoBehaviour
     public TextMeshProUGUI npcNameText;
     public Canvas worldSpaceCanvas;
     public Transform droneDetails;
-    public Transform line;
+    public GameObject pointToDrillArrow;
     public Transform noticeIcon;
     public RectTransform button;
+    public Transform upright;
 
     [Header("Cache")]
     private Vector2 joystickVec;
@@ -72,8 +73,6 @@ public class NPCMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         StartCoroutine(SetButtonSize());
-        //StartCoroutine(HoldLineStill());
-        StartCoroutine(HoldNoticeIconStill());
         StartCoroutine(AnimateNoticeIcon());
         StartCoroutine(HoldCanvasStill());
     }
@@ -462,41 +461,6 @@ public class NPCMovement : MonoBehaviour
         button.sizeDelta = new(x, y);
     }
 
-    private IEnumerator HoldLineStill()
-    {
-        while (true)
-        {
-            line.rotation = normalRotation;
-            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
-
-            // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 6f;
-            float y = Mathf.Cos(angle) * 6f;
-
-            line.localPosition = new Vector3(x, y, 0);
-
-            yield return new WaitForEndOfFrame();
-        }
-    }
-
-    private IEnumerator HoldNoticeIconStill()
-    {
-        while (true)
-        {
-            noticeIcon.rotation = normalRotation;
-            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
-
-            // Calculate new position based on rotation
-            Vector2 upOffset = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * 1f;
-            Vector2 rightOffset = new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * -1f;
-            Vector2 totalOffset = upOffset + rightOffset;
-
-            noticeIcon.localPosition = new Vector3(totalOffset.x, totalOffset.y, 0);
-
-            yield return new WaitForEndOfFrame();
-        }
-    }
-
     private IEnumerator AnimateNoticeIcon()
     {
         Vector3 normalScale = noticeIcon.localScale;
@@ -543,15 +507,9 @@ public class NPCMovement : MonoBehaviour
     {
         while (true)
         {
-            droneDetails.rotation = normalRotation;
-            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+            upright.rotation = normalRotation;
 
-            // Calculate new position based on rotation
-            Vector2 upOffset = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * 4.2f;
-
-            droneDetails.localPosition = new Vector3(upOffset.x, upOffset.y, 0);
-
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
     }
 

@@ -955,7 +955,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
             upgradeBayNoticeIcon.SetActive(affordable);
 
-            yield return new WaitForSecondsRealtime(1);
+            yield return new WaitForSecondsRealtime(0.5f);
         }
     }
 

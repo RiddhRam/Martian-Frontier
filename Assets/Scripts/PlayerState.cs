@@ -615,7 +615,8 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         ref GameData data = ref DataPersistenceManager.Instance.GetGameDataRef();
         GameData newGameData = new();
 
-        // In case player finished tutorial level early (they already know the game)
+        // In case player finished tutorial level early and completed tutorial out of order (they already know the game)
+        TutorialManager.Instance.DoneTutorial();
         data.finishedTutorial = true;
 
         // Modify it directly and then save without calling on other scripts

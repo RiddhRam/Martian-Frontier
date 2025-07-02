@@ -27,6 +27,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     [SerializeField] private GameObject[] npcs;
     public GameObject[] upgradeNoticeIcons;
+    public GameObject pointToDrillArrow;
     private NavMeshAgent[] navMeshAgents;
     private NPCMovement[] nPCMovements;
     private string[] nPCNames;
@@ -209,6 +210,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         upgradeNoticeIcons[npcIndex] = nPCMovements[npcIndex].noticeIcon.gameObject;
 
         navMeshAgents[npcIndex] = nPCMovements[npcIndex].agent;
+
+        // Used for tutorial
+        if (npcIndex == 0)
+        {
+            pointToDrillArrow = nPCMovements[npcIndex].pointToDrillArrow;
+        }
 
         GameObject[] drillPrefabs = VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs();
         GameObject vehicle;

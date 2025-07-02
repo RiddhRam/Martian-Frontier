@@ -153,60 +153,10 @@ public class RefineryUpgradePad : MonoBehaviour
         // If still in the tutorial, wait a bit to not mix up the player.
         //yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial || TutorialManager.Instance.tutorialScreenIndex >= 11);
 
-        int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
-
         while (true)
         {
-            // Do this everytime, in case mine renderer took too long to load the first time
-            int[] oresPerTier = MineRenderer.Instance.oresPerTier;
-
-            int tier = PlayerState.Instance.GetRecommendedDrillTier();
-            if (tier < 1)
-            {
-                tier = 1;
-            }
-
-            bool affordable = false;
-            int oreCounter = 0;
-
-            System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
-
-            // Check if we can afford any upgrade at or above the selected target depth
-            for (int i = 0; i != tier; i++)
-            {
-                // If not at the right tier yet (tier is not zero-indexed so subtract 1)
-                if (i < tier - 1)
-                {
-                    oreCounter += oresPerTier[i];
-                    continue;
-                }
-
-
-                for (int j = 0; j != oresPerTier[i]; j++)
-                {
-                    // Not max level, and can afford
-                    if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < maxLevel && (double)cash >= GetMaterialUpgradePrice(oreCounter))
-                    {
-                        affordable = true;
-
-                        break;
-                    }
-
-                    oreCounter++;
-                }
-
-                break;
-            }
-
-            // If we can't afford any upgrades at or above the selected target depth, then explicity check if we can afford the required ore
-            if (!affordable)
-            {
-                if (GetOreUpgradeLevel(requiredOreIndex) != maxLevel && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
-                {
-                    affordable = true;
-                }
-            }
-
+            bool affordable = CanAffordAnUpgrade();
+            
             bool canProceed = false;
 
             if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
@@ -226,8 +176,65 @@ public class RefineryUpgradePad : MonoBehaviour
             // Toggle the icon on the proceed button
             proceedNoticeIcon.SetActive(canProceed);
 
-            yield return new WaitForSecondsRealtime(1);
+            yield return new WaitForSecondsRealtime(0.5f);
         }
+    }
+
+    public bool CanAffordAnUpgrade()
+    {
+        int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
+
+        // Do this everytime, in case mine renderer took too long to load the first time
+        int[] oresPerTier = MineRenderer.Instance.oresPerTier;
+
+        int tier = PlayerState.Instance.GetRecommendedDrillTier();
+        if (tier < 1)
+        {
+            tier = 1;
+        }
+
+        bool affordable = false;
+        int oreCounter = 0;
+
+        System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
+
+        // Check if we can afford any upgrade at or above the selected target depth
+        for (int i = 0; i != tier; i++)
+        {
+            // If not at the right tier yet (tier is not zero-indexed so subtract 1)
+            if (i < tier - 1)
+            {
+                oreCounter += oresPerTier[i];
+                continue;
+            }
+
+
+            for (int j = 0; j != oresPerTier[i]; j++)
+            {
+                // Not max level, and can afford
+                if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < maxLevel && (double)cash >= GetMaterialUpgradePrice(oreCounter))
+                {
+                    affordable = true;
+
+                    break;
+                }
+
+                oreCounter++;
+            }
+
+            break;
+        }
+
+        // If we can't afford any upgrades at or above the selected target depth, then explicity check if we can afford the required ore
+        if (!affordable)
+        {
+            if (GetOreUpgradeLevel(requiredOreIndex) != maxLevel && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
+            {
+                affordable = true;
+            }
+        }
+
+        return affordable;
     }
 
     public void PreparePanel()
