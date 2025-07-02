@@ -8,9 +8,9 @@ using UnityEngine.UI;
 public class RefineryUpgradePad : MonoBehaviour
 {
     private static RefineryUpgradePad _instance;
-    public static RefineryUpgradePad Instance 
+    public static RefineryUpgradePad Instance
     {
-        get  
+        get
         {
             if (_instance == null)
             {
@@ -151,10 +151,10 @@ public class RefineryUpgradePad : MonoBehaviour
     private IEnumerator NotifyPlayerOfUpgrades()
     {
         // If still in the tutorial, wait a bit to not mix up the player.
-        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial || TutorialManager.Instance.tutorialScreenIndex >= 11);
+        //yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial || TutorialManager.Instance.tutorialScreenIndex >= 11);
 
         int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
-        
+
         while (true)
         {
             // Do this everytime, in case mine renderer took too long to load the first time
@@ -170,7 +170,7 @@ public class RefineryUpgradePad : MonoBehaviour
             int oreCounter = 0;
 
             System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
-            
+
             // Check if we can afford any upgrade at or above the selected target depth
             for (int i = 0; i != tier; i++)
             {
@@ -277,7 +277,8 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount) {
+    public void SetProceedPanelRequirement(int mineCount)
+    {
 
         // ore 1, level 25
         if (mineCount == 1)
@@ -335,7 +336,7 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     private void UpdateUpgradeRequirementText()
-    {        
+    {
         // The current name is the value at the index of mineCount. 
         // It will wrap back around to the start of the array if mineCount is greater than or equal to the length of the array
         mineName.text = mineNames[mineRenderer.mineCount % mineNames.Length];
@@ -388,7 +389,8 @@ public class RefineryUpgradePad : MonoBehaviour
         playerState.ProceedToNextMine();
     }
 
-    private double GetCashProceedAmount() {
+    private double GetCashProceedAmount()
+    {
         double amount = GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
 
         // Minimum
@@ -401,7 +403,8 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseOreUpgrade(int oreIndex) {
+    public bool PurchaseOreUpgrade(int oreIndex)
+    {
         System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
 
         if (!playerState.VerifyEnoughCash(price))
@@ -432,11 +435,12 @@ public class RefineryUpgradePad : MonoBehaviour
         AudioDelegator.Instance.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
 
         AnalyticsDelegator.Instance.OreUpgrade(mineRenderer.selectedMaterialNames[oreIndex], newLevel, mineRenderer.mineCount);
-        
+
         return true;
     }
 
-    private void UpgradeOre(int oreIndex) {
+    private void UpgradeOre(int oreIndex)
+    {
         if (oreUpgrades.ContainsKey(oreIndex))
         {
             oreUpgrades[oreIndex]++;
@@ -639,7 +643,8 @@ public class RefineryUpgradePad : MonoBehaviour
         buttonImage.color = originalColor;
     }
 
-    public bool BoughtOneUpgrade() {
+    public bool BoughtOneUpgrade()
+    {
         if (oreUpgrades == null)
         {
             return false;
@@ -655,8 +660,8 @@ public class RefineryUpgradePad : MonoBehaviour
 
         return false;
     }
-    
-    public bool BoughtThreeUpgrades()
+
+    public bool BoughtTenUpgrades()
     {
         if (oreUpgrades == null)
         {
@@ -665,7 +670,25 @@ public class RefineryUpgradePad : MonoBehaviour
 
         foreach (var key in oreUpgrades.Keys)
         {
-            if (oreUpgrades[key] >= 3)
+            if (oreUpgrades[key] >= 10)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+    
+    public bool Bought25Upgrades()
+    {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] >= 25)
             {
                 return true;
             }

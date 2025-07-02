@@ -304,12 +304,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             if (seed == 0)
             {
                 // Tutorial map, limestone close to the surface
-                seed = 11036764;
+                seed = 17799547;
             }
             else
             {
                 seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
             }
+
+            //seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
 
             Random.InitState(seed);
             seedInUse = seed;

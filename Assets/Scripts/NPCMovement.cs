@@ -57,6 +57,9 @@ public class NPCMovement : MonoBehaviour
     public SpriteRenderer cashIconSpriteRenderer;
     private static readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
 
+    public float yPos;
+    public float xPos;
+
     private Coroutine cooldownDrill;
 
     // Start is called before the first frame update
@@ -69,7 +72,8 @@ public class NPCMovement : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
 
         StartCoroutine(SetButtonSize());
-        StartCoroutine(HoldLineStill());
+        //StartCoroutine(HoldLineStill());
+        StartCoroutine(HoldNoticeIconStill());
         StartCoroutine(AnimateNoticeIcon());
         StartCoroutine(HoldCanvasStill());
     }
@@ -475,6 +479,24 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
+    private IEnumerator HoldNoticeIconStill()
+    {
+        while (true)
+        {
+            noticeIcon.rotation = normalRotation;
+            float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
+
+            // Calculate new position based on rotation
+            Vector2 upOffset = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * 1f;
+            Vector2 rightOffset = new Vector2(Mathf.Cos(angle), -Mathf.Sin(angle)) * -1f;
+            Vector2 totalOffset = upOffset + rightOffset;
+
+            noticeIcon.localPosition = new Vector3(totalOffset.x, totalOffset.y, 0);
+
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
     private IEnumerator AnimateNoticeIcon()
     {
         Vector3 normalScale = noticeIcon.localScale;
@@ -485,9 +507,6 @@ public class NPCMovement : MonoBehaviour
 
         while (true)
         {
-            // always reset rotation each frame
-            noticeIcon.rotation = normalRotation;
-
             // check if it’s time to bloat
             if (Time.time >= nextBloatTime)
             {
@@ -498,7 +517,6 @@ public class NPCMovement : MonoBehaviour
                     t += Time.deltaTime;
                     float frac = t / animDuration;
                     noticeIcon.localScale = Vector3.Lerp(normalScale, bloatScale, frac);
-                    noticeIcon.rotation = normalRotation;  // keep rotation locked during anim
                     yield return null;
                 }
 
@@ -509,7 +527,6 @@ public class NPCMovement : MonoBehaviour
                     t += Time.deltaTime;
                     float frac = t / animDuration;
                     noticeIcon.localScale = Vector3.Lerp(bloatScale, normalScale, frac);
-                    noticeIcon.rotation = normalRotation;  // keep rotation locked during anim
                     yield return null;
                 }
 
@@ -530,10 +547,9 @@ public class NPCMovement : MonoBehaviour
             float angle = Mathf.Deg2Rad * transform.eulerAngles.z; // Get the Y-axis rotation
 
             // Calculate new position based on rotation
-            float x = Mathf.Sin(angle) * 4.2f;
-            float y = Mathf.Cos(angle) * 4.2f;
+            Vector2 upOffset = new Vector2(Mathf.Sin(angle), Mathf.Cos(angle)) * 4.2f;
 
-            droneDetails.localPosition = new Vector3(x, y, 0);
+            droneDetails.localPosition = new Vector3(upOffset.x, upOffset.y, 0);
 
             yield return new WaitForEndOfFrame();
         }

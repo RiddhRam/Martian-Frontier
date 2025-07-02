@@ -43,6 +43,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     private int highestLevelReached;
+    public GameObject refineryInstruction;
     public GameObject cameraInstruction;
     public GameObject targetDepthPanel;
     public Button cameraModeSwitch;
@@ -60,6 +61,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject targetDepthPlaceholder;
     public GameObject adButton;
     public GameObject cameraControls;
+    public GameObject proceedButton;
 
     private Coroutine arrowAnimation;
     private Coroutine typingMesssage;
@@ -75,11 +77,17 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             MakePlayerFollowDrone();
         }
 
-        while (tutorialScreenIndex <= 12)
+        while (tutorialScreenIndex <= 10)
         {
             Debug.Log(tutorialScreenIndex);
 
             AnalyticsDelegator.Instance.TutorialStep(tutorialScreenIndex);
+
+            // Proceed panel is unlocked after this step
+            if (tutorialScreenIndex >= 6)
+            {
+                proceedButton.SetActive(true);
+            }
 
             // Load mine
             if (tutorialScreenIndex == 0)
@@ -145,24 +153,21 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return null;
                 yield return null;
             }
-            // Save for first drone upgrade
+            // Let player explore by themself for a bit. They buy some upgrades on their own.
             else if (tutorialScreenIndex == 4)
             {
                 MakePlayerFollowDrone();
-
-                typingMesssage = StartCoroutine(TypeOutMessage("SAVE UP FOR THE FIRST UPGRADE!"));
-
-                // Wait for player to accumulate enough cash for first upgrade
-                yield return new WaitUntil(() => PlayerState.Instance.GetUserCash() >= 5_000);
-
-                if (typingMesssage != null)
-                {
-                    StopCoroutine(typingMesssage);
-                    instructionText.transform.parent.gameObject.SetActive(false);
-                }
+                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades());
+            }
+            // Close panel
+            else if (tutorialScreenIndex == 5)
+            {
+                refineryInstruction.SetActive(true);
+                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
+                refineryInstruction.SetActive(false);
             }
             // Point to garage
-            else if (tutorialScreenIndex == 5)
+            /*else if (tutorialScreenIndex == 5)
             {
                 PointToGarage();
 
@@ -217,98 +222,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 // Flash for flash to stop
                 yield return null;
                 yield return null;
-            }
-            // Save for first ore upgrade
-            else if (tutorialScreenIndex == 8)
-            {
-                // Wait for player to accumulate enough cash for first upgrade
-                yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
-            }
+            }*/
             // Point to refinery upgrades
-            else if (tutorialScreenIndex == 9)
+            else if (tutorialScreenIndex == 6)
             {
-                typingMesssage = StartCoroutine(TypeOutMessage("LET'S IMPROVE THE REFINERY TO MAKE MORE MONEY!"));
-
-                PointToRefinery();
-
-                // Wait for panel to open, or player to not have enough cash saved
-                yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf || (double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0));
-
-                if (arrowAnimation != null)
-                {
-                    StopCoroutine(arrowAnimation);
-                }
-
-                if (typingMesssage != null)
-                {
-                    StopCoroutine(typingMesssage);
-                    instructionText.transform.parent.gameObject.SetActive(false);
-                }
-
-                pointToGarageArrow.SetActive(false);
-
-                // if not enough cash saved, go back
-                if ((double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetActualMaterialPrice(0))
-                {
-                    tutorialScreenIndex = 8;
-                    continue;
-                }
-            }
-            // Buy an upgrade
-            else if (tutorialScreenIndex == 10)
-            {
-                // If player re opens the game after quitting at step 10, it throws an error here
-                try
-                {
-                    RefineryUpgradePad.Instance.FlashOreUpgradeButton();
-                }
-                catch
-                {
-                }
-
-                // Wait until purchase, or panel closes
-                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtOneUpgrade() || !refineryUpgradeBayPanel.activeSelf);
-
-                RefineryUpgradePad.Instance.flashButton = false;
-
-                // Flash for flash to stop
-                yield return null;
-                yield return null;
-
-                // If they closed the panel, drop back
-                if (!refineryUpgradeBayPanel.activeSelf)
-                {
-                    tutorialScreenIndex = 9;
-                    continue;
-                }
-            }
-            // Close refinery
-            else if (tutorialScreenIndex == 11)
-            {
-                RefineryUpgradePad.Instance.FlashCloseButton();
-
-                // Wait for garage to close
-                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
-
-                RefineryUpgradePad.Instance.flashButton = false;
-
-                // Flash for flash to stop
-                yield return null;
-                yield return null;
-            }
-            // Let player explore by themself and wait for them to buy some more upgrades
-            else if (tutorialScreenIndex == 12)
-            {
-
-                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtThreeUpgrades());
-            }
-            // Point to refinery upgrades
-            else if (tutorialScreenIndex == 13)
-            {
-                PointToRefinery();
+                PointToProceed();
 
                 // Wait for panel to open
-                yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
+                yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
 
                 if (arrowAnimation != null)
                 {
@@ -317,47 +238,40 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 pointToGarageArrow.SetActive(false);
             }
-            // Point to proceed panel
-            else if (tutorialScreenIndex == 14)
+            // Show message
+            else if (tutorialScreenIndex == 7)
             {
-                RefineryUpgradePad.Instance.FlashProceedPanelButton();
-                arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
+                // Wait for message to stay
+                yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
+            }
+            else if (tutorialScreenIndex == 8)
+            {
+                // Wait for player to buy max upgrades needed
+                yield return new WaitUntil(() => RefineryUpgradePad.Instance.Bought25Upgrades());
+            }
+            else if (tutorialScreenIndex == 9)
+            {
+                // Save up enough cash for upgrade
+                RefineryUpgradePad refineryUpgradePad = RefineryUpgradePad.Instance;
+                yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= refineryUpgradePad.GetActualMaterialPriceAtLevel(refineryUpgradePad.GetRequiredOreIndex(), refineryUpgradePad.GetRequiredOreUpgradeLevel()));
+            }
+            else if (tutorialScreenIndex == 10)
+            {
+                PointToProceed();
 
-                // Wait for panel to open, or they closed the whole thing
-                yield return new WaitUntil(() => refineryProceedPanel.activeSelf || !refineryUpgradeBayPanel.activeSelf);
+                // Wait for panel to open
+                yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
 
                 if (arrowAnimation != null)
                 {
                     StopCoroutine(arrowAnimation);
                 }
 
-                proceedArrow.SetActive(false);
-                RefineryUpgradePad.Instance.flashButton = false;
-
-                // Wait for flashing to stop
-                yield return null;
-                yield return null;
-
-                // if they closed the whole thing, go back
-                if (!refineryUpgradeBayPanel.activeSelf)
-                {
-                    tutorialScreenIndex = 12;
-                    continue;
-                }
-            }
-            // Close refinery upgrades
-            else if (tutorialScreenIndex == 15)
-            {
-
-                // Wait for message to stay
-                yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
+                pointToGarageArrow.SetActive(false);
             }
 
             tutorialScreenIndex++;
         }
-
-        // Make sure everything is back to normal
-        proceedTutorialInstruction.SetActive(false);
 
         // Sync values
         GameObject.Find("Settings Delegator").GetComponent<SettingsDelegator>().UpdateBools();
@@ -483,7 +397,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
     }
 
-    private void PointToRefinery()
+    private void PointToProceed()
     {
         RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
 
@@ -506,6 +420,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator TeachAboutTargetDepth()
     {
+        yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
+        
         if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
         {
             PointToGarage();
@@ -564,10 +480,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
         // Point to refinery upgrades
-        PointToRefinery();
+        PointToProceed();
 
         // Wait for panel open
-        yield return new WaitUntil(() => refineryUpgradeBayPanel.activeSelf);
+        yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
 
         if (arrowAnimation != null)
         {
@@ -576,27 +492,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         pointToGarageArrow.SetActive(false);
 
-        RefineryUpgradePad.Instance.FlashProceedPanelButton();
-        arrowAnimation = StartCoroutine(AnimateArrow(proceedArrow, 90, 1));
-
-        // Wait for panel to open, or they closed the whole thing
-        yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
-        if (arrowAnimation != null)
-        {
-            StopCoroutine(arrowAnimation);
-        }
-
-        proceedArrow.SetActive(false);
-        RefineryUpgradePad.Instance.flashButton = false;
-
         // Wait for message to stay
         yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
 
-        // Wait for refiner upgrade panel to close, or player clicks ok
+        // Wait for player to click ok
         yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf);
-
-        // Go back to normal
-        proceedTutorialInstruction.SetActive(false);
     }
 
     private string GetLocalizedValue(string key, params object[] args)
@@ -628,12 +528,14 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             cameraInstruction.SetActive(true);
         }
 
-        // Hide supply crate, ad button and camera controls until second level
+        // Hide supply crate, ad button and camera controls until second level. Hide proceed button until that step is ready
         if (data.mineCount < 2)
         {
             supplyCrateButton.SetActive(false);
             adButton.SetActive(false);
             cameraControls.SetActive(false);
+
+            proceedButton.SetActive(false);
         }
 
         // Hide daily challenge and target depth button until third level
