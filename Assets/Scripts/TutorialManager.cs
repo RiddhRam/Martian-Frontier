@@ -81,11 +81,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             tutorialScreenIndex = 7;
         }
 
-        // If player reopens the game after the step where they follow the drone, make them follow the drone again
-        if (tutorialScreenIndex >= 4)
-        {
-            MakePlayerFollowDrone();
-        }
 
         while (tutorialScreenIndex <= 9)
         {
@@ -97,6 +92,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             if (tutorialScreenIndex >= 6)
             {
                 proceedButton.SetActive(true);
+            }
+            
+            // Follow drone once available
+            if (VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade())
+            {
+                MakePlayerFollowDrone();
             }
 
             // Load mine
@@ -166,7 +167,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Let player explore by themself for a bit. They buy some upgrades on their own.
             else if (tutorialScreenIndex == 4)
             {
-                MakePlayerFollowDrone();
                 yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades());
             }
             // Close panel
@@ -255,7 +255,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 // Wait for player to buy max upgrades needed
                 yield return new WaitUntil(() => RefineryUpgradePad.Instance.Bought25Upgrades());
-                
+
                 upgradeRefineryInstruction.SetActive(false);
             }
             else if (tutorialScreenIndex == 8)
@@ -318,8 +318,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         this.finishedTutorial = true;
     }
 
-    private void MakePlayerFollowDrone()
-    {
+    public void MakePlayerFollowDrone() {
+        // If already following a drone, do nothing
+        if (GameCameraController.Instance.droneToFollow != null)
+        {
+            return;
+        }
+
         // Make player follow their drone
         cameraModeSwitch.onClick.Invoke();
         // Don't need this since the camera is following the drone
@@ -605,8 +610,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             adButton.SetActive(false);
             cameraControls.SetActive(false);
 
-            proceedButton.SetActive(false);
-
+            if (tutorialScreenIndex < 6)
+            {
+                proceedButton.SetActive(false);
+            }
+            
             StartCoroutine(PointToDrill(3f));
         }
 

@@ -754,17 +754,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         ulong upgradePrice;
 
         // Throws an out of bounds error when player uses hold to purchase, but doesn't matter because it doesn't break anything
+        // Cooldown
         if (type == "Cooldown")
         {
             //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Cooldown")];
             upgradePrice = GetCoolPrice();
         }
+        // Heat
         else if (type == "Heat")
         {
             // Using same prices as cooldown prices for now
             //upgradePrice = upgradeCoolPrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Heat")];
             upgradePrice = GetHeatPrice();
         }
+        // Drone
         else
         {
             //upgradePrice = upgradeDronePrices[GetDrillUpgradeLevel(drillerController.transform.parent.name, "Drones")];
@@ -792,6 +795,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         //AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel(drillerController.transform.parent.name, type), playerVehicleDelegation.refineryUpgradePad.mineRenderer.mineCount);
         AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel("", type), RefineryUpgradePad.Instance.mineRenderer.mineCount);
 
+        // If the first drone the player bought, make them follow it, whether or not its the tutorial level
+        if (type == "Drones" && GetDrillUpgradeLevel("", "Drones") == 1)
+        {
+            TutorialManager.Instance.MakePlayerFollowDrone();
+        }
+ 
         return true;
     }
 

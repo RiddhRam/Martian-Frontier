@@ -147,7 +147,7 @@ public class RefineryUpgradePad : MonoBehaviour
     void Start()
     {
         StartCoroutine(NotifyPlayerOfUpgrades());
-        StartCoroutine(HighlightUpgradeRequirement());
+        //StartCoroutine(HighlightUpgradeRequirement());
     }
 
     private IEnumerator NotifyPlayerOfUpgrades()
