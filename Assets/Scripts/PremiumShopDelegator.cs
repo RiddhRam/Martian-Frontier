@@ -1,21 +1,21 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.Purchasing;
-using UnityEngine.Purchasing.Extension;
 using System.Collections.Generic;
 using System;
 
 public class PremiumShopDelegator : MonoBehaviour
 {
+
     public PlayerState playerState;
     public SupplyCrateDelegator supplyCrateDelegator;
-    
+
     public GemIAPPanel[] gemIAPPanels;
     public BundleIAPPanel[] bundleIAPPanels;
     public TextMeshProUGUI[] priceTexts;
     public GameObject thankYouScreen;
 
-    // NEW
+    // NEW, Unity IAP v5
     IStoreService storeService;
     IProductService productService;
     IPurchaseService purchaseService;
@@ -23,21 +23,8 @@ public class PremiumShopDelegator : MonoBehaviour
     // cache of fetched products
     Dictionary<string, Product> availableProducts = new Dictionary<string, Product>();
 
-
-    void Start()
+    async void Start()
     {
-        /*var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-
-        for (int i = 0; i != gemIAPPanels.Length; i++) {
-            builder.AddProduct(gemIAPPanels[i].productId, ProductType.Consumable);
-        }
-
-        for (int i = 0; i != bundleIAPPanels.Length; i++) {
-            builder.AddProduct(bundleIAPPanels[i].productId, ProductType.Consumable);
-        }
-
-        UnityPurchasing.Initialize(this, builder);*/
-
         // grab the default services
         storeService = UnityIAPServices.DefaultStore();
         productService = UnityIAPServices.DefaultProduct();
@@ -48,12 +35,12 @@ public class PremiumShopDelegator : MonoBehaviour
 
         purchaseService.OnPurchasePending += OnPurchasePending;
         purchaseService.OnPurchaseConfirmed += OnPurchaseConfirmed;
-        purchaseService.OnPurchaseFailed  += OnPurchaseFailed;
+        purchaseService.OnPurchaseFailed += OnPurchaseFailed;
 
         // Get past purchases for restorals
         //purchaseService.OnPurchasesRetrieved += OnPurchasesRetrieved;
 
-        storeService.Connect();
+        await storeService.Connect();
 
         var productDefinitions = new List<ProductDefinition>
         {
@@ -82,14 +69,16 @@ public class PremiumShopDelegator : MonoBehaviour
             availableProducts[p.definition.id] = p;
 
         int textCount = 0;
-        for (int i = 0; i != gemIAPPanels.Length; i++) {
+        for (int i = 0; i != gemIAPPanels.Length; i++)
+        {
             var product = availableProducts[gemIAPPanels[i].productId];
             priceTexts[textCount].text = product.metadata.localizedPriceString;
 
             textCount++;
         }
 
-        for (int i = 0; i != bundleIAPPanels.Length; i++) {
+        for (int i = 0; i != bundleIAPPanels.Length; i++)
+        {
             var product = availableProducts[bundleIAPPanels[i].productId];
             priceTexts[textCount].text = product.metadata.localizedPriceString;
 
@@ -107,7 +96,18 @@ public class PremiumShopDelegator : MonoBehaviour
     {
         // PurchaseProductInfo is a list of all purchased products (some apps let you put things in a cart)
         // In this game, only 1 thing can be bought at a time, so get the first index and check its productId
-        string productId = order.Info.PurchasedProductInfo[0].productId;
+        string productId;
+        try
+        {
+            productId = order.Info.PurchasedProductInfo[0].productId;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Couldn't complete purchase! reason={e.Message}");
+            UIDelegation.Instance.ShowError($"Couldn't complete purchase! reason={e.Message}");
+            return;
+        }
+
         Debug.Log("Confirmed purchase for product: " + productId);
 
         // First, check if it's a gem IAP
@@ -182,12 +182,13 @@ public class PremiumShopDelegator : MonoBehaviour
         {
             return;
         }
-        
+
         Debug.LogError($"Purchase FAILED! reason={order.FailureReason}");
         UIDelegation.Instance.ShowError($"Purchase FAILED! reason={order.FailureReason}");
     }
 
-    public void PurchaseCashWithGems(GameObject gemPanel) {
+    public void PurchaseCashWithGems(GameObject gemPanel)
+    {
         GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
 
         if (gemCashPurchasePanel.gemPrice > playerState.GetUserGems())
@@ -202,26 +203,35 @@ public class PremiumShopDelegator : MonoBehaviour
         AnalyticsDelegator.Instance.PurchaseCashWithGems((float)gemCashPurchasePanel.cashAmount);
     }
 
-    public void PurchaseGemProduct(string productId) {
+    public void PurchaseGemProduct(string productId)
+    {
         Debug.Log($"Attempting to purchase: {productId}");
-        
+
         Product product = availableProducts[productId];
-        
+
         if (product == null)
         {
             Debug.LogError($"Product not found in store: {productId}");
             return;
         }
-        
+
         if (!product.availableToPurchase)
         {
             Debug.LogError($"Product not available for purchase: {productId}");
             return;
         }
-        
+
         Debug.Log($"Initiating purchase for: {productId}");
 
         purchaseService.PurchaseProduct(availableProducts[productId]);
+    }
+    
+    void OnDisable()
+    {
+        productService.OnProductsFetched    -= OnProductsFetched;
+        purchaseService.OnPurchasePending   -= OnPurchasePending;
+        purchaseService.OnPurchaseConfirmed -= OnPurchaseConfirmed;
+        purchaseService.OnPurchaseFailed    -= OnPurchaseFailed;
     }
 
 }

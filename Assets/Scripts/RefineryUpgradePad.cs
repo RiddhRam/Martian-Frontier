@@ -182,8 +182,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
     public bool CanAffordAnUpgrade()
     {
-        int maxLevel = upgradeMilestones[upgradeMilestones.Length - 1];
-
         // Do this everytime, in case mine renderer took too long to load the first time
         int[] oresPerTier = MineRenderer.Instance.oresPerTier;
 
@@ -208,12 +206,12 @@ public class RefineryUpgradePad : MonoBehaviour
                 continue;
             }
 
-
             for (int j = 0; j != oresPerTier[i]; j++)
             {
                 // Not max level, and can afford
-                if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < maxLevel && (double)cash >= GetMaterialUpgradePrice(oreCounter))
+                if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(oreCounter))
                 {
+                    
                     affordable = true;
 
                     break;
@@ -228,7 +226,7 @@ public class RefineryUpgradePad : MonoBehaviour
         // If we can't afford any upgrades at or above the selected target depth, then explicity check if we can afford the required ore
         if (!affordable)
         {
-            if (GetOreUpgradeLevel(requiredOreIndex) != maxLevel && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
+            if (GetOreUpgradeLevel(requiredOreIndex) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
             {
                 affordable = true;
             }
