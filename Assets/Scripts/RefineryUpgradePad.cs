@@ -51,6 +51,7 @@ public class RefineryUpgradePad : MonoBehaviour
     public TextMeshProUGUI upgradeRequirement;
     public TextMeshProUGUI cashProceedAmountText;
     public Button proceedButton;
+    public Slider proceedProgress;
     static readonly string[] mineNames = new string[]
     {
         "Ares Landing",
@@ -146,6 +147,7 @@ public class RefineryUpgradePad : MonoBehaviour
     void Start()
     {
         StartCoroutine(NotifyPlayerOfUpgrades());
+        StartCoroutine(HighlightUpgradeRequirement());
     }
 
     private IEnumerator NotifyPlayerOfUpgrades()
@@ -180,6 +182,19 @@ public class RefineryUpgradePad : MonoBehaviour
         }
     }
 
+    private IEnumerator HighlightUpgradeRequirement()
+    {
+        Color originalColor = upgradeRequirement.color;
+        Color highlightColor = new(57 / 255f, 255 / 255f, 20 / 255f);
+
+        while (true)
+        {
+            float t = Mathf.PingPong(Time.time / 0.5f, 1f);
+            upgradeRequirement.color = Color.Lerp(originalColor, highlightColor, t);
+            yield return null;
+        }
+    }
+
     public bool CanAffordAnUpgrade()
     {
         // Do this everytime, in case mine renderer took too long to load the first time
@@ -211,7 +226,7 @@ public class RefineryUpgradePad : MonoBehaviour
                 // Not max level, and can afford
                 if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(oreCounter))
                 {
-                    
+
                     affordable = true;
 
                     break;
@@ -351,6 +366,8 @@ public class RefineryUpgradePad : MonoBehaviour
 
         // Requirement to reach next level
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
+
+        proceedProgress.value = (float)GetOreUpgradeLevel(requiredOreIndex) / GetRequiredOreUpgradeLevel();
     }
 
     // If player meets upgrade requirement, hide requirement and show the proceed amount
@@ -506,13 +523,13 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
-        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at half the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 75% the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * 0.75 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
     {
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * 0.75 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)

@@ -45,9 +45,27 @@ public class UIDelegation : MonoBehaviour
         }
     }
 
+    public void CloseActiveElement()
+    {
+        Transform safeArea = transform.GetChild(1);
+
+        for (int i = 0; i != safeArea.childCount; i++)
+        {
+            if (safeArea.GetChild(i).gameObject.activeSelf)
+            {
+                safeArea.GetChild(i).gameObject.SetActive(false);
+            }
+        }
+        
+        RevealAll();
+        backgroundDarkness.SetActive(false);
+    }
+
     // Hide all base elements, and only used before opening a secondary element like the camera
-    public void HideAll() {
-        for (int i = 0; i < primaryElements.Length; i++) {
+    public void HideAll()
+    {
+        for (int i = 0; i < primaryElements.Length; i++)
+        {
             primaryElements[i].SetActive(false);
         }
     }

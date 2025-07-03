@@ -35,7 +35,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public GameObject refineryUpgradeBayPanel;
     public GameObject refineryProceedPanel;
     public GameObject proceedArrow;
-    public GameObject proceedTutorialInstruction;
 
     [Header("Other")]
     public GameObject TutorialUIParent;
@@ -44,6 +43,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     private int highestLevelReached;
     public GameObject refineryInstruction;
+    public GameObject upgradeRefineryInstruction;
     public GameObject cameraInstruction;
     public GameObject targetDepthPanel;
     public Button cameraModeSwitch;
@@ -71,13 +71,23 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Wait for all items to be loaded
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
+        if (RefineryUpgradePad.Instance.BoughtTenUpgrades() && tutorialScreenIndex < 4)
+        {
+            tutorialScreenIndex = 4;
+        }
+
+        if (RefineryUpgradePad.Instance.Bought25Upgrades() && tutorialScreenIndex < 7)
+        {
+            tutorialScreenIndex = 7;
+        }
+
         // If player reopens the game after the step where they follow the drone, make them follow the drone again
-        if (tutorialScreenIndex >= 5)
+        if (tutorialScreenIndex >= 4)
         {
             MakePlayerFollowDrone();
         }
 
-        while (tutorialScreenIndex <= 10)
+        while (tutorialScreenIndex <= 9)
         {
             Debug.Log(tutorialScreenIndex);
 
@@ -238,24 +248,23 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 pointToGarageArrow.SetActive(false);
             }
-            // Show message
             else if (tutorialScreenIndex == 7)
             {
-                // Wait for message to stay
-                yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
-            }
-            else if (tutorialScreenIndex == 8)
-            {
+                // Tell player to upgrade
+                upgradeRefineryInstruction.SetActive(true);
+
                 // Wait for player to buy max upgrades needed
                 yield return new WaitUntil(() => RefineryUpgradePad.Instance.Bought25Upgrades());
+                
+                upgradeRefineryInstruction.SetActive(false);
             }
-            else if (tutorialScreenIndex == 9)
+            else if (tutorialScreenIndex == 8)
             {
                 // Save up enough cash for upgrade
                 RefineryUpgradePad refineryUpgradePad = RefineryUpgradePad.Instance;
                 yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= refineryUpgradePad.GetActualMaterialPriceAtLevel(refineryUpgradePad.GetRequiredOreIndex(), refineryUpgradePad.GetRequiredOreUpgradeLevel()));
             }
-            else if (tutorialScreenIndex == 10)
+            else if (tutorialScreenIndex == 9)
             {
                 PointToProceed();
 
@@ -436,21 +445,27 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
     }
 
-    private IEnumerator PointToDrill()
+    private IEnumerator PointToDrill(float requiredHoldTime)
     {
         yield return new WaitUntil(() => NPCManager.Instance.pointToDrillArrow != null);
 
         GameObject arrow = NPCManager.Instance.pointToDrillArrow;
-        StartCoroutine(AnimateArrow(arrow, 1.5f, 1));
+        StartCoroutine(AnimateArrow(arrow, 1f, 1));
 
-        // How long they must consecutively afford something before we show the arrow
-        const float requiredHoldTime = 5f;
+        // It gets enabled in animate arrow, so immediately disable it
+        yield return null;
+        arrow.SetActive(false);
+
         float affordStartTime = -1f;
 
         while (true)
         {
-            // If they can afford something, show the arrow
-            if (RefineryUpgradePad.Instance.CanAffordAnUpgrade())
+            // If they can afford something and there's no other arrow showing or done the tutorial
+            // Show the arrow
+            if (RefineryUpgradePad.Instance.CanAffordAnUpgrade()
+            && (finishedTutorial || (tutorialScreenIndex != 1
+            && tutorialScreenIndex != 6
+            && tutorialScreenIndex != 9)))
             {
                 // first time it becomes affordable, stamp the time
                 if (affordStartTime < 0f)
@@ -551,12 +566,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         pointToGarageArrow.SetActive(false);
-
-        // Wait for message to stay
-        yield return StartCoroutine(FlashMessage(proceedTutorialInstruction, 3, 0.3f));
-
-        // Wait for player to click ok
-        yield return new WaitUntil(() => !proceedTutorialInstruction.activeSelf);
     }
 
     private string GetLocalizedValue(string key, params object[] args)
@@ -598,10 +607,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             proceedButton.SetActive(false);
 
-            StartCoroutine(PointToDrill());
+            StartCoroutine(PointToDrill(3f));
         }
 
         // Hide daily challenge and target depth button until third level
+        // Point to the drill if needed
         if (data.mineCount < 3)
         {
             dailyChallengeButton.SetActive(false);
@@ -609,6 +619,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
             targetDepthButton.SetActive(false);
             targetDepthPlaceholder.SetActive(true);
+
+            // Make sure it's not enabled on the first level, otherwise there are two coroutines going at once
+            if (data.mineCount == 2)
+            {
+                StartCoroutine(PointToDrill(6f));
+            } 
         }
 
         // Hide leaderboard button until fourth level
