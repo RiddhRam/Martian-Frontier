@@ -93,7 +93,7 @@ public class GameData
         this.moneyEarned = "0";
 
         // This is just so the supply crates rewards and other things aren't too low
-        this.highestMined = 5_000;
+        this.highestMined = 50_000;
         
         this.vehiclesOwned = new List<string> { "GRINDER" };
         this.currentVehicle = "GRINDER";

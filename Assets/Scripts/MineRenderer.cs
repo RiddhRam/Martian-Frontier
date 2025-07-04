@@ -301,17 +301,18 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // My birthday: Dec 8
             System.DateTime epoch = new System.DateTime(2024, 12, 8, 0, 0, 0, System.DateTimeKind.Utc);
 
-            if (seed == 0)
+            // If this is the first drone, use this specific seed, so there's a smooth start
+            /*if (!RefineryUpgradePad.Instance.BoughtTenUpgrades())
             {
-                // Tutorial map, limestone close to the surface
-                seed = 17799547;
+                // Limestone close to the surface
+                seed = ;
             }
             else
             {
                 seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
-            }
+            }*/
 
-            //seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
+            seed = (int)(System.DateTime.UtcNow - epoch).TotalSeconds;
 
             Random.InitState(seed);
             seedInUse = seed;
@@ -510,6 +511,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     {
         Random.InitState(seedInUse + chunkRow + chunkX + level);
         veinCount = Random.Range(minVeinCount, maxVeinCount);
+        if (!RefineryUpgradePad.Instance.BoughtTenUpgrades()) // If this level is still new
+        {
+            veinCount = maxVeinCount + 1; // More veins
+        }
 
         for (int v = 0; v < veinCount; v++)
         {
@@ -517,6 +522,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             centerX = Random.Range(0, gridSize.x);
             centerY = Random.Range(0, gridSize.y);
             radius = Random.Range(minVeinRadius, maxVeinRadius); // Radius of 1-4 tiles for variation
+            if (!RefineryUpgradePad.Instance.BoughtTenUpgrades())
+            {
+                radius = maxVeinRadius - 1; // Slightly less than max
+            }
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
             oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
@@ -524,23 +533,28 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // In order to see quantity of each ore in the mine
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
             // and also search and uncomment everything related to "oresCount"
-            
-            int oreIndex = 0;
-            for (int i = 0; i != tileValues.Length; i++) {
-               isBaseTile = false;
 
-                for (int j = 0; j != tierThresholds.Length; j++) {
-                    if (tierThresholds[j] == i) {
+            int oreIndex = 0;
+            for (int i = 0; i != tileValues.Length; i++)
+            {
+                isBaseTile = false;
+
+                for (int j = 0; j != tierThresholds.Length; j++)
+                {
+                    if (tierThresholds[j] == i)
+                    {
                         isBaseTile = true;
                         break;
                     }
                 }
 
-                if (isBaseTile) {
+                if (isBaseTile)
+                {
                     continue;
                 }
 
-                if (oreToPlace == i) {
+                if (oreToPlace == i)
+                {
                     break;
                 }
 
@@ -557,7 +571,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     distanceFromCenter = Mathf.Sqrt(x * x + y * y) + Random.Range(-0.5f, 0.5f);
 
                     // Only place tiles within the defined radius and randomness threshold
-                    if (distanceFromCenter > radius) {
+                    if (distanceFromCenter > radius)
+                    {
                         continue;
                     }
 
@@ -565,7 +580,8 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     tileY = centerY + y;
 
                     // Ensure we stay within grid bounds
-                    if (tileX < 0 || tileX >= gridSize.x || tileY < 0 || tileY >= gridSize.y) {
+                    if (tileX < 0 || tileX >= gridSize.x || tileY < 0 || tileY >= gridSize.y)
+                    {
                         continue;
                     }
 
