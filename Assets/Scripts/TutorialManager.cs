@@ -570,6 +570,16 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             StopCoroutine(arrowAnimation);
         }
 
+        // And then we remind them to open the garage
+        PointToGarage();
+
+        yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
+
+        if (arrowAnimation != null)
+        {
+            StopCoroutine(arrowAnimation);
+        }
+
         pointToGarageArrow.SetActive(false);
     }
 

@@ -523,13 +523,13 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
-        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 75% the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.75 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 2.5x the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * 2.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
     {
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.75 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * 2.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)
