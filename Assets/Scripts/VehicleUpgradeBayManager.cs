@@ -147,7 +147,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // 50-level curve: 5 000 → 2 700 000 000 000
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
-        5_000UL,            7_500UL,            11_000UL,           17_000UL,           26_000UL,
+        2_500UL,            7_500UL,            11_000UL,           17_000UL,           26_000UL,
         39_000UL,           59_000UL,           89_000UL,           130_000UL,          200_000UL,
         300_000UL,          450_000UL,          680_000UL,          1_000_000UL,        1_500_000UL,
         2_300_000UL,        3_500_000UL,        5_300_000UL,        8_000_000UL,        12_000_000UL,
@@ -940,7 +940,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private IEnumerator NotifyPlayerOfUpgrades()
     {
         // If still in the tutorial, wait a bit before starting to not mix up the player
-        yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
+        //yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
 
         while (true)
         {

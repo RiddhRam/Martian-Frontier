@@ -303,10 +303,15 @@ public class AnalyticsDelegator : MonoBehaviour
     {
         yield return new WaitUntil(() => isInitialized);
 
-        CustomEvent myEvent = new CustomEvent("Start_Tutorial");
+        string cohort = PlayerPrefs.GetString("Cohort");
+
+        CustomEvent myEvent = new CustomEvent("Start_Tutorial") {
+            {"Cohort", cohort},
+        };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Start_Tutorial");
+        FirebaseAnalytics.LogEvent("Start_Tutorial",
+            new Parameter("Cohort", cohort));
     }
 
     public void FinishTutorial()

@@ -111,6 +111,29 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             countdownCoroutine = null;
         }
 
+        string cohort = PlayerPrefs.GetString("Cohort");
+
+        // Low vein density, high ore value
+        if (cohort == "A" || cohort == "B")
+        {
+            mineRenderer.minVeinRadius = 1;
+            mineRenderer.maxVeinRadius = 3;
+            mineRenderer.minVeinCount = 1;
+            mineRenderer.maxVeinCount = 2;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 3;
+        }
+        // C and D. High vein density, low ore value
+        else
+        {
+            mineRenderer.minVeinRadius = 2;
+            mineRenderer.maxVeinRadius = 3;
+            mineRenderer.minVeinCount = 2;
+            mineRenderer.maxVeinCount = 3;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 1.44f;
+        }
+
+        //Debug.Log(cohort + " MINE");
+
         mineRenderer.mineInitialization = 0;
 
         // Reset mine
@@ -134,8 +157,11 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         playerState.UpdateHighestMined(cashMadeThisMine);
-        Debug.Log(cashMadeThisMine);
-        cashMadeThisMine = 0;
+        if (cashMadeThisMine != 0)
+        {
+            Debug.Log(cashMadeThisMine);
+            cashMadeThisMine = 0;
+        }
         
         NPCManager.Instance.ResetAllNPCPos();
         StartCoroutine(NPCManager.Instance.WaitInLobby());

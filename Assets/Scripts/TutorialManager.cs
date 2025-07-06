@@ -71,25 +71,24 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         // Wait for all items to be loaded
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
 
-        if (RefineryUpgradePad.Instance.BoughtTenUpgrades() && tutorialScreenIndex < 4)
+        if (RefineryUpgradePad.Instance.BoughtTenUpgrades() && tutorialScreenIndex < 6)
         {
-            tutorialScreenIndex = 4;
+            tutorialScreenIndex = 6;
         }
 
-        if (RefineryUpgradePad.Instance.Bought25Upgrades() && tutorialScreenIndex < 7)
+        if (RefineryUpgradePad.Instance.Bought25Upgrades() && tutorialScreenIndex < 8)
         {
-            tutorialScreenIndex = 7;
+            tutorialScreenIndex = 8;
         }
 
-
-        while (tutorialScreenIndex <= 9)
+        while (tutorialScreenIndex <= 10)
         {
             Debug.Log(tutorialScreenIndex);
 
             AnalyticsDelegator.Instance.TutorialStep(tutorialScreenIndex);
 
             // Proceed panel is unlocked after this step
-            if (tutorialScreenIndex >= 6)
+            if (tutorialScreenIndex >= 7)
             {
                 proceedButton.SetActive(true);
             }
@@ -164,10 +163,10 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return null;
                 yield return null;
             }
-            // Let player explore by themself for a bit. They buy some upgrades on their own.
+            // Let player explore by themself for a bit. They buy some upgrades on their own, and then maybe run out of cash
             else if (tutorialScreenIndex == 4)
             {
-                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades());
+                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades() || (RefineryUpgradePad.Instance.BoughtThreeUpgrades() && ((double)PlayerState.Instance.GetUserCash() < RefineryUpgradePad.Instance.GetMaterialUpgradePrice(0))));
             }
             // Close panel
             else if (tutorialScreenIndex == 5)
@@ -175,6 +174,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 refineryInstruction.SetActive(true);
                 yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
                 refineryInstruction.SetActive(false);
+            }
+            // ENSURE that they bought at least 10
+            else if (tutorialScreenIndex == 6)
+            {
+                yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades());
+                refineryInstruction.SetActive(true);
             }
             // Point to garage
             /*else if (tutorialScreenIndex == 5)
@@ -234,12 +239,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 yield return null;
             }*/
             // Point to refinery upgrades
-            else if (tutorialScreenIndex == 6)
+            else if (tutorialScreenIndex == 7)
             {
                 PointToProceed();
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
+                refineryInstruction.SetActive(false);
 
                 if (arrowAnimation != null)
                 {
@@ -248,7 +254,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 pointToGarageArrow.SetActive(false);
             }
-            else if (tutorialScreenIndex == 7)
+            else if (tutorialScreenIndex == 8)
             {
                 // Tell player to upgrade
                 upgradeRefineryInstruction.SetActive(true);
@@ -258,13 +264,13 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 upgradeRefineryInstruction.SetActive(false);
             }
-            else if (tutorialScreenIndex == 8)
+            else if (tutorialScreenIndex == 9)
             {
                 // Save up enough cash for upgrade
                 RefineryUpgradePad refineryUpgradePad = RefineryUpgradePad.Instance;
                 yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= refineryUpgradePad.GetActualMaterialPriceAtLevel(refineryUpgradePad.GetRequiredOreIndex(), refineryUpgradePad.GetRequiredOreUpgradeLevel()));
             }
-            else if (tutorialScreenIndex == 9)
+            else if (tutorialScreenIndex == 10)
             {
                 PointToProceed();
 
@@ -469,8 +475,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Show the arrow
             if (RefineryUpgradePad.Instance.CanAffordAnUpgrade()
             && (finishedTutorial || (tutorialScreenIndex != 1
-            && tutorialScreenIndex != 6
-            && tutorialScreenIndex != 9)))
+            && tutorialScreenIndex != 7
+            && tutorialScreenIndex != 10)))
             {
                 // first time it becomes affordable, stamp the time
                 if (affordStartTime < 0f)
@@ -601,6 +607,34 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data) {
 
+        // Set up A/B
+        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
+
+        if (cohort == "No Cohort")
+        {
+            System.Random cohortRNG = new();
+            double rand = cohortRNG.NextDouble();
+
+            if (rand < 0.25)
+            {
+                cohort = "A";
+            }
+            else if (rand < 0.5)
+            {
+                cohort = "B";
+            }
+            else if (rand < 0.75)
+            {
+                cohort = "C";
+            }
+            else
+            {
+                cohort = "D";
+            }
+
+            PlayerPrefs.SetString("Cohort", cohort);
+        }
+
         TutorialUIParent.SetActive(true);
 
         this.finishedTutorial = data.finishedTutorial;
@@ -620,7 +654,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             adButton.SetActive(false);
             cameraControls.SetActive(false);
 
-            if (tutorialScreenIndex < 6)
+            if (tutorialScreenIndex < 7)
             {
                 proceedButton.SetActive(false);
             }
@@ -669,7 +703,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         {
             StartCoroutine(TeachAboutTargetDepth());
 
-            // Keep it at 2 for now, until we know for sure the player knows about target depth
+            // Keep THIS.highestLevelReached at 2 for now, until we know for sure the player knows about target depth
             this.highestLevelReached = 2;
         }
 

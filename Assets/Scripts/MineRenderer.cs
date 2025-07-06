@@ -159,7 +159,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     string childName;
     int y;
     int x;
-    private Coroutine _loadDataCoroutine;
     private bool cloudLoading = false;
     // Actually current blocks mined, not ores
     public int currentOresMined = 0;
@@ -511,21 +510,23 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     {
         Random.InitState(seedInUse + chunkRow + chunkX + level);
         veinCount = Random.Range(minVeinCount, maxVeinCount);
-        if (!RefineryUpgradePad.Instance.BoughtTenUpgrades()) // If this level is still new
+        //veinCount = Random.Range(1, 3);
+        /*if (!RefineryUpgradePad.Instance.BoughtTenUpgrades()) // If this level is still new
         {
-            veinCount = maxVeinCount + 1; // More veins
-        }
+            //veinCount = maxVeinCount + 1; // More veins
+        }*/
 
         for (int v = 0; v < veinCount; v++)
         {
             // Randomly choose the center position for each vein within the chunk
             centerX = Random.Range(0, gridSize.x);
             centerY = Random.Range(0, gridSize.y);
-            radius = Random.Range(minVeinRadius, maxVeinRadius); // Radius of 1-4 tiles for variation
-            if (!RefineryUpgradePad.Instance.BoughtTenUpgrades())
+            radius = Random.Range(minVeinRadius, maxVeinRadius); // Radius of 2-4 tiles for variation
+            //radius = Random.Range(2, 2);
+            /*if (!RefineryUpgradePad.Instance.BoughtTenUpgrades())
             {
-                radius = maxVeinRadius - 1; // Slightly less than max
-            }
+                //radius = maxVeinRadius - 1; // Slightly less than max
+            }*/
 
             // Select an ore based on the depth (chunkRow) to increase the chances of higher-value ores
             oreToPlace = SelectOreBasedOnDepth(chunkRow, level);
@@ -534,7 +535,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
             // Uncomment this, and in initialize mine generate entire map by change the for loop where it only generates first few rows
             // and also search and uncomment everything related to "oresCount"
 
-            int oreIndex = 0;
+            /*int oreIndex = 0;
             for (int i = 0; i != tileValues.Length; i++)
             {
                 isBaseTile = false;
@@ -561,7 +562,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                 oreIndex++;
             }
 
-            //oresCount[oreIndex]++;
+            oresCount[oreIndex]++;*/
 
             for (int x = -radius; x <= radius; x++)
             {
@@ -596,9 +597,17 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
     // Method to select an ore based on depth
     private int SelectOreBasedOnDepth(int chunkRow, int level)
     {
-        // Only use limestone for level 1
-        if (mineCount == 1)
-            return 1;
+        // Tutorial level
+        if (mineCount == 1) {
+            // Return limestone only
+            if (level == 0)
+            {
+                return 1;
+            }
+
+            // Return anything higher than tier 1, so the AI doesn't get mixed up when close to level 2 ores
+            return 4;
+        }   
             
         // Define the ore range for this tier
         minOreIndex = tierThresholds[level] + 1;
@@ -863,7 +872,6 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
                     causeOfWhirrAudio = nPCMovement;
                 }
 
-                
                 if (causeOfWhirrAudio == nPCMovement)
                 {
                     float timeSinceLastMine = Time.time - lastOreMinedTime;
@@ -1046,27 +1054,10 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return 0;
     }
 
-    public void LoadData(GameData data) {
-        // If there's already a coroutine running, stop it
-        if (_loadDataCoroutine != null)
-        {
-            StopCoroutine(_loadDataCoroutine);
-        }
-
-        // This has to be done async so that we can return all objects to the pool first
-        // Return objects happens over several frames to reduce lag
-        // Start the new coroutine and store its reference
-        _loadDataCoroutine = StartCoroutine(AsyncLoadData(data));
-    }
-
-    private IEnumerator AsyncLoadData(GameData data) {
-
+    public void LoadData(GameData data)
+    {
         // MINE IS INITIALIZED IN REFINERY CONTROLLER
-        
         bool currentCloudLoadState = cloudLoading;
-
-        // RETURN ALL MATERIALS AND TILEMAPS TO OBJECT POOL
-        yield return StartCoroutine(ReturnAllObjectsToPool());
 
         this.currentOresMined = data.currentOresMined;
         this.mineCount = data.mineCount;

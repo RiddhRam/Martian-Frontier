@@ -123,6 +123,8 @@ public class RefineryUpgradePad : MonoBehaviour
     const float orePriceMultiplierPerLevel = 1.08f;
     const float oreUpgradePriceMultiplierPerLevel = 1.20f;
 
+    public float baseMaterialPriceMultiplier = 3;
+
     [Header("For Tutorial")]
     public bool flashButton;
     public Image closeButtonImage;
@@ -226,7 +228,6 @@ public class RefineryUpgradePad : MonoBehaviour
                 // Not max level, and can afford
                 if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(oreCounter))
                 {
-
                     affordable = true;
 
                     break;
@@ -454,7 +455,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         CheckIfProceedAvailable();
 
-        AudioDelegator.Instance.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
+        AudioDelegator.Instance.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.15f);
 
         AnalyticsDelegator.Instance.OreUpgrade(mineRenderer.selectedMaterialNames[oreIndex], newLevel, mineRenderer.mineCount);
 
@@ -523,13 +524,13 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
 
-        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at 2.5x the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * 2.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at (baseMaterialPriceMultiplier * x) the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * baseMaterialPriceMultiplier * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
     }
 
     public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
     {
-        return Math.Floor(originalMaterialPrices[oreIndex] * 2.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * baseMaterialPriceMultiplier * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)
@@ -665,8 +666,7 @@ public class RefineryUpgradePad : MonoBehaviour
         buttonImage.color = originalColor;
     }
 
-    public bool BoughtOneUpgrade()
-    {
+    public bool BoughtThreeUpgrades() {
         if (oreUpgrades == null)
         {
             return false;
@@ -674,7 +674,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         foreach (var key in oreUpgrades.Keys)
         {
-            if (oreUpgrades[key] > 0)
+            if (oreUpgrades[key] >= 3)
             {
                 return true;
             }
