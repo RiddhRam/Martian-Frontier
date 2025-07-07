@@ -134,7 +134,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             mineRenderer.maxVeinRadius = 3;
             mineRenderer.minVeinCount = 1;
             mineRenderer.maxVeinCount = 2;
-            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 12f;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 10f;
         }
         // C and D. High vein density, low ore value
         else
@@ -143,7 +143,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             mineRenderer.maxVeinRadius = 3;
             mineRenderer.minVeinCount = 2;
             mineRenderer.maxVeinCount = 3;
-            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 6f;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 5f;
         }
 
         //Debug.Log(cohort + " MINE");
