@@ -458,6 +458,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator PointToDrill(float requiredHoldTime)
     {
+        float doubleRequiredTime = requiredHoldTime * 2;
         yield return new WaitUntil(() => NPCManager.Instance.pointToDrillArrow != null);
 
         GameObject arrow = NPCManager.Instance.pointToDrillArrow;
@@ -468,6 +469,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         arrow.SetActive(false);
 
         float affordStartTime = -1f;
+
+        // Whether or not the player listened to the arrow or not at least one
+        bool listenedOnce = false;
 
         while (true)
         {
@@ -488,16 +492,37 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     affordStartTime = Time.realtimeSinceStartup;
                     arrow.SetActive(false);
                 }
-                    
-                // if it's been affordable for >= requiredHoldTime, show the arrow
-                if (Time.realtimeSinceStartup - affordStartTime >= requiredHoldTime)
-                    arrow.SetActive(true);
+
+                if (!listenedOnce)
+                {
+                    // if it's been affordable for >= requiredHoldTime, show the arrow
+                    if (Time.realtimeSinceStartup - affordStartTime >= requiredHoldTime)
+                        arrow.SetActive(true);
+                }
+                else
+                {
+                    // Use this timer if they already know
+                    if (Time.realtimeSinceStartup - affordStartTime >= doubleRequiredTime)
+                        arrow.SetActive(true);
+                }
+                
             }
             // Otherwise hide it
             else
             {
                 affordStartTime = -1f;
                 arrow.SetActive(false);
+            }
+
+            // After tutorial level
+            if (finishedTutorial && RefineryUpgradePad.Instance.BoughtThreeUpgrades())
+            {
+                listenedOnce = true;
+            }
+            // During tutorial level
+            else if (tutorialScreenIndex > 6)
+            {
+                listenedOnce = true;
             }
 
             yield return new WaitForSecondsRealtime(0.5f);

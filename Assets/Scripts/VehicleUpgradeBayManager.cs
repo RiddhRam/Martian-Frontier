@@ -940,7 +940,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private IEnumerator NotifyPlayerOfUpgrades()
     {
         // If still in the tutorial, wait a bit before starting to not mix up the player
-        //yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial);
+        yield return new WaitUntil(() => TutorialManager.Instance.tutorialScreenIndex > 6);
 
         while (true)
         {

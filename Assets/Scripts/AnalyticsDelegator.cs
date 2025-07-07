@@ -303,7 +303,7 @@ public class AnalyticsDelegator : MonoBehaviour
     {
         yield return new WaitUntil(() => isInitialized);
 
-        string cohort = PlayerPrefs.GetString("Cohort");
+        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
 
         CustomEvent myEvent = new CustomEvent("Start_Tutorial") {
             {"Cohort", cohort},

@@ -50,6 +50,7 @@ public class GameCameraController : MonoBehaviour
     public float param2 = 2f;
     public float param3 = 2f;
     public float bottomY;
+    public float val = 2.5f;
 
     /*private void OnDrawGizmos()
     {
@@ -89,19 +90,19 @@ public class GameCameraController : MonoBehaviour
         {
             // Make the drone be in the lower half of the screen by adding to the cameras y pos.
             // This makes it easier to tap the drone, players finger doesn't need to reach as far
-            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y + 10f, targetZPos);
+            targetPosition = new Vector3(droneToFollow.position.x, droneToFollow.position.y + val, targetZPos);
 
             // Push drone further down, so the refinery upgrade panel can take the center
-            if (NPCManager.Instance.refineryUpgradePanel.activeSelf)
+            /*if (NPCManager.Instance.refineryUpgradePanel.activeSelf)
             {
-                float screenCenterY = Screen.height / 2.5f;
+                float screenCenterY = Screen.height / val;
 
                 // Calculate world-space offset
                 float worldUnitsPerPixel = (targetOrthographicSize * 2f) / Screen.height;
                 float worldOffsetY = screenCenterY * worldUnitsPerPixel;
 
                 targetPosition.y = droneToFollow.position.y + worldOffsetY;
-            }
+            }*/
         }
 
         // Handle user input for panning and zooming.

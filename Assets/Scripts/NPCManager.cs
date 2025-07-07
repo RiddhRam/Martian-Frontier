@@ -444,7 +444,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void DroneTapped(int droneIndex)
     {
-
         if (droneIndex == -1)
         {
             HideRefineryPanel();
@@ -481,9 +480,9 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
 
             UIDelegation.Instance.HideAll();
-            // Re-reveal important info panel. It gets hidden in HideAll()
-            UIDelegation.Instance.RevealElement(importantInfo);
-            UIDelegation.Instance.ToggleBackgroundDarkness(false);
+
+            float scaleTouse = RefineryController.Instance.GetAspectValue();
+            refineryUpgradePanel.transform.localScale = new(scaleTouse, scaleTouse, scaleTouse);
 
             OreDelegation.Instance.PrepareGrid();
             UIDelegation.Instance.RevealElement(refineryUpgradePanel);
@@ -491,8 +490,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
             UIDelegation.Instance.RevealElement(closeRefineryButton);
             UIDelegation.Instance.ToggleBackgroundDarkness(false);
-
-            //nPCMovements[droneIndex].line.gameObject.SetActive(true);
         }
     }
 

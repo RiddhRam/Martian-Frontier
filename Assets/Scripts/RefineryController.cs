@@ -6,6 +6,20 @@ using UnityEngine.UI;
 
 public class RefineryController : MonoBehaviour, IDataPersistence
 {
+    private static RefineryController _instance;
+    public static RefineryController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<RefineryController>();
+            }
+            return _instance;
+        }
+    }
+
     public Sprite mineEntranceOn;
     public Sprite mineEntranceOff;
     public SpriteRenderer mineEntranceSpriteRenderer;
@@ -120,7 +134,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             mineRenderer.maxVeinRadius = 3;
             mineRenderer.minVeinCount = 1;
             mineRenderer.maxVeinCount = 2;
-            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 3;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 12f;
         }
         // C and D. High vein density, low ore value
         else
@@ -129,7 +143,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             mineRenderer.maxVeinRadius = 3;
             mineRenderer.minVeinCount = 2;
             mineRenderer.maxVeinCount = 3;
-            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 1.44f;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 6f;
         }
 
         //Debug.Log(cohort + " MINE");
@@ -349,8 +363,38 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private void SaveGame() {
         DataPersistenceManager.Instance.SaveGame();
     }
+    
+    public float GetAspectValue()
+    {
+        // Determine the scale to set the refinery panel to
 
-    public void SetProfitMultiplier(float newMultiplier) {
+        // Min and max aspect ratios
+        const float MinAspect = 1f;            // 1:1
+        const float MaxAspect = 16 / 9f;      // 9:16
+
+        // Min and max output values
+        const float MinValue = 0.7f;
+        const float MaxValue = 1f;
+        
+        float aspect = (float)Screen.height / Screen.width;
+        
+        if (aspect <= MinAspect)
+        {
+            return MinValue;
+        }
+
+        if (aspect >= MaxAspect)
+        {
+            return MaxValue;
+        }
+            
+        // Linear interpolation between MinValue and MaxValue
+        float t = (aspect - MinAspect) / (MaxAspect - MinAspect);
+        return Mathf.Lerp(MinValue, MaxValue, t);
+    }
+
+    public void SetProfitMultiplier(float newMultiplier)
+    {
         profitMultiplier = newMultiplier;
     }
 

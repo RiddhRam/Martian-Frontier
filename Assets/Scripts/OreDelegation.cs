@@ -209,11 +209,13 @@ public class OreDelegation : MonoBehaviour
         GridLayoutGroup contentGridLayoutGroup = contentGO.GetComponent<GridLayoutGroup>();
         float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + contentGridLayoutGroup.padding.top + contentGridLayoutGroup.padding.bottom + ((rows - 1) * contentGridLayoutGroup.spacing.y);
 
-        // Clamp height
-        float minHeight = contentGO.transform.parent.parent.parent.GetComponent<RectTransform>().sizeDelta.y;
+        // Clamp height and adjust padding
+        float minHeight = contentGO.transform.parent.parent.GetComponent<RectTransform>().rect.height;
         if (bigContentHeight < minHeight)
         {
             bigContentHeight = minHeight;
+            contentGridLayoutGroup.padding.top = 0;
+            contentGridLayoutGroup.padding.bottom = 350;
         }
 
         RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
