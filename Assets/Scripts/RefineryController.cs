@@ -143,10 +143,16 @@ public class RefineryController : MonoBehaviour, IDataPersistence
             mineRenderer.maxVeinRadius = 3;
             mineRenderer.minVeinCount = 2;
             mineRenderer.maxVeinCount = 3;
-            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 5f;
+            RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 20f;
         }
 
-        //Debug.Log(cohort + " MINE");
+        /*mineRenderer.minVeinRadius = 1;
+        mineRenderer.maxVeinRadius = 3;
+        mineRenderer.minVeinCount = 1;
+        mineRenderer.maxVeinCount = 2;
+        RefineryUpgradePad.Instance.baseMaterialPriceMultiplier = 10f;*/
+
+        Debug.Log(cohort + " MINE");
 
         mineRenderer.mineInitialization = 0;
 
