@@ -40,6 +40,7 @@ public class GameData
 
     // For vehicle upgrade bay
     public SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
+    public HashSet<string> upgradeBayOptionsPurchased;
     public SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     public List<string> customizationsOwned;
 
@@ -116,6 +117,7 @@ public class GameData
         this.tutorialScreenIndex = 0;
 
         this.vehicleUpgradeLevels = new();
+        this.upgradeBayOptionsPurchased = new();
         this.vehicleCustomizations = new();
         this.customizationsOwned = new();
 

@@ -70,6 +70,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public Image closeButtonImage;
 
     private SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
+    private HashSet<string> upgradeBayOptionsPurchased;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
 
@@ -139,8 +140,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public Sprite[] upgradeBenefitImages;
 
     // Used so we can track if an upgrade is available or not
-    private readonly List<ButtonAffordability> buttonAffordabilities = new();
     private readonly List<UpgradeBayOptionData> upgradeOptions = new();
+
+    // Upgrade values
+    private int heatLevel = 0;
+    private int coolLevel = 0;
+    private int droneCount = 0;
+    private float profitMultiplier = 1;
 
     const string allDronesKey = "ALL DRONES";
 
@@ -150,9 +156,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         // Generate Upgrades
         GenerateUpgradeOptionDisplays();
-
-        // Stop player from moving;
-        //JoystickMovement.Instance.joystickVec = Vector2.zero;
     }
 
     public void ClearPanel()
@@ -163,130 +166,98 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             Destroy(scrollViewContent.GetChild(i).gameObject);
         }
-
-        buttonAffordabilities.Clear();
-        upgradeOptions.Clear();
-    }
-
-    private int GetDrillUpgradeLevel(string drillName, string upgradeType)
-    {
-        drillName = allDronesKey;
-
-        if (!vehicleUpgradeLevels.ContainsKey(drillName))
-        {
-            return 0;
-        }
-
-        if (upgradeType == "INCREASE HEAT LIMIT")
-        {
-            return vehicleUpgradeLevels[drillName].heatLevel;
-        }
-
-        if (upgradeType == "INCREASE COOLDOWN")
-        {
-            return vehicleUpgradeLevels[drillName].coolLevel;
-        }
-
-        // "BUY A DRONE"
-        return vehicleUpgradeLevels[drillName].droneLevel;
+        
     }
 
     public int GetHeatLimit(string keyName)
     {
-        // Starts at 90
-        // 10 endurance per level
-        //return upgradeHeatValues[GetDrillUpgradeLevel(keyName, "INCREASE HEAT LIMIT")];
-        return upgradeHeatValues[GetDrillUpgradeLevel(allDronesKey, "INCREASE HEAT LIMIT")];
+        //return upgradeHeatValues[GetDrillUpgradeLevel(allDronesKey, "INCREASE HEAT LIMIT")];
+        return upgradeHeatValues[heatLevel];
     }
 
     public float GetCoolRate(string keyName)
     {
-        // 6 per level (0.12f per update, and 50fps)
-        //return upgradeCoolValues[GetDrillUpgradeLevel(keyName, "INCREASE COOLDOWN")];
-        return upgradeCoolValues[GetDrillUpgradeLevel(allDronesKey, "INCREASE COOLDOWN")];
+        //return upgradeCoolValues[GetDrillUpgradeLevel(allDronesKey, "INCREASE COOLDOWN")];
+        return upgradeCoolValues[coolLevel];
     }
 
-    public int GetDroneCount(string keyName)
+    public int GetDroneCount()
     {
         // Number of drones = drone level
-        return GetDrillUpgradeLevel(allDronesKey, "BUY A DRONE");
+        return droneCount;
     }
 
-    private void UpdateUpgradesDictionary(int upgrade, string type)
+    public float GetProfitMultiplier()
     {
-        // Make a new one if non existent and initialize to 0
-        if (!vehicleUpgradeLevels.ContainsKey(allDronesKey))
-        {
-            vehicleUpgradeLevels[allDronesKey] = new VehicleUpgrade(0, 0, 0);
-        }
-
-        if (type == "INCREASE HEAT LIMIT")
-        {
-            vehicleUpgradeLevels[allDronesKey].heatLevel += upgrade;
-            return;
-        }
-
-        // Change by amount
-        if (type == "INCREASE COOLDOWN")
-        {
-            vehicleUpgradeLevels[allDronesKey].coolLevel += upgrade;
-            return;
-        }
-
-        // "BUY A DRONE"
-        vehicleUpgradeLevels[allDronesKey].droneLevel += upgrade;
+        return profitMultiplier;
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseUpgrade(string type, int iteration)
+    public bool PurchaseUpgrade(string type, int iteration, bool alreadyOwned)
     {
         // Find upgrade price
         ulong upgradePrice = GetUpgradePrice(type, iteration);
 
+        // If player doesn't already own then purchase it
+        // Otherwise skip this, because it's just loading the upgrade
+        if (!alreadyOwned)
+        {
+            // Transact amount
+            if (!playerState.VerifyEnoughCash(upgradePrice))
+            {
+                return false;
+            }
+
+            playerState.SubtractCash(upgradePrice);
+        }
+
         // Cooldown
         if (type == "INCREASE COOLDOWN")
         {
+            coolLevel = iteration;
         }
         // Heat
         else if (type == "INCREASE HEAT LIMIT")
         {
-
+            heatLevel = iteration;
         }
         // Drone
         else if (type == "BUY A DRONE")
         {
-            NPCManager.Instance.CreateNPC();
+            droneCount++;
+            StartCoroutine(SpawnNewDrone());
         }
-
-        // Transact amount
-        if (!playerState.VerifyEnoughCash(upgradePrice))
+        // Double profits
+        else
         {
-            return false;
+            profitMultiplier *= 2;
         }
 
-        playerState.SubtractCash(upgradePrice);
+        // If player already owns it then we're done here
+        if (alreadyOwned)
+        {
+            return true;
+        }
 
         // Increment by one
-        UpdateUpgradesDictionary(1, type);
+        upgradeBayOptionsPurchased.Add(type + " " + iteration);
 
-        // Update displays
-        //UpdateUpgradeDetails(type);
+        // Reload displays
+        ClearPanel();
+        PreparePanel();
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 
-        AnalyticsDelegator.Instance.VehicleUpgrade(type, GetDrillUpgradeLevel("", type), RefineryUpgradePad.Instance.mineRenderer.mineCount);
-
-        // If the first drone the player bought, make them follow it, whether or not its the tutorial level
-        if (type == "BUY A DRONE" && GetDrillUpgradeLevel("", "BUY A DRONE") == 1)
-        {
-            TutorialManager.Instance.MakePlayerFollowDrone();
-        }
+        AnalyticsDelegator.Instance.VehicleUpgrade(type, iteration, RefineryUpgradePad.Instance.mineRenderer.mineCount);
 
         return true;
     }
 
     public void GenerateUpgradeOptionDisplays()
     {
+        // Rebuild this at the end of the for loop
+        upgradeOptions.Clear();
+
         int[] upgradeMilestones = RefineryUpgradePad.Instance.GetUpgradeMilestones();
         int requiredOreUpgradeLevel = RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel();
 
@@ -308,20 +279,49 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             int iteration = i;
             for (int j = 0; j != upgradeBenefitTypes.Length; j++)
             {
-                GameObject upgradeBayOptionGameObject = Instantiate(upgradeBayOptionPrefab);
-
                 string benefitType = upgradeBenefitTypes[j];
 
+                bool skip = false;
+
+                foreach (var optionPurchased in upgradeBayOptionsPurchased)
+                {
+                    (string upgradeType, int purchaseIteration) = SplitOptionPurchased(optionPurchased);
+
+                    // If not the matching type then go next
+                    if (upgradeType != benefitType)
+                    {
+                        continue;
+                    }
+
+                    if (iteration == purchaseIteration)
+                    {
+                        // If this upgrade was already purchased, then skip generating it
+                        skip = true;
+                    }
+                    // For these 2 upgrade types, the upgrades do not stack, so no point in showing previous upgrades if player skipped them
+                    else if (upgradeType == "INCREASE HEAT LIMIT" && iteration < purchaseIteration)
+                    {
+                        skip = true;
+                    }
+                    else if (upgradeType == "INCREASE COOLDOWN" && iteration < purchaseIteration)
+                    {
+                        skip = true;
+                    }
+                }
+
+                if (skip)
+                {
+                    continue;
+                }
+
+                GameObject upgradeBayOptionGameObject = Instantiate(upgradeBayOptionPrefab);
+
                 UpgradeBayOption upgradeBayOption = upgradeBayOptionGameObject.GetComponent<UpgradeBayOption>();
-                UpgradeBayOptionData upgradeBayOptionData = new(upgradeBayOptionGameObject,
-                                                                benefitType,
-                                                                i);
 
                 // Display the upgrade type
                 upgradeBayOption.upgradeBenefitTypeImage.sprite = upgradeBenefitImages[j];
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
 
-                
                 // Set the description text to show the new value if its either one of these
                 if (benefitType == "INCREASE HEAT LIMIT")
                 {
@@ -338,13 +338,15 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 }
 
                 // Setup button
-                upgradeBayOption.button.onClick.AddListener(() => PurchaseUpgrade(benefitType, iteration));
+                upgradeBayOption.button.onClick.AddListener(() => PurchaseUpgrade(benefitType, iteration, false));
                 ulong price = GetUpgradePrice(benefitType, iteration);
                 upgradeBayOption.cashPriceText.text = PlayerState.Instance.FormatPrice(price);
                 upgradeBayOption.buttonAffordability.price = price;
 
-                // This if for notifying the player if an upgrade is available
-                buttonAffordabilities.Add(upgradeBayOption.buttonAffordability);
+                UpgradeBayOptionData upgradeBayOptionData = new(upgradeBayOptionGameObject,
+                                                                benefitType + " " + iteration,
+                                                                iteration,
+                                                                price);
 
                 // For displaying properly
                 upgradeBayOptionGameObject.transform.SetParent(scrollViewContent);
@@ -373,18 +375,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
             System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
 
-            for (int i = 0; i != buttonAffordabilities.Count; i++)
+            foreach (var optionData in upgradeOptions)
             {
-                // If player can afford an upgrade and its not maxed, enable the notice icon, otherwise disable it
-                /*if ((i == 0 && (GetDrillUpgradeLevel("", "INCREASE HEAT LIMIT") >= maxOtherCount || cash < GetHeatPrice()))
-                || (i == 1 && (GetDrillUpgradeLevel("", "INCREASE COOLDOWN") >= maxOtherCount || cash < GetCoolPrice()))
-                || (i == 2 && (GetDrillUpgradeLevel("", "BUY A DRONE") >= maxDroneCount || cash < GetDronePrice())))
+                // If player can afford an upgrade, enable the notice icon, otherwise disable it
+                // If price is 0, then it's not shown to the player so don't count that
+                if (cash < optionData.price || optionData.price == 0)
                 {
                     continue;
                 }
 
                 affordable = true;
-                break;*/
+                break;
             }
 
             upgradeBayNoticeIcon.SetActive(affordable);
@@ -420,17 +421,42 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         };
 
         this.vehicleUpgradeLevels = data.vehicleUpgradeLevels;
+        this.upgradeBayOptionsPurchased = data.upgradeBayOptionsPurchased;
         this.vehicleCustomizations = data.vehicleCustomizations;
         this.customizationsOwned = data.customizationsOwned;
 
+        foreach (var optionPurchased in upgradeBayOptionsPurchased)
+        {
+            (string upgradeType, int iteration) = SplitOptionPurchased(optionPurchased);
+
+            PurchaseUpgrade(upgradeType, iteration, true);
+        }
+
+        // Only calling this so we have data to use when trying to notify player of upgrades
+        PreparePanel();
+
         StartCoroutine(NotifyPlayerOfUpgrades());
 
+
         loaded = true;
+    }
+
+    public (string upgradeType, int iteration) SplitOptionPurchased(string optionPurchased)
+    {
+        // Seperate the upgrade type and iteration number
+        // iteration number is the last part of the string, after the last space
+        int lastSpaceIndex = optionPurchased.LastIndexOf(' ');
+
+        string upgradeType = optionPurchased.Substring(0, lastSpaceIndex);
+        int iteration = int.Parse(optionPurchased.Substring(lastSpaceIndex + 1));
+
+        return (upgradeType, iteration);
     }
 
     public void SaveData(ref GameData data)
     {
         data.vehicleUpgradeLevels = this.vehicleUpgradeLevels;
+        data.upgradeBayOptionsPurchased = this.upgradeBayOptionsPurchased;
         data.vehicleCustomizations = this.vehicleCustomizations;
         data.customizationsOwned = this.customizationsOwned;
     }
@@ -554,6 +580,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         else
         {
             return upgradeDronePrices[iteration] * 7;
+        }
+    }
+
+    private IEnumerator SpawnNewDrone()
+    {
+        // Wait for loading to finish
+        yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
+
+        NPCManager.Instance.CreateNPC();
+
+        // If the first drone the player bought, make them follow it, whether or not its the tutorial level
+        if (GetDroneCount() == 1)
+        {
+            TutorialManager.Instance.MakePlayerFollowDrone();
         }
     }
 }

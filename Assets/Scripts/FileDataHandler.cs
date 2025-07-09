@@ -170,7 +170,14 @@ public class FileDataHandler
                         List<int> deserializedValue = JsonConvert.DeserializeObject<List<int>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
-                    else if (fieldType == typeof(HashSet<int>)) {
+                    else if (fieldType == typeof(HashSet<string>)) {
+                        // URL decode all quotation marks
+                        strValue = strValue.Replace("%22", "\"");
+                        HashSet<string> deserializedValue = JsonConvert.DeserializeObject<HashSet<string>>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
+                    else if (fieldType == typeof(HashSet<int>))
+                    {
                         HashSet<int> deserializedValue = JsonConvert.DeserializeObject<HashSet<int>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
                     }
@@ -452,6 +459,22 @@ public class FileDataHandler
                 List<int> value = (List<int>)fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is HashSet<string>)
+            {
+                HashSet<string> value = (HashSet<string>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                // URL encode all quotation marks to make it safer for when we load the game
+                result = result.Replace("\"", "%22");
 
                 if (useEncryption)
                 {

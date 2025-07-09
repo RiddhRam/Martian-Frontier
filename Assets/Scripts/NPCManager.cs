@@ -33,9 +33,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private string[] nPCNames;
 
     private readonly Color[] spawnColours = { new(246 / 255f, 4 / 255f, 3 / 255f), new(57 / 255f, 255 / 255f, 21 / 255f), new(2 / 255f, 191 / 255f, 255f / 255f), new(255f / 255, 166 / 255f, 2 / 255f) };
-    // Helps prevent race conditions with NPCMovement and LiveManageSession()
-
-    private int droneCount;
 
     [Header("Scripts")]
     public MineRenderer mineRenderer;
@@ -184,11 +181,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public void CreateNPC(int npcIndex = -1)
     {
         // If -1, then that means to create a new one and give it the next index
-        // Since droneCount tracks how many drones there are and is not zero-indexed, droneCount is equal to the index of the next drone
+        // Since VehicleUpgradeBayManager.Instance.GetDroneCount() tracks how many drones there are and is not zero-indexed, VehicleUpgradeBayManager.Instance.GetDroneCount() is equal to the index of the next drone
         if (npcIndex == -1)
         {
-            npcIndex = droneCount;
-            droneCount++;
+            npcIndex = VehicleUpgradeBayManager.Instance.GetDroneCount() - 1;
         }
 
         npcs[npcIndex] = Instantiate(npcPrefab);
@@ -304,7 +300,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             botName = botNames[random.Next(botNames.Length)];
 
             // Make sure name is unique
-            for (int i = 0; i != droneCount; i++)
+            for (int i = 0; i != VehicleUpgradeBayManager.Instance.GetDroneCount(); i++)
             {
                 // Name is not unique, choose another
                 if (nPCNames[i] != null && botName == nPCNames[i])
@@ -348,7 +344,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public void ResetAllNPCPos()
     {
 
-        for (int i = 0; i != droneCount; i++)
+        for (int i = 0; i != VehicleUpgradeBayManager.Instance.GetDroneCount(); i++)
         {
             ResetNPCPos(i);
         }
@@ -357,15 +353,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public void LoadData(GameData data)
     {
         snapshotGameData = data;
-
-        if (data.vehicleUpgradeLevels.ContainsKey("ALL DRONES"))
-        {
-            droneCount = data.vehicleUpgradeLevels["ALL DRONES"].droneLevel;
-        }
-        else
-        {
-            droneCount = 0;
-        }
 
         const int maxDrones = 6;
 
@@ -381,11 +368,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private IEnumerator PrepareGame()
     {
         yield return new WaitUntil(() => mineRenderer.soloMineLoaded);
-
-        for (int i = 0; i != droneCount; i++)
-        {
-            CreateNPC(i);
-        }
 
         try
         {
@@ -407,7 +389,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
         if (mineRenderer.mineInitialization == 0)
         {
-            for (int i = 0; i != droneCount; i++)
+            for (int i = 0; i != VehicleUpgradeBayManager.Instance.GetDroneCount(); i++)
             {
                 if (nPCMovements[i] != null)
                 {
@@ -516,7 +498,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
 
         // If player has no drones
-        if (droneCount == 0)
+        if (VehicleUpgradeBayManager.Instance.GetDroneCount() == 0)
         {
             UIDelegation.Instance.ShowError("YOU DON'T HAVE ANY DRONES!");
             return;
@@ -532,7 +514,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void SwitchDroneCamera(int direction)
     {
-        if (droneCount == 1)
+        if (VehicleUpgradeBayManager.Instance.GetDroneCount() == 1)
         {
             UIDelegation.Instance.ShowError("YOU ONLY HAVE 1 DRONE!");
             return;

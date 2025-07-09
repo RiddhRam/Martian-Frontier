@@ -3,13 +3,15 @@ using UnityEngine;
 public struct UpgradeBayOptionData
 {
     public GameObject GO;
-    public string name;
+    public string upgradeType;
     public int iteration;
+    public ulong price;
 
-    public UpgradeBayOptionData(GameObject GO, string name, int iteration)
+    public UpgradeBayOptionData(GameObject GO, string upgradeType, int iteration, ulong price)
     {
         this.GO = GO;
-        this.name = name;
+        this.upgradeType = upgradeType;
         this.iteration = iteration;
+        this.price = price;
     }
 }

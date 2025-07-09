@@ -30,6 +30,7 @@ public class GameDataString
     public string tutorialScreenIndex;
 
     public string vehicleUpgradeLevels;
+    public string upgradeBayOptionsPurchased;
     public string vehicleCustomizations;
     public string customizationsOwned;
 

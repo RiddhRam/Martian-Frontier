@@ -414,7 +414,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
     private double GetCashProceedAmount()
     {
-        double amount = GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
+        double amount = GetMaterialUpgradePrice(requiredOreIndex, requiredOreUpgradeLevel) * 2;
 
         // Minimum
         /*if (amount < 50_000)
@@ -474,17 +474,15 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // How much the ore is worth when selling
-    public double GetActualMaterialPrice(int oreIndex)
+    public double GetActualMaterialPrice(int oreIndex, int level = -1)
     {
-        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+        if (level == -1)
+        {
+            level = GetOreUpgradeLevel(oreIndex);
+        }
 
         // Grows by 8% per level
-        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(oreUpgradeLevel));
-    }
-
-    public double GetActualMaterialPriceAtLevel(int oreIndex, int level)
-    {
-        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level)) * VehicleUpgradeBayManager.Instance.GetProfitMultiplier();
     }
 
     public double GetOrePriceMultiplier(int level)
@@ -520,16 +518,15 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // How much the upgrade costs
-    public double GetMaterialUpgradePrice(int oreIndex)
+    public double GetMaterialUpgradePrice(int oreIndex, int level = -1)
     {
-        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+        // If no level provided, then get the current level
+        if (level == -1)
+        {
+            level = GetOreUpgradeLevel(oreIndex);
+        }
 
         // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at (baseMaterialPriceMultiplier * x) the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * baseMaterialPriceMultiplier * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
-    }
-
-    public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
-    {
         return Math.Floor(originalMaterialPrices[oreIndex] * baseMaterialPriceMultiplier * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 

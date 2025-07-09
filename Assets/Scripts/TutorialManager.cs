@@ -81,7 +81,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             tutorialScreenIndex = 8;
         }
 
-        while (tutorialScreenIndex <= 10)
+        while (tutorialScreenIndex <= 9)
         {
             Debug.Log(tutorialScreenIndex);
 
@@ -265,12 +265,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 upgradeRefineryInstruction.SetActive(false);
             }
             else if (tutorialScreenIndex == 9)
-            {
-                // Save up enough cash for upgrade
-                RefineryUpgradePad refineryUpgradePad = RefineryUpgradePad.Instance;
-                yield return new WaitUntil(() => (double)PlayerState.Instance.GetUserCash() >= refineryUpgradePad.GetActualMaterialPriceAtLevel(refineryUpgradePad.GetRequiredOreIndex(), refineryUpgradePad.GetRequiredOreUpgradeLevel()));
-            }
-            else if (tutorialScreenIndex == 10)
             {
                 PointToProceed();
 
@@ -480,7 +474,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             if (RefineryUpgradePad.Instance.CanAffordAnUpgrade()
             && (finishedTutorial || (tutorialScreenIndex != 1
             && tutorialScreenIndex != 7
-            && tutorialScreenIndex != 10)))
+            && tutorialScreenIndex != 9)))
             {
                 // first time it becomes affordable, stamp the time
                 if (affordStartTime < 0f)

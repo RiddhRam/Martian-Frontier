@@ -627,6 +627,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         data.targetDepth = newGameData.targetDepth;
 
         data.vehicleUpgradeLevels = newGameData.vehicleUpgradeLevels;
+        data.upgradeBayOptionsPurchased = newGameData.upgradeBayOptionsPurchased;
         data.oreUpgrades = newGameData.oreUpgrades;
 
         data.discoveredOres = newGameData.discoveredOres;
