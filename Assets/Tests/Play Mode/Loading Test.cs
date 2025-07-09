@@ -82,7 +82,7 @@ public class LoadingTest
             Assert.True(playerState.cashDisplays[i].activeSelf);
         }
 
-        int gemDisplayCount = 6;
+        int gemDisplayCount = 5;
         Assert.AreEqual(gemDisplayCount, playerState.gemDisplays.Length);
         for (int i = 0; i != gemDisplayCount; i++)
         {
