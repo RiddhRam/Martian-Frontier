@@ -412,15 +412,9 @@ public class RefineryUpgradePad : MonoBehaviour
         playerState.ProceedToNextMine();
     }
 
-    private double GetCashProceedAmount()
+    public double GetCashProceedAmount()
     {
         double amount = GetMaterialUpgradePrice(requiredOreIndex, requiredOreUpgradeLevel) * 2;
-
-        // Minimum
-        /*if (amount < 50_000)
-        {
-            amount = 50_000;
-        }*/
 
         return amount;
     }

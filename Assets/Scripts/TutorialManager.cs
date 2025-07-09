@@ -70,6 +70,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     {
         // Wait for all items to be loaded
         yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
+        yield return new WaitForSeconds(0.5f);
 
         if (RefineryUpgradePad.Instance.BoughtTenUpgrades() && tutorialScreenIndex < 6)
         {

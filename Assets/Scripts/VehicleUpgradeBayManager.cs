@@ -131,7 +131,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // 6 values
     private static readonly ulong[] upgradeDronePrices = new ulong[]
     {
-        5, 60_000UL, 3_500_000UL, 210_000_000UL, 13_000_000_000UL, 530_000_000_000UL
+        5, 60_000UL, 8_000_000UL, 500_000_000UL, 30_000_000_000UL, 2_000_000_000_000UL
     };
 
     private static readonly string[] upgradeBenefitTypes = new string[] {
@@ -261,7 +261,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         int[] upgradeMilestones = RefineryUpgradePad.Instance.GetUpgradeMilestones();
         int requiredOreUpgradeLevel = RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel();
 
-        // Min of 1, Max of 7
+        // Min of 1, Max of 6
         // Determines how many upgrades to show. Each iteration is the same set of upgrade types
         // Difference is the price, and for some upgrade types the benefit is exponentially higher than the last iteration
         int rampUpIterationsNeeded = 1;
@@ -272,6 +272,11 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 rampUpIterationsNeeded = i;
                 break;
             }
+        }
+
+        if (rampUpIterationsNeeded > 6)
+        {
+            rampUpIterationsNeeded = 6;
         }
 
         for (int i = 0; i != rampUpIterationsNeeded; i++)
@@ -322,7 +327,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 upgradeBayOption.upgradeBenefitTypeImage.sprite = upgradeBenefitImages[j];
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
 
-                // Set the description text to show the new value if its either one of these
+                // Set the description text if its either one of these
                 if (benefitType == "INCREASE HEAT LIMIT")
                 {
                     upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", upgradeHeatValues[iteration]);
@@ -330,6 +335,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 else if (benefitType == "INCREASE COOLDOWN")
                 {
                     upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", (upgradeCoolValues[iteration] * coolTimesPerSecond) + "/s");
+                }
+                else if (benefitType == "BUY A DRONE")
+                {
+                    upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("GAIN 1 EXTRA DRONE");
                 }
                 // If it's neither one of these, then hide the description text because its not needed
                 else
@@ -517,14 +526,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public bool BoughtOneDroneUpgrade()
     {
-        if (vehicleUpgradeLevels == null)
+        if (upgradeBayOptionsPurchased == null)
         {
             return false;
         }
 
-        foreach (var key in vehicleUpgradeLevels.Keys)
+        foreach (var optionPurchased in upgradeBayOptionsPurchased)
         {
-            if (vehicleUpgradeLevels[key].droneLevel > 0)
+            if (optionPurchased.Contains("BUY A DRONE"))
             {
                 return true;
             }
@@ -535,14 +544,14 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public bool BoughtOneOtherUpgrade()
     {
-        if (vehicleUpgradeLevels == null)
+        if (upgradeBayOptionsPurchased == null)
         {
             return false;
         }
 
-        foreach (var key in vehicleUpgradeLevels.Keys)
+        foreach (var optionPurchased in upgradeBayOptionsPurchased)
         {
-            if (vehicleUpgradeLevels[key].heatLevel > 0 || vehicleUpgradeLevels[key].coolLevel > 0)
+            if (!optionPurchased.Contains("BUY A DRONE"))
             {
                 return true;
             }
@@ -563,24 +572,32 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public ulong GetUpgradePrice(string benefitType, int iteration)
     {
+        ulong price;
         if (benefitType == "INCREASE HEAT LIMIT" || benefitType == "INCREASE COOLDOWN")
         {
             // Using cooldown prices for both for now
-            return upgradeCoolPrices[iteration];
+            price = upgradeCoolPrices[iteration];
         }
         else if (benefitType == "BUY A DRONE")
         {
-            return upgradeDronePrices[iteration];
+            price = upgradeDronePrices[iteration];
         }
         else if (benefitType == "2X PROFITS")
         {
-            return (ulong)(upgradeCoolPrices[iteration] * 8f);
+            price = (ulong)(upgradeCoolPrices[iteration] * 8f);
         }
         // ("INCREASE ORE SPAWN RATE")
         else
         {
-            return upgradeDronePrices[iteration] * 7;
+            price = upgradeDronePrices[iteration] * 7;
         }
+
+        // Can't be more than half the required amount to go next level
+        if (price > RefineryUpgradePad.Instance.GetCashProceedAmount() * 0.5f)
+        {
+            price = (ulong)(RefineryUpgradePad.Instance.GetCashProceedAmount() * 0.5);
+        }
+        return price;
     }
 
     private IEnumerator SpawnNewDrone()
