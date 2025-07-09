@@ -685,7 +685,7 @@ public class PlayerState : MonoBehaviour, IDataPersistence
         targetDepthSlider.maxValue = maxDepth;
     }
     
-    private string GetLocalizedValue(string key, params object[] args)
+    public string GetLocalizedValue(string key, params object[] args)
     {
         var table = LocalizationSettings.StringDatabase.GetTable("UI Tables");
 

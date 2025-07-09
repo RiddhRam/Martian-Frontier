@@ -358,7 +358,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     {
         snapshotGameData = data;
 
-        int maxDrones = VehicleUpgradeBayManager.Instance.GetMaxDroneCount(data.mineCount);
         if (data.vehicleUpgradeLevels.ContainsKey("ALL DRONES"))
         {
             droneCount = data.vehicleUpgradeLevels["ALL DRONES"].droneLevel;
@@ -367,6 +366,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         {
             droneCount = 0;
         }
+
+        const int maxDrones = 6;
 
         npcs = new GameObject[maxDrones];
         upgradeNoticeIcons = new GameObject[maxDrones];

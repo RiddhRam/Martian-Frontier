@@ -160,7 +160,7 @@ public class RefineryUpgradePad : MonoBehaviour
         while (true)
         {
             bool affordable = CanAffordAnUpgrade();
-            
+
             bool canProceed = false;
 
             if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
@@ -666,7 +666,8 @@ public class RefineryUpgradePad : MonoBehaviour
         buttonImage.color = originalColor;
     }
 
-    public bool BoughtThreeUpgrades() {
+    public bool BoughtThreeUpgrades()
+    {
         if (oreUpgrades == null)
         {
             return false;
@@ -700,7 +701,7 @@ public class RefineryUpgradePad : MonoBehaviour
 
         return false;
     }
-    
+
     public bool Bought25Upgrades()
     {
         if (oreUpgrades == null)
@@ -717,5 +718,10 @@ public class RefineryUpgradePad : MonoBehaviour
         }
 
         return false;
+    }
+
+    public int[] GetUpgradeMilestones()
+    {
+        return upgradeMilestones;
     }
 }
