@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -70,7 +71,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public Image closeButtonImage;
 
     private SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
-    private HashSet<string> upgradeBayOptionsPurchased;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
     private List<string> customizationsOwned;
 
@@ -135,12 +135,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     };
 
     private static readonly string[] upgradeBenefitTypes = new string[] {
-        "BUY A DRONE", "INCREASE HEAT LIMIT", "INCREASE COOLDOWN", "2X PROFITS"
+        "BUY A DRONE", "INCREASE HEAT LIMIT", "INCREASE COOLDOWN", "SPEED BOOST", "{0}X PROFITS"
     };
     public Sprite[] upgradeBenefitImages;
 
     // Used so we can track if an upgrade is available or not
     private readonly List<UpgradeBayOptionData> upgradeOptions = new();
+    private HashSet<string> upgradeBayOptionsPurchased;
 
     // Upgrade values
     private int heatLevel = 0;
@@ -193,10 +194,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseUpgrade(string type, int iteration, bool alreadyOwned)
+    public bool PurchaseUpgrade(UpgradeBayOptionData upgradeBayOptionData, bool alreadyOwned)
     {
         // Find upgrade price
-        ulong upgradePrice = GetUpgradePrice(type, iteration);
+        ulong upgradePrice = upgradeBayOptionData.price;
 
         // If player doesn't already own then purchase it
         // Otherwise skip this, because it's just loading the upgrade
@@ -212,23 +213,24 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // Cooldown
-        if (type == "INCREASE COOLDOWN")
+        if (upgradeBayOptionData.upgradeType == "INCREASE COOLDOWN")
         {
-            coolLevel = iteration;
+            coolLevel = upgradeBayOptionData.extraData[0];
         }
         // Heat
-        else if (type == "INCREASE HEAT LIMIT")
+        else if (upgradeBayOptionData.upgradeType == "INCREASE HEAT LIMIT")
         {
-            heatLevel = iteration;
+            heatLevel = upgradeBayOptionData.extraData[0];
         }
         // Drone
-        else if (type == "BUY A DRONE")
+        else if (upgradeBayOptionData.upgradeType == "BUY A DRONE")
         {
+            Debug.Log("BOUGHT A NEW DRONE!!!");
             droneCount++;
             StartCoroutine(SpawnNewDrone());
         }
         // Double profits
-        else
+        else if (upgradeBayOptionData.upgradeType.Contains("PROFITS"))
         {
             profitMultiplier *= 2;
         }
@@ -240,7 +242,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         }
 
         // Increment by one
-        upgradeBayOptionsPurchased.Add(type + " " + iteration);
+        upgradeBayOptionsPurchased.Add(upgradeBayOptionData.upgradeType);
+        //upgradeOptions.IndexOf(type);
 
         // Reload displays
         ClearPanel();
@@ -248,16 +251,13 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 
-        AnalyticsDelegator.Instance.VehicleUpgrade(type, iteration, RefineryUpgradePad.Instance.mineRenderer.mineCount);
+        AnalyticsDelegator.Instance.VehicleUpgrade(upgradeBayOptionData.upgradeType, RefineryUpgradePad.Instance.mineRenderer.mineCount);
 
         return true;
     }
 
-    public void GenerateUpgradeOptionDisplays()
+    public void GenerateUpgradeOptions()
     {
-        // Rebuild this at the end of the for loop
-        upgradeOptions.Clear();
-
         int[] upgradeMilestones = RefineryUpgradePad.Instance.GetUpgradeMilestones();
         int requiredOreUpgradeLevel = RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel();
 
@@ -279,89 +279,67 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             rampUpIterationsNeeded = 6;
         }
 
-        for (int i = 0; i != rampUpIterationsNeeded; i++)
+        if (rampUpIterationsNeeded == 1)
         {
-            int iteration = i;
-            for (int j = 0; j != upgradeBenefitTypes.Length; j++)
+            upgradeOptions.Add(new("BUY A DRONE", 5, 0));
+            // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
+            upgradeOptions.Add(new("INCREASE HEAT LIMIT", upgradeCoolPrices[0], 1, new int[] { 0 }));
+            upgradeOptions.Add(new("INCREASE COOLDOWN", upgradeCoolPrices[0], 2, new int[] { 0 }));
+            upgradeOptions.Add(new("SPEED BOOST", (ulong)(upgradeCoolPrices[0] * 4f), 3));
+            upgradeOptions.Add(new(PlayerState.Instance.GetLocalizedValue("{0}X PROFITS", 2), (ulong)(upgradeCoolPrices[0] * 4f), 4));
+        }
+    }
+
+    public void GenerateUpgradeOptionDisplays()
+    {
+        foreach (var option in upgradeOptions)
+        {
+            if (upgradeBayOptionsPurchased.Contains(option.upgradeType))
             {
-                string benefitType = upgradeBenefitTypes[j];
-
-                bool skip = false;
-
-                foreach (var optionPurchased in upgradeBayOptionsPurchased)
-                {
-                    (string upgradeType, int purchaseIteration) = SplitOptionPurchased(optionPurchased);
-
-                    // If not the matching type then go next
-                    if (upgradeType != benefitType)
-                    {
-                        continue;
-                    }
-
-                    if (iteration == purchaseIteration)
-                    {
-                        // If this upgrade was already purchased, then skip generating it
-                        skip = true;
-                    }
-                    // For these 2 upgrade types, the upgrades do not stack, so no point in showing previous upgrades if player skipped them
-                    else if (upgradeType == "INCREASE HEAT LIMIT" && iteration < purchaseIteration)
-                    {
-                        skip = true;
-                    }
-                    else if (upgradeType == "INCREASE COOLDOWN" && iteration < purchaseIteration)
-                    {
-                        skip = true;
-                    }
-                }
-
-                if (skip)
-                {
-                    continue;
-                }
-
-                GameObject upgradeBayOptionGameObject = Instantiate(upgradeBayOptionPrefab);
-
-                UpgradeBayOption upgradeBayOption = upgradeBayOptionGameObject.GetComponent<UpgradeBayOption>();
-
-                // Display the upgrade type
-                upgradeBayOption.upgradeBenefitTypeImage.sprite = upgradeBenefitImages[j];
-                upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
-
-                // Set the description text if its either one of these
-                if (benefitType == "INCREASE HEAT LIMIT")
-                {
-                    upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", upgradeHeatValues[iteration]);
-                }
-                else if (benefitType == "INCREASE COOLDOWN")
-                {
-                    upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", (upgradeCoolValues[iteration] * coolTimesPerSecond) + "/s");
-                }
-                else if (benefitType == "BUY A DRONE")
-                {
-                    upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("GAIN 1 EXTRA DRONE");
-                }
-                // If it's neither one of these, then hide the description text because its not needed
-                else
-                {
-                    upgradeBayOption.upgradeBenefitDescriptionText.gameObject.SetActive(false);
-                }
-
-                // Setup button
-                upgradeBayOption.button.onClick.AddListener(() => PurchaseUpgrade(benefitType, iteration, false));
-                ulong price = GetUpgradePrice(benefitType, iteration);
-                upgradeBayOption.cashPriceText.text = PlayerState.Instance.FormatPrice(price);
-                upgradeBayOption.buttonAffordability.price = price;
-
-                UpgradeBayOptionData upgradeBayOptionData = new(upgradeBayOptionGameObject,
-                                                                benefitType + " " + iteration,
-                                                                iteration,
-                                                                price);
-
-                // For displaying properly
-                upgradeBayOptionGameObject.transform.SetParent(scrollViewContent);
-                upgradeBayOptionGameObject.transform.localScale = Vector3.one;
-                upgradeOptions.Add(upgradeBayOptionData);
+                continue;
             }
+
+            string benefitType = option.upgradeType;
+
+            GameObject upgradeBayOptionGameObject = Instantiate(upgradeBayOptionPrefab);
+            UpgradeBayOption upgradeBayOption = upgradeBayOptionGameObject.GetComponent<UpgradeBayOption>();
+
+            // Display the upgrade type
+            upgradeBayOption.upgradeBenefitTypeImage.sprite = upgradeBenefitImages[option.imageIndex];
+            upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
+
+            // Set the description text if its either one of these
+            if (benefitType == "INCREASE HEAT LIMIT")
+            {
+                upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", upgradeHeatValues[option.extraData[0]]);
+            }
+            else if (benefitType == "INCREASE COOLDOWN")
+            {
+                upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", (upgradeCoolValues[option.extraData[0]] * coolTimesPerSecond) + "/s");
+            }
+            else if (benefitType == "BUY A DRONE")
+            {
+                upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("GAIN 1 EXTRA DRONE");
+            }
+            else if (benefitType == "SPEED BOOST")
+            {
+                upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("DRONES MOVE FASTER");
+            }
+            // If it's neither one of these, then hide the description text because its not needed
+            else
+            {
+                upgradeBayOption.upgradeBenefitDescriptionText.gameObject.SetActive(false);
+            }
+
+            // Setup button
+            upgradeBayOption.button.onClick.AddListener(() => PurchaseUpgrade(option, false));
+            ulong price = option.price;
+            upgradeBayOption.cashPriceText.text = PlayerState.Instance.FormatPrice(price);
+            upgradeBayOption.buttonAffordability.price = price;
+
+            // For displaying properly
+            upgradeBayOptionGameObject.transform.SetParent(scrollViewContent);
+            upgradeBayOptionGameObject.transform.localScale = Vector3.one;
         }
 
         VerticalLayoutGroup verticalLayoutGroup = scrollViewContent.GetComponent<VerticalLayoutGroup>();
@@ -434,11 +412,22 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         this.vehicleCustomizations = data.vehicleCustomizations;
         this.customizationsOwned = data.customizationsOwned;
 
+        GenerateUpgradeOptions();
+
         foreach (var optionPurchased in upgradeBayOptionsPurchased)
         {
-            (string upgradeType, int iteration) = SplitOptionPurchased(optionPurchased);
+            //(string upgradeType, int iteration) = SplitOptionPurchased(optionPurchased);
 
-            PurchaseUpgrade(upgradeType, iteration, true);
+            // Check if it's a removed upgrade
+            if (!upgradeBenefitTypes.Contains(optionPurchased))
+            {
+                continue;
+            }
+
+            int index = upgradeOptions.FindIndex(option => option.upgradeType == optionPurchased);
+
+            PurchaseUpgrade(upgradeOptions[index], true);
+            upgradeOptions.RemoveAt(index);
         }
 
         // Only calling this so we have data to use when trying to notify player of upgrades

@@ -1,17 +1,18 @@
-using UnityEngine;
+using System.Collections.Generic;
 
 public struct UpgradeBayOptionData
 {
-    public GameObject GO;
     public string upgradeType;
-    public int iteration;
     public ulong price;
+    public int imageIndex;
+    // Used for any extra data needed, like when purchasing an ore profit, we need the ore index
+    public int[] extraData;
 
-    public UpgradeBayOptionData(GameObject GO, string upgradeType, int iteration, ulong price)
+    public UpgradeBayOptionData(string upgradeType, ulong price, int imageIndex, int[] extraData = null)
     {
-        this.GO = GO;
         this.upgradeType = upgradeType;
-        this.iteration = iteration;
         this.price = price;
+        this.imageIndex = imageIndex;
+        this.extraData = extraData;
     }
 }

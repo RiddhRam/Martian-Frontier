@@ -555,7 +555,7 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Tech_Lab_Upgrade", new Parameter("Upgrade_Name", upgradeName));
     }
 
-    public void VehicleUpgrade(string type, int upgradeLevel, int rebirthLevel)
+    public void VehicleUpgrade(string type, int rebirthLevel)
     {
         if (!isInitialized)
         {
@@ -563,14 +563,14 @@ public class AnalyticsDelegator : MonoBehaviour
         }
         CustomEvent myEvent = new CustomEvent("Vehicle_Upgrade") {
             {"Type", type},
-            {"Upgrade_Level", upgradeLevel},
+            //{"Upgrade_Level", upgradeLevel},
             {"Rebirth_Level", rebirthLevel},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
         FirebaseAnalytics.LogEvent("Vehicle_Upgrade",
             new Parameter("Type", type),
-            new Parameter("Upgrade_Level", upgradeLevel),
+            //new Parameter("Upgrade_Level", upgradeLevel),
             new Parameter("Rebirth_Level", rebirthLevel));
     }
 

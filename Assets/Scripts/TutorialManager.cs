@@ -596,7 +596,12 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             StopCoroutine(arrowAnimation);
         }
 
-        // And then we remind them to open the garage
+        // And then we remind them to open the garage if they haven't bought anything yet 
+        if (VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade() || VehicleUpgradeBayManager.Instance.BoughtOneOtherUpgrade())
+        {
+            yield break;
+        }
+        
         PointToGarage();
 
         yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
