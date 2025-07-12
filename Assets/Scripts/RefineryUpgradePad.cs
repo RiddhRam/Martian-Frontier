@@ -476,7 +476,7 @@ public class RefineryUpgradePad : MonoBehaviour
         }
 
         // Grows by 8% per level
-        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level)) * VehicleUpgradeBayManager.Instance.GetProfitMultiplier();
+        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level)) * VehicleUpgradeBayManager.Instance.GetProfitMultiplier() * VehicleUpgradeBayManager.Instance.GetOreProfitMultiplier(oreIndex);
     }
 
     public double GetOrePriceMultiplier(int level)
