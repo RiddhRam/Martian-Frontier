@@ -470,6 +470,11 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         while (true)
         {
+            if (RefineryUpgradePad.Instance.BoughtTenUpgrades())
+            {
+                yield break;
+            }
+
             // If they can afford something and there's no other arrow showing or done the tutorial
             // Show the arrow
             if (RefineryUpgradePad.Instance.CanAffordAnUpgrade()
@@ -500,7 +505,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     if (Time.realtimeSinceStartup - affordStartTime >= doubleRequiredTime)
                         arrow.SetActive(true);
                 }
-                
+
             }
             // Otherwise hide it
             else

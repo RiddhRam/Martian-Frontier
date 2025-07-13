@@ -355,11 +355,13 @@ public class NPCMovement : MonoBehaviour
             return;
         }
 
+        float speed = playerSpeed * VehicleUpgradeBayManager.Instance.speedBoost;
+
         // Translation logic
         // Translate the vehicle position
         rb.linearVelocity = new Vector2(
-            joystickVec.x * playerSpeed,
-            joystickVec.y * playerSpeed
+            joystickVec.x * speed,
+            joystickVec.y * speed
         );
 
         // Rotation logic
