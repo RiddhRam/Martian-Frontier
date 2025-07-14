@@ -376,8 +376,8 @@ public class LoadingTest
         RefineryController refineryController = GameObject.Find("Refinery Controller").GetComponent<RefineryController>();
         Transform refineryControllerTransform = refineryController.refineryProgressSlider.transform;
         Assert.AreEqual(refineryControllerTransform.GetChild(2).GetComponent<TextMeshProUGUI>().text, "100%");
-        Assert.AreEqual(refineryController.GetInitialBattery(), 500);
-        Assert.AreEqual(refineryController.refineryBattery, 500);
+        Assert.AreEqual(refineryController.GetInitialBattery(), 450);
+        Assert.AreEqual(refineryController.refineryBattery, 450);
 
         // Mine Renderer
         Assert.AreEqual(3, mineRenderer.GetVisionRadius());

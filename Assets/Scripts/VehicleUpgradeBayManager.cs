@@ -225,12 +225,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Cooldown
         if (benefitType == "INCREASE COOLDOWN")
         {
-            coolLevel = upgradeBayOptionData.extraData[0];
+            // Don't use upgrades that are lower value then the current one (usually happens when loading the game)
+            if (coolLevel < upgradeBayOptionData.extraData[0])
+            {
+                coolLevel = upgradeBayOptionData.extraData[0];
+            }
         }
         // Heat
         else if (benefitType == "INCREASE HEAT LIMIT")
         {
-            heatLevel = upgradeBayOptionData.extraData[0];
+            if (heatLevel < upgradeBayOptionData.extraData[0])
+            {
+                heatLevel = upgradeBayOptionData.extraData[0];
+            }
         }
         // Drone
         else if (benefitType == "BUY A DRONE")
@@ -301,26 +308,26 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
             AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[0], 1, new int[] { 1 });
             AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[0], 2, new int[] { 1 });
-            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[0] * 5f), 3);
             // index 0 = profit multiplier, index 1 = ore index
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[0]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 12f), -1, new int[] { 2, 0 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[0]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 3f), -1, new int[] { 2, 0 });
+            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[0] * 8f), 3);
         }
 
         // Level 2 and up
         if (rampUpIterationsNeeded >= 2)
         {
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X PROFITS", 2), "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 20f), 4, new int[] { 2 });
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[1]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 40f), -1, new int[] { 2, 1 });
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[2]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 60f), -1, new int[] { 2, 2 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X PROFITS", 2), "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 15f), 4, new int[] { 2 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[1]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 25f), -1, new int[] { 2, 1 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[2]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 40f), -1, new int[] { 2, 2 });
             AddNewOption("BUY A DRONE", "BUY A DRONE", upgradeDronePrices[1], 0);
             // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
             AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[1], 1, new int[] { 2 });
             AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[1], 2, new int[] { 2 });
-            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[1] * 5f), 3);
             // index 0 = profit multiplier, index 1 = ore index
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[0]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 12f), -1, new int[] { 2, 0 });
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[1]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 16f), -1, new int[] { 2, 1 });
-            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[2]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 25f), -1, new int[] { 2, 2 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[0]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 5f), -1, new int[] { 2, 0 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[1]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 12f), -1, new int[] { 2, 1 });
+            AddNewOption(PlayerState.Instance.GetLocalizedValue("{0}X {1} ORE PROFITS", 2, MineRenderer.Instance.selectedMaterialNames[2]), "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 16f), -1, new int[] { 2, 2 });
+            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[1] * 25f), 3);
         }
 
         // Level 3 and up
@@ -379,6 +386,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             // If this upgrade was already purchased, don't display it
             if (AlreadyPurchased(option.baseType))
             {
+                continue;
+            }
+            // If a heat or cooldown upgrade, don't show it if player skipped a lower one
+            else if ((option.upgradeType == "INCREASE COOLDOWN" && coolLevel >= option.extraData[0]) || (option.upgradeType == "INCREASE HEAT LIMIT" && heatLevel >= option.extraData[0])) {
                 continue;
             }
 
