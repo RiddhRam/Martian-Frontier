@@ -371,11 +371,17 @@ public class OreDelegation : MonoBehaviour
 
         // Move down
         elapsedTime = 0f;
-        while (elapsedTime < duration / 2)
+        while (elapsedTime < duration / 2 && doubleProfitPanel != null)
         {
             doubleProfitPanel.anchoredPosition = Vector2.Lerp(targetPosition, originalPosition, elapsedTime / (duration / 2));
             elapsedTime += Time.deltaTime;
             yield return null;
+        }
+
+        // If panel closes while bobbing, then this is null because it gets destroyed
+        if (doubleProfitPanel == null)
+        {
+            yield break;
         }
 
         doubleProfitPanel.anchoredPosition = originalPosition; // Ensure it's exactly at the original position

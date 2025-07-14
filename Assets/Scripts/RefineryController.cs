@@ -41,8 +41,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     public int refineryBattery;
     // 2 Mins
     private const int initialTimer = 120;
-    // 300 ores
-    private const int initialBattery = 500;
+    // 450 ores
+    private const int initialBattery = 450;
     // The cash made during the current refinery timer, resets to 0 when mine resets
     double cashMadeThisMine;
 
