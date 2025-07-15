@@ -616,7 +616,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         flashButton = true;
 
         Color originalColor = droneUpgradeButtonImage.color;
-        Color darkColor = originalColor * 0.7f;
+        Color darkColor = originalColor * 0.4f;
 
         StartCoroutine(FlashButton(droneUpgradeButtonImage, originalColor, darkColor));
     }
