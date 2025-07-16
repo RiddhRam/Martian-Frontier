@@ -71,6 +71,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public bool flashButton;
     public Image closeButtonImage;
     public Image droneUpgradeButtonImage;
+    public Image droneProfitButtonImage;
 
     private SerializableDictionary<string, VehicleUpgrade> vehicleUpgradeLevels;
     private SerializableDictionary<string, VehicleCustomization> vehicleCustomizations;
@@ -108,7 +109,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
-        5_000UL,                // original tier 0
+        4_000UL,                // original tier 0
         870_000UL,              // sum of tiers 1–10
         530_000_000UL,           // sum of tiers 11–20
         31_000_000_000UL,        // sum of tiers 21–30
@@ -140,6 +141,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         "BUY A DRONE", "INCREASE HEAT LIMIT", "INCREASE COOLDOWN", "SPEED BOOST", "{0}X PROFITS", "{0}X {1} ORE PROFITS"
     };
     public Sprite[] upgradeBenefitImages;
+
+    public int firstProfitUpgradePrice;
 
     // Used so we can track if an upgrade is available or not
     private readonly List<UpgradeBayOptionData> upgradeOptions = new();
@@ -303,6 +306,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             rampUpIterationsNeeded = 6;
         }
 
+        firstProfitUpgradePrice = (int)upgradeCoolPrices[0] * 3;
+
         // Level 1 and up
         if (rampUpIterationsNeeded >= 1)
         {
@@ -311,16 +316,16 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[0], 1, new int[] { 1 });
             AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[0], 2, new int[] { 1 });
             // index 0 = profit multiplier, index 1 = ore index
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 3f), -1, new int[] { 2, 0 });
-            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[0] * 8f), 3);
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)firstProfitUpgradePrice, -1, new int[] { 2, 0 });
+            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(firstProfitUpgradePrice * 1.5f), 3);
         }
 
         // Level 2 and up
         if (rampUpIterationsNeeded >= 2)
         {
-            AddNewOption("{0}X PROFITS", "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 15f), 4, new int[] { 2 });
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 25f), -1, new int[] { 2, 1 });
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 40f), -1, new int[] { 2, 2 });
+            AddNewOption("{0}X PROFITS", "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 10f), 4, new int[] { 2 });
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 17f), -1, new int[] { 2, 1 });
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 28f), -1, new int[] { 2, 2 });
             AddNewOption("BUY A DRONE", "BUY A DRONE", upgradeDronePrices[1], 0);
             // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
             AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[1], 1, new int[] { 2 });
@@ -417,31 +422,36 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
                 upgradeBayOption.upgradeBenefitTypeImage.sprite = oreDelegation.materialHighResSprites[oreDelegation.GetOriginalTileIndexByName(oreName)];
             }
 
-            // Set the description text if its either one of these
+            // Set the description text if needed, and hide the mini icon if not needed
             if (benefitType == "INCREASE HEAT LIMIT")
             {
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
                 upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", upgradeHeatValues[option.extraData[0]]);
+                upgradeBayOption.upgradeBenefitTypeMiniImage.gameObject.SetActive(false);
             }
             else if (benefitType == "INCREASE COOLDOWN")
             {
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
                 upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("NEW: {0}", (upgradeCoolValues[option.extraData[0]] * coolTimesPerSecond) + "/s");
+                upgradeBayOption.upgradeBenefitTypeMiniImage.gameObject.SetActive(false);
             }
             else if (benefitType == "BUY A DRONE")
             {
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
                 upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("GAIN 1 EXTRA DRONE");
+                upgradeBayOption.upgradeBenefitTypeMiniImage.gameObject.SetActive(false);
             }
             else if (benefitType == "SPEED BOOST")
             {
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType);
                 upgradeBayOption.upgradeBenefitDescriptionText.text = PlayerState.Instance.GetLocalizedValue("DRONES MOVE FASTER");
+                upgradeBayOption.upgradeBenefitTypeMiniImage.gameObject.SetActive(false);
             }
             else if (benefitType == "{0}X PROFITS")
             {
                 upgradeBayOption.upgradeBenefitNameText.text = PlayerState.Instance.GetLocalizedValue(benefitType, option.extraData[0]);
                 upgradeBayOption.upgradeBenefitDescriptionText.gameObject.SetActive(false);
+                upgradeBayOption.upgradeBenefitTypeMiniImage.gameObject.SetActive(false);
             }
             else if (benefitType == "{0}X {1} ORE PROFITS")
             {
@@ -463,6 +473,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             if (option.baseType == upgradeBenefitTypes[0] + " 0")
             {
                 droneUpgradeButtonImage = upgradeBayOption.button.GetComponent<Image>();
+            }
+            else if (option.baseType == upgradeBenefitTypes[5] + " 0")
+            {
+                droneProfitButtonImage = upgradeBayOption.button.GetComponent<Image>();
             }
         }
 
@@ -616,9 +630,19 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         flashButton = true;
 
         Color originalColor = droneUpgradeButtonImage.color;
-        Color darkColor = originalColor * 0.4f;
+        Color darkColor = new(originalColor.r * 0.7f, originalColor.g * 0.7f, originalColor.b * 0.7f, 1);
 
         StartCoroutine(FlashButton(droneUpgradeButtonImage, originalColor, darkColor));
+    }
+
+    public void FlashProfitUpgradeButton()
+    {
+        flashButton = true;
+
+        Color originalColor = droneProfitButtonImage.color;
+        Color darkColor = new(originalColor.r * 0.7f, originalColor.g * 0.7f, originalColor.b * 0.7f, 1);
+
+        StartCoroutine(FlashButton(droneProfitButtonImage, originalColor, darkColor));
     }
 
     public void FlashCloseButton()
@@ -690,6 +714,24 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         foreach (var optionPurchased in upgradeBayOptionsPurchased)
         {
             if (!optionPurchased.Contains("BUY A DRONE"))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool BoughtProfitUpgrade()
+    {
+        if (upgradeBayOptionsPurchased == null)
+        {
+            return false;
+        }
+
+        foreach (var optionPurchased in upgradeBayOptionsPurchased)
+        {
+            if (optionPurchased.Contains("PROFITS"))
             {
                 return true;
             }

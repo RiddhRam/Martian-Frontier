@@ -465,7 +465,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             UIDelegation.Instance.HideAll();
 
             float scaleTouse = RefineryController.Instance.GetAspectValue();
-            refineryUpgradePanel.transform.localScale = new(scaleTouse, scaleTouse, scaleTouse);
+            refineryUpgradePanel.transform.localScale = new(scaleTouse * 0.75f, scaleTouse * 0.75f, scaleTouse * 0.75f);
 
             OreDelegation.Instance.PrepareGrid();
             UIDelegation.Instance.RevealElement(refineryUpgradePanel);
