@@ -180,7 +180,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceBoxCollider.isTrigger = false;
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
 
-        if (materialsSold >= 1000 && !askedForReview && doneLoading) {
+        if (materialsSold >= 900 && !askedForReview && doneLoading && mineRenderer.mineCount > 1) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
             

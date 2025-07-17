@@ -55,7 +55,7 @@ public class CloudDelegator : MonoBehaviour
     public TMP_InputField signUpEmail;
     public TMP_InputField signUpPassword;
 
-    private readonly int currentVersionNumber = 138;
+    private readonly int currentVersionNumber = 139;
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
 
