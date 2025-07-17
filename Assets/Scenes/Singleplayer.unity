@@ -17561,6 +17561,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 018aae1dea3e34d57affff0bcf049a21, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &780337233 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4540838816184516179, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &793471844 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 955583024110714834, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -22316,6 +22327,11 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 1239003923973222511, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1041476527 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8755971528030597756, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+  m_PrefabInstance: {fileID: 5893465902896828829}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1087366065 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8310518703359992529, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -24202,6 +24218,52 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 9214158245754268033, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
   m_PrefabInstance: {fileID: 5893465902896828829}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1619467358
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1619467360}
+  - component: {fileID: 1619467359}
+  m_Layer: 0
+  m_Name: Offline Rewards Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1619467359
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619467358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5d774cc350661403b9ec873b3b6d3724, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  collectRewardPanel: {fileID: 1041476527}
+  collectRewardCashText: {fileID: 780337233}
+--- !u!4 &1619467360
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1619467358}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1636252570 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1154056477917259962, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
@@ -28575,6 +28637,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -82.51
       objectReference: {fileID: 0}
+    - target: {fileID: 830203392644387858, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 1619467359}
     - target: {fileID: 851172943035663033, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_IsActive
       value: 1
@@ -33273,7 +33339,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5332397254871367113, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 246.635
       objectReference: {fileID: 0}
     - target: {fileID: 5332397254871367113, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -33993,19 +34059,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5961299532581737235, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5961299532581737235, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMin.y
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5961299532581737235, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 66.73
       objectReference: {fileID: 0}
     - target: {fileID: 5961299532581737235, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 395
       objectReference: {fileID: 0}
     - target: {fileID: 5961299532581737235, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 5961785810077165877, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -37305,7 +37375,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8915806306932874483, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -209.48999
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8937443095407121150, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       propertyPath: m_AnchorMax.y
@@ -37698,7 +37768,7 @@ PrefabInstance:
     - {fileID: 2920797922449348413, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
     m_AddedGameObjects:
     - targetCorrespondingSourceObject: {fileID: 5995885103889452158, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
-      insertIndex: 12
+      insertIndex: 13
       addedObject: {fileID: 668719394}
     - targetCorrespondingSourceObject: {fileID: 1374889871933495008, guid: 3e0214594aec14f1d92165a785b06ee9, type: 3}
       insertIndex: -1
@@ -38536,6 +38606,7 @@ SceneRoots:
   - {fileID: 7827878265617524452}
   - {fileID: 1531076556}
   - {fileID: 2091040733}
+  - {fileID: 1619467360}
   - {fileID: 1308672357}
   - {fileID: 2078999018}
   - {fileID: 165361378}

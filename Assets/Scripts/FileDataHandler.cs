@@ -222,6 +222,11 @@ public class FileDataHandler
                         SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(strValue);
                         correspondingField.SetValue(tempData, intDictData);
                     }
+                    else if (fieldType == typeof(long))
+                    {
+                        long newInt = long.Parse(strValue);
+                        correspondingField.SetValue(tempData, newInt);
+                    }
                     else if (fieldType == typeof(int))
                     {
                         int newInt = int.Parse(strValue);
@@ -320,6 +325,9 @@ public class FileDataHandler
         try {
             // Create directory to save file in if it doesn't exist
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
+
+            // Save time
+            data.offlineTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
             string dataToStore = CreateJson(data, useEncryption);
 
@@ -457,6 +465,19 @@ public class FileDataHandler
             else if (fieldValue is List<int>)
             {
                 List<int> value = (List<int>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is List<long>)
+            {
+                List<long> value = (List<long>)fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 

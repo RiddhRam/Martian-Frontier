@@ -62,6 +62,9 @@ public class GameDataString
     public string oreBlasterChallengeProgress;
     public string oreBlasterChallengeCollection;
     public string oreBlasterSuperChallengeTimer;
+
+    public string offlineTime;
+    
     public string bp;
     public string id;
 

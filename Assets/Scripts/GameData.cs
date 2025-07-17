@@ -79,6 +79,9 @@ public class GameData
     public bool[] oreBlasterChallengeCollection;
     public int oreBlasterSuperChallengeTimer;
 
+    // The time the player last logged off
+    public long offlineTime;
+
     // bp = Beta Player. 0 = not a beta player, 2 = beta player
     public int bp;
 
@@ -149,8 +152,9 @@ public class GameData
         this.oreBlasterChallengeCollection = new bool[6];
         this.oreBlasterSuperChallengeTimer = 1200;
 
+        this.offlineTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
         this.bp = 0;
-        
         this.id = 139;
     }
 }

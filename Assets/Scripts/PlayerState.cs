@@ -236,9 +236,9 @@ public class PlayerState : MonoBehaviour, IDataPersistence
 
     public void UpdateGemCashPurchasePanels()
     {
-        // 4000 gems saves you 1 mins by giving you half the amount as the highest mined value you achieved
+        // 2000 gems saves you 1 mins by giving you half the amount as the highest mined value you achieved
         // its a float so it doesnt get rounded down if there's a decimal
-        const float mainGemPrice = 4000;
+        const float mainGemPrice = 2000;
         double baseCashAmount = highestMined * 0.5;
 
         for (int i = 0; i != gemCashPurchasePanels.Length; i++)
@@ -569,13 +569,6 @@ public class PlayerState : MonoBehaviour, IDataPersistence
     public BigInteger GetBlocksMined()
     {
         return blocksMined;
-    }
-
-    public void RewardPlayerWithGems(int amount, string message = null)
-    {
-
-        LeaderboardDelegator.Instance.gemRewardsToCollect += amount;
-        LeaderboardDelegator.Instance.CheckForRewards(message);
     }
 
     public BigInteger GetUserGems()
