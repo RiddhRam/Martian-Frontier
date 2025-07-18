@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
@@ -34,6 +35,8 @@ public class UIDelegation : MonoBehaviour
     public GameObject errorMessage;
     public GameObject backgroundDarkness;
 
+    public float fadeDuration = 0.25f;
+
     public OreDelegation oreDelegation;
 
     void Start()
@@ -53,12 +56,15 @@ public class UIDelegation : MonoBehaviour
         {
             if (safeArea.GetChild(i).gameObject.activeSelf)
             {
-                safeArea.GetChild(i).gameObject.SetActive(false);
+                GameObject activeGameobject = safeArea.GetChild(i).gameObject;
+
+                StartCoroutine(FadeAndScaleOut(activeGameobject.GetComponent<CanvasGroup>(), activeGameobject.GetComponent<RectTransform>()));
             }
         }
+
+        StartCoroutine(FadeAndScaleOut(backgroundDarkness.GetComponent<CanvasGroup>()));
         
         RevealAll();
-        backgroundDarkness.SetActive(false);
     }
 
     // Hide all base elements, and only used before opening a secondary element like the camera
@@ -89,7 +95,7 @@ public class UIDelegation : MonoBehaviour
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element)
     {
-        element.SetActive(true);
+        StartCoroutine(FadeAndScaleIn(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
         GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
         ToggleBackgroundDarkness(true);
@@ -98,14 +104,107 @@ public class UIDelegation : MonoBehaviour
     // Used when closing a secondary element
     public void HideElement(GameObject element)
     {
-        element.SetActive(false);
+        StartCoroutine(FadeAndScaleOut(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
         GameCameraController.Instance.ToggleMovement(true);
         ToggleBackgroundDarkness(false);
     }
 
+    private IEnumerator FadeAndScaleIn(CanvasGroup canvasGroup, RectTransform rt = null)
+    {
+        float elapsed = 0f;
+
+        canvasGroup.alpha = 0f;
+        if (rt)
+        {
+            rt.localScale = new(0.5f, 0.5f, 0.5f);
+        }
+
+        canvasGroup.gameObject.SetActive(true);
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.Clamp01(elapsed / fadeDuration);
+
+            // Scale
+            if (rt)
+            {
+                rt.localScale = Vector3.one * Mathf.Lerp(0.5f, 1f, t);
+            }
+
+            // Alpha
+            canvasGroup.alpha = t;
+            yield return null;
+        }
+
+        // Final values
+        if (rt)
+        {
+            rt.localScale = Vector3.one;
+        }
+        canvasGroup.alpha = 1f;
+        
+        Outline outline = canvasGroup.GetComponent<Outline>();
+        if (outline)
+        {
+            outline.enabled = true;
+        }
+    }
+
+    private IEnumerator FadeAndScaleOut(CanvasGroup canvasGroup, RectTransform rt = null)
+    {
+        Outline outline = canvasGroup.GetComponent<Outline>();
+        if (outline)
+        {
+            outline.enabled = false;
+        }
+
+        float elapsed = 0f;
+
+        canvasGroup.alpha = 1f;
+
+        if (rt)
+        {
+            rt.localScale = Vector3.one;
+        }
+
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = 1 - Mathf.Clamp01(elapsed / fadeDuration);
+
+            // Scale
+            if (rt)
+            {
+                rt.localScale = Vector3.one * Mathf.Lerp(0.5f, 1f, t);
+            }
+
+            // Alpha
+            canvasGroup.alpha = t;
+            yield return null;
+        }
+
+        // Final values
+        if (rt)
+        {
+            rt.localScale = new(0.5f, 0.5f, 0.5f);
+        }
+        canvasGroup.alpha = 0f;
+
+        canvasGroup.gameObject.SetActive(false);
+    }
+
     public void ToggleBackgroundDarkness(bool newState)
     {
-        backgroundDarkness.SetActive(newState);
+        // If meant to enable it, then fade it in
+        if (newState)
+        {
+            StartCoroutine(FadeAndScaleIn(backgroundDarkness.GetComponent<CanvasGroup>()));
+        }
+        else
+        {
+            StartCoroutine(FadeAndScaleOut(backgroundDarkness.GetComponent<CanvasGroup>()));
+        }
     }
 
     // Used when opening the map, or closing

@@ -229,11 +229,22 @@ public class OreDelegation : MonoBehaviour
         {
             contentGridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
         }
-        // If larger than the minimum height, then scroll down automatically
+        // If larger than the minimum height, then scroll to make the target depth ores in the view
         if (bigContentHeight > minHeight)
         {
             // 0 = bottom, 1 = top
-            contentGO.transform.parent.parent.GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
+            ScrollRect scrollRect = contentGO.transform.parent.parent.GetComponent<ScrollRect>();
+
+            // If first row, manually set it to the top
+            if (PlayerState.Instance.GetRecommendedDrillTier() == 1)
+            {
+                scrollRect.verticalNormalizedPosition = 1;
+            }
+            // Otherwise calculate the position
+            else
+            {
+                scrollRect.verticalNormalizedPosition = 1f - ((float)PlayerState.Instance.GetRecommendedDrillTier() / rows);
+            }
         }
     }
 

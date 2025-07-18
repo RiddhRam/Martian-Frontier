@@ -110,8 +110,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
         4_000UL,                // original tier 0
-        800_000UL,              // sum of tiers 1–10
-        530_000_000UL,           // sum of tiers 11–20
+        1_500_000UL,              // sum of tiers 1–10
+        110_000_000UL,           // sum of tiers 11–20
         31_000_000_000UL,        // sum of tiers 21–30
         2_000_000_000_000UL,      // sum of tiers 31–40
         71_000_000_000_000UL     // sum of tiers 41–49
@@ -327,25 +327,21 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 17f), -1, new int[] { 2, 1 });
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 28f), -1, new int[] { 2, 2 });
             AddNewOption("BUY A DRONE", "BUY A DRONE", upgradeDronePrices[1], 0);
-            // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
-            AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[1], 1, new int[] { 2 });
-            AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[1], 2, new int[] { 2 });
-            // index 0 = profit multiplier, index 1 = ore index
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 5f), -1, new int[] { 2, 0 });
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 12f), -1, new int[] { 2, 1 });
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 16f), -1, new int[] { 2, 2 });
-            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[1] * 25f), 3);
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeDronePrices[1] * 1.5f), -1, new int[] { 2, 0 });
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeDronePrices[1] * 2f), -1, new int[] { 2, 1 });
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeDronePrices[1] * 6f), -1, new int[] { 2, 2 });
+            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeDronePrices[1] * 8f), 3);
         }
 
         // Level 3 and up
         if (rampUpIterationsNeeded >= 3)
         {
-            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 40f), -1, new int[] { 2, 3 });
+            AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[1], 1, new int[] { 2 });
+            AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[1], 2, new int[] { 2 });
+            AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[1] * 3f), -1, new int[] { 2, 3 });
             AddNewOption("BUY A DRONE", "BUY A DRONE", upgradeDronePrices[2], 0);
-            // 0 = The index of upgradeHeatValues to use or upgradeCoolValues
             AddNewOption("INCREASE HEAT LIMIT", "INCREASE HEAT LIMIT", upgradeCoolPrices[2], 1, new int[] { 3 });
             AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[2], 2, new int[] { 3 });
-            // index 0 = profit multiplier, index 1 = ore index
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[2] * 12f), -1, new int[] { 2, 3 });
             AddNewOption("{0}X PROFITS", "{0}X PROFITS", (ulong)(upgradeCoolPrices[2] * 20f), 4, new int[] { 2 });
         }
@@ -355,7 +351,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[2] * 22f), -1, new int[] { 2, 4 });
             AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(upgradeCoolPrices[2] * 30f), 3);
-            // index 0 = profit multiplier, index 1 = ore index
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[2] * 40f), -1, new int[] { 2, 4 });
         }
 

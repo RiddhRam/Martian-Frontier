@@ -87,6 +87,7 @@ GameObject:
   - component: {fileID: 5913368285258325818}
   - component: {fileID: 2030937832506071857}
   - component: {fileID: 1558979931980778940}
+  - component: {fileID: 5564575685602509377}
   m_Layer: 5
   m_Name: Target Depth Panel
   m_TagString: Untagged
@@ -172,6 +173,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &5564575685602509377
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 26695023167238248}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &57990255065081661
 GameObject:
   m_ObjectHideFlags: 0
@@ -7567,6 +7580,7 @@ GameObject:
   - component: {fileID: 5786743382766333205}
   - component: {fileID: 1519089519598171419}
   - component: {fileID: 4063020818225591412}
+  - component: {fileID: 7335744918254462392}
   m_Layer: 5
   m_Name: Go To Team Panel
   m_TagString: Untagged
@@ -7651,6 +7665,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &7335744918254462392
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1313179596185044026}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1316778313164122681
 GameObject:
   m_ObjectHideFlags: 0
@@ -10893,6 +10919,7 @@ GameObject:
   - component: {fileID: 8438418312679472276}
   - component: {fileID: 8948249411405531758}
   - component: {fileID: 2854478887955472535}
+  - component: {fileID: 5007819823685768087}
   m_Layer: 5
   m_Name: Map Camera Panel
   m_TagString: Untagged
@@ -10978,6 +11005,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &5007819823685768087
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1672960096604828892}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &1748374984278866435
 GameObject:
   m_ObjectHideFlags: 0
@@ -13382,6 +13421,7 @@ GameObject:
   - component: {fileID: 5737021380476001595}
   - component: {fileID: 3585570311157686611}
   - component: {fileID: 5292956028115663206}
+  - component: {fileID: 4441169659456070911}
   m_Layer: 5
   m_Name: Premium Shop Panel
   m_TagString: Untagged
@@ -13464,6 +13504,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &4441169659456070911
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2039207730382732039}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &2084755319079222318
 GameObject:
   m_ObjectHideFlags: 0
@@ -18390,6 +18442,7 @@ MonoBehaviour:
   materialButton: {fileID: 3846792466893615226, guid: 58698b35ff67147199311dca14ebe7f7, type: 3}
   errorMessage: {fileID: 1765642785447469807, guid: 6092a0253b3574cc4a97a9b5d4699a4e, type: 3}
   backgroundDarkness: {fileID: 8347220829134623245}
+  fadeDuration: 0.25
   oreDelegation: {fileID: 0}
 --- !u!1 &2728218970676718642
 GameObject:
@@ -20166,6 +20219,7 @@ GameObject:
   - component: {fileID: 5656308437759917975}
   - component: {fileID: 2280306739950755709}
   - component: {fileID: 8133547284791757119}
+  - component: {fileID: 7428130261281160968}
   m_Layer: 5
   m_Name: Refinery Upgrade Panel
   m_TagString: Untagged
@@ -20249,6 +20303,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &7428130261281160968
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3027822203361956946}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3035097115319329922
 GameObject:
   m_ObjectHideFlags: 0
@@ -21108,6 +21174,7 @@ GameObject:
   - component: {fileID: 863872593072691185}
   - component: {fileID: 4678351863977703098}
   - component: {fileID: 6417470228262948708}
+  - component: {fileID: 7583840697664975032}
   m_Layer: 5
   m_Name: Daily Challenges Panel
   m_TagString: Untagged
@@ -21192,6 +21259,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &7583840697664975032
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3219125822991801688}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3231530347044726486
 GameObject:
   m_ObjectHideFlags: 0
@@ -21737,6 +21816,7 @@ GameObject:
   - component: {fileID: 3443863431194794844}
   - component: {fileID: 8932968731026610569}
   - component: {fileID: 1568296129752863962}
+  - component: {fileID: 122277774876925334}
   m_Layer: 5
   m_Name: Settings Panel
   m_TagString: Untagged
@@ -21820,6 +21900,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &122277774876925334
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3290141575944196238}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &3305604965924926849
 GameObject:
   m_ObjectHideFlags: 0
@@ -31275,6 +31367,7 @@ GameObject:
   - component: {fileID: 7432346328083375355}
   - component: {fileID: 7190479088387108712}
   - component: {fileID: 1452650926836909392}
+  - component: {fileID: 7050629710916841668}
   m_Layer: 5
   m_Name: Supply Crates Panel
   m_TagString: Untagged
@@ -31361,6 +31454,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &7050629710916841668
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4537594600935860091}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4577097710436151027
 GameObject:
   m_ObjectHideFlags: 0
@@ -37753,6 +37858,7 @@ GameObject:
   - component: {fileID: 8903010798703188203}
   - component: {fileID: 2714960112706354238}
   - component: {fileID: 5367897452601356189}
+  - component: {fileID: 2635396098027540556}
   m_Layer: 5
   m_Name: Teleport Panel
   m_TagString: Untagged
@@ -37899,6 +38005,18 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!225 &2635396098027540556
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5517203608015988483}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5520231197145309472
 GameObject:
   m_ObjectHideFlags: 0
@@ -40686,6 +40804,7 @@ GameObject:
   - component: {fileID: 3093616040761861473}
   - component: {fileID: 1386649510939323936}
   - component: {fileID: 8713141634336803575}
+  - component: {fileID: 642295630655298579}
   m_Layer: 5
   m_Name: Drone Upgrades Panel
   m_TagString: Untagged
@@ -40770,6 +40889,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &642295630655298579
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5780953941925530996}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5786375847632614377
 GameObject:
   m_ObjectHideFlags: 0
@@ -41432,6 +41563,7 @@ GameObject:
   - component: {fileID: 8403825882893264517}
   - component: {fileID: 1597309476305794516}
   - component: {fileID: 890948775113548848}
+  - component: {fileID: 8985682245904439928}
   m_Layer: 5
   m_Name: Tech Lab Panel
   m_TagString: Untagged
@@ -41518,6 +41650,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &8985682245904439928
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5841063917961681405}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &5848281971023855488
 GameObject:
   m_ObjectHideFlags: 0
@@ -43733,6 +43877,7 @@ GameObject:
   - component: {fileID: 2200109105782274766}
   - component: {fileID: 2301592258167986053}
   - component: {fileID: 4137924501273249472}
+  - component: {fileID: 3580123117939586208}
   m_Layer: 5
   m_Name: Close Refinery
   m_TagString: Untagged
@@ -43866,6 +44011,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &3580123117939586208
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6112178003203518620}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &6128510698081375809
 GameObject:
   m_ObjectHideFlags: 0
@@ -56309,6 +56466,7 @@ GameObject:
   - component: {fileID: 6529087077841181540}
   - component: {fileID: 5725497083381074758}
   - component: {fileID: 3222518329809046416}
+  - component: {fileID: 5916514011937122734}
   m_Layer: 5
   m_Name: Weekly Leaderboards Panel
   m_TagString: Untagged
@@ -56394,6 +56552,18 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 1, b: 1, a: 1}
   m_EffectDistance: {x: 20, y: 20}
   m_UseGraphicAlpha: 1
+--- !u!225 &5916514011937122734
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7988811911053081753}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7990930359835081941
 GameObject:
   m_ObjectHideFlags: 0
@@ -58711,6 +58881,7 @@ GameObject:
   - component: {fileID: 5843704525317488025}
   - component: {fileID: 4752582339520223127}
   - component: {fileID: 6082435750027744072}
+  - component: {fileID: 3280887479219869714}
   m_Layer: 5
   m_Name: Background Darkness
   m_TagString: Untagged
@@ -58831,6 +59002,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+--- !u!225 &3280887479219869714
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8347220829134623245}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8348599690137817205
 GameObject:
   m_ObjectHideFlags: 0
@@ -62095,6 +62278,7 @@ GameObject:
   - component: {fileID: 3709725591717392803}
   - component: {fileID: 8103315690010324677}
   - component: {fileID: 57772025890854299}
+  - component: {fileID: 2891763108605340777}
   m_Layer: 5
   m_Name: Proceed Panel
   m_TagString: Untagged
@@ -62205,6 +62389,18 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!225 &2891763108605340777
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8886895343955618236}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &8889321061294673915
 GameObject:
   m_ObjectHideFlags: 0
