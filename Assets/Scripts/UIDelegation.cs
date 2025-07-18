@@ -95,22 +95,34 @@ public class UIDelegation : MonoBehaviour
     // Reveal a single element, typically a secondary element, and only used after HideAll()
     public void RevealElement(GameObject element)
     {
-        StartCoroutine(FadeAndScaleIn(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
         GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
         ToggleBackgroundDarkness(true);
+
+        Vector3 fullOpenScale = GetFullOpenScale(element.name);
+        StartCoroutine(FadeAndScaleIn(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
     }
 
     // Used when closing a secondary element
     public void HideElement(GameObject element)
     {
-        StartCoroutine(FadeAndScaleOut(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
         GameCameraController.Instance.ToggleMovement(true);
         ToggleBackgroundDarkness(false);
+
+        Vector3 fullOpenScale = GetFullOpenScale(element.name);
+        StartCoroutine(FadeAndScaleOut(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
     }
 
-    private IEnumerator FadeAndScaleIn(CanvasGroup canvasGroup, RectTransform rt = null)
+    public IEnumerator FadeAndScaleIn(CanvasGroup canvasGroup, RectTransform rt = null)
     {
+        Vector3 fullOpenScale = GetFullOpenScale(canvasGroup.gameObject.name);
+
+        Outline outline = canvasGroup.GetComponent<Outline>();
+        if (outline)
+        {
+            outline.enabled = false;
+        }
+
         float elapsed = 0f;
 
         canvasGroup.alpha = 0f;
@@ -129,7 +141,7 @@ public class UIDelegation : MonoBehaviour
             // Scale
             if (rt)
             {
-                rt.localScale = Vector3.one * Mathf.Lerp(0.5f, 1f, t);
+                rt.localScale = fullOpenScale * Mathf.Lerp(0.5f, 1f, t);
             }
 
             // Alpha
@@ -140,11 +152,10 @@ public class UIDelegation : MonoBehaviour
         // Final values
         if (rt)
         {
-            rt.localScale = Vector3.one;
+            rt.localScale = fullOpenScale;
         }
         canvasGroup.alpha = 1f;
         
-        Outline outline = canvasGroup.GetComponent<Outline>();
         if (outline)
         {
             outline.enabled = true;
@@ -153,6 +164,8 @@ public class UIDelegation : MonoBehaviour
 
     private IEnumerator FadeAndScaleOut(CanvasGroup canvasGroup, RectTransform rt = null)
     {
+        Vector3 fullOpenScale = GetFullOpenScale(canvasGroup.gameObject.name);
+
         Outline outline = canvasGroup.GetComponent<Outline>();
         if (outline)
         {
@@ -165,7 +178,7 @@ public class UIDelegation : MonoBehaviour
 
         if (rt)
         {
-            rt.localScale = Vector3.one;
+            rt.localScale = fullOpenScale;
         }
 
         while (elapsed < fadeDuration)
@@ -176,7 +189,7 @@ public class UIDelegation : MonoBehaviour
             // Scale
             if (rt)
             {
-                rt.localScale = Vector3.one * Mathf.Lerp(0.5f, 1f, t);
+                rt.localScale = fullOpenScale * Mathf.Lerp(0.5f, 1f, t);
             }
 
             // Alpha
@@ -192,6 +205,32 @@ public class UIDelegation : MonoBehaviour
         canvasGroup.alpha = 0f;
 
         canvasGroup.gameObject.SetActive(false);
+    }
+
+    // Get the scale of that a panel should be after opening
+    private Vector3 GetFullOpenScale(string element)
+    {
+        Vector3 fullOpenScale = Vector3.one;
+
+        if (element == "Refinery Upgrade Panel")
+        {
+            float scaleToUse = RefineryController.Instance.GetAspectValue();
+            fullOpenScale = new(scaleToUse, scaleToUse, scaleToUse);
+        }
+        else if (element == "Drone Upgrades Panel")
+        {
+            fullOpenScale = new(0.69f, 0.69f, 0.69f);
+        }
+        else if (element == "Go To Team Panel" || element == "Target Depth Panel")
+        {
+            fullOpenScale = new(0.69f, 0.6243843f, 1);
+        }
+        else if (element == "Settings Panel")
+        {
+            fullOpenScale = new(0.85f, 0.7f, 1);
+        }
+
+        return fullOpenScale;
     }
 
     public void ToggleBackgroundDarkness(bool newState)

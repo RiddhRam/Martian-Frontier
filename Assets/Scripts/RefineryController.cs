@@ -391,6 +391,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     
     public float GetAspectValue()
     {
+        const float multiplier = 0.75f;
         // Determine the scale to set the refinery panel to
 
         // Min and max aspect ratios
@@ -405,17 +406,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         
         if (aspect <= MinAspect)
         {
-            return MinValue;
+            return MinValue * multiplier;
         }
 
         if (aspect >= MaxAspect)
         {
-            return MaxValue;
+            return MaxValue * multiplier;
         }
             
         // Linear interpolation between MinValue and MaxValue
         float t = (aspect - MinAspect) / (MaxAspect - MinAspect);
-        return Mathf.Lerp(MinValue, MaxValue, t);
+        return Mathf.Lerp(MinValue, MaxValue, t) * multiplier;
     }
 
     public void SetProfitMultiplier(float newMultiplier)

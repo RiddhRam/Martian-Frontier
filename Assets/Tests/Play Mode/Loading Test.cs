@@ -70,7 +70,7 @@ public class LoadingTest
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");
-        Assert.AreEqual(17, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
+        Assert.AreEqual(18, loadingScreen.transform.GetChild(2).GetComponent<Slider>().maxValue);
 
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
