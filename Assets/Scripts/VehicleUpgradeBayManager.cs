@@ -55,8 +55,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     public GameObject upgradeBayNoticeIcon;
     public GameObject upgradeBayOptionPrefab;
     public Transform scrollViewContent;
-    
-
+    public GameObject upgradeBayPanel;
 
     [Header("Other Scripts")]
     public PlayerState playerState;
@@ -158,15 +157,20 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     const string allDronesKey = "ALL DRONES";
 
-    public void PreparePanel()
+    public void PreparePanel(bool reveal)
     {
-        ClearPanel();
+        ClearPanel(false);
 
         // Generate Upgrades
         GenerateUpgradeOptionDisplays();
+
+        if (reveal)
+        {
+            UIDelegation.Instance.RevealElement(upgradeBayPanel);
+        }
     }
 
-    public void ClearPanel()
+    public void ClearPanel(bool resetScale)
     {
         int childCount = scrollViewContent.childCount;
 
@@ -174,7 +178,12 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             Destroy(scrollViewContent.GetChild(i).gameObject);
         }
-        
+
+        if (resetScale)
+        {
+            UIDelegation.Instance.HideElement(upgradeBayPanel);
+            upgradeBayPanel.transform.localScale = UIDelegation.Instance.GetFullOpenScale(upgradeBayPanel.name);
+        }
     }
 
     public int GetHeatLimit(string keyName)
@@ -273,8 +282,8 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         upgradeBayOptionsPurchased.Add(upgradeBayOptionData.baseType);
 
         // Reload displays
-        ClearPanel();
-        PreparePanel();
+        ClearPanel(false);
+        PreparePanel(false);
 
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 

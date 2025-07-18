@@ -99,7 +99,6 @@ public class UIDelegation : MonoBehaviour
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
         ToggleBackgroundDarkness(true);
 
-        Vector3 fullOpenScale = GetFullOpenScale(element.name);
         StartCoroutine(FadeAndScaleIn(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
     }
 
@@ -109,7 +108,6 @@ public class UIDelegation : MonoBehaviour
         GameCameraController.Instance.ToggleMovement(true);
         ToggleBackgroundDarkness(false);
 
-        Vector3 fullOpenScale = GetFullOpenScale(element.name);
         StartCoroutine(FadeAndScaleOut(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
     }
 
@@ -197,18 +195,19 @@ public class UIDelegation : MonoBehaviour
             yield return null;
         }
 
+        canvasGroup.gameObject.SetActive(false);
+
+
         // Final values
         if (rt)
         {
-            rt.localScale = new(0.5f, 0.5f, 0.5f);
+            rt.localScale = fullOpenScale;
         }
         canvasGroup.alpha = 0f;
-
-        canvasGroup.gameObject.SetActive(false);
     }
 
     // Get the scale of that a panel should be after opening
-    private Vector3 GetFullOpenScale(string element)
+    public Vector3 GetFullOpenScale(string element)
     {
         Vector3 fullOpenScale = Vector3.one;
 
