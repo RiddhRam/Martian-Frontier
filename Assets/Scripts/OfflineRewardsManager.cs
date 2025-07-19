@@ -41,7 +41,7 @@ public class OfflineRewardsManager : MonoBehaviour, IDataPersistence
             minutesGone = 300;
         }
 
-        cashEarnedOffline = minutesGone * 0.1 * data.highestMined;
+        cashEarnedOffline = minutesGone * 0.05 * data.highestMined;
 
         // Reward player after game loads to avoid conflicts with player state loading
         StartCoroutine(GivePlayerCash());
