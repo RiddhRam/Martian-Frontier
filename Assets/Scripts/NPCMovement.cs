@@ -63,6 +63,8 @@ public class NPCMovement : MonoBehaviour
 
     private Coroutine cooldownDrill;
 
+    private LineRenderer lineRenderer;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -75,6 +77,14 @@ public class NPCMovement : MonoBehaviour
         StartCoroutine(SetButtonSize());
         StartCoroutine(AnimateNoticeIcon());
         StartCoroutine(HoldCanvasStill());
+
+        lineRenderer = new GameObject("PathLine").AddComponent<LineRenderer>();
+        lineRenderer.positionCount = 2;
+        lineRenderer.useWorldSpace = true;
+        lineRenderer.material = new Material(Shader.Find("Sprites/Default")); // Required for color to show
+        lineRenderer.startWidth = 1.5f;
+        lineRenderer.endWidth = 0.1f;
+        lineRenderer.sortingOrder = 5;
     }
 
     // Update is called once per frame
@@ -85,9 +95,9 @@ public class NPCMovement : MonoBehaviour
             return;
         }
 
-        drillTier = nPCManager.playerState.GetRecommendedDrillTier();
+        DrawPathLines();
 
-        timer += Time.deltaTime;
+        drillTier = nPCManager.playerState.GetRecommendedDrillTier();
 
         try
         {
@@ -114,17 +124,11 @@ public class NPCMovement : MonoBehaviour
             RequestNewPosition();
         }
 
-        // (0, -6, 0) means theres a problem with requesting new position
-        if (Math.Abs(dest.y + 6) < 0.1)
-        {
-            // If its a driller, just drill to some random spot
-            UpdateAgentDestination(GetRandomPosition());
-        }
-
         joystickVec = direction;
 
         if (!stopMoving)
         {
+            timer += Time.deltaTime;
             MoveVehicle();
         }
         else
@@ -133,8 +137,40 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
+    private float GetMaxDistance()
+    {
+        return GetSpeed() * maxTimer;
+    }
+
+    private void DrawPathLines()
+    {
+        float maxDistance = GetMaxDistance();
+
+        lineRenderer.SetPosition(0, transform.position);
+        lineRenderer.SetPosition(1, dest);
+
+        // Distance and normalized value
+        float distance = Vector3.Distance(transform.position, dest);
+        float t = Mathf.Clamp01(1 - (distance / maxDistance)); // 0 = far, 1 = close
+
+        // Interpolate color: Green (far) -> Red (close)
+        Color color = Color.Lerp(Color.white, Color.green, t);
+        lineRenderer.startColor = color;
+        lineRenderer.endColor = color;
+    }
+
     public void UpdateAgentDestination(Vector3 newDestination)
     {
+        float maxDistance = GetMaxDistance();
+
+        // Clamp newDesintation to not be greater than the max Distance
+        Vector3 direction = newDestination - transform.position;
+        if (direction.magnitude > maxDistance)
+        {
+            direction.Normalize();
+            newDestination = transform.position + direction * maxDistance;
+        }
+
         agent.SetDestination(newDestination);
         dest = newDestination;
     }
@@ -197,7 +233,6 @@ public class NPCMovement : MonoBehaviour
         if (tilemapGenerated)
         {
             // Find best tilemap
-            int randomSubtract = random.Next(-80, 80);
             for (int i = lower; i != upper; i++)
             {
                 for (int j = 0; j != unplacedTilemapsTileValues.GetLength(0); j++)
@@ -219,8 +254,8 @@ public class NPCMovement : MonoBehaviour
                     {
                         bestTilemaptoTarget = new(j, i);
                     }
-                    // Otherwise choose the best if not a tie (subtract from the count to add a bit of randomness)
-                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count - randomSubtract < unplacedTilemapsTileValues[j, i].Count)
+                    // Otherwise choose the best if not a tie
+                    else if (unplacedTilemapsTileValues[bestTilemaptoTarget.x, bestTilemaptoTarget.y].Count < unplacedTilemapsTileValues[j, i].Count)
                     {
                         bestTilemaptoTarget = new(j, i);
                     }
@@ -243,7 +278,6 @@ public class NPCMovement : MonoBehaviour
             {
                 // Choose a random ore tile
                 Vector2Int chosenCell = oreTiles[random.Next(0, oreTiles.Count)];
-
                 return new(chosenCell.x, chosenCell.y, 0);
             }
         }
@@ -343,7 +377,12 @@ public class NPCMovement : MonoBehaviour
         timer = 0;
 
         // Get driller position
-        UpdateAgentDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier));
+        UpdateAgentDestination(nPCManager.RequestNewMiningPosition(transform.position, transform.eulerAngles.z, drillTier, this));
+    }
+
+    private float GetSpeed()
+    {
+        return playerSpeed * VehicleUpgradeBayManager.Instance.speedBoost;
     }
 
     public void MoveVehicle()
@@ -355,7 +394,7 @@ public class NPCMovement : MonoBehaviour
             return;
         }
 
-        float speed = playerSpeed * VehicleUpgradeBayManager.Instance.speedBoost;
+        float speed = GetSpeed();
 
         // Translation logic
         // Translate the vehicle position

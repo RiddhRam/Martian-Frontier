@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -42,6 +43,14 @@ public class OfflineRewardsManager : MonoBehaviour, IDataPersistence
 
         cashEarnedOffline = minutesGone * 0.1 * data.highestMined;
 
+        // Reward player after game loads to avoid conflicts with player state loading
+        StartCoroutine(GivePlayerCash());
+    }
+
+    private IEnumerator GivePlayerCash()
+    {
+        yield return new WaitUntil(() => LoadingScreen.Instance.loadedItems >= LoadingScreen.Instance.totalItems);
+        
         // Save this immediately in case the player logs off again before collecting
         PlayerState.Instance.AddCash(cashEarnedOffline);
 

@@ -1326,19 +1326,19 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         return visionRadius;
     }
 
-    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation, int drillTier)
+    public Vector3 FindBestMiningPosition(int minRadius, int maxRadius, Vector2Int currentPosition, float currentRotation, int drillTier, NPCMovement nPCMovement)
     {
         // If not initialized yet
         if (mineInitialization != 2)
         {
-            return new(0, -6);
+            return nPCMovement.GetRandomPosition();
         }
         // Find all ore tiles within the search area
         List<Vector2Int> oreTiles = FindOreTilesInRange(currentPosition, currentRotation, minRadius, maxRadius, drillTier);
         
         // If no ore tiles found
         if (oreTiles.Count == 0) {
-            return new(0, -6);
+            return nPCMovement.GetRandomPosition();
         }
             
         // Find all connected veins from the ore tiles
@@ -1346,7 +1346,7 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         
         // If no veins found
         if (veins.Count == 0) {
-            return new(0, -6);
+            return nPCMovement.GetRandomPosition();
         }
 
         // Find the largest vein
@@ -1354,8 +1354,14 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
 
         // Choose a random vein
         List<Vector2Int> bestVein = veins[rng.Next(veins.Count)];
+
+        if (bestVein.Count == 0)
+        {
+            return nPCMovement.GetRandomPosition();
+        }
         
         Vector2Int position = CalculateBestMiningPosition(bestVein, currentRotation);
+
         // Calculate the best mining position based on the selected vein
         return new(position.x, position.y);
     }
