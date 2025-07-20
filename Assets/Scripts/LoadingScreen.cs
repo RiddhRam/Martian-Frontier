@@ -21,6 +21,9 @@ public class LoadingScreen : MonoBehaviour
     public GameObject bufferCircle;
     public Slider progressBar;
 
+    public GameObject loadingScreen;
+    public GameObject ui;
+
     public int loadedItems = 0;
     // See comment below to see why total items is this value, change in inspector
     public int totalItems;
@@ -46,15 +49,25 @@ public class LoadingScreen : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (!ui.activeSelf)
+        {
+            ui.SetActive(true);
+        }
+        
         progressBar.value = loadedItems;
         progressBar.maxValue = totalItems;
         bufferCircle.transform.Rotate(0f, 0f, -rotationSpeed * Time.deltaTime);
 
-        if (loadedItems < totalItems) {
+        if (loadedItems < totalItems)
+        {
             return;
         }
 
-        gameObject.SetActive(false);
+        if (loadingScreen.activeSelf)
+        {
+            loadingScreen.SetActive(false);
+        }
+        
     }
 
     public IEnumerator IncrementLoadedItems(GameObject name)

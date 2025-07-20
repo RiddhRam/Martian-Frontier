@@ -39,11 +39,7 @@ public class AnalyticsDelegator : MonoBehaviour
         currentScene = SceneManager.GetActiveScene().name;
         sceneStartRealtime = Time.realtimeSinceStartup;
 
-        Debug.Log("ANALYTIC: Loading unity");
-
         await UnityServices.InitializeAsync();
-
-        Debug.Log("ANALYTIC: Waiting for firebase");
 
         while (CloudDelegator.Instance.auth == null)
         {

@@ -78,7 +78,7 @@ public class GameCameraController : MonoBehaviour
     void FixedUpdate()
     {
         // If game is loading, don't allow any camera movement
-        if (LoadingScreen.Instance != null && LoadingScreen.Instance.gameObject.activeSelf)
+        if (LoadingScreen.Instance.loadedItems < LoadingScreen.Instance.totalItems)
         {
             return;
         }
