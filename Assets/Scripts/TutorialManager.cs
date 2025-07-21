@@ -249,7 +249,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 VehicleUpgradeBayManager.Instance.flashButton = false;
 
                 // Player didn't buy upgrade
-                if (!droneUpgradeBayPanel.activeSelf)
+                if (!VehicleUpgradeBayManager.Instance.BoughtProfitUpgrade())
                 {
                     tutorialScreenIndex = 9;
                     continue;

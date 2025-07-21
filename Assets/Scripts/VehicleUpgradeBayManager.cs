@@ -109,7 +109,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     private static readonly ulong[] upgradeCoolPrices = new ulong[]
     {
         4_000UL,                // original tier 0
-        1_500_000UL,              // sum of tiers 1–10
+        3_000_000UL,              // sum of tiers 1–10
         110_000_000UL,           // sum of tiers 11–20
         31_000_000_000UL,        // sum of tiers 21–30
         2_000_000_000_000UL,      // sum of tiers 31–40
@@ -315,7 +315,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             rampUpIterationsNeeded = 6;
         }
 
-        firstProfitUpgradePrice = (int)upgradeCoolPrices[0] * 3;
+        firstProfitUpgradePrice = (int)upgradeCoolPrices[0] * 4;
 
         // Level 1 and up
         if (rampUpIterationsNeeded >= 1)

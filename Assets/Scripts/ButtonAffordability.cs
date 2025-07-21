@@ -6,7 +6,7 @@ using UnityEngine.UI;
 [RequireComponent(typeof(Button))]
 public class ButtonAffordability : MonoBehaviour
 {
-    public BigInteger price;
+    public BigInteger price = new System.Numerics.BigInteger(double.MaxValue);
 
     Button button;
 
