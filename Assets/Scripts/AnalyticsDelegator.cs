@@ -145,18 +145,21 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Initialize_Mine", new Parameter("Previous_Highest_Row", previousHighestRow));
     }
 
-    public void AdWatchAttempt(string reward)
+    public void AdWatchAttempt(string reward, int rebirthLevel)
     {
         if (!isInitialized)
         {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Ad_Watch_Attempt") {
-            {"Reward", reward}
+            {"Reward", reward},
+            { "Rebirth_Level", rebirthLevel},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Ad_Watch_Attempt", new Parameter("Reward", reward));
+        FirebaseAnalytics.LogEvent("Ad_Watch_Attempt",
+            new Parameter("Reward", reward),
+            new Parameter("Rebirth_Level", rebirthLevel));
     }
 
     public void OpenUIPanel(string panelName)

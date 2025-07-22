@@ -5,7 +5,6 @@ using System.Collections;
 
 public class HoldButton : MonoBehaviour,
                            IPointerDownHandler,
-                           IPointerUpHandler,
                            IPointerExitHandler
 {
     /// <summary>Action executed while the pointer is held down.</summary>
@@ -17,7 +16,7 @@ public class HoldButton : MonoBehaviour,
 
 
     public void OnPointerDown(PointerEventData _) { _loop = StartCoroutine(HoldLoop()); }
-    public void OnPointerUp  (PointerEventData _)   => StopHold();
+    //public void OnPointerUp  (PointerEventData _)   => StopHold();
     public void OnPointerExit(PointerEventData _)   => StopHold();
 
     IEnumerator HoldLoop()

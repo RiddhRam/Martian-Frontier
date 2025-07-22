@@ -326,11 +326,10 @@ public class LoadingTest
             Assert.AreEqual(generationTriggers.GetChild(i).name, "Generate Row (" + (i + 5) + ")");
         }
 
-        /*Assert.AreEqual(1, mineRenderer.minVeinCount);
-        Assert.AreEqual(2, mineRenderer.maxVeinCount);
+        Assert.AreEqual(2, mineRenderer.minVeinCount);
+        Assert.AreEqual(3, mineRenderer.maxVeinCount);
         Assert.AreEqual(2, mineRenderer.minVeinRadius);
-        Assert.AreEqual(4, mineRenderer.maxVeinRadius);*/
-
+        Assert.AreEqual(3, mineRenderer.maxVeinRadius);
 
         OreDelegation oreDelegation = mineRenderer.GetComponent<OreDelegation>();
         int materialCount = 15;

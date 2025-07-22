@@ -174,10 +174,6 @@ public class GameCameraController : MonoBehaviour
             // Add this difference to our target position.
             targetPosition += panDelta;
         }
-        else
-        {
-            JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
-        }
     }
 
     // Handles mouse-based panning for the editor.
@@ -200,10 +196,6 @@ public class GameCameraController : MonoBehaviour
             if (JoystickMovement.Instance.nPCMovement != null)
             {
                 JoystickMovement.Instance.joystickRaycastImage.raycastTarget = true;
-            }
-            else
-            {
-                JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
             }
 
             // Only if not following a drone

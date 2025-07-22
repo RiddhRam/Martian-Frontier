@@ -551,7 +551,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog);
+        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog, MineRenderer.Instance.mineCount);
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {

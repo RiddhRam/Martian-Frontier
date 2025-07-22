@@ -25,7 +25,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     [SerializeField] private Transform spawnPoint;
     [SerializeField] public GameObject mapIconPrefab;
 
-    [SerializeField] private GameObject[] npcs;
+    public GameObject[] npcs;
     public GameObject[] upgradeNoticeIcons;
     public GameObject pointToDrillArrow;
     private NavMeshAgent[] navMeshAgents;
@@ -437,6 +437,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             return;
         }
 
+        droneCameraIndex = droneIndex;
+
         // If not following a drone or following another drone, then start following the one that was just tapped
         if (GameCameraController.Instance.droneToFollow != npcs[droneIndex].transform)
         {
@@ -487,6 +489,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // If player is manually controlling something, then enable automatic controls
         if (JoystickMovement.Instance.nPCMovement)
         {
+            JoystickMovement.Instance.joystickBG.SetActive(false);
+            JoystickMovement.Instance.joystick.SetActive(false);
             JoystickMovement.Instance.nPCMovement = null;
             JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
             manualControlIconImage.sprite = manualControlIcon;
@@ -565,6 +569,12 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             {
                 droneCameraIndex = index;
                 GameCameraController.Instance.SetDroneToFollow(npcs[index].transform);
+
+                if (JoystickMovement.Instance.nPCMovement)
+                {
+                    ToggleManualDroneControl();
+                }
+
                 return;
             }
         }

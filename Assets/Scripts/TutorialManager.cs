@@ -682,7 +682,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         
         for (int i = 0; i != movementJoystick.childCount; i++)
         {
-            movementJoystick.GetChild(i).transform.localPosition = new(0, -540);
+            movementJoystick.GetChild(i).transform.localPosition = new(300, -540);
             movementJoystick.GetChild(i).gameObject.SetActive(true);
         }
     }

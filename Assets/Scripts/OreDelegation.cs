@@ -54,7 +54,7 @@ public class OreDelegation : MonoBehaviour
     private Coroutine flashOutlineCoroutine;
 
     void Awake() {
-        mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
+        mineRenderer = MineRenderer.Instance;
         oresPerTier = mineRenderer.oresPerTier;
 
         int tileCount = oresPerTier.Length;
@@ -77,7 +77,6 @@ public class OreDelegation : MonoBehaviour
 
     public void PrepareGrid()
     {
-
         // Make sure everything else is clear for sure
         ClearGrid();
 
@@ -223,17 +222,19 @@ public class OreDelegation : MonoBehaviour
         // Resize the scroll view content height to fit the rows using the height of all panels
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
 
+        ScrollRect scrollRect = contentGO.transform.parent.parent.GetComponent<ScrollRect>();
+
         // If theres only 1 row, it will be in the Middle-Center by default
         // If there's more, make it Upper-Center
         if (rows > 1)
         {
             contentGridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
         }
+
         // If larger than the minimum height, then scroll to make the target depth ores in the view
         if (bigContentHeight > minHeight)
         {
             // 0 = bottom, 1 = top
-            ScrollRect scrollRect = contentGO.transform.parent.parent.GetComponent<ScrollRect>();
 
             // If first row, manually set it to the top
             if (PlayerState.Instance.GetRecommendedDrillTier() == 1)
@@ -245,6 +246,12 @@ public class OreDelegation : MonoBehaviour
             {
                 scrollRect.verticalNormalizedPosition = 1f - ((float)PlayerState.Instance.GetRecommendedDrillTier() / rows);
             }
+
+            scrollRect.vertical = true;
+        }
+        else
+        {
+            scrollRect.vertical = false;
         }
     }
 

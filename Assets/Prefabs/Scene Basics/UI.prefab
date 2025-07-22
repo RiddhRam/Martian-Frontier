@@ -55717,6 +55717,7 @@ GameObject:
   - component: {fileID: 2725581876854082284}
   - component: {fileID: 3751910272495747712}
   - component: {fileID: 1288856771290902173}
+  - component: {fileID: 8337555784796792397}
   m_Layer: 5
   m_Name: Movement Joystick
   m_TagString: Untagged
@@ -55861,6 +55862,19 @@ MonoBehaviour:
   nPCMovement: {fileID: 0}
   joystickVec: {x: 0, y: 0}
   joystickRaycastImage: {fileID: 2725581876854082284}
+--- !u!114 &8337555784796792397
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7853129322559924103}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e33889047ed9b4c159bd8ca6f0bc0d94, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  joystickHandle: {fileID: 0}
 --- !u!1 &7916263421931365414
 GameObject:
   m_ObjectHideFlags: 0
