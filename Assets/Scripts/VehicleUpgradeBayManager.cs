@@ -165,6 +165,9 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Generate Upgrades
         GenerateUpgradeOptionDisplays();
 
+        // Scroll down
+        scrollViewContent.transform.parent.parent.GetComponent<ScrollRect>().verticalNormalizedPosition = 0;
+
         if (reveal)
         {
             UIDelegation.Instance.RevealElement(upgradeBayPanel);
