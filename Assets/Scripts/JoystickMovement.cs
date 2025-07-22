@@ -36,7 +36,7 @@ public class JoystickMovement : MonoBehaviour
         joystickRadius = joystickBG.GetComponent<RectTransform>().sizeDelta.y / 4;
 
         mainCamera = Camera.main;
-        myRectTransform = transform.parent.parent.GetComponent<RectTransform>();
+        myRectTransform = transform.parent.GetComponent<RectTransform>();
     }
 
     public void PointerDown() {
@@ -57,6 +57,12 @@ public class JoystickMovement : MonoBehaviour
         joystick.transform.localPosition = localPoint;
         joystickBG.transform.localPosition = joystick.transform.localPosition;
         joystickTouchPos = joystick.transform.localPosition;
+
+        // Don't display if the player is not controlling a drone
+        if (nPCMovement == null)
+        {
+            return;
+        }
 
         joystick.SetActive(true);
         joystickBG.SetActive(true);

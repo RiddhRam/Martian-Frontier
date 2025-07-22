@@ -457,6 +457,28 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
     }
 
+    private void PointToManualDroneControl()
+    {
+        RectTransform arrowRT = pointToGarageArrow.GetComponent<RectTransform>();
+
+        // Use bottom-stretch positioning
+        arrowRT.anchorMin = new Vector2(0, 0); // left-bottom
+        arrowRT.anchorMax = new Vector2(1, 0); // right-bottom
+        arrowRT.pivot = new Vector2(0.5f, 0); // top center
+
+        Vector2 p = arrowRT.anchoredPosition;
+
+        p.y = 900f;
+        arrowRT.anchoredPosition = p;
+
+        arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
+
+        arrowRT.rotation = Quaternion.Euler(0, 0, 180);
+
+        arrowAnimation = StartCoroutine(AnimateArrow(pointToGarageArrow, 90, 1));
+    }
+
     private IEnumerator PointToDrill(float requiredHoldTime)
     {
         float doubleRequiredTime = requiredHoldTime * 2;
@@ -609,14 +631,27 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         }
 
         // And then we remind them to open the garage if they haven't bought anything yet 
-        if (VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade() || VehicleUpgradeBayManager.Instance.BoughtOneOtherUpgrade())
+        if (!VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade() && !VehicleUpgradeBayManager.Instance.BoughtOneOtherUpgrade())
         {
-            yield break;
-        }
-        
-        PointToGarage();
+            PointToGarage();
 
-        yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
+            yield return new WaitUntil(() => droneUpgradeBayPanel.activeSelf);
+
+            if (arrowAnimation != null)
+            {
+                StopCoroutine(arrowAnimation);
+            }
+
+            pointToGarageArrow.SetActive(false);
+        }
+
+        // Make sure they have a drone now
+        yield return new WaitUntil(() => VehicleUpgradeBayManager.Instance.BoughtOneDroneUpgrade());
+
+        // Then we teach them about manual controls
+        PointToManualDroneControl();
+
+        yield return new WaitUntil(() => JoystickMovement.Instance.nPCMovement != null);
 
         if (arrowAnimation != null)
         {
@@ -654,7 +689,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     public void LoadData(GameData data)
     {
-
         // Set up A/B
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
 

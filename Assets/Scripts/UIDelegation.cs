@@ -50,7 +50,7 @@ public class UIDelegation : MonoBehaviour
 
     public void CloseActiveElement()
     {
-        Transform safeArea = transform.GetChild(1);
+        Transform safeArea = transform.GetChild(2);
 
         for (int i = 0; i != safeArea.childCount; i++)
         {
