@@ -65,8 +65,8 @@ public class LoadingTest
         yield return null;
 
         // Loading Screen, might fail cuz no object found
-        GameObject loadingScreen = GameObject.Find("Loading Screen");
-        LoadingScreen loadingScreenScript = loadingScreen.GetComponent<LoadingScreen>();
+        GameObject loadingScreen = LoadingScreen.Instance.loadingScreen;
+        LoadingScreen loadingScreenScript = LoadingScreen.Instance;
 
         Assert.AreEqual(loadingScreenScript.bufferCircle.name, "Buffer Circle");
         Assert.AreEqual(loadingScreenScript.progressBar.name, "Progress Bar");

@@ -642,7 +642,18 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         return string.Format(entry.LocalizedValue, args);
     }
 
-    public void LoadData(GameData data) {
+    public void TellPlayerToMove() {
+        Transform movementJoystick = JoystickMovement.Instance.transform;
+        
+        for (int i = 0; i != movementJoystick.childCount; i++)
+        {
+            movementJoystick.GetChild(i).transform.localPosition = new(0, -540);
+            movementJoystick.GetChild(i).gameObject.SetActive(true);
+        }
+    }
+
+    public void LoadData(GameData data)
+    {
 
         // Set up A/B
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
@@ -695,7 +706,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 proceedButton.SetActive(false);
             }
-            
+
             StartCoroutine(PointToDrill(3f));
         }
 
@@ -713,7 +724,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             if (data.mineCount == 2)
             {
                 StartCoroutine(PointToDrill(6f));
-            } 
+            }
         }
 
         // Hide leaderboard button until fourth level

@@ -90,6 +90,16 @@ public class NPCMovement : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        // Manual control
+        if (JoystickMovement.Instance.nPCMovement == this)
+        {
+            lineRenderer.gameObject.SetActive(false);
+            joystickVec = JoystickMovement.Instance.joystickVec;
+            MoveVehicle();
+            return;
+        }
+
+        // Automatic controls
         if (transitioning)
         {
             return;
@@ -144,6 +154,8 @@ public class NPCMovement : MonoBehaviour
 
     private void DrawPathLines()
     {
+        lineRenderer.gameObject.SetActive(true);
+
         float maxDistance = GetMaxDistance();
 
         lineRenderer.SetPosition(0, transform.position);
@@ -183,11 +195,25 @@ public class NPCMovement : MonoBehaviour
 
         while (Vector3.Distance(transform.position, dest) > 1f)
         {
+            // If player enables manual control
+            if (JoystickMovement.Instance.nPCMovement == this)
+            {
+                transitioning = true;
+                yield break;
+            }
+
             joystickVec = (dest - transform.position).normalized;
             MoveVehicle();
             yield return null;
         }
         rb.linearVelocity = Vector2.zero;
+
+        // If player enables manual control
+        if (JoystickMovement.Instance.nPCMovement == this)
+        {
+            transitioning = true;
+            yield break;
+        }
 
         yield return new WaitUntil(() => nPCManager.mineRenderer.mineInitialization != 0);
         RequestNewPosition();

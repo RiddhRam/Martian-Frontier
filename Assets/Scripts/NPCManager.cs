@@ -166,6 +166,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     public GameObject refineryUpgradePanel;
     public GameObject closeRefineryButton;
     public GameObject importantInfo;
+    public Sprite manualControlIcon;
+    public Sprite autoControlIcon;
+    public Image manualControlIconImage;
+    public Image manualControlButtonImage;
 
     [Header("Cache")]
     readonly System.Random random = new();
@@ -436,6 +440,11 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         // If not following a drone or following another drone, then start following the one that was just tapped
         if (GameCameraController.Instance.droneToFollow != npcs[droneIndex].transform)
         {
+            if (JoystickMovement.Instance.nPCMovement)
+            {
+                ToggleManualDroneControl();
+            }
+
             GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
             ShowUIControls();
 
@@ -473,6 +482,26 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         }
     }
 
+    public void ToggleManualDroneControl()
+    {
+        // If player is manually controlling something, then enable automatic controls
+        if (JoystickMovement.Instance.nPCMovement)
+        {
+            JoystickMovement.Instance.nPCMovement = null;
+            manualControlIconImage.sprite = manualControlIcon;
+            manualControlButtonImage.color = new(143f / 255, 20f / 255, 1);
+            return;
+        }
+
+        // If not controlling anything, then enable manual controls
+        if (nPCMovements[droneCameraIndex] == null)
+            return;
+        TutorialManager.Instance.TellPlayerToMove();
+        JoystickMovement.Instance.nPCMovement = nPCMovements[droneCameraIndex];
+        manualControlIconImage.sprite = autoControlIcon;
+        manualControlButtonImage.color = new(100f / 255, 179f / 255, 216f / 255);
+    }
+
     private void HideRefineryPanel()
     {
         UIDelegation.Instance.HideElement(refineryUpgradePanel);
@@ -482,6 +511,10 @@ public class NPCManager : MonoBehaviour, IDataPersistence
 
     public void ToggleCameraMode()
     {
+        if (JoystickMovement.Instance.nPCMovement)
+        {
+            ToggleManualDroneControl();
+        }
 
         // If camera is following a drone, tell it to stop
         if (GameCameraController.Instance.droneToFollow)

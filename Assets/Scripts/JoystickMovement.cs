@@ -20,6 +20,7 @@ public class JoystickMovement : MonoBehaviour
 
     public GameObject joystick;
     public GameObject joystickBG;
+    public NPCMovement nPCMovement;
     public Vector2 joystickVec;
     private Vector2 joystickTouchPos;
     private Vector2 joystickOriginalPos;
