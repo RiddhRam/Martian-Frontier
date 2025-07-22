@@ -357,7 +357,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             rampUpIterationsNeeded = 6;
         }
 
-        firstProfitUpgradePrice = (int)upgradeCoolPrices[0] * 4;
+        firstProfitUpgradePrice = (int)upgradeCoolPrices[0] * 5;
 
         // Level 1 and up
         if (rampUpIterationsNeeded >= 1)
@@ -368,7 +368,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             AddNewOption("INCREASE COOLDOWN", "INCREASE COOLDOWN", upgradeCoolPrices[0], 2, new int[] { 1 });
             // index 0 = profit multiplier, index 1 = ore index
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)firstProfitUpgradePrice, -1, new int[] { 2, 0 });
-            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(firstProfitUpgradePrice * 1.5f), 3);
+            AddNewOption("SPEED BOOST", "SPEED BOOST", (ulong)(firstProfitUpgradePrice * 2f), 3);
         }
 
         // Level 2 and up

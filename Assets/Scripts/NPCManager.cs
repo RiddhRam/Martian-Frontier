@@ -530,6 +530,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             // Update UI
             toggleCameraModeButton.color = new(1, 64 / 255f, 129 / 255f);
             cameraIterateControls.SetActive(false);
+            manualControlButtonImage.gameObject.SetActive(false);
             return;
         }
 
@@ -585,5 +586,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     {
         toggleCameraModeButton.color = new(1, 0, 0);
         cameraIterateControls.SetActive(true);
+        manualControlButtonImage.gameObject.SetActive(true);
     }
 }
