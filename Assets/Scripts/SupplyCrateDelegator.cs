@@ -41,7 +41,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
-    private const int blocksNeededToDestroy = 6500;
+    private const int blocksNeededToDestroy = 4000;
 
     public bool adWatchedAlready = false;
 
@@ -241,6 +241,11 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         
         this.cratesAvailable = data.cratesAvailable;
         this.progressToNextCrate = data.progressToNextCrate;
+
+        if (progressToNextCrate > blocksNeededToDestroy)
+        {
+            progressToNextCrate = blocksNeededToDestroy;
+        }
 
         UpdateCrateCount(cratesAvailable);
         UpdateProgressToNextCrate(progressToNextCrate);

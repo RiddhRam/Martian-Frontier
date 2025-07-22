@@ -146,6 +146,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
     // Used so we can track if an upgrade is available or not
     private readonly List<UpgradeBayOptionData> upgradeOptions = new();
     private HashSet<string> upgradeBayOptionsPurchased;
+    private readonly List<UpgradeBayOptionDisplayData> upgradeBayOptionDisplayDatas = new();
 
     // Upgrade values
     private int heatLevel = 0;
@@ -172,6 +173,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public void ClearPanel(bool resetScale)
     {
+        upgradeBayOptionDisplayDatas.Clear();
         int childCount = scrollViewContent.childCount;
 
         for (int i = 0; i != childCount; i++)
@@ -183,6 +185,48 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         {
             UIDelegation.Instance.HideElement(upgradeBayPanel);
             upgradeBayPanel.transform.localScale = UIDelegation.Instance.GetFullOpenScale(upgradeBayPanel.name);
+        }
+    }
+
+    private void UpdatePanels()
+    {
+        if (scrollViewContent.childCount == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            int destroyedPanels = 1;
+
+            foreach (var option in upgradeOptions)
+            {
+                if (DontShowUpgrade(option))
+                {
+                    DestroyUpgradeOption(option.baseType);
+                    destroyedPanels++;
+                }
+            }
+
+            UpdateContentSize();
+        }
+        catch
+        {
+            // Reprepare if there was an error
+            PreparePanel(false);
+        }
+    }
+
+    private void DestroyUpgradeOption(string baseType)
+    {
+        for (int i = upgradeBayOptionDisplayDatas.Count - 1; i != -1; i--)
+        {
+            if (upgradeBayOptionDisplayDatas[i].baseType == baseType)
+            {
+                Destroy(upgradeBayOptionDisplayDatas[i].display);
+                upgradeBayOptionDisplayDatas.RemoveAt(i);
+                break;
+            }
         }
     }
 
@@ -220,21 +264,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Find upgrade price
         ulong upgradePrice = upgradeBayOptionData.price;
 
-        // If player doesn't already own then purchase it
-        // Otherwise skip this, because it's just loading the upgrade
-        if (!alreadyOwned)
+        // If player doesn't have enough money, and they don't already own this
+        if (!playerState.VerifyEnoughCash(upgradePrice) && !alreadyOwned)
         {
-            // Transact amount
-            if (!playerState.VerifyEnoughCash(upgradePrice))
-            {
-                return false;
-            }
-
-            playerState.SubtractCash(upgradePrice);
+            return false;
         }
 
         int lastSpaceIndex = upgradeBayOptionData.baseType.LastIndexOf(' ');
         string benefitType = upgradeBayOptionData.baseType.Substring(0, lastSpaceIndex);
+
+        // Destroy the game object of what we just purchased
+        DestroyUpgradeOption(upgradeBayOptionData.baseType);
 
         // Cooldown
         if (benefitType == "INCREASE COOLDOWN")
@@ -273,18 +313,17 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             oreProfitMultipliers[upgradeBayOptionData.extraData[1]] *= upgradeBayOptionData.extraData[0];
         }
 
+        // Make any other changes if needed (update content size and delete any other options)
+        UpdatePanels();
+
         // If player already owns it then we're done here
         if (alreadyOwned)
         {
             return true;
         }
 
+        playerState.SubtractCash(upgradePrice);
         upgradeBayOptionsPurchased.Add(upgradeBayOptionData.baseType);
-
-        // Reload displays
-        ClearPanel(false);
-        PreparePanel(false);
-
         audioDelegator.PlayAudio(oreSoundEffectsSource, upgradeSound, 0.2f);
 
         AnalyticsDelegator.Instance.VehicleUpgrade(upgradeBayOptionData.upgradeType, RefineryUpgradePad.Instance.mineRenderer.mineCount);
@@ -390,17 +429,10 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
     public void GenerateUpgradeOptionDisplays()
     {
-        int generatedPanelsCount = 0;
 
         foreach (var option in upgradeOptions)
         {
-            // If this upgrade was already purchased, don't display it
-            if (AlreadyPurchased(option.baseType))
-            {
-                continue;
-            }
-            // If a heat or cooldown upgrade, don't show it if player skipped a lower one
-            else if ((option.upgradeType == "INCREASE COOLDOWN" && coolLevel >= option.extraData[0]) || (option.upgradeType == "INCREASE HEAT LIMIT" && heatLevel >= option.extraData[0]))
+            if (DontShowUpgrade(option))
             {
                 continue;
             }
@@ -409,8 +441,6 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
 
             GameObject upgradeBayOptionGameObject = Instantiate(upgradeBayOptionPrefab);
             UpgradeBayOption upgradeBayOption = upgradeBayOptionGameObject.GetComponent<UpgradeBayOption>();
-
-            generatedPanelsCount++;
 
             // Display the upgrade type
             // -1 imageIndex means to grab the image from somewhere else
@@ -482,15 +512,43 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
             {
                 droneProfitButtonImage = upgradeBayOption.button.GetComponent<Image>();
             }
+
+            UpgradeBayOptionDisplayData upgradeBayOptionDisplayData = new();
+            upgradeBayOptionDisplayData.display = upgradeBayOptionGameObject;
+            upgradeBayOptionDisplayData.baseType = option.baseType;
+
+            upgradeBayOptionDisplayDatas.Add(upgradeBayOptionDisplayData);
         }
 
+        UpdateContentSize();
+    }
+
+    private void UpdateContentSize()
+    {
         VerticalLayoutGroup verticalLayoutGroup = scrollViewContent.GetComponent<VerticalLayoutGroup>();
-        float bigContentHeight = upgradeBayOptionPrefab.GetComponent<RectTransform>().sizeDelta.y * generatedPanelsCount + verticalLayoutGroup.padding.top + verticalLayoutGroup.padding.bottom + ((generatedPanelsCount - 1) * verticalLayoutGroup.spacing);
+        float bigContentHeight = upgradeBayOptionPrefab.GetComponent<RectTransform>().sizeDelta.y * upgradeBayOptionDisplayDatas.Count + verticalLayoutGroup.padding.top + verticalLayoutGroup.padding.bottom + ((upgradeBayOptionDisplayDatas.Count - 1) * verticalLayoutGroup.spacing);
 
         RectTransform bigContentRect = scrollViewContent.GetComponent<RectTransform>();
 
         // Resize the scroll view content height to fit the rows using the height of all panels
         bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
+    }
+
+    private bool DontShowUpgrade(UpgradeBayOptionData option)
+    {
+        // If this upgrade was already purchased, don't display it
+        if (AlreadyPurchased(option.baseType))
+        {
+            return true;
+        }
+
+        // If a heat or cooldown upgrade, don't show it if player skipped a lower one
+        if ((option.upgradeType == "INCREASE COOLDOWN" && coolLevel > option.extraData[0]) || (option.upgradeType == "INCREASE HEAT LIMIT" && heatLevel > option.extraData[0]))
+        {       
+            return true;
+        }
+
+        return false;
     }
 
     private IEnumerator NotifyPlayerOfUpgrades()
