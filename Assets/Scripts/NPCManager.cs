@@ -488,6 +488,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         if (JoystickMovement.Instance.nPCMovement)
         {
             JoystickMovement.Instance.nPCMovement = null;
+            JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
             manualControlIconImage.sprite = manualControlIcon;
             manualControlButtonImage.color = new(143f / 255, 20f / 255, 1);
             return;
@@ -497,6 +498,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
         if (nPCMovements[droneCameraIndex] == null)
             return;
         TutorialManager.Instance.TellPlayerToMove();
+        JoystickMovement.Instance.joystickRaycastImage.raycastTarget = true;
         JoystickMovement.Instance.nPCMovement = nPCMovements[droneCameraIndex];
         manualControlIconImage.sprite = autoControlIcon;
         manualControlButtonImage.color = new(100f / 255, 179f / 255, 216f / 255);

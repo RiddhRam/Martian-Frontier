@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class JoystickMovement : MonoBehaviour
 {
@@ -22,6 +23,7 @@ public class JoystickMovement : MonoBehaviour
     public GameObject joystickBG;
     public NPCMovement nPCMovement;
     public Vector2 joystickVec;
+    public Image joystickRaycastImage;
     private Vector2 joystickTouchPos;
     private Vector2 joystickOriginalPos;
     private float joystickRadius;

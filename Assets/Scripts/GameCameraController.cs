@@ -151,45 +151,67 @@ public class GameCameraController : MonoBehaviour
     // Handles panning with a single finger, using touch phases for robust control.
     private void HandleSingleTouchPan()
     {
-        // Only if not following a drone
-        if (droneToFollow != null)
-        {
-            return;
-        }
         Touch touch = Input.GetTouch(0);
 
         // Pan only when the finger is actually moving.
         if (touch.phase == TouchPhase.Moved)
         {
+
+            // Only if not following a drone
+            if (droneToFollow != null)
+            {
+                return;
+            }
+
             // Get the positions of the touch in the current and previous frame.
             Vector3 currentWorldPos = mainCamera.ScreenToWorldPoint(touch.position);
             Vector3 previousWorldPos = mainCamera.ScreenToWorldPoint(touch.position - touch.deltaPosition);
-            
+
             // Calculate the difference in world space.
             Vector3 panDelta = previousWorldPos - currentWorldPos;
             panDelta.z = targetZPos;
-            
+
             // Add this difference to our target position.
             targetPosition += panDelta;
+        }
+        else
+        {
+            JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
         }
     }
 
     // Handles mouse-based panning for the editor.
     private void HandleMousePan()
     {
-        // Only if not following a drone
-        if (droneToFollow != null)
-        {
-            return;
-        }
 
         if (Input.GetMouseButtonDown(0))
         {
+            // Only if not following a drone
+            if (droneToFollow != null)
+            {
+                return;
+            }
+
             // When the pan begins, record the starting world position.
             lastMousePanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
         }
         else if (Input.GetMouseButton(0))
         {
+            if (JoystickMovement.Instance.nPCMovement != null)
+            {
+                JoystickMovement.Instance.joystickRaycastImage.raycastTarget = true;
+            }
+            else
+            {
+                JoystickMovement.Instance.joystickRaycastImage.raycastTarget = false;
+            }
+
+            // Only if not following a drone
+            if (droneToFollow != null)
+            {
+                return;
+            }
+
             // Each frame, calculate how far the mouse has moved in world space since the last frame.
             Vector3 currentMousePanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition);
             Vector3 panDelta = lastMousePanPosition - currentMousePanPosition;
@@ -197,14 +219,8 @@ public class GameCameraController : MonoBehaviour
 
             // Add this difference to our target position.
             targetPosition += panDelta;
-            
-            // IMPORTANT: For this style of panning, we do NOT update lastMousePanPosition every frame.
-            // If you want the camera to move with the mouse delta each frame, you should do that instead.
-            // For now, this implementation mimics the original script's behavior but is isolated to the mouse.
-            // To update every frame (a different feel), you would recalculate the delta differently:
-            // targetPosition += lastMousePanPosition - currentMousePanPosition;
-            // lastMousePanPosition = mainCamera.ScreenToWorldPoint(Input.mousePosition); // And uncomment this line
         }
+
     }
 
     // This new logic centers the zoom on the pinch midpoint, preventing wobble.
