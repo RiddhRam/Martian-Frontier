@@ -374,7 +374,7 @@ public class VehicleUpgradeBayManager : MonoBehaviour, IDataPersistence
         // Level 2 and up
         if (rampUpIterationsNeeded >= 2)
         {
-            AddNewOption("{0}X PROFITS", "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 10f), 4, new int[] { 2 });
+            AddNewOption("{0}X PROFITS", "{0}X PROFITS", (ulong)(upgradeCoolPrices[0] * 13f), 4, new int[] { 2 });
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 17f), -1, new int[] { 2, 1 });
             AddNewOption("{0}X {1} ORE PROFITS", "{0}X {1} ORE PROFITS", (ulong)(upgradeCoolPrices[0] * 28f), -1, new int[] { 2, 2 });
             AddNewOption("BUY A DRONE", "BUY A DRONE", upgradeDronePrices[1], 0);
