@@ -51,6 +51,7 @@ public class OreDelegation : MonoBehaviour
     [Header("Alternate")]
     public GameObject refineryAlternatePanel;
     public GameObject[] alternatePanels;
+    private Image[] levelProgressBarsImages;
 
     private int[] oresPerTier;
     // Lowercase verion of materialNames
@@ -87,9 +88,12 @@ public class OreDelegation : MonoBehaviour
         materialLevelTexts = new TextMeshProUGUI[length];
         materialPriceTexts = new TextMeshProUGUI[length];
         materialUpgradePriceTexts = new TextMeshProUGUI[length];
-        levelProgressBars = new Slider[length];
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
+
+        ClearAlternateGrid();
+        PrepareAlternateGrid();
+        return;
 
         Debug.Log("Generating: " + PlayerPrefs.GetString("Cohort", "No Cohort"));
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
@@ -101,6 +105,8 @@ public class OreDelegation : MonoBehaviour
             PrepareAlternateGrid();
             return;
         }
+
+        levelProgressBars = new Slider[length];
 
         // Make sure everything else is clear for sure
         ClearGrid();
@@ -272,14 +278,15 @@ public class OreDelegation : MonoBehaviour
 
         UIDelegation.Instance.HideAll();
         UIDelegation.Instance.RevealElement(NPCManager.Instance.refineryUpgradePanel);
-        UIDelegation.Instance.ToggleBackgroundDarkness(false);
     }
 
     public void PrepareAlternateGrid()
     {
+        levelProgressBarsImages = new Image[orePanelOutlines.Length];
+
         refineryAlternatePanel.SetActive(true);
 
-        for (int i = 0; i != RefineryUpgradePad.Instance.GetRequiredOreIndex(); i++)
+        for (int i = 0; i != RefineryUpgradePad.Instance.GetRequiredOreIndex() + 1; i++)
         {
             alternatePanels[i].SetActive(true);
             Transform panelTransform = alternatePanels[i].transform;
@@ -287,44 +294,52 @@ public class OreDelegation : MonoBehaviour
             string oreName = mineRenderer.selectedMaterialNames[i];
 
             materialPriceTexts[i] = panelTransform.GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
-            materialLevelTexts[i] = panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>();
+            materialLevelTexts[i] = panelTransform.GetChild(2).GetChild(1).GetComponent<TextMeshProUGUI>();
             materialUpgradePriceTexts[i] = panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
 
-            panelTransform.GetChild(4).GetComponent<TextMeshProUGUI>().text = oreName;
+            panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
 
             materialPriceTexts[i].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(i)));
             materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(i));
 
-            Image image = panelTransform.GetChild(5).GetComponent<Image>();
+            Image image = panelTransform.GetChild(4).GetComponent<Image>();
             image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
             image.color = new(1, 1, 1);
 
             // Save as its own variable, otherwise it keeps a reference to the variable i
             int oreIndex = i;
             // Add onclick listener and hold button component
-            panelTransform.GetComponent<Button>().onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
-            // Hold to purchase
-            HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
-            holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
+            Button button = panelTransform.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+            button.onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+            if (panelTransform.GetComponent<HoldButton>() == null)
+            {
+                // Hold to purchase
+                HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
+                holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+            }
+            
             // Button affordability
             buttonAffordabilities[i] = panelTransform.GetComponent<ButtonAffordability>();
 
-            levelProgressBars[i] = panelTransform.GetChild(3).GetComponent<Slider>();
+            levelProgressBarsImages[i] = panelTransform.GetChild(2).GetChild(0).GetComponent<Image>();
 
             //milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
 
             // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
-            UpdateOreMaterialPanel(i, false, false);
+            UpdateOreMaterialPanel(i, false, false, true);
         }
 
         UIDelegation.Instance.RevealElement(refineryAlternatePanel);
-        UIDelegation.Instance.ToggleBackgroundDarkness(false);
     }
 
     // Clear grid when closing, then reprepare it when opening in case user changes language
     public void ClearGrid()
     {
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
+
+        UIDelegation.Instance.HideElement(refineryAlternatePanel);
+            return;
 
         // A/B testing a new refinery upgrade panel
         if (cohort == "A" || cohort == "B")
@@ -345,7 +360,7 @@ public class OreDelegation : MonoBehaviour
 
     }
 
-    public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone)
+    public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone, bool alternate = false)
     {
         // Update text
         materialPriceTexts[oreIndex].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(oreIndex)));
@@ -386,6 +401,13 @@ public class OreDelegation : MonoBehaviour
 
         int lastMilestone = RefineryUpgradePad.Instance.GetLastOreMilestone(oreIndex);
 
+        if (alternate)
+        {
+            levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
+            Debug.Log(levelProgressBarsImages[oreIndex].fillAmount);
+            return;
+        }
+        
         // Update progress bar
         levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
         levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
@@ -396,15 +418,16 @@ public class OreDelegation : MonoBehaviour
             // If there is no outline currently flashing
             if (flashOutlineCoroutine == null)
             {
-                //flashOutlineCoroutine = StartCoroutine(FlashOrePanelOutline(orePanelOutlines[oreIndex], orePanelOutlineBars[oreIndex]));
+                flashOutlineCoroutine = StartCoroutine(FlashOrePanelOutline(orePanelOutlines[oreIndex], orePanelOutlineBars[oreIndex]));
             }
 
             // If upgrade milestone was reached
             if (reachedMilestone)
             {
-                //StartCoroutine(BobMilestonePanel(milestoneTransforms[oreIndex]));
+                StartCoroutine(BobMilestonePanel(milestoneTransforms[oreIndex]));
             }
         }
+
     }
 
     private IEnumerator FlashOrePanelOutline(Outline outlineToFlash, Image outlineBarToFlash)

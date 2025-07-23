@@ -476,7 +476,6 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             OreDelegation.Instance.PrepareGrid();
             
             UIDelegation.Instance.RevealElement(closeRefineryButton);
-            UIDelegation.Instance.ToggleBackgroundDarkness(false);
         }
     }
 

@@ -420,7 +420,7 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseOreUpgrade(int oreIndex)
+    public bool PurchaseOreUpgrade(int oreIndex, bool alternate = false)
     {
         System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
 
@@ -445,7 +445,7 @@ public class RefineryUpgradePad : MonoBehaviour
             }
         }
 
-        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone);
+        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone, alternate);
 
         CheckIfProceedAvailable();
 

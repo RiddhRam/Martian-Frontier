@@ -97,7 +97,11 @@ public class UIDelegation : MonoBehaviour
     {
         GameCameraController.Instance.ToggleMovement(false);
         AnalyticsDelegator.Instance.OpenUIPanel(element.name);
-        ToggleBackgroundDarkness(true);
+
+        if (!element.name.Contains("Refinery"))
+        {
+            ToggleBackgroundDarkness(true);
+        }
 
         StartCoroutine(FadeAndScaleIn(element.GetComponent<CanvasGroup>(), element.GetComponent<RectTransform>()));
     }

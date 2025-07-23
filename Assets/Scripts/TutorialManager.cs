@@ -428,8 +428,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
         p.y = 733f;
         arrowRT.anchoredPosition = p;
 
-        arrowRT.offsetMin = new Vector2(185f, arrowRT.offsetMin.y);
-        arrowRT.offsetMax = new Vector2(-1328f, arrowRT.offsetMax.y);
+        arrowRT.offsetMin = new Vector2(374f, arrowRT.offsetMin.y);
+        arrowRT.offsetMax = new Vector2(-1356f, arrowRT.offsetMax.y);
 
         arrowRT.rotation = Quaternion.Euler(0, 0, 180);
 

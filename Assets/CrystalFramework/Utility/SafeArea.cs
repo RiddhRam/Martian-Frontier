@@ -104,17 +104,16 @@ namespace Crystal
         [SerializeField] bool ConformY = true;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
         [SerializeField] bool Logging = false;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
 
-        void Awake ()
+        void Awake()
         {
-            Panel = GetComponent<RectTransform> ();
+            Panel = GetComponent<RectTransform>();
 
             if (Panel == null)
             {
-                Debug.LogError ("Cannot apply safe area - no RectTransform found on " + name);
-                Destroy (gameObject);
+                Debug.LogError("Cannot apply safe area - no RectTransform found on " + name);
+                AnalyticsDelegator.Instance.ShowError("Cannot apply safe area - no RectTransform found on " + name);
+                //Destroy (gameObject);
             }
-
-            Refresh ();
         }
 
         void Update ()
