@@ -473,12 +473,8 @@ public class NPCManager : MonoBehaviour, IDataPersistence
             // to be off screen, and then the player can't close the panel
             GameCameraController.Instance.SetDroneToFollow(npcs[droneIndex].transform);
 
-            UIDelegation.Instance.HideAll();
-
             OreDelegation.Instance.PrepareGrid();
-            UIDelegation.Instance.RevealElement(refineryUpgradePanel);
-            UIDelegation.Instance.ToggleBackgroundDarkness(false);
-
+            
             UIDelegation.Instance.RevealElement(closeRefineryButton);
             UIDelegation.Instance.ToggleBackgroundDarkness(false);
         }
