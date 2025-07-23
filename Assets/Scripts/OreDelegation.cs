@@ -77,6 +77,17 @@ public class OreDelegation : MonoBehaviour
 
     public void PrepareGrid()
     {
+        Debug.Log("Generating: " + PlayerPrefs.GetString("Cohort", "No Cohort"));
+        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
+
+        // A/B testing a new refinery upgrade panel
+        if (cohort == "A" || cohort == "B")
+        {
+            ClearAlternateGrid();
+            PrepareAlternateGrid();
+            return;
+        }
+
         // Make sure everything else is clear for sure
         ClearGrid();
 
@@ -255,14 +266,24 @@ public class OreDelegation : MonoBehaviour
         }
     }
 
+    public void PrepareAlternateGrid()
+    {
+        
+    }
+
     // Clear grid when closing, then reprepare it when opening in case user changes language
-    public void ClearGrid() {
+    public void ClearGrid()
+    {
         int childCount = contentGO.transform.childCount;
 
         for (int i = 0; i != childCount; i++)
         {
             Destroy(contentGO.transform.GetChild(i).gameObject);
         }
+    }
+
+    public void ClearAlternateGrid() {
+
     }
 
     public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone)
@@ -278,7 +299,7 @@ public class OreDelegation : MonoBehaviour
 
         // If player can't afford, make it disabled initially. Otherwise it will show up as interactable for a split second
         button.interactable = !(newPrice > RefineryUpgradePad.Instance.playerState.GetUserCash());
-        
+
         if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) >= RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel())
         {
             // Hide price tag, show MAX text
@@ -318,7 +339,7 @@ public class OreDelegation : MonoBehaviour
             {
                 flashOutlineCoroutine = StartCoroutine(FlashOrePanelOutline(orePanelOutlines[oreIndex], orePanelOutlineBars[oreIndex]));
             }
-            
+
             // If upgrade milestone was reached
             if (reachedMilestone)
             {
