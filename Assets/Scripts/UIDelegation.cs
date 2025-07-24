@@ -220,6 +220,11 @@ public class UIDelegation : MonoBehaviour
             float scaleToUse = RefineryController.Instance.GetAspectValue();
             fullOpenScale = new(scaleToUse, scaleToUse, scaleToUse);
         }
+        else if (element == "Refinery Alternate Panel")
+        {
+            float scaleToUse = RefineryController.Instance.GetAspectValue(true);
+            fullOpenScale = new(scaleToUse, scaleToUse, scaleToUse);
+        }
         else if (element == "Drone Upgrades Panel")
         {
             fullOpenScale = new(0.69f, 0.69f, 0.69f);

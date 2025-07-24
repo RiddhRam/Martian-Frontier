@@ -91,10 +91,6 @@ public class OreDelegation : MonoBehaviour
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
-        ClearAlternateGrid();
-        PrepareAlternateGrid();
-        return;
-
         Debug.Log("Generating: " + PlayerPrefs.GetString("Cohort", "No Cohort"));
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
 
@@ -110,7 +106,6 @@ public class OreDelegation : MonoBehaviour
 
         // Make sure everything else is clear for sure
         ClearGrid();
-
 
         int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
         int requiredOreIndexTier = MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex);
@@ -280,14 +275,41 @@ public class OreDelegation : MonoBehaviour
         UIDelegation.Instance.RevealElement(NPCManager.Instance.refineryUpgradePanel);
     }
 
+    public Canvas canvas;
+
     public void PrepareAlternateGrid()
     {
         levelProgressBarsImages = new Image[orePanelOutlines.Length];
 
-        refineryAlternatePanel.SetActive(true);
+        int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
+        int requiredOreIndexTier = MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex);
 
-        for (int i = 0; i != RefineryUpgradePad.Instance.GetRequiredOreIndex() + 1; i++)
+        for (int i = 0; i != orePanelOutlines.Length; i++)
         {
+            // Determine which ores to show
+            bool foundOre = true;
+
+            if (i != requiredOreIndex)
+            {
+                // If tier is higher than the required ores tier
+                if (MineRenderer.Instance.GetOreTierByIndex(i) > requiredOreIndexTier)
+                {
+                    break;
+                }
+
+                // If not found ore yet
+                if (!mineRenderer.discoveredOres.Contains(i))
+                {
+                    foundOre = false;
+
+                    // If not found, and index is higher (but still same tier) then don't show anything at all after this index
+                    if (i > requiredOreIndex)
+                    {
+                        break;
+                    }
+                }
+            }
+
             alternatePanels[i].SetActive(true);
             Transform panelTransform = alternatePanels[i].transform;
 
@@ -297,38 +319,74 @@ public class OreDelegation : MonoBehaviour
             materialLevelTexts[i] = panelTransform.GetChild(2).GetChild(1).GetComponent<TextMeshProUGUI>();
             materialUpgradePriceTexts[i] = panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
 
-            panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
-
-            materialPriceTexts[i].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(i)));
-            materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(i));
-
-            Image image = panelTransform.GetChild(4).GetComponent<Image>();
-            image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
-            image.color = new(1, 1, 1);
-
-            // Save as its own variable, otherwise it keeps a reference to the variable i
-            int oreIndex = i;
-            // Add onclick listener and hold button component
-            Button button = panelTransform.GetComponent<Button>();
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
-            if (panelTransform.GetComponent<HoldButton>() == null)
+            if (foundOre)
             {
-                // Hold to purchase
-                HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
-                holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
+
+                materialPriceTexts[i].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(i)));
+                materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(i));
+
+                materialPriceTexts[i].transform.parent.gameObject.SetActive(true);
+                materialLevelTexts[i].transform.parent.gameObject.SetActive(true);
+
+                Image image = panelTransform.GetChild(4).GetComponent<Image>();
+                image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
+                image.color = new(1, 1, 1);
+
+                // Save as its own variable, otherwise it keeps a reference to the variable i
+                int oreIndex = i;
+                // Add onclick listener and hold button component
+                Button button = panelTransform.GetComponent<Button>();
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+                if (panelTransform.GetComponent<HoldButton>() == null)
+                {
+                    // Hold to purchase
+                    HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
+                    holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+                }
+
+                // Button affordability
+                buttonAffordabilities[i] = panelTransform.GetComponent<ButtonAffordability>();
+                buttonAffordabilities[i].enabled = true;
+
+                levelProgressBarsImages[i] = panelTransform.GetChild(2).GetChild(0).GetComponent<Image>();
+
+                //milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
+
+                // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
+                UpdateOreMaterialPanel(i, false, false, true);
+            }
+            else
+            {
+                // If not found, then show as mystery ore
+                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("NOT FOUND");
+
+                materialPriceTexts[i].transform.parent.gameObject.SetActive(false);
+                materialLevelTexts[i].transform.parent.gameObject.SetActive(false);
+
+                panelTransform.GetComponent<Button>().interactable = false;
+
+                panelTransform.GetComponent<ButtonAffordability>().enabled = false;
+
+                materialUpgradePriceTexts[i].text = "--";
             }
             
-            // Button affordability
-            buttonAffordabilities[i] = panelTransform.GetComponent<ButtonAffordability>();
-
-            levelProgressBarsImages[i] = panelTransform.GetChild(2).GetChild(0).GetComponent<Image>();
-
-            //milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
-
-            // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
-            UpdateOreMaterialPanel(i, false, false, true);
         }
+
+        // Center the panel onto the drone
+        Vector3 worldPos = GameCameraController.Instance.droneToFollow.position;
+        Vector3 screenPos = Camera.main.WorldToScreenPoint(worldPos);
+
+        Vector2 localPoint;
+        RectTransform canvasRect = canvas.transform as RectTransform;
+        RectTransformUtility.ScreenPointToLocalPointInRectangle(
+            canvasRect, screenPos, canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera,
+            out localPoint);
+
+        refineryAlternatePanel.GetComponent<RectTransform>().anchoredPosition = localPoint;
 
         UIDelegation.Instance.RevealElement(refineryAlternatePanel);
     }
@@ -337,9 +395,6 @@ public class OreDelegation : MonoBehaviour
     public void ClearGrid()
     {
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
-
-        UIDelegation.Instance.HideElement(refineryAlternatePanel);
-            return;
 
         // A/B testing a new refinery upgrade panel
         if (cohort == "A" || cohort == "B")
@@ -404,19 +459,19 @@ public class OreDelegation : MonoBehaviour
         if (alternate)
         {
             levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
-            Debug.Log(levelProgressBarsImages[oreIndex].fillAmount);
-            return;
+        }
+        else
+        {
+            // Update progress bar
+            levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
+            levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
         }
         
-        // Update progress bar
-        levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
-        levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
-
         // If we should flash the outline (an upgrade was made)
         if (flashOutline)
         {
             // If there is no outline currently flashing
-            if (flashOutlineCoroutine == null)
+            if (flashOutlineCoroutine == null && !alternate)
             {
                 flashOutlineCoroutine = StartCoroutine(FlashOrePanelOutline(orePanelOutlines[oreIndex], orePanelOutlineBars[oreIndex]));
             }

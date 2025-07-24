@@ -336,12 +336,8 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         data.materialsSold = this.materialsSold.ToString();
         data.askedForReview = this.askedForReview;
     }
-
-    private void SaveGame() {
-        DataPersistenceManager.Instance.SaveGame();
-    }
     
-    public float GetAspectValue()
+    public float GetAspectValue(bool alternate = false)
     {
         const float multiplier = 0.75f;
         // Determine the scale to set the refinery panel to
@@ -358,16 +354,28 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         
         if (aspect <= MinAspect)
         {
+            if (alternate)
+            {
+                return MinValue;
+            }
             return MinValue * multiplier;
         }
 
         if (aspect >= MaxAspect)
         {
+            if (alternate)
+            {
+                return MaxValue;
+            }
             return MaxValue * multiplier;
         }
             
         // Linear interpolation between MinValue and MaxValue
         float t = (aspect - MinAspect) / (MaxAspect - MinAspect);
+        if (alternate)
+        {
+            return Mathf.Lerp(MinValue, MaxValue, t);
+        }
         return Mathf.Lerp(MinValue, MaxValue, t) * multiplier;
     }
 
