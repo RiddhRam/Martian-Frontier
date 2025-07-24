@@ -17,7 +17,6 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     public GameObject superChallengeTimerTextGO;
 
     private System.Random rng;
-    private AnalyticsDelegator analyticsDelegator;
 
     public PlayerState playerState;
 
@@ -61,7 +60,6 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
     }
 
     void Awake() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
         
         for (int i = 0; i != challengeButtons.Length; i++) {
             challengeStatusIcons[i] = challengeButtons[i].transform.GetChild(0).GetChild(0).GetComponent<Image>();
@@ -214,14 +212,14 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
         challengeStatusIcons[challengeIndex].transform.parent.parent.GetComponent<Button>().interactable = false;
         challengeCollection[challengeIndex] = true;
         challengeProgress[5]++;
-        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
+        AnalyticsDelegator.Instance.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
-        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
+        AnalyticsDelegator.Instance.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -251,7 +249,7 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
         } else {
             // If successfully completed then log how long it took
-            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
+            AnalyticsDelegator.Instance.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";
@@ -261,7 +259,7 @@ public class MagnetHaulerDailyChallengeDelegator : MonoBehaviour, IDataPersisten
 
     public void LoadData(GameData data)
     {
-        this.twoDayIntervals = data.twoDayIntervals;
+        this.twoDayIntervals = data.twoDIM;
         this.challengeProgress = data.magnetHaulerChallengeProgress;
         this.challengeCollection = data.magnetHaulerChallengeCollection;
         this.superChallengeTimer = data.magnetHaulerSuperChallengeTimer;

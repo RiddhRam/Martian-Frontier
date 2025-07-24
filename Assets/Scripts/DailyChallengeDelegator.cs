@@ -18,7 +18,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<DailyChallengeDelegator>();
+                _instance = FindFirstObjectByType<DailyChallengeDelegator>();
             }
             return _instance;
         }
@@ -33,7 +33,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     public GameObject superChallengeTimerTextGO;
 
     private System.Random rng;
-    private AnalyticsDelegator analyticsDelegator;
     private TextMeshProUGUI dailyTimerText;
     public MineRenderer mineRenderer;
     public PlayerState playerState;
@@ -84,7 +83,6 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
     }
 
     void Awake() {
-        analyticsDelegator = AnalyticsDelegator.Instance;
         dailyTimerText = dailyTimer.GetComponent<TextMeshProUGUI>();
 
         for (int i = 0; i != challengeButtons.Length; i++) {
@@ -232,7 +230,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 // For using random ores (set in AddOreBasedOnTier)
                 //oreName = oreNeeded[oreNeededCounter];
                 // For using the required ore to move to next level
-                oreName = mineRenderer.refineryUpgradePad.GetRequiredOreName();
+                oreName = RefineryUpgradePad.Instance.GetRequiredOreName();
                 oreNeededCounter++;
             }
 
@@ -294,7 +292,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
                 }*/
                 // For using the required ore to move to next level
 
-                if (selectedChallenges[i] == 2 && mineRenderer.refineryUpgradePad.GetRequiredOreName() == key)
+                if (selectedChallenges[i] == 2 && RefineryUpgradePad.Instance.GetRequiredOreName() == key)
                 {
                     challengeProgress[i] += quantities[key];
                     oreNeededCounter++;
@@ -317,7 +315,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
         playerState.AddGems((long) rewardAmounts[challengeIndex]);
         DisableChallengeButton(challengeIndex);
         challengeProgress[5]++;
-        analyticsDelegator.CollectChallengeReward(selectedChallenges[challengeIndex]);
+        AnalyticsDelegator.Instance.CollectChallengeReward(selectedChallenges[challengeIndex]);
 
         UpdateDisplay();
     }
@@ -368,7 +366,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
 
     public void StartSuperChallenge() {
         StartCoroutine(CountdownSuperChallengeTimer(superChallengeStartTimer));
-        analyticsDelegator.StartSuperChallenge(selectedChallenges[0]);
+        AnalyticsDelegator.Instance.StartSuperChallenge(selectedChallenges[0]);
     }
 
     private IEnumerator CountdownSuperChallengeTimer(int startTime) {
@@ -405,7 +403,7 @@ public class DailyChallengeDelegator : MonoBehaviour, IDataPersistence
             superChallengeStartButtonGO.GetComponent<Button>().interactable = true;
         } else {
             // If successfully completed then log how long it took
-            analyticsDelegator.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
+            AnalyticsDelegator.Instance.CompleteSuperChallenge(selectedChallenges[0], superChallengeTimer);
         }
 
         superChallengeStartButtonText.text = "START";

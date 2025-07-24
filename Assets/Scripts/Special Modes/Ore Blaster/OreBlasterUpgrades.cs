@@ -7,10 +7,8 @@ using UnityEngine.UI;
 
 public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
 {
-    private AnalyticsDelegator analyticsDelegator;
     [SerializeField] private PlayerState playerState;
     [SerializeField] private OreBlaster oreBlaster;
-    [SerializeField] private UIDelegation uIDelegation;
     [SerializeField] private OreBlasterDailyChallengeDelegator oreBlasterDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
@@ -31,7 +29,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         int level = GetUpgradeLevel(upgradeType);
 
         if (!playerState.VerifyEnoughCredits(upgradePrices[level])) {
-            uIDelegation.ShowError("NOT ENOUGH CREDITS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH CREDITS!");
             return;
         }
 
@@ -47,7 +45,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
 
         oreBlasterDailyChallengeDelegator.LeveledUpPower(GetUpgradeLevel("Radius"), GetUpgradeLevel("Reload"));
         
-        analyticsDelegator.TechLabUpgrade(upgradeType);
+        AnalyticsDelegator.Instance.TechLabUpgrade(upgradeType);
     }
 
     public int GetUpgradeLevel(string key) {
@@ -117,11 +115,6 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
     }
 
     public void LoadData(GameData data) {
-        try {
-            analyticsDelegator = AnalyticsDelegator.Instance;
-        } catch {
-        }
-
         this.oreBlasterUpgrades = data.oreBlasterUpgrades;
 
         UpdatePowerPanels();

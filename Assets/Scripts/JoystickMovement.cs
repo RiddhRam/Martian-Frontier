@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class JoystickMovement : MonoBehaviour
 {
@@ -12,7 +13,7 @@ public class JoystickMovement : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<JoystickMovement>();
+                _instance = FindFirstObjectByType<JoystickMovement>();
             }
             return _instance;
         }
@@ -20,7 +21,9 @@ public class JoystickMovement : MonoBehaviour
 
     public GameObject joystick;
     public GameObject joystickBG;
+    public NPCMovement nPCMovement;
     public Vector2 joystickVec;
+    public Image joystickRaycastImage;
     private Vector2 joystickTouchPos;
     private Vector2 joystickOriginalPos;
     private float joystickRadius;
@@ -35,7 +38,7 @@ public class JoystickMovement : MonoBehaviour
         joystickRadius = joystickBG.GetComponent<RectTransform>().sizeDelta.y / 4;
 
         mainCamera = Camera.main;
-        myRectTransform = transform.parent.parent.GetComponent<RectTransform>();
+        myRectTransform = transform.parent.GetComponent<RectTransform>();
     }
 
     public void PointerDown() {
@@ -56,6 +59,12 @@ public class JoystickMovement : MonoBehaviour
         joystick.transform.localPosition = localPoint;
         joystickBG.transform.localPosition = joystick.transform.localPosition;
         joystickTouchPos = joystick.transform.localPosition;
+
+        // Don't display if the player is not controlling a drone
+        if (nPCMovement == null)
+        {
+            return;
+        }
 
         joystick.SetActive(true);
         joystickBG.SetActive(true);

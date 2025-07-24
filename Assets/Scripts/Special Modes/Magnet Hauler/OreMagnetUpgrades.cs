@@ -9,8 +9,6 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 {
     [SerializeField] private PlayerState playerState;
     [SerializeField] private CreditMagnet creditMagnet;
-    [SerializeField] private UIDelegation uIDelegation;
-    private AnalyticsDelegator analyticsDelegator;
     [SerializeField] MagnetHaulerDailyChallengeDelegator magnetHaulerDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
@@ -27,16 +25,14 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
     private SerializableDictionary<string, int> magnetHaulerUpgrades;
     private readonly int[] upgradePrices = { 300, 500, 700, 1000, 1300, 1700, 2200, 2800, 3500, 4300, 5200, 6200, 7400, 8700, 10100, 11800, 13600, 15700, 18000, 20500 };
 
-    void Awake()
-    {
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
-    public void UpgradeMagnet(string upgradeType) {
+    public void UpgradeMagnet(string upgradeType)
+    {
         int level = GetUpgradeLevel(upgradeType);
 
-        if (!playerState.VerifyEnoughCredits(upgradePrices[level])) {
-            uIDelegation.ShowError("NOT ENOUGH CREDITS!");
+        if (!playerState.VerifyEnoughCredits(upgradePrices[level]))
+        {
+            UIDelegation.Instance.ShowError("NOT ENOUGH CREDITS!");
             return;
         }
 
@@ -44,7 +40,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
         level++;
         magnetHaulerUpgrades[upgradeType] = level;
-        
+
         UpdatePowerPanels();
         SetPowers();
 
@@ -52,7 +48,7 @@ public class OreMagnetUpgrades : MonoBehaviour, IDataPersistence
 
         magnetHaulerDailyChallengeDelegator.LeveledUpPower(GetUpgradeLevel("Range"), GetUpgradeLevel("Strength"));
 
-        analyticsDelegator.TechLabUpgrade(upgradeType);
+        AnalyticsDelegator.Instance.TechLabUpgrade(upgradeType);
     }
 
     public int GetUpgradeLevel(string key) {

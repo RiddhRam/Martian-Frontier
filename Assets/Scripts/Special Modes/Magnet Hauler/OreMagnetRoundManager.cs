@@ -23,12 +23,7 @@ public class OreMagnetRoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource UISoundEffects;
     [SerializeField] private AudioClip roundEndSoundEffect;
-    private AudioDelegator audioDelegator;
 
-    void Awake()
-    {
-        audioDelegator = AudioDelegator.Instance;
-    }
 
     void Start()
     {
@@ -65,7 +60,7 @@ public class OreMagnetRoundManager : MonoBehaviour
         // Hide map
         largeFogOfWar.SetActive(true);
         
-        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(magnetHauler.collectedCredits);
         magnetHaulerDailyChallengeDelegator.CollectedCredits(magnetHauler.collectedCredits);

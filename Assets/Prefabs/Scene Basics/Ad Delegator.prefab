@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 7275943730824477302}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 273.97125, y: 631.07544, z: -8.480286}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -44,15 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aeb61d4ad422a4f669e1e5d7628c8ea6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  adButtons:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  noInternetIcon: {fileID: 0}
-  timerTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
+  adButton: {fileID: 0}
+  visionText: {fileID: 0}
+  profitText: {fileID: 0}
+  rewardAdTimerText: {fileID: 0}
   rewardTypes:
   - Profit
   - Speed
@@ -68,17 +63,14 @@ MonoBehaviour:
   leaderboardNoWifi: {fileID: 0}
   doubleCrateRewardButton: {fileID: 0}
   crateRewardNoWifi: {fileID: 0}
-  leaderboardTabButtons: {fileID: 0}
+  teamNoWifi: {fileID: 0}
+  lobbyAdDisplay: {fileID: 0}
+  lobbyAdRewardAmountText: {fileID: 0}
+  lobbyAdRewardTimerText: {fileID: 0}
   leaderboardCashPanel: {fileID: 0}
-  leaderboardVehiclesPanel: {fileID: 0}
   originalSpeed: 0
   speedBoostActive: 0
-  dataPersistenceManager: {fileID: 0}
-  analyticsDelegator: {fileID: 0}
-  cloudDelegator: {fileID: 0}
   playerState: {fileID: 0}
   refineryController: {fileID: 0}
-  lobbyAdScript: {fileID: 0}
   supplyCrateDelegator: {fileID: 0}
-  lobbyAdReward: 0
-  lobbyAdButton: {fileID: 0}
+  upgradesDelegator: {fileID: 0}

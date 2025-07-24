@@ -11,7 +11,7 @@ public class AudioDelegator : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AudioDelegator>();
+                _instance = FindFirstObjectByType<AudioDelegator>();
             }
             return _instance;
         }

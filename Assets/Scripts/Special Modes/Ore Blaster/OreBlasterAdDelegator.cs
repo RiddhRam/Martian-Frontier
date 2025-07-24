@@ -27,14 +27,10 @@ public class OreBlasterAdDelegator : MonoBehaviour
 
     private int oreBlasterAdTimer = 0;
 
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
-    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public OreBlasterRoundManager oreBlasterRoundManager;
     public OreBlasterUpgrades oreBlasterUpgrades;
     public OreBlaster oreBlaster;
-    public UIDelegation uIDelegation;
 
     private bool adsInitialized = false;
     private string adPermissionGiven;
@@ -44,13 +40,6 @@ public class OreBlasterAdDelegator : MonoBehaviour
     private bool cloudLoading = false;
     private bool displayStatus = true;
     private bool adShowing = false;
-
-    void Awake()
-    {
-        cloudDelegator = CloudDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -218,7 +207,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
         // If user watched an ad in the last 30 seconds or first time playing
         if (lastAdShown >= DateTime.Now.AddSeconds(-90)) {
             RewardBoost();
-            dataPersistenceManager.SaveGame();
+            DataPersistenceManager.Instance.SaveGame();
             return;
         }
 
@@ -231,7 +220,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
                 adShowing = false;
                 lastAdShown = DateTime.Now;
                 RewardBoost();
-                dataPersistenceManager.SaveGame();
+                DataPersistenceManager.Instance.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
 
@@ -244,7 +233,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
         StartCoroutine(UseCustomAdScreen(() => RewardBoost()));
 
         lastAdShown = DateTime.Now;
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     public void ShowConvertRewardedAd() {
@@ -274,7 +263,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
 
     public void ConvertToCredits(int gemCount) {
         if (!playerState.VerifyEnoughGems(gemCount)) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
@@ -282,7 +271,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
         playerState.AddCredits(gemCount * 2);
         playerState.SubtractGems(gemCount);
 
-        analyticsDelegator.PurchaseCreditsWithGems(gemCount * 2);
+        AnalyticsDelegator.Instance.PurchaseCreditsWithGems(gemCount * 2);
     }
 
     private void ConvertRewardSuccess() {
@@ -385,7 +374,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
             //convertRewardNoWifi.SetActive(false);
             //doubleConvertRewardButton.SetActive(true);
 
-            _ = cloudDelegator.AttemptLogIn();
+            CloudDelegator.Instance.AttemptLogIn();
             
             displayStatus = true;
             return;
@@ -416,7 +405,7 @@ public class OreBlasterAdDelegator : MonoBehaviour
     }
 
     private void LogAnalytics(string analyticToLog) {
-        analyticsDelegator.AdWatchAttempt(analyticToLog);
+        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog, MineRenderer.Instance.mineCount);
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {

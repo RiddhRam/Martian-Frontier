@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
@@ -17,7 +16,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AdDelegator>();
+                _instance = FindFirstObjectByType<AdDelegator>();
             }
             return _instance;
         }
@@ -25,6 +24,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private string _adUnitId = "unused";
     public GameObject adButton;
+    public GameObject rewardDisplay;
     public TextMeshProUGUI visionText;
     public TextMeshProUGUI profitText;
     public TextMeshProUGUI rewardAdTimerText;
@@ -62,9 +62,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private double lobbyRewardAmount;
     private int lobbyRewardTimer;
 
-    private DataPersistenceManager dataPersistenceManager;
-    private AnalyticsDelegator analyticsDelegator;
-    private CloudDelegator cloudDelegator;
     public PlayerState playerState;
     public RefineryController refineryController;
     public SupplyCrateDelegator supplyCrateDelegator;
@@ -78,13 +75,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     private bool disableAds = false;
     private bool adShowing = false;
     private System.Random rng = new();
-
-    void Awake()
-    {
-        cloudDelegator = CloudDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -129,10 +119,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // If there is internet
         internetReachable = true;
         ToggleDisplay();
-
-        if (firstTimePlaying) {
-            return;
-        }
         
         timer++;
 
@@ -263,12 +249,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     {
         if (disableAds)
             return;
-        // If user watched an ad in the last 30 seconds or first time playing
-        if (firstTimePlaying) {
-            RewardBoost();
-            dataPersistenceManager.SaveGame();
-            return;
-        }
 
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
@@ -278,7 +258,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             {
                 adShowing = false;
                 RewardBoost();
-                dataPersistenceManager.SaveGame();
+                DataPersistenceManager.Instance.SaveGame();
                 //Debug.Log(String.Format(rewardMsg, reward.Type, reward.Amount));
             });
 
@@ -289,7 +269,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
         // ADMOB SERVING LIMIT
         RewardBoost();
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
         return;
 
         // If unable to show ad, use custom screen
@@ -304,11 +284,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         try {
             LogAnalytics("Crate");
         } catch {
-        }
-
-        if (firstTimePlaying) {
-            CrateRewardSuccess();
-            return;
         }
 
         // ADMOB DISABLE
@@ -346,11 +321,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
 
-        if (firstTimePlaying) {
-            LobbyRewardSuccess();
-            return;
-        }
-
         // ADMOB DISABLE
         if (crateAd != null && crateAd.CanShowAd())
         {   
@@ -382,7 +352,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         yield return new WaitForEndOfFrame();
 
         supplyCrateDelegator.DoubleRewardsActivated();
-        dataPersistenceManager.SaveGame();
+        DataPersistenceManager.Instance.SaveGame();
     }
 
     private void LobbyRewardSuccess() {
@@ -399,8 +369,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(double rewardAmount) {
 
-        // show unless ads disabled or already showing or no internet or first time playing or rewardAmount is less than 1000
-        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || firstTimePlaying || rewardAmount < 1000) {
+        // show unless ads disabled or already showing or no internet or rewardAmount is less than 1000
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || rewardAmount < 1000) {
             yield break;
         }
 
@@ -520,7 +490,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             deleteAccountButton.SetActive(true);
             leaderboardCashPanel.SetActive(cashPanelWasOpen);
             leaderboardNoWifi.SetActive(false);
-            
 
             if (!disableAds) {
 
@@ -535,7 +504,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
             }
 
-            _ = cloudDelegator.AttemptLogIn();
+            CloudDelegator.Instance.AttemptLogIn();
             
             displayStatus = true;
             return;
@@ -568,15 +537,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         displayStatus = false;
     }
 
-    private void RewardBoost(int? totalTime = 180) {
-
-        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        originalSpeed = playerMovement.GetSpeed();
-        playerMovement.SetSpeed(originalSpeed * 1.5f);
-
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost + 6);
-        visionText.text = "+6";
+    private void RewardBoost(int? totalTime = 300) {
 
         //refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier * upgradesDelegator.refineryProfitMultiplierBoost);
         //profitText.text = upgradesDelegator.refineryProfitMultiplierBoost.ToString() + "X";
@@ -590,17 +551,16 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        analyticsDelegator.AdWatchAttempt(analyticToLog);
+        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog, MineRenderer.Instance.mineCount);
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {
 
         // So game doesnt crash on android
         yield return new WaitForEndOfFrame();
-        speedBoostActive = true;
 
         adButton.SetActive(false);
-        visionText.transform.parent.parent.gameObject.SetActive(true);
+        rewardDisplay.SetActive(true);
 
         int minutes;
         int seconds;
@@ -626,29 +586,25 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         rewardAdTimerText.text = "0:00";
         rewardAdTimer = 0;
 
+        rewardDisplay.SetActive(false);
         adButton.SetActive(true);
-        visionText.transform.parent.parent.gameObject.SetActive(false);
-        
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost);
 
         refineryController.SetProfitMultiplier(1);
-
-        speedBoostActive = false;
-        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(originalSpeed);
         yield break;
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (!data.finishedTutorial)
+        {
+            firstTimePlaying = true;
+        }
+        
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 1) {
+            // No ads in tutorial
             disableAds = true;
             return;
-        }
-
-        if (!data.finishedTutorial) {
-            firstTimePlaying = true;
         }
     }
 

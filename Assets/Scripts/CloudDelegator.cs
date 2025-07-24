@@ -2,68 +2,98 @@ using System;
 using System.Threading.Tasks;
 using System.Collections;
 using UnityEngine;
-using Unity.Services.Authentication;
-using Unity.Services.Authentication.PlayerAccounts;
-using Unity.Services.Core;
-using Unity.Services.CloudSave;
-using Unity.Services.CloudCode;
+
 using TMPro;
 using System.IO;
+using System.IO.Compression;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Collections.Generic;
 using UnityEngine.SceneManagement;
+using Firebase;
+using Firebase.Auth;
+using Firebase.Functions;
+using Firebase.Firestore;
+using Firebase.Extensions;
+using System.Collections.Generic;
+using System.Threading;
+using Unity.Services.Core;
 
 public class CloudDelegator : MonoBehaviour
 {
+    [Header("Firebase")]
+    public DependencyStatus dependencyStatus;
+    public FirebaseAuth auth;
+    public FirebaseFunctions functions;
+    public FirebaseUser user;
+    public FirebaseFirestore firestore;
+    private SynchronizationContext _unityContext;
+
     private static CloudDelegator _instance;
-    public static CloudDelegator Instance 
+    public static CloudDelegator Instance
     {
-        get  
+        get
         {
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<CloudDelegator>();
+                _instance = FindFirstObjectByType<CloudDelegator>();
             }
             return _instance;
         }
     }
+    [Header("Panels and Displays")]
     public TMP_Text userNameText;
     public GameObject loginPanel, userPanel;
-    public GameObject askToLogOut;
     public GameObject askToChangeName;
-    public GameObject askToDeleteAccount;
-    public TMP_InputField newName;
     public GameObject forceUpdate;
+    public GameObject passwordResetEmailSent;
 
-    public UIDelegation uIDelegation;
-    private DataPersistenceManager dataPersistenceManager;
-    private LoadingScreen loadingScreen;
-    private LeaderboardDelegator leaderboardDelegator;
+    [Header("Input fields")]
+    public TMP_InputField newName;
+    public TMP_InputField logInEmail;
+    public TMP_InputField logInPassword;
+    public TMP_InputField signUpEmail;
+    public TMP_InputField signUpPassword;
 
-    private PlayerProfile playerProfile;
-    private PlayerInfo playerInfo;
-    bool attemptedLogIn = false;
-    private readonly int currentVersionNumber = 116;
+    private readonly int currentVersionNumber = 144;
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
 
-    async void Awake() {
-        loadingScreen = LoadingScreen.Instance;
-        leaderboardDelegator = LeaderboardDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
+    async void Awake()
+    {
+        _unityContext = SynchronizationContext.Current;
+
+        _unityContext.Post(_ =>
+        {
+            // Set default local name
+            if (PlayerPrefs.GetString("PlayerName").Length == 0)
+            {
+                var rnd = new System.Random();
+                int randomNumber = rnd.Next(0, 10000);
+
+                UpdateLocalPlayerName($"Player{randomNumber:D4}");
+            }
+            
+        }, null);
 
         await UnityServices.InitializeAsync();
-        PlayerAccountService.Instance.SignedIn += SignedIn;
 
-        try {
-            await AttemptLogIn();
-        } catch (Exception ex) {
-            Debug.Log("Couldnt log in: " + ex.Message);
-        }
+        await FirebaseApp.CheckAndFixDependenciesAsync().ContinueWith(task =>
+        {
+            dependencyStatus = task.Result;
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+            if (dependencyStatus == DependencyStatus.Available)
+            {
+                InitializeFirebase();
+            }
+            else
+            {
+                Debug.LogError("Could not resolve all firebase dependencies: " + dependencyStatus);
+            }
+        });
+
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
         }
 
@@ -72,321 +102,449 @@ public class CloudDelegator : MonoBehaviour
         StartCoroutine(AutoSaveCoroutine());
     }
 
-    public async Task AttemptLogIn() {
-
-        if (attemptedLogIn) {
-            return;
-        }
-
-        // Only sign in when needed
-        if (AuthenticationService.Instance.IsSignedIn)
-        {
-            return;
-        }
-        
-        // Sign in Anonymously
-        // This call will sign in the cached player, or make a new account.
-        try
-        {
-            doingSigninProcess = true;
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-            attemptedLogIn = true;
-            OnSignedIn();
-        }
-        catch (AuthenticationException ex)
-        {
-            doingSigninProcess = false;
-            // Compare error code to AuthenticationErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        }
-        catch (RequestFailedException ex)
-        {
-            doingSigninProcess = false;
-            // Compare error code to CommonErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        } catch {
-            doingSigninProcess = false;
-        }
-    }
-
-    public async void LoginButtonPressed()
+    void InitializeFirebase()
     {
-        await InitSignIn();
+        auth = FirebaseAuth.DefaultInstance;
+
+        functions = FirebaseFunctions.DefaultInstance;
+
+        firestore = FirebaseFirestore.DefaultInstance;
+
+        auth.StateChanged += AuthStateChanged;
+        AuthStateChanged(this, null);
     }
 
-    public void AskToLogOut() {
-        askToLogOut.SetActive(true);
-    }
-
-    public void CancelLogOut() {
-        askToLogOut.SetActive(false);
-    }
-
-    public async void LogOut()
+    void AuthStateChanged(object sender, System.EventArgs eventArgs)
     {
-        if (AuthenticationService.Instance.IsSignedIn)
+        if (auth.CurrentUser != user)
         {
-            try {
-                await SaveGameDataToCloud();
-            } catch {
+            bool signedin = user != auth.CurrentUser && auth.CurrentUser != null;
+
+            if (!signedin && user != null)
+            {
+                Debug.Log("Signed out " + user.UserId);
             }
 
-            AuthenticationService.Instance.SignOut(true); // True to clear cache
-            PlayerAccountService.Instance.SignOut();
+            user = auth.CurrentUser;
 
-            loginPanel.SetActive(true);
-            userPanel.SetActive(false);
-            askToLogOut.SetActive(false);
-
-            uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
-            uIDelegation.RevealAll();
-
-            await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
-            OnSignedIn();
-
-            dataPersistenceManager.ResetEntireGame();
-        }
-    }
-
-    public void TempSignOut() {
-        AuthenticationService.Instance.SignOut(false); // True to clear cache
-    }
-
-    public void AskToChangeName() {
-        askToChangeName.SetActive(true);
-    }
-
-    public void CancelChangeName() {
-        askToChangeName.SetActive(false);
-    }
-
-    public async void ChangeName() {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
-            uIDelegation.ShowError("NO INTERNET!");
-            return;
-        }
-
-        if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]")) {
-            uIDelegation.ShowError("INVALID NAME!");
-            return;
-        }
-
-        try {
-            await AuthenticationService.Instance.UpdatePlayerNameAsync(newName.text);
-            askToChangeName.SetActive(false);
-
-            var name = await AuthenticationService.Instance.GetPlayerNameAsync();
-            PlayerPrefs.SetString("PlayerName", name);
-            playerProfile.Name = name;
-            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
-        } catch {
-            uIDelegation.ShowError("NAME IS ALREADY TAKEN");
-        }
-
-    }
-
-    public void AskToDeleteAccount() {
-        askToDeleteAccount.SetActive(true);
-    }
-
-    public void CancelDeleteAccount() {
-        askToDeleteAccount.SetActive(false);
-    }
-
-    public async void DeleteAccount() {
-        if (Application.internetReachability == NetworkReachability.NotReachable) {
-            uIDelegation.ShowError("NO INTERNET!");
-            return;
-        }
-
-        await AuthenticationService.Instance.DeleteAccountAsync();
-        askToDeleteAccount.SetActive(false);
-
-        AuthenticationService.Instance.SignOut(true); // True to clear cache
-        PlayerAccountService.Instance.SignOut();
-
-        loginPanel.SetActive(true);
-        userPanel.SetActive(false);
-        askToLogOut.SetActive(false);
-
-        uIDelegation.HideElement(userPanel.transform.parent.parent.gameObject);
-        uIDelegation.RevealAll();
-
-        await AuthenticationService.Instance.SignInAnonymouslyAsync();
-
-        OnSignedIn();
-
-        dataPersistenceManager.ResetEntireGame();
-    }
-
-    public async Task InitSignIn() {
-        try {
-            await PlayerAccountService.Instance.StartSignInAsync();
-        } 
-        catch (AuthenticationException ex)
-        {
-            // Compare error code to AuthenticationErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        }
-        catch (RequestFailedException ex)
-        {
-            // Compare error code to CommonErrorCodes
-            // Notify the player with the proper error message
-            Debug.LogException(ex);
-        }  
-    }
-
-    private async void SignedIn() {
-        try {
-            var accessToken = PlayerAccountService.Instance.AccessToken;
-            await ConnectWithUnityAsync(accessToken);
-        } 
-        catch(Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-
-    async Task ConnectWithUnityAsync(string accessToken) {
-
-        try {
-            await AuthenticationService.Instance.LinkWithUnityAsync(accessToken);
-        } 
-        catch (AuthenticationException ex) when (ex.ErrorCode == AuthenticationErrorCodes.AccountAlreadyLinked) {
-
-            AuthenticationService.Instance.SignOut(true);
-            try {
-                await AuthenticationService.Instance.SignInWithUnityAsync(accessToken);
-            } 
-            catch (Exception error) {
-                Debug.Log(error.Message);
+            if (signedin)
+            {
+                Debug.Log("Signed in " + user.UserId);
+                OnSignedIn();    // now on the Unity thread
             }
-            
-        } catch (Exception error) {
-            Debug.Log(error.Message);
         }
-
-        OnSignedIn();
     }
 
-    private async void OnSignedIn()
+    // Auto log in for user
+    public void AttemptLogIn()
     {
         GetLowestVersionAllowed();
-        playerProfile.playerInfo = AuthenticationService.Instance.PlayerInfo;
-
-        var name = await AuthenticationService.Instance.GetPlayerNameAsync();
-
-        PlayerPrefs.SetString("PlayerName", name);
-
-        playerInfo = playerProfile.playerInfo;
-        playerProfile.Name = name;
-
-        await Task.Delay(1000);
-
-        // Make sure not anonymous
-        if (CheckAnonymity()) {
-
-            loginPanel.SetActive(false);
-            userPanel.SetActive(true);
-        
-            userNameText.text = playerProfile.Name.Substring(0, playerProfile.Name.Length - 5);
-
-            LoadGameDataFromCloud();
-        }
-
-        if (leaderboardDelegator) {
-            _ = leaderboardDelegator.InitializeLeaderboard(playerProfile);
-            leaderboardDelegator.CheckForRewards();
-        }
-
-        Debug.Log($"PlayerID: {AuthenticationService.Instance.PlayerId}"); 
-
-        doingSigninProcess = false;
     }
 
-    private IEnumerator AutoSaveCoroutine() {
+    // Manual log in
+    public async void LogIn()
+    {
+        if (logInPassword.text.Length == 0)
+        {
+            UIDelegation.Instance.ShowError("MISSING PASSWORD!");
+            return;
+        }
+
+        Task<AuthResult> task = auth.SignInWithEmailAndPasswordAsync(logInEmail.text.Trim(), logInPassword.text);
+
+        try
+        {
+            await task;
+        }
+        catch (FirebaseException fe)
+        {
+            var error = (AuthError)fe.ErrorCode;
+            switch (error)
+            {
+                case AuthError.InvalidEmail:
+                    UIDelegation.Instance.ShowError("EMAIL IS INVALID!"); break;
+                case AuthError.WrongPassword:
+                    UIDelegation.Instance.ShowError("WRONG PASSWORD!"); break;
+                case AuthError.MissingEmail:
+                    UIDelegation.Instance.ShowError("MISSING EMAIL!"); break;
+                default:
+                    UIDelegation.Instance.ShowError("LOGIN FAILED!"); break;
+            }
+            Debug.LogError($"FirebaseException: {fe.ErrorCode}:{fe.Message}");
+            return;
+        }
+        catch (Exception ex)
+        {
+            // any other errors
+            UIDelegation.Instance.ShowError("LOGIN FAILED!");
+            Debug.LogError(ex);
+            return;
+        }
+
+        user = task.Result.User;
+        Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
+        // Hide panel
+        logInEmail.transform.parent.parent.gameObject.SetActive(false);
+    }
+
+    public async void ForgotPassword()
+    {
+
+        if (logInEmail.text.Trim().Length == 0)
+        {
+            UIDelegation.Instance.ShowError("MISSING EMAIL!");
+            return;
+        }
+
+        Task task = auth.SendPasswordResetEmailAsync(logInEmail.text.Trim());
+
+        try
+        {
+            await task;
+        }
+        catch (Exception ex)
+        {
+            // any other errors
+            UIDelegation.Instance.ShowError("EMAIL IS INVALID!");
+            Debug.LogError(ex);
+            return;
+        }
+
+        // Tell user to check their email
+        passwordResetEmailSent.SetActive(true);
+    }
+
+    public async void SignUp()
+    {
+        if (signUpPassword.text.Length == 0)
+        {
+            UIDelegation.Instance.ShowError("MISSING PASSWORD!");
+            return;
+        }
+
+        Task<AuthResult> task = auth.CreateUserWithEmailAndPasswordAsync(signUpEmail.text.Trim(), signUpPassword.text);
+
+        try
+        {
+            await task;
+        }
+        catch (FirebaseException fe)
+        {
+            if (fe.ErrorCode == 23)
+            {
+                UIDelegation.Instance.ShowError("CHOOSE A STRONGER PASSWORD!"); return;
+            }
+            else if (fe.ErrorCode == 8)
+            {
+                UIDelegation.Instance.ShowError("THIS EMAIL IS ALREADY IN USE!"); return;
+            }
+
+            var error = (AuthError)fe.ErrorCode;
+            switch (error)
+            {
+                case AuthError.InvalidEmail:
+                    UIDelegation.Instance.ShowError("EMAIL IS INVALID!"); break;
+                case AuthError.WrongPassword:
+                    UIDelegation.Instance.ShowError("WRONG PASSWORD!"); break;
+                case AuthError.MissingEmail:
+                    UIDelegation.Instance.ShowError("MISSING EMAIL!"); break;
+                default:
+                    UIDelegation.Instance.ShowError("SIGNUP FAILED!"); break;
+            }
+            Debug.LogError($"FirebaseException: {fe.ErrorCode}:{fe.Message}");
+            return;
+        }
+        catch (Exception ex)
+        {
+            // any other errors
+            UIDelegation.Instance.ShowError("SIGNUP FAILED!");
+            Debug.LogError(ex);
+            return;
+        }
+
+        user = task.Result.User;
+        Debug.LogFormat("{0}, {1}, {2}", user.DisplayName, user.UserId, user.ProviderId);
+
+        // Hide panel
+        signUpEmail.transform.parent.parent.gameObject.SetActive(false);
+    }
+
+    public void LogOut()
+    {
+        SaveGameDataToCloud();
+
+        // Sign out
+        auth.SignOut();
+
+        UpdateLocalPlayerName("");
+
+        DataPersistenceManager.Instance.ResetEntireGame();
+    }
+
+    public void ChangeName()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            UIDelegation.Instance.ShowError("NO INTERNET!");
+            return;
+        }
+
+        if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]"))
+        {
+            UIDelegation.Instance.ShowError("INVALID NAME!");
+            return;
+        }
+
+        askToChangeName.SetActive(false);
+
+        UpdateUserName(newName.text);
+    }
+
+    private async void UpdateUserName(string newName)
+    {
+
+        // Create new firebase profile
+        UserProfile newUser = new UserProfile
+        {
+            DisplayName = newName,
+        };
+
+        // Update players firebase profile
+        Task task = user.UpdateUserProfileAsync(newUser);
+        try
+        {
+            // If task succeeded
+            await task;
+
+            UpdateLocalPlayerName(newName);
+            userNameText.text = newName;
+        }
+        catch
+        {
+            // If update failed
+            UIDelegation.Instance.ShowError("COULDN'T UPDATE NAME");
+        }
+    }
+
+    private void UpdateLocalPlayerName(string newName)
+    {
+        PlayerPrefs.SetString("PlayerName", newName);
+    }
+
+    public async void DeleteAccount()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable)
+        {
+            UIDelegation.Instance.ShowError("NO INTERNET!");
+            return;
+        }
+
+        if (!CheckAnonymity())
+        {
+            return;
+        }
+
+        try
+        {
+            // Delete player
+            await user.DeleteAsync();
+
+            UpdateLocalPlayerName("");
+
+            DataPersistenceManager.Instance.ResetEntireGame();
+        }
+        catch
+        {
+            // If failed, player needs to relogin
+            UIDelegation.Instance.ShowError("PLEASE RE-LOGIN AND TRY AGAIN!");
+        }
+
+    }
+
+    private void OnSignedIn()
+    {
+        GetLowestVersionAllowed();
+
+        _unityContext.Post(_ =>
+        {
+            string userName;
+
+            if (user.DisplayName.Length == 0)
+            {
+                // Use local name if profile doesn't have one yet
+                userName = PlayerPrefs.GetString("PlayerName");
+            }
+            else
+            {
+                // Use saved profile name
+                userName = user.DisplayName;
+            }
+            
+            // Make sure not anonymous
+            if (CheckAnonymity())
+            {
+                UpdateUserName(userName);
+
+                loginPanel.SetActive(false);
+                userPanel.SetActive(true);
+
+                LoadGameDataFromCloud();
+            }
+
+            if (LeaderboardDelegator.Instance)
+            {
+                LeaderboardDelegator.Instance.CheckForRewards();
+            }
+
+            doingSigninProcess = false;
+            
+        }, null);
+    }
+
+    private IEnumerator AutoSaveCoroutine()
+    {
+        yield return new WaitForSeconds(60f); // Wait 60 seconds before the first save
+
         while (true) // Run indefinitely
         {
-            _ = SaveGameDataToCloud();
-            yield return new WaitForSeconds(60f); // Wait for 60 seconds before saving again
+            try
+            {
+                SaveGameDataToCloud();
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Couldn't save to cloud: " + e.Message);
+            }
+
+            // Put this before
+            yield return new WaitForSeconds(300f); // Wait for 300 seconds before saving again
         }
     }
 
-    public async Task SaveGameDataToCloud() {
-
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || !AuthenticationService.Instance.IsSignedIn) {
-            return;
-        }
-
-        string jsonData = dataPersistenceManager.CreateJson();
-        byte[] jsonBytes = Encoding.UTF8.GetBytes(jsonData);
-        
-        try
+    public async void SaveGameDataToCloud()
+    {
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity() || firestore == null)
         {
-            await CloudSaveService.Instance.Files.Player.SaveAsync("GameSave.json", new MemoryStream(jsonBytes));            
-        }
-        catch (Exception e)
-        {
-            Debug.Log($"Cloud save failed: {e.Message}");
-        }
-    }
-
-    public async void LoadGameDataFromCloud() {
-
-        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity()) {
             return;
         }
 
         try
         {
-            // Load the file from the cloud
-            var file = await CloudSaveService.Instance.Files.Player.LoadBytesAsync("GameSave.json");
+            // Format data properly for the database
+            string jsonData = DataPersistenceManager.Instance.CreateJson();
 
-            // Convert the file's byte data to a string
-            string jsonData = Encoding.UTF8.GetString(file);
-            
-            GameData gameData = dataPersistenceManager.ParseJson(jsonData);
+            byte[] compressedJson = Compress(jsonData);
 
-            // Don't load data from the cloud if player is from the beta
-            if (PlayerPrefs.GetInt("Beta") == 200) {
-                return;
-            }
+            var payload = new Dictionary<string, object>
+            {
+                { "gameSave", compressedJson }
+            };
 
-            if (dataPersistenceManager.CompareGameData(gameData)) {
-                loadingScreen.loadedItems = 0;
-                loadingScreen.totalItems = loadingScreen.cloudSaveItems;
-                loadingScreen.gameObject.SetActive(true);
-                IncrementLoadedItems();
+            // Refer to right spot in database
+            var docRef = firestore.Collection("GameSaves").Document(user.UserId);
 
-                dataPersistenceManager.DirectlyWriteSave();
-                TempSignOut();
-                SceneManager.LoadScene("Loading Screen");
-            }
+            await docRef.SetAsync(payload).ContinueWithOnMainThread(task => {
+                if (task.IsFaulted)
+                    Debug.Log($"Firestore save failed: {task.Exception.Flatten().Message}");
+                    
+            });
         }
         catch (Exception e)
         {
-            Debug.Log($"Cloud load failed: {e.Message}");
+            Debug.Log("Couldn't save to cloud:" + e.Message);
         }
     }
 
-    public bool CheckAnonymity() {
+    public async void LoadGameDataFromCloud()
+    {
+
+        if (Application.internetReachability == NetworkReachability.NotReachable || !CheckAnonymity())
+        {
+            return;
+        }
+
+        try
+        {
+            // Reference the right document and get the snapshot from the cloud
+            var docRef = firestore.Collection("GameSaves").Document(user.UserId);
+
+            await docRef.GetSnapshotAsync().ContinueWithOnMainThread(task =>
+            {
+                var document = task.Result;
+                if (document.TryGetValue("gameSave", out byte[] webData))
+                {
+                    string gameSaveString = Decompress(webData);
+                    GameData gameData = DataPersistenceManager.Instance.ParseJson(gameSaveString);
+
+                    // Don't load data from the cloud if player is from the beta
+                    if (PlayerPrefs.GetInt("Beta") == 200)
+                    {
+                        return;
+                    }
+                    
+                    try
+                    {
+                        if (DataPersistenceManager.Instance.CompareGameData(gameData)) {
+                            // Reload game with the new data
+                            DataPersistenceManager.Instance.DirectlyWriteSave();
+                            SceneManager.LoadScene("Loading Screen");
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Log($"Cloud load failed: {e.Message}");
+                    }
+                }
+                else
+                {
+                    Debug.Log("No 'gameSave' field found in Firestore document.");
+                }
+            });
+
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Couldn't load from cloud: " + e.Message);
+        }
+    }
+
+    public static byte[] Compress(string json)
+    {
+        byte[] src = Encoding.UTF8.GetBytes(json);
+        using var ms = new MemoryStream();
+        // quality 5 = good balance; 0-11 allowed
+        using (var brotli = new BrotliStream(ms, System.IO.Compression.CompressionLevel.Optimal, leaveOpen: true))
+            brotli.Write(src, 0, src.Length);
+        return ms.ToArray();
+    }
+
+    public static string Decompress(byte[] data)
+    {
+        using var input = new MemoryStream(data);
+        using var brotli = new BrotliStream(input, CompressionMode.Decompress);
+        using var sr = new StreamReader(brotli, Encoding.UTF8);
+        return sr.ReadToEnd();
+    }
+
+    public bool CheckAnonymity()
+    {
         // True if logged in
         // False if not
-        if (playerInfo != null && playerInfo.Identities.Count != 0) {
-        }
-        return playerInfo != null && playerInfo.Identities.Count != 0;
+
+        return user != null;
     }
 
     // Just so it gets factor into Loading
-    private void IncrementLoadedItems() {
-        try {
-            StartCoroutine(loadingScreen.IncrementLoadedItems(gameObject));
-        } catch {
+    private void IncrementLoadedItems()
+    {
+        try
+        {
+            StartCoroutine(LoadingScreen.Instance.IncrementLoadedItems(gameObject));
         }
-    } 
+        catch
+        {
+        }
+    }
 
     // VERSION NUMBER IS BASED ON ANDROID BUNDLE IDENTIFIER
     // ONLY UNCOMMENT IF YOU ARE UPDATING THE LOWEST_VERSION_ALLOWED
@@ -395,15 +553,32 @@ public class CloudDelegator : MonoBehaviour
     // VERSION 33 AND LOWER HAVE NO RESTRICTION BECAUSE THEY DO NOT USE THE CLOUD
     // To change current version change it above 'currentVersionNumber'
     // To change lowest version allowed, change it in Unity Cloud Dashboard -> Cloud Code -> JS Scripts -> Get_Lowest_Version_Allowed and then change the integer in the script
-    private async void GetLowestVersionAllowed() {
+    private async void GetLowestVersionAllowed()
+    {
         try
         {
-            var arguments = new Dictionary<string, object>();
-            var response = await CloudCodeService.Instance.CallEndpointAsync<LowestVersionCloudResponse>("Get_Lowest_Version_Allowed", arguments);
+            // If any arguments to send, use:
+            //var data = new Dictionary<string, object>();
 
-            if (response.Lowest_Version_Allowed > currentVersionNumber) {
-                forceUpdate.SetActive(true);
-                Time.timeScale = 0;
+            // Call the function
+            var result = await functions
+                .GetHttpsCallable("GetLowestVersionAllowed")
+                .CallAsync();
+
+            var data = result.Data as IDictionary<object, object>;
+
+            if (data != null && data.ContainsKey("Version"))
+            {
+                int lowestAllowedVersion = Convert.ToInt32(data["Version"]);
+
+                if (lowestAllowedVersion > currentVersionNumber)
+                {
+                    _unityContext.Post(_ =>
+                    {
+                        forceUpdate.SetActive(true);
+                        Time.timeScale = 0;
+                    }, null);
+                }
             }
         }
         catch (Exception e)
@@ -412,32 +587,25 @@ public class CloudDelegator : MonoBehaviour
         }
     }
 
-    public void GoToAppStore() {
+    public void GoToAppStore()
+    {
         string url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier";
-        
-        #if UNITY_ANDROID
-            url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier"; // Replace with your app's package name
-        #elif UNITY_IOS
+
+#if UNITY_ANDROID
+        url = "https://play.google.com/store/apps/details?id=com.ryd.martianfrontier"; // Replace with your app's package name
+#elif UNITY_IOS
             url = "https://apps.apple.com/us/app/martian-frontier/id6740146979"; // Replace with your app's iOS app ID
-        #endif
-        
+#endif
+
         Application.OpenURL(url);
     }
 
-    void OnDestroy() {
-        PlayerAccountService.Instance.SignedIn -= SignedIn;
+    public void ShowPrviacyPolicy()
+    {
+        Application.OpenURL("https://rydstudios.com/privacy");
     }
-}
-
-[Serializable]
-public struct PlayerProfile
-{
-    public PlayerInfo playerInfo;
-    public string Name;
-}
-
-[Serializable]
-public class LowestVersionCloudResponse
-{
-    public int Lowest_Version_Allowed;
+    
+    public void ShowTOS() {
+        Application.OpenURL("https://rydstudios.com/tos");
+    }
 }

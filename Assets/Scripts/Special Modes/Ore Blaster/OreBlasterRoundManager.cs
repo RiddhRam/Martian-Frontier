@@ -23,12 +23,9 @@ public class OreBlasterRoundManager : MonoBehaviour
 
     [SerializeField] private AudioSource UISoundEffects;
     [SerializeField] private AudioClip roundEndSoundEffect;
-    private AudioDelegator audioDelegator;
 
     void Start()
-    {
-        audioDelegator = AudioDelegator.Instance;
-        
+    {        
         oreBlaster.UpdateCreditCount(0);
         StartCoroutine(AnimateArrow());
     }
@@ -60,7 +57,7 @@ public class OreBlasterRoundManager : MonoBehaviour
 
         StartCoroutine(ResetMine());
         
-        audioDelegator.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, roundEndSoundEffect, 0.25f);
 
         playerState.AddCredits(oreBlaster.collectedCredits);
         oreBlasterDailyChallengeDelegator.BlastedCredits(oreBlaster.collectedCredits);

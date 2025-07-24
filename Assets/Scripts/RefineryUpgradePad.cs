@@ -7,12 +7,23 @@ using UnityEngine.UI;
 // Is also the controller for the upgrade panel
 public class RefineryUpgradePad : MonoBehaviour
 {
+    private static RefineryUpgradePad _instance;
+    public static RefineryUpgradePad Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<RefineryUpgradePad>();
+            }
+            return _instance;
+        }
+    }
+
     [Header("Scripts")]
-    [SerializeField] UIDelegation uIDelegation;
     [SerializeField] OreDelegation oreDelegation;
     public PlayerState playerState;
-    JoystickMovement joystickMovement;
-    [SerializeField] AudioDelegator audioDelegator;
     public MineRenderer mineRenderer;
 
     [Header("Audio")]
@@ -35,28 +46,96 @@ public class RefineryUpgradePad : MonoBehaviour
     public GameObject proceedPanel;
 
     [Header("Proceed Panel")]
-    public TextMeshProUGUI mineCounter;
+    public TextMeshProUGUI mineName;
+    public TextMeshProUGUI nextMineName;
     public TextMeshProUGUI upgradeRequirement;
     public TextMeshProUGUI cashProceedAmountText;
     public Button proceedButton;
+    public Slider proceedProgress;
+    static readonly string[] mineNames = new string[]
+    {
+        "Ares Landing",
+        "Olympus City",
+        "Endurance Point",
+        "Fortitude",
+        "New Houston",
+        "The Dustbowl",
+        "Redview",
+        "The Nexus",
+        "Orbital Gate",
+        "Red Vista",
+        "Neo Terminal",
+        "Port Nova",
+        "Kiruna II",
+        "Red London",
+        "Obelisk",
+        "Armstrong Spire",
+        "Hope's Landing",
+        "Glory's Claim",
+        "Unity Station",
+        "Pioneer's Rest",
+        "Barsoom",
+        "Breakthrough",
+        "Last Refuge",
+        "Solitude",
+        "Apex City",
+        "Ridgegate",
+        "Breachpoint",
+        "Silica Spire",
+        "The Quarry",
+        "Ironstone",
+        "Bedrock Bastion",
+        "Pyrite Point",
+        "Vulcan's Forge",
+        "Solace",
+        "The Grid",
+        "Bradbury",
+        "Sky-Hub",
+        "Kepler's Landing",
+        "Goddard's Reach",
+        "Rustpoint",
+        "Cinderpit",
+        "The Warren",
+        "Skybreak Mine",
+        "The Terminus",
+        "Farpoint",
+        "The Drillhead",
+        "Red Fissure",
+        "The Windbreak",
+        "Marsgrad",
+        "Port Armstrong",
+        "Prospect Point",
+        "Dawn's Reach",
+        "Horizon's Gate",
+        "Outcrop Oasis",
+        "Red Rock",
+        "Elysium City",
+        "Westgate",
+        "Ironclad",
+        "Echo Base",
+        "Lookout"
+    };
 
     int requiredOreIndex;
     int requiredOreUpgradeLevel;
     double cashProceedAmount;
 
     const float orePriceMultiplierPerLevel = 1.08f;
-    const float oreUpgradePriceMultiplierPerLevel = 1.2f;
+    const float oreUpgradePriceMultiplierPerLevel = 1.20f;
+
+    const float baseMaterialPriceMultiplier = 5f;
 
     [Header("For Tutorial")]
     public bool flashButton;
     public Image closeButtonImage;
-    public Image limestoneUpgradeImage;
+    [HideInInspector] public Image limestoneUpgradeImage;
     public Image proceedPanelButtonImage;
+
+    [Header("Notice Icons")]
+    public GameObject proceedNoticeIcon;
 
     void Awake()
     {
-        joystickMovement = JoystickMovement.Instance;
-
         // Store this for reference later
         int[] materialPrices = oreDelegation.GetOriginalMaterialPrices();
         originalMaterialPrices = new long[materialPrices.Length];
@@ -67,30 +146,120 @@ public class RefineryUpgradePad : MonoBehaviour
         }
     }
 
-    void OnTriggerEnter2D(Collider2D collision)
+    void Start()
     {
+        StartCoroutine(NotifyPlayerOfUpgrades());
+        //StartCoroutine(HighlightUpgradeRequirement());
+    }
 
-        // Only the Player Trigger trigger can activate the pad, not the body or drill
-        // Only the player vehicle can open the UI panel on their local game
-        if (collision.name != "Player Trigger" || !collision.transform.parent.parent.name.Contains("Player Vehicle"))
+    private IEnumerator NotifyPlayerOfUpgrades()
+    {
+        // If still in the tutorial, wait a bit to not mix up the player.
+        //yield return new WaitUntil(() => TutorialManager.Instance.finishedTutorial || TutorialManager.Instance.tutorialScreenIndex >= 11);
+
+        while (true)
         {
-            return;
+            bool affordable = CanAffordAnUpgrade();
+
+            bool canProceed = false;
+
+            if (GetOreUpgradeLevel(requiredOreIndex) >= requiredOreUpgradeLevel)
+            {
+                canProceed = true;
+            }
+
+            // Toggle all icons on the drones
+            for (int i = 0; i != NPCManager.Instance.upgradeNoticeIcons.Length; i++)
+            {
+                if (NPCManager.Instance.upgradeNoticeIcons[i] == null)
+                    continue;
+
+                NPCManager.Instance.upgradeNoticeIcons[i].SetActive(affordable);
+            }
+
+            // Toggle the icon on the proceed button
+            proceedNoticeIcon.SetActive(canProceed);
+
+            yield return new WaitForSecondsRealtime(0.5f);
+        }
+    }
+
+    private IEnumerator HighlightUpgradeRequirement()
+    {
+        Color originalColor = upgradeRequirement.color;
+        Color highlightColor = new(57 / 255f, 255 / 255f, 20 / 255f);
+
+        while (true)
+        {
+            float t = Mathf.PingPong(Time.time / 0.5f, 1f);
+            upgradeRequirement.color = Color.Lerp(originalColor, highlightColor, t);
+            yield return null;
+        }
+    }
+
+    public bool CanAffordAnUpgrade()
+    {
+        // Do this everytime, in case mine renderer took too long to load the first time
+        int[] oresPerTier = MineRenderer.Instance.oresPerTier;
+
+        int tier = PlayerState.Instance.GetRecommendedDrillTier();
+        if (tier < 1)
+        {
+            tier = 1;
         }
 
-        // Ignore if the Rigidbody2D is essentially stationary, this means the game just loaded
-        var rb2d = collision.attachedRigidbody;
-        if (rb2d != null && rb2d.velocity.sqrMagnitude < 0.01f)
-            return;
+        bool affordable = false;
+        int oreCounter = 0;
 
+        System.Numerics.BigInteger cash = PlayerState.Instance.GetUserCash();
+
+        // Check if we can afford any upgrade at or above the selected target depth
+        for (int i = 0; i != tier; i++)
+        {
+            // If not at the right tier yet (tier is not zero-indexed so subtract 1)
+            if (i < tier - 1)
+            {
+                oreCounter += oresPerTier[i];
+                continue;
+            }
+
+            for (int j = 0; j != oresPerTier[i]; j++)
+            {
+                // Not max level, and can afford
+                if (MineRenderer.Instance.discoveredOres.Contains(oreCounter) && GetOreUpgradeLevel(oreCounter) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(oreCounter))
+                {
+                    affordable = true;
+
+                    break;
+                }
+
+                oreCounter++;
+            }
+
+            break;
+        }
+
+        // If we can't afford any upgrades at or above the selected target depth, then explicity check if we can afford the required ore
+        if (!affordable)
+        {
+            if (GetOreUpgradeLevel(requiredOreIndex) < GetRequiredOreUpgradeLevel() && (double)cash >= GetMaterialUpgradePrice(requiredOreIndex))
+            {
+                affordable = true;
+            }
+        }
+
+        return affordable;
+    }
+
+    public void PreparePanel()
+    {
         // Update in case of translations
         UpdateUpgradeRequirementText();
 
-        uIDelegation.HideAll();
         oreDelegation.PrepareGrid();
-        uIDelegation.RevealElement(refineryScreen);
 
         // Stops player from moving
-        joystickMovement.joystickVec = new();
+        //JoystickMovement.Instance.joystickVec = new();
     }
 
     public void SwitchTabs(string newTab)
@@ -128,65 +297,59 @@ public class RefineryUpgradePad : MonoBehaviour
         currentTab = newTab;
     }
 
-    // Indicate next vehicle for unlock
-    public void SetProceedPanelVehicle(GameObject nextDrill)
-    {
-        Transform nextDrillTransform = Instantiate(nextDrill).transform;
-
-        // Move to panel and scale down
-        nextDrillTransform.SetParent(proceedPanel.transform.GetChild(1));
-        nextDrillTransform.localScale = new(0.8f, 0.8f, 0.8f);
-
-        // Update positioning
-        RectTransform rt = nextDrillTransform.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = Vector2.zero;
-        rt.sizeDelta = new(-rt.sizeDelta.x, 100);
-    }
-
     // Set next requirement needed
-    public void SetProceedPanelRequirement(int mineCount) {
+    public void SetProceedPanelRequirement(int mineCount)
+    {
 
-        // ore 0, level 25
+        // ore 1, level 25
         if (mineCount == 1)
         {
             requiredOreIndex = 0;
-            requiredOreUpgradeLevel = upgradeMilestones[0];
-        }
-        // ore 1, level 25
-        else if (mineCount == 2)
-        {
-            requiredOreIndex = 1;
             requiredOreUpgradeLevel = upgradeMilestones[1];
         }
-        // 50
-        else if (mineCount == 3)
+        // ore 3, level 50
+        else if (mineCount == 2)
         {
-            requiredOreIndex = 5;
+            requiredOreIndex = 2;
             requiredOreUpgradeLevel = upgradeMilestones[2];
         }
-        else if (mineCount >= 4)
+        else if (mineCount == 3)
+        {
+            requiredOreIndex = 3;
+            requiredOreUpgradeLevel = upgradeMilestones[3];
+        }
+        else if (mineCount == 4)
+        {
+            requiredOreIndex = 4;
+            requiredOreUpgradeLevel = upgradeMilestones[4];
+        }
+        else if (mineCount == 5)
+        {
+            requiredOreIndex = 5;
+            requiredOreUpgradeLevel = upgradeMilestones[5];
+        }
+        else if (mineCount == 6)
+        {
+            requiredOreIndex = 6;
+            requiredOreUpgradeLevel = upgradeMilestones[5];
+        }
+        else if (mineCount >= 7)
         {
             requiredOreIndex = 8;
 
-            // 100
-            if (mineCount == 4)
-            {
-                requiredOreUpgradeLevel = upgradeMilestones[4];
-            }
             // 200
-            else if (mineCount == 5)
+            if (mineCount <= 8)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[6];
             }
             // 250
-            else if (mineCount >= 6)
+            else if (mineCount >= 9)
             {
                 requiredOreUpgradeLevel = upgradeMilestones[7];
             }
         }
+
+        PlayerState.Instance.SetMaxTargetDepth(MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex));
 
         UpdateUpgradeRequirementText();
 
@@ -194,9 +357,18 @@ public class RefineryUpgradePad : MonoBehaviour
     }
 
     private void UpdateUpgradeRequirementText()
-    {        
-        mineCounter.text = oreDelegation.GetLocalizedValue("MINE {0}", mineRenderer.mineCount);
+    {
+        // The current name is the value at the index of mineCount. 
+        // It will wrap back around to the start of the array if mineCount is greater than or equal to the length of the array
+        mineName.text = mineNames[mineRenderer.mineCount % mineNames.Length];
+
+        // Same as above, but index is incremented by 1
+        nextMineName.text = mineNames[(mineRenderer.mineCount + 1) % mineNames.Length];
+
+        // Requirement to reach next level
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
+
+        proceedProgress.value = (float)GetOreUpgradeLevel(requiredOreIndex) / GetRequiredOreUpgradeLevel();
     }
 
     // If player meets upgrade requirement, hide requirement and show the proceed amount
@@ -236,31 +408,20 @@ public class RefineryUpgradePad : MonoBehaviour
             return;
         }
 
-        // If not finished tutorial, you can not continue yet
-        if (!DataPersistenceManager.Instance.GetGameData().finishedTutorial)
-        {
-            uIDelegation.ShowError("FINISH THE TUTORIAL FIRST!");
-            return;
-        }
-
         // Player can proceed
         playerState.ProceedToNextMine();
     }
 
-    private double GetCashProceedAmount() {
-        double amount = GetMaterialUpgradePriceAtLevel(requiredOreIndex, requiredOreUpgradeLevel) * 2;
-
-        // Minimum
-        /*if (amount < 50_000)
-        {
-            amount = 50_000;
-        }*/
+    public double GetCashProceedAmount()
+    {
+        double amount = GetMaterialUpgradePrice(requiredOreIndex, requiredOreUpgradeLevel) * 2;
 
         return amount;
     }
 
     // Returns false if player can't afford upgrade, true otherwise
-    public bool PurchaseOreUpgrade(int oreIndex) {
+    public bool PurchaseOreUpgrade(int oreIndex, bool alternate = false)
+    {
         System.Numerics.BigInteger price = new(GetMaterialUpgradePrice(oreIndex));
 
         if (!playerState.VerifyEnoughCash(price))
@@ -284,18 +445,19 @@ public class RefineryUpgradePad : MonoBehaviour
             }
         }
 
-        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone);
+        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone, alternate);
 
         CheckIfProceedAvailable();
 
-        audioDelegator.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.2f);
+        AudioDelegator.Instance.PlayAudio(oreSoundEffectsSource, oreUpgradeSound, 0.15f);
 
         AnalyticsDelegator.Instance.OreUpgrade(mineRenderer.selectedMaterialNames[oreIndex], newLevel, mineRenderer.mineCount);
-        
+
         return true;
     }
 
-    private void UpgradeOre(int oreIndex) {
+    private void UpgradeOre(int oreIndex)
+    {
         if (oreUpgrades.ContainsKey(oreIndex))
         {
             oreUpgrades[oreIndex]++;
@@ -305,17 +467,16 @@ public class RefineryUpgradePad : MonoBehaviour
         oreUpgrades[oreIndex] = 1;
     }
 
-    public double GetActualMaterialPrice(int oreIndex)
+    // How much the ore is worth when selling
+    public double GetActualMaterialPrice(int oreIndex, int level = -1)
     {
-        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+        if (level == -1)
+        {
+            level = GetOreUpgradeLevel(oreIndex);
+        }
 
         // Grows by 8% per level
-        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(oreUpgradeLevel));
-    }
-
-    public double GetActualMaterialPriceAtLevel(int oreIndex, int level)
-    {
-        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level));
+        return Math.Floor(originalMaterialPrices[oreIndex] * GetOrePriceMultiplier(level)) * VehicleUpgradeBayManager.Instance.GetProfitMultiplier() * VehicleUpgradeBayManager.Instance.GetOreProfitMultiplier(oreIndex);
     }
 
     public double GetOrePriceMultiplier(int level)
@@ -350,17 +511,17 @@ public class RefineryUpgradePad : MonoBehaviour
         return multiplier;
     }
 
-    public double GetMaterialUpgradePrice(int oreIndex)
+    // How much the upgrade costs
+    public double GetMaterialUpgradePrice(int oreIndex, int level = -1)
     {
-        int oreUpgradeLevel = GetOreUpgradeLevel(oreIndex);
+        // If no level provided, then get the current level
+        if (level == -1)
+        {
+            level = GetOreUpgradeLevel(oreIndex);
+        }
 
-        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at half the current material price
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, oreUpgradeLevel));
-    }
-
-    public double GetMaterialUpgradePriceAtLevel(int oreIndex, int level)
-    {
-        return Math.Floor(originalMaterialPrices[oreIndex] * 0.5 * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
+        // Upgrade price outpaces the material price. Grows by 20% instead of 8%. Also starts at (baseMaterialPriceMultiplier * x) the current material price
+        return Math.Floor(originalMaterialPrices[oreIndex] * baseMaterialPriceMultiplier * Math.Pow(oreUpgradePriceMultiplierPerLevel, level));
     }
 
     public int GetOreUpgradeLevel(int oreIndex)
@@ -427,6 +588,16 @@ public class RefineryUpgradePad : MonoBehaviour
         return mineRenderer.selectedMaterialNames[requiredOreIndex];
     }
 
+    public int GetRequiredOreIndex()
+    {
+        return requiredOreIndex;
+    }
+
+    public int GetRequiredOreUpgradeLevel()
+    {
+        return requiredOreUpgradeLevel;
+    }
+
     public void FlashCloseButton()
     {
         flashButton = true;
@@ -451,8 +622,10 @@ public class RefineryUpgradePad : MonoBehaviour
     {
         flashButton = true;
 
-        Color originalColor = new(1, 0 ,0);
-        Color darkColor = originalColor * 0.7f;
+        // it's flipped on purpose. Button should stay red after being clicked
+        Color originalColor = new(1, 0, 0);
+        // Expicitly set as white to make it feel brighter
+        Color darkColor = new(1, 1, 1);
 
         StartCoroutine(FlashButton(proceedPanelButtonImage, originalColor, darkColor));
     }
@@ -467,10 +640,8 @@ public class RefineryUpgradePad : MonoBehaviour
         {
             t += Time.deltaTime / duration;
 
-            // Darken
             if (goingDarker)
                 buttonImage.color = Color.Lerp(originalColor, darkColor, t);
-            // Brighten
             else
                 buttonImage.color = Color.Lerp(darkColor, originalColor, t);
 
@@ -483,17 +654,65 @@ public class RefineryUpgradePad : MonoBehaviour
             yield return null;
         }
 
-        // Return to original colour
         buttonImage.color = originalColor;
     }
-    
-    public bool BoughtOneUpgrade() {
-        foreach (var key in oreUpgrades.Keys) {
-            if (oreUpgrades[key] > 0) {
+
+    public bool BoughtThreeUpgrades()
+    {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] >= 3)
+            {
                 return true;
             }
         }
 
         return false;
+    }
+
+    public bool BoughtTenUpgrades()
+    {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] >= 10)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public bool Bought25Upgrades()
+    {
+        if (oreUpgrades == null)
+        {
+            return false;
+        }
+
+        foreach (var key in oreUpgrades.Keys)
+        {
+            if (oreUpgrades[key] >= 25)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public int[] GetUpgradeMilestones()
+    {
+        return upgradeMilestones;
     }
 }

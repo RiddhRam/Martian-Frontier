@@ -6,27 +6,43 @@ using UnityEngine.UI;
 
 public class RefineryController : MonoBehaviour, IDataPersistence
 {
+    private static RefineryController _instance;
+    public static RefineryController Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                // Try to find an existing one in the scene
+                _instance = FindFirstObjectByType<RefineryController>();
+            }
+            return _instance;
+        }
+    }
+
     public Sprite mineEntranceOn;
     public Sprite mineEntranceOff;
     public SpriteRenderer mineEntranceSpriteRenderer;
     public BoxCollider2D mineEntranceBoxCollider;
-
-    [SerializeField] private TextMeshProUGUI cashMadeThisMineText;
     
     public GameObject mine;
-    public GameObject[] refineryProgressSliders;
-    public GameObject[] refineryProgressSlidersText;
-    public PlayerState playerState;
     public GameObject askForReviewScreen;
-
+    [Header("Progress bars")]
+    public Slider refineryProgressSlider;
+    public TextMeshProUGUI refineryProgressSliderText;
+    
+    [Header("Audio")]
     public AudioSource UISoundEffects;
     public AudioSource oreSoundEffects;
     public AudioClip oreSaleSoundEffect;
     public AudioClip batteryRechargeSoundEffect;
 
     public int refineryTimer;
-    // 5 Mins
+    public int refineryBattery;
+    // 2 Mins
     private const int initialTimer = 120;
+    // 450 ores
+    private const int initialBattery = 450;
     // The cash made during the current refinery timer, resets to 0 when mine resets
     double cashMadeThisMine;
 
@@ -38,20 +54,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
     public Transform largeFogOfWar;
 
-    private AudioDelegator audioDelegator;
-    private DataPersistenceManager dataPersistenceManager;
+    [Header("Scripts")]
+    public PlayerState playerState;
     public GameObject playerVehicle;
-    private AnalyticsDelegator analyticsDelegator;
     public MineRenderer mineRenderer;
     public TutorialManager tutorialManager;
-    public NPCManager nPCManager;
     public UpgradesDelegator upgradesDelegator;
     [SerializeField] PlayerMovement playerMovement;
 
     public bool doneLoading = false;
     bool doneAnimation;
     public SpriteRenderer fogOfWarSprite;
-    private AdDelegator adDelegator;
 
     private Coroutine resetMineCoroutine;
     private Coroutine increaseBatteryCoroutine;
@@ -60,50 +73,31 @@ public class RefineryController : MonoBehaviour, IDataPersistence
     private bool firstTimePlaying = false;
     private bool notSinglePlayerScene = false;
 
-    void Awake() {
-        adDelegator = AdDelegator.Instance;
-        audioDelegator = AudioDelegator.Instance;
-        dataPersistenceManager = DataPersistenceManager.Instance;
-        analyticsDelegator = AnalyticsDelegator.Instance;
-    }
-
-    void OnTriggerEnter2D(Collider2D collision)
-    {
-        // Even if the mine entrance collider is set to not be a trigger, the drill attached to the drillers is still a trigger
-        // So this function is called even while mine is restting
-        // Make sure the mine entrance is not closed before starting
-        if (!mineEntranceBoxCollider.isTrigger) {
-            return;
-        }
-
-        StartRefineryCountdown(initialTimer);
-    }
-
-    public void StartRefineryCountdown(int timer = initialTimer) {
+    public void StartRefineryCountdown(int battery = initialBattery) {
         // Mining in progress
         if (countdownCoroutine != null) {
             return;
         }
 
-        countdownCoroutine = StartCoroutine(RefineryCountdown(timer));
+        countdownCoroutine = StartCoroutine(RefineryCountdown(battery));
     }
 
-    private IEnumerator RefineryCountdown(int timer) {
+    private IEnumerator RefineryCountdown(int battery) {
         // Wait for mine to load before continuing
         // Sometimes refienry controller loads, then starts mine reset, and then mine loads while refinery thinks mine reset
         yield return new WaitUntil(() => mineRenderer.mineInitialization == 2);
 
-        refineryTimer = timer;
+        refineryBattery = battery;
 
-        while (refineryTimer > 0) {
+        while (refineryBattery > 0)
+        {
             UpdateRefineryProgressBars();
-            yield return new WaitForSecondsRealtime(1f);
-            refineryTimer--;
+            yield return null;
         }
 
         PlaySaleNoise();
 
-        // Shouldnt be possible but just in case
+        // Shouldn't be possible but just in case
         if (resetMineCoroutine != null) {
             StopCoroutine(resetMineCoroutine);
         }
@@ -112,11 +106,6 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         }
 
         resetMineCoroutine = StartCoroutine(ResetMine());
-
-        if (notSinglePlayerScene) {
-            nPCManager.ResetPlayerPos();
-            nPCManager.ResetAllNPCPos();
-        }
     }
 
     public void CallResetMineFromButton() {
@@ -143,30 +132,30 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         mineEntranceBoxCollider.isTrigger = false;
         mineEntranceSpriteRenderer.sprite = mineEntranceOff;
 
-        UpdateCashText();
-
-        if (materialsSold >= 1000 && !askedForReview && doneLoading) {
+        if (materialsSold >= 900 && !askedForReview && doneLoading && mineRenderer.mineCount > 1) {
             askedForReview = true;
             askForReviewScreen.SetActive(true);
             
-            analyticsDelegator.ContinuedAfterTutorial();
+            AnalyticsDelegator.Instance.ContinuedAfterTutorial();
 
         } else if (askedForReview) {
             Destroy(askForReviewScreen);
         }
 
         // If there is a lobby ad display added to ad delegator, try to show the lobby ad reward
-        if (adDelegator.lobbyAdDisplay) {
-            StartCoroutine(adDelegator.TryShowLobbyReward(cashMadeThisMine));
+        if (AdDelegator.Instance.lobbyAdDisplay) {
+            StartCoroutine(AdDelegator.Instance.TryShowLobbyReward(cashMadeThisMine));
         }
 
         playerState.UpdateHighestMined(cashMadeThisMine);
-        cashMadeThisMine = 0;
-        cashMadeThisMineText.text = "0";
-
-        if (nPCManager) {
-            StartCoroutine(nPCManager.WaitInLobby());
+        if (cashMadeThisMine != 0)
+        {
+            Debug.Log(cashMadeThisMine);
+            cashMadeThisMine = 0;
         }
+        
+        NPCManager.Instance.ResetAllNPCPos();
+        StartCoroutine(NPCManager.Instance.WaitInLobby());
 
         // Move player off the dropoff area, and move all players inside the mine to the outside
         playerVehicle.transform.SetPositionAndRotation(new(0, 10, 0), Quaternion.Euler(0, 0, 180));
@@ -175,10 +164,7 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         if (increaseBatteryCoroutine != null) {
             StopCoroutine(increaseBatteryCoroutine);
         }
-        increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialTimer));
-
-        mineRenderer.currentOresMined = 0;
-        mineRenderer.oresMinedText.text = "0";
+        increaseBatteryCoroutine = StartCoroutine(GraduallyIncreaseBattery(initialBattery));
 
         // Destroy all leftover materials, we do it this way, in case someone mined something 
         // just as the mine was shutting down, and the ore didn't have enough time to have 
@@ -190,11 +176,9 @@ public class RefineryController : MonoBehaviour, IDataPersistence
 
         // Initialize and uncover map
         mineRenderer.InitializeMine();
-        fogOfWarSprite.sortingOrder = 3;
+        fogOfWarSprite.sortingOrder = 2;
 
         PostMineReset();
-
-        SaveGame();
     }
 
     public void PostMineReset() {
@@ -217,89 +201,87 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         float duration = 6.0f; // Duration of the increase in seconds
         float elapsed = 0f;
 
-        audioDelegator.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.45f);
+        AudioDelegator.Instance.PlayAudio(UISoundEffects, batteryRechargeSoundEffect, 0.35f);
 
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            refineryTimer = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
+            refineryBattery = (int) Mathf.Lerp(0, batteryToUse, elapsed / duration);
             UpdateRefineryProgressBars();
             yield return null; // Wait for the next frame
         }
 
         // Ensure the final value is exactly the target
-        refineryTimer = initialTimer;
-
-        for (int i = 0; i != refineryProgressSliders.Length; i++) {
-            refineryProgressSliders[i].GetComponent<Slider>().value = refineryTimer;
-        }
+        refineryBattery = initialBattery;
+        refineryProgressSlider.value = initialBattery;
 
         doneAnimation = true;
     }
 
     private void UpdateRefineryProgressBars() {
+        refineryProgressSlider.maxValue = initialBattery;
+        refineryProgressSlider.value = refineryBattery;
 
-        for (int i = 0; i != refineryProgressSliders.Length; i++) {
-            refineryProgressSliders[i].GetComponent<Slider>().maxValue = initialTimer;
-            refineryProgressSliders[i].GetComponent<Slider>().value = refineryTimer;
+        float percentage = Mathf.Round(refineryBattery * 100f / initialBattery);
+        if (percentage == 100 && refineryBattery < initialBattery)
+        {
+            percentage = 99;
         }
 
-        int minutes = refineryTimer / 60;
-        int seconds = refineryTimer % 60;
+        string barText = $"{percentage}%";
 
-        // Round up to nearest int
-        string barText = $"{minutes}:{seconds:D2}";
-
-        for (int i = 0; i != refineryProgressSlidersText.Length; i++) {
-            refineryProgressSlidersText[i].GetComponent<TextMeshProUGUI>().text = barText;
-        }
+        refineryProgressSliderText.text = barText;
     }
 
-    public void SellOres(int[] materialsMined, bool isNPC) {
+    // Returns the cash added
+    public double SellOres(int[] materialsMined)
+    {
         // Track number of ores mined and cash earned
         int change = 0;
         double cashToAdd = 0;
 
         for (int i = 0; i != mineRenderer.oreDelegation.GetOriginalMaterialPrices().Length; i++)
         {
-            
-            if (materialsMined[i] <= 0)
+
+            if (materialsMined[i] <= 0 || refineryBattery <= 0)
             {
                 continue;
             }
-            
-            cashToAdd += mineRenderer.refineryUpgradePad.GetActualMaterialPrice(i) * materialsMined[i];
-            change += materialsMined[i];
+
+            int itemsSold = 0;
+
+            while (materialsMined[i] > 0 && refineryBattery > 0)
+            {
+                itemsSold++;
+                materialsMined[i]--;
+                refineryBattery--;
+            }
+
+            cashToAdd += RefineryUpgradePad.Instance.GetActualMaterialPrice(i) * itemsSold;
+            change += itemsSold;
         }
 
         // Update stats
         materialsSold += change;
-        playerState.NewMaterialsSold(change, isNPC);
+        playerState.NewMaterialsSold(change);
 
         // Should never be less than 0
-        if (cashToAdd <= 0) {
-            return;
+        if (cashToAdd <= 0)
+        {
+            return 0;
         }
 
         // Add cash
-        cashToAdd = (long) (cashToAdd * GetTotalProfitMultiplier());
+        cashToAdd = (long)(cashToAdd * GetTotalProfitMultiplier());
         cashMadeThisMine += cashToAdd;
 
         playerState.AddCash(cashToAdd, true);
-        playerMovement.NewOreMined(cashToAdd);
-        UpdateCashText();
 
-        if (tutorialManager == null) {
-            return;
-        }
-    }
-
-    private void UpdateCashText() {
-        cashMadeThisMineText.text = playerState.FormatPrice((System.Numerics.BigInteger) cashMadeThisMine, 1);
+        return cashToAdd;
     }
 
     public void PlaySaleNoise() {
-        audioDelegator.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
+        AudioDelegator.Instance.PlayAudio(oreSoundEffects, oreSaleSoundEffect, 0.4f);
     }
 
     public int GetRefineryTimer() {
@@ -310,8 +292,15 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         return initialTimer;
     }
 
-    public void LoadData(GameData data) {
-        if (!data.finishedTutorial) {
+    public int GetInitialBattery()
+    {
+        return initialBattery;
+    }
+
+    public void LoadData(GameData data)
+    {
+        if (!data.finishedTutorial)
+        {
             firstTimePlaying = true;
         }
 
@@ -322,51 +311,76 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         this.materialsSold = System.Numerics.BigInteger.Parse(data.materialsSold);
         this.askedForReview = data.askedForReview;
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op"))
+        {
             notSinglePlayerScene = true;
             return;
         }
-        
-        if (resetMineCoroutine != null) {
+
+        if (resetMineCoroutine != null)
+        {
             StopCoroutine(resetMineCoroutine);
         }
-        if (increaseBatteryCoroutine != null) {
+        if (increaseBatteryCoroutine != null)
+        {
             StopCoroutine(increaseBatteryCoroutine);
         }
 
-        this.refineryTimer = data.refineryTimer;
-        
-        // Two cases when opening the game
-        // Case 1: Player left game while mine was resetting, or never initialized, so just reset the mine properly this time
-        if (data.mineInitialization == 0) {
-            resetMineCoroutine = StartCoroutine(ResetMine());
-        } 
-        // Case 2: Player left the game while refinery timer was counting down, so continue countdown
-        else if (refineryTimer != initialTimer) {
-            StartRefineryCountdown(refineryTimer);
-        }
-
+        StartCoroutine(ResetMine());
         UpdateRefineryProgressBars();
-       
+
         doneLoading = true;
     }
 
     public void SaveData(ref GameData data) {
         data.materialsSold = this.materialsSold.ToString();
         data.askedForReview = this.askedForReview;
+    }
+    
+    public float GetAspectValue(bool alternate = false)
+    {
+        const float multiplier = 0.75f;
+        // Determine the scale to set the refinery panel to
 
-        if (notSinglePlayerScene) {
-            return;
+        // Min and max aspect ratios
+        const float MinAspect = 1f;            // 1:1
+        const float MaxAspect = 16 / 9f;      // 9:16
+
+        // Min and max output values
+        const float MinValue = 0.7f;
+        const float MaxValue = 1f;
+        
+        float aspect = (float)Screen.height / Screen.width;
+        
+        if (aspect <= MinAspect)
+        {
+            if (alternate)
+            {
+                return MinValue;
+            }
+            return MinValue * multiplier;
         }
 
-        data.refineryTimer = this.refineryTimer;
+        if (aspect >= MaxAspect)
+        {
+            if (alternate)
+            {
+                return MaxValue;
+            }
+            return MaxValue * multiplier;
+        }
+            
+        // Linear interpolation between MinValue and MaxValue
+        float t = (aspect - MinAspect) / (MaxAspect - MinAspect);
+        if (alternate)
+        {
+            return Mathf.Lerp(MinValue, MaxValue, t);
+        }
+        return Mathf.Lerp(MinValue, MaxValue, t) * multiplier;
     }
 
-    private void SaveGame() {
-        dataPersistenceManager.SaveGame();
-    }
-
-    public void SetProfitMultiplier(float newMultiplier) {
+    public void SetProfitMultiplier(float newMultiplier)
+    {
         profitMultiplier = newMultiplier;
     }
 

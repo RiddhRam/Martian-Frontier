@@ -87,7 +87,7 @@ public class OreBlaster : MonoBehaviour
             }
 
             // Not an npc, but set it the parameter true just so it doesn't count towards stats
-            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, true, transform.position, false);
+            mineRenderer.DestroyTiles(tilesToDestroy.ToList(), false, transform.position, false);
         }
 
         UpdateCreditCount(creditsToAdd);
