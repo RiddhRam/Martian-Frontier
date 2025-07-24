@@ -173,7 +173,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             else if (tutorialScreenIndex == 5)
             {
                 refineryInstruction.SetActive(true);
-                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
+                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf || !OreDelegation.Instance.refineryAlternatePanel.activeSelf);
                 refineryInstruction.SetActive(false);
             }
             // ENSURE that they bought at least 10
@@ -459,7 +459,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
     private IEnumerator PointToDrill(float requiredHoldTime)
     {
-        float doubleRequiredTime = requiredHoldTime * 2;
+        float extraRequiredTime = requiredHoldTime * 3.5f;
         yield return new WaitUntil(() => NPCManager.Instance.pointToDrillArrow != null);
 
         GameObject arrow = NPCManager.Instance.pointToDrillArrow;
@@ -476,10 +476,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
         while (true)
         {
-            if (RefineryUpgradePad.Instance.BoughtTenUpgrades())
-            {
-                yield break;
-            }
 
             // If they can afford something and there's no other arrow showing or done the tutorial
             // Show the arrow
@@ -494,7 +490,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     affordStartTime = Time.realtimeSinceStartup;
 
                 // Don't need arrow if panel is open
-                else if (refineryUpgradeBayPanel.activeSelf || refineryProceedPanel.activeSelf)
+                else if (refineryUpgradeBayPanel.activeSelf || refineryProceedPanel.activeSelf || OreDelegation.Instance.refineryAlternatePanel.activeSelf)
                 {
                     affordStartTime = Time.realtimeSinceStartup;
                     arrow.SetActive(false);
@@ -509,7 +505,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 else
                 {
                     // Use this timer if they already know
-                    if (Time.realtimeSinceStartup - affordStartTime >= doubleRequiredTime)
+                    if (Time.realtimeSinceStartup - affordStartTime >= extraRequiredTime)
                         arrow.SetActive(true);
                 }
 
@@ -522,7 +518,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             }
 
             // After tutorial level
-            if (finishedTutorial && RefineryUpgradePad.Instance.BoughtThreeUpgrades())
+            if (RefineryUpgradePad.Instance.BoughtThreeUpgrades())
             {
                 listenedOnce = true;
             }

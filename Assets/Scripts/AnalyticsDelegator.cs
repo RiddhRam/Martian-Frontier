@@ -23,7 +23,7 @@ public class AnalyticsDelegator : MonoBehaviour
             return _instance;
         }
     }
-    private bool isInitialized = false;
+    public bool isInitialized = false;
 
     private float sceneStartRealtime;
     private string currentScene;
@@ -57,11 +57,7 @@ public class AnalyticsDelegator : MonoBehaviour
             }
         });
 
-        Debug.Log("ANALYTIC: DONE WAITING");
-
         AnalyticsService.Instance.StartDataCollection();
-
-        Debug.Log("ANALYTIC: DONE");
 
         isInitialized = true;
     }

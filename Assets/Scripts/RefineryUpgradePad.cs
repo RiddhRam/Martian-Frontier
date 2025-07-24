@@ -256,8 +256,6 @@ public class RefineryUpgradePad : MonoBehaviour
         // Update in case of translations
         UpdateUpgradeRequirementText();
 
-        oreDelegation.PrepareGrid();
-
         // Stops player from moving
         //JoystickMovement.Instance.joystickVec = new();
     }
@@ -368,7 +366,18 @@ public class RefineryUpgradePad : MonoBehaviour
         // Requirement to reach next level
         upgradeRequirement.text = oreDelegation.GetLocalizedValue("UPGRADE {0} TO LEVEL {1}!", GetRequiredOreName(), requiredOreUpgradeLevel);
 
-        proceedProgress.value = (float)GetOreUpgradeLevel(requiredOreIndex) / GetRequiredOreUpgradeLevel();
+        int upgradeLevel = GetOreUpgradeLevel(requiredOreIndex);
+        int requiredlevel = GetRequiredOreUpgradeLevel();
+
+        if (upgradeLevel >= requiredlevel)
+        {
+            proceedProgress.value = 1;
+        }
+        else
+        {
+            proceedProgress.value = (float)upgradeLevel / requiredlevel;
+        }
+        
     }
 
     // If player meets upgrade requirement, hide requirement and show the proceed amount

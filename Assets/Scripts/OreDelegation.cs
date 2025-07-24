@@ -91,7 +91,6 @@ public class OreDelegation : MonoBehaviour
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
-        Debug.Log("Generating: " + PlayerPrefs.GetString("Cohort", "No Cohort"));
         string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
 
         // A/B testing a new refinery upgrade panel
@@ -338,21 +337,36 @@ public class OreDelegation : MonoBehaviour
                 // Add onclick listener and hold button component
                 Button button = panelTransform.GetComponent<Button>();
                 button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
-                if (panelTransform.GetComponent<HoldButton>() == null)
+                if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) < RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel())
                 {
-                    // Hold to purchase
-                    HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
-                    holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
-                }
+                    button.onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+                    if (panelTransform.GetComponent<HoldButton>() == null)
+                    {
+                        // Hold to purchase
+                        HoldButton holdButton = panelTransform.gameObject.AddComponent<HoldButton>();
+                        holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex, true));
+                    }
 
-                // Button affordability
-                buttonAffordabilities[i] = panelTransform.GetComponent<ButtonAffordability>();
-                buttonAffordabilities[i].enabled = true;
+                    // Button affordability
+                    buttonAffordabilities[i] = panelTransform.GetComponent<ButtonAffordability>();
+                    buttonAffordabilities[i].enabled = true;
+                }
+                else
+                {
+                    if (panelTransform.GetComponent<HoldButton>() != null)
+                    {
+                        Destroy(panelTransform.GetComponent<HoldButton>());
+                    }
+
+                    if (panelTransform.GetComponent<ButtonAffordability>() != null)
+                    {
+                        Destroy(panelTransform.GetComponent<ButtonAffordability>());
+                    }
+                }
 
                 levelProgressBarsImages[i] = panelTransform.GetChild(2).GetChild(0).GetComponent<Image>();
 
-                //milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
+                milestoneTransforms[i] = panelTransform.GetChild(5).GetComponent<RectTransform>();
 
                 // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
                 UpdateOreMaterialPanel(i, false, false, true);
@@ -429,11 +443,22 @@ public class OreDelegation : MonoBehaviour
         // If player can't afford, make it disabled initially. Otherwise it will show up as interactable for a split second
         button.interactable = !(newPrice > RefineryUpgradePad.Instance.playerState.GetUserCash());
 
+        bool maxLevel = false;
+
         if (RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) >= RefineryUpgradePad.Instance.GetRequiredOreUpgradeLevel())
         {
+            maxLevel = true;
             // Hide price tag, show MAX text
-            buttonTransform.GetChild(0).gameObject.SetActive(false);
-            buttonTransform.GetChild(1).gameObject.SetActive(true);
+            if (alternate)
+            {
+                buttonTransform.GetChild(1).gameObject.SetActive(false);
+                buttonTransform.GetChild(6).gameObject.SetActive(true);
+            }
+            else
+            {
+                buttonTransform.GetChild(0).gameObject.SetActive(false);
+                buttonTransform.GetChild(1).gameObject.SetActive(true);
+            }
 
             // Destroy hold button component, it may not have been added yet in some edge cases, that's why we do this
             if (buttonTransform.TryGetComponent(out HoldButton hold))
@@ -441,7 +466,10 @@ public class OreDelegation : MonoBehaviour
                 Destroy(hold);
             }
 
-            Destroy(buttonAffordabilities[oreIndex]);
+            if (buttonAffordabilities[oreIndex] != null)
+            {
+                Destroy(buttonAffordabilities[oreIndex]);
+            }
 
             // Disable button if max
             button.interactable = false;
@@ -456,15 +484,30 @@ public class OreDelegation : MonoBehaviour
 
         int lastMilestone = RefineryUpgradePad.Instance.GetLastOreMilestone(oreIndex);
 
+        // Update progress bar
         if (alternate)
         {
-            levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
+            if (maxLevel)
+            {
+                levelProgressBarsImages[oreIndex].color = new(1, 112f / 255, 67f / 255);
+                levelProgressBarsImages[oreIndex].fillAmount = 1;
+            }
+            else
+            {
+                levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
+            }
         }
         else
         {
-            // Update progress bar
             levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
-            levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
+            if (maxLevel)
+            {
+                levelProgressBars[oreIndex].value = levelProgressBars[oreIndex].maxValue;
+            }
+            else
+            {
+                levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
+            }
         }
         
         // If we should flash the outline (an upgrade was made)

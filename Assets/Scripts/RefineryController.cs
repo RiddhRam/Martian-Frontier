@@ -336,10 +336,16 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         data.materialsSold = this.materialsSold.ToString();
         data.askedForReview = this.askedForReview;
     }
-    
+
     public float GetAspectValue(bool alternate = false)
     {
-        const float multiplier = 0.75f;
+        float alternateMultiplier = 1.1f;
+        float multiplier = 0.75f;
+        float multiplierToUse = multiplier;
+        if (alternate)
+        {
+            multiplierToUse = alternateMultiplier;
+        }
         // Determine the scale to set the refinery panel to
 
         // Min and max aspect ratios
@@ -354,29 +360,17 @@ public class RefineryController : MonoBehaviour, IDataPersistence
         
         if (aspect <= MinAspect)
         {
-            if (alternate)
-            {
-                return MinValue;
-            }
-            return MinValue * multiplier;
+            return MinValue * multiplierToUse;
         }
 
         if (aspect >= MaxAspect)
         {
-            if (alternate)
-            {
-                return MaxValue;
-            }
-            return MaxValue * multiplier;
+            return MaxValue * multiplierToUse;
         }
             
         // Linear interpolation between MinValue and MaxValue
         float t = (aspect - MinAspect) / (MaxAspect - MinAspect);
-        if (alternate)
-        {
-            return Mathf.Lerp(MinValue, MaxValue, t);
-        }
-        return Mathf.Lerp(MinValue, MaxValue, t) * multiplier;
+        return Mathf.Lerp(MinValue, MaxValue, t) * multiplierToUse;
     }
 
     public void SetProfitMultiplier(float newMultiplier)

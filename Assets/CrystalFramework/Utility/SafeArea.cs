@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace Crystal
@@ -104,6 +105,7 @@ namespace Crystal
         [SerializeField] bool ConformY = true;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
         [SerializeField] bool Logging = false;  // Conform to screen safe area on Y-axis (default true, disable to ignore)
 
+        bool refresh = true;
         void Awake()
         {
             Panel = GetComponent<RectTransform>();
@@ -111,13 +113,26 @@ namespace Crystal
             if (Panel == null)
             {
                 Debug.LogError("Cannot apply safe area - no RectTransform found on " + name);
-                AnalyticsDelegator.Instance.ShowError("Cannot apply safe area - no RectTransform found on " + name);
-                //Destroy (gameObject);
+                refresh = false;
+                StartCoroutine(WaitForAnalytics());
             }
+        }
+
+        private IEnumerator WaitForAnalytics()
+        {
+            yield return new WaitUntil(() => AnalyticsDelegator.Instance.isInitialized);
+
+            AnalyticsDelegator.Instance.ShowError("Cannot apply safe area - no RectTransform found on " + name);
+            this.enabled = false;
         }
 
         void Update ()
         {
+            if (!refresh)
+            {
+                return;
+            }
+
             Refresh ();
         }
 

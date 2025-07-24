@@ -183,7 +183,10 @@ public class NPCMovement : MonoBehaviour
             newDestination = transform.position + direction * maxDistance;
         }
 
-        agent.SetDestination(newDestination);
+        if (Vector3.Distance(agent.destination, newDestination) > 0.1f) {
+            agent.SetDestination(newDestination);
+        }
+
         dest = newDestination;
     }
 
