@@ -78,10 +78,10 @@ public class FileDataHandler
 
             var value = field.GetValue(dataJson).ToString();;
             
-            // These types are't encrypted, material dictionary, or tilemap data
+            // These types are't encrypted, tilemap data or other large fields
             if (fieldType == typeof(SerializableDictionary<Vector2Int, int>[,])) {
                 // Regular expression to find the contents within {}
-                string pattern = @"\{.*?\}";
+                /*string pattern = @"\{.*?\}";
 
                 // Match the pattern
                 MatchCollection matches = Regex.Matches(value, pattern);
@@ -128,7 +128,7 @@ public class FileDataHandler
                     }
                 }
 
-                correspondingField.SetValue(tempData, newArray);
+                correspondingField.SetValue(tempData, newArray);*/
             } 
             // value is a string, and we need to convert it to the right type
             else {
@@ -169,7 +169,18 @@ public class FileDataHandler
                     else if (fieldType == typeof(List<int>)) {
                         List<int> deserializedValue = JsonConvert.DeserializeObject<List<int>>(strValue);
                         correspondingField.SetValue(tempData, deserializedValue);
-                    } 
+                    }
+                    else if (fieldType == typeof(HashSet<string>)) {
+                        // URL decode all quotation marks
+                        strValue = strValue.Replace("%22", "\"");
+                        HashSet<string> deserializedValue = JsonConvert.DeserializeObject<HashSet<string>>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
+                    else if (fieldType == typeof(HashSet<int>))
+                    {
+                        HashSet<int> deserializedValue = JsonConvert.DeserializeObject<HashSet<int>>(strValue);
+                        correspondingField.SetValue(tempData, deserializedValue);
+                    }
                     else if (fieldType == typeof(SerializableDictionary<string, VehicleUpgrade>))
                     {
                         // Same as below intDictData
@@ -210,6 +221,11 @@ public class FileDataHandler
 
                         SerializableDictionary<string, int> intDictData = JsonUtility.FromJson<SerializableDictionary<string, int>>(strValue);
                         correspondingField.SetValue(tempData, intDictData);
+                    }
+                    else if (fieldType == typeof(long))
+                    {
+                        long newInt = long.Parse(strValue);
+                        correspondingField.SetValue(tempData, newInt);
                     }
                     else if (fieldType == typeof(int))
                     {
@@ -310,6 +326,9 @@ public class FileDataHandler
             // Create directory to save file in if it doesn't exist
             Directory.CreateDirectory(Path.GetDirectoryName(fullPath));
 
+            // Save time
+            data.offlineTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
             string dataToStore = CreateJson(data, useEncryption);
 
             // Make sure game data is valid
@@ -349,7 +368,7 @@ public class FileDataHandler
         {
             object fieldValue = field.GetValue(data);
 
-            // These can become very large, they store the data of all destroyed and revealed blocks 
+            // This can become very large, it stores the data of all destroyed and revealed blocks 
             // encryption is not needed and takes too long
             if (fieldValue is SerializableDictionary<Vector2Int, int>[,] dictionaryArray)
             {
@@ -446,6 +465,48 @@ public class FileDataHandler
             else if (fieldValue is List<int>)
             {
                 List<int> value = (List<int>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is List<long>)
+            {
+                List<long> value = (List<long>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is HashSet<string>)
+            {
+                HashSet<string> value = (HashSet<string>)fieldValue;
+
+                string result = JsonConvert.SerializeObject(value);
+
+                // URL encode all quotation marks to make it safer for when we load the game
+                result = result.Replace("\"", "%22");
+
+                if (useEncryption)
+                {
+                    result = EncryptDecrypt(result, true);
+                }
+
+                jsonBuilder.Append($"  \"{field.Name}\": \"{result}\",\n");
+            }
+            else if (fieldValue is HashSet<int>)
+            {
+                HashSet<int> value = (HashSet<int>)fieldValue;
 
                 string result = JsonConvert.SerializeObject(value);
 

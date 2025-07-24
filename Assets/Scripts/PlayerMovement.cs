@@ -7,7 +7,6 @@ public class PlayerMovement : MonoBehaviour
     public Transform mainCamera;
     public Transform uiCamera;
     public PlayerState playerState;
-    public TextMeshProUGUI depthTracker;
     public bool stopMoving;
 
     [SerializeField] private float playerSpeed = 5f;
@@ -37,13 +36,7 @@ public class PlayerMovement : MonoBehaviour
 
     // Details above the player
     [SerializeField] private Transform sliderCanvas;
-    [SerializeField] private TextMeshProUGUI cashEarnedText;
-    [SerializeField] private SpriteRenderer cashIconSpriteRenderer;
     private readonly Quaternion normalRotation = Quaternion.Euler(0, 0, 0);
-
-    private double cashToShow;
-    private Coroutine floatingTextCoroutine;
-    const float fadeDuration = 0.5f;
 
     // Start is called before the first frame update
     void Start()
@@ -69,7 +62,6 @@ public class PlayerMovement : MonoBehaviour
         // Otherwise it gets stuck at the spawn
         // Smooth camera follow
         MoveCamera();
-        UpdateDepth();
 
         joystickVec = JoystickMovement.Instance.joystickVec;
 
@@ -166,10 +158,6 @@ public class PlayerMovement : MonoBehaviour
         return playerSpeed;
     }
 
-    public void UpdateDepth() {
-        depthTracker.text = FormatPositionY((int) -(transform.position.y + 5));
-    }
-
     private string FormatPositionY(int positionY)
     {
         if (positionY <= 0) {
@@ -184,45 +172,6 @@ public class PlayerMovement : MonoBehaviour
         else {
             return positionY + " M";
         }
-    }
-
-    public void NewOreMined(double cashEarned) {
-        cashToShow += cashEarned;
-        
-        if (floatingTextCoroutine != null) {
-            StopCoroutine(floatingTextCoroutine);
-        }
-        floatingTextCoroutine = StartCoroutine(ShowFloatingText());
-    }
-
-    private IEnumerator ShowFloatingText() {
-
-        // Show text and icon
-        cashEarnedText.text = playerState.FormatPrice(new System.Numerics.BigInteger(cashToShow), 1);
-        float alphaValue = 1;
-        cashEarnedText.alpha = alphaValue;
-        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
-
-        // Wait 2 seconds
-        yield return new WaitForSecondsRealtime(2);
-
-        // Fade text and icon out
-        float time = 0f;
-        while (time < fadeDuration)
-        {
-            time += Time.deltaTime;
-            alphaValue = Mathf.Lerp(1f, 0f, time / fadeDuration);
-            cashEarnedText.alpha = alphaValue;
-            cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
-            yield return null;
-        }
-
-        // Ensure it’s fully invisible
-        alphaValue = 0;
-        cashEarnedText.alpha = alphaValue;
-        cashIconSpriteRenderer.color = new(1, 1, 1, alphaValue);
-        // Reset for next time
-        cashToShow = 0;   
     }
 
     private IEnumerator HoldCanvasStill() {

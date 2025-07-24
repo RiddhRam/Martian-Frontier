@@ -14,7 +14,7 @@ public class CreditMaterialsInfo : MonoBehaviour
     int maxCredits = 50;
 
     void Awake() {
-        mapCamera = GameObject.Find("UI").GetComponent<UIDelegation>().mapCamera;
+        mapCamera = UIDelegation.Instance.mapCamera;
     }
 
     void OnEnable() {

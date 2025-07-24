@@ -15,7 +15,7 @@ public class DataPersistenceManager : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<DataPersistenceManager>();
+                _instance = FindFirstObjectByType<DataPersistenceManager>();
             }
             return _instance;
         }
@@ -289,7 +289,10 @@ public class DataPersistenceManager : MonoBehaviour
         return false;
     }
 
-    public GameData GetGameData() {
+    // Ideally, don't read game data from this, because it may not be synced with the real-time value. 
+    // Access the script that holds this data directly
+    public GameData GetGameData()
+    {
         return this.gameData;
     }
 

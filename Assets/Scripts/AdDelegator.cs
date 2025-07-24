@@ -4,7 +4,6 @@ using System;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.SceneManagement;
 using GoogleMobileAds.Mediation.UnityAds.Api;
 
 public class AdDelegator : MonoBehaviour, IDataPersistence
@@ -17,7 +16,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AdDelegator>();
+                _instance = FindFirstObjectByType<AdDelegator>();
             }
             return _instance;
         }
@@ -25,6 +24,7 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private string _adUnitId = "unused";
     public GameObject adButton;
+    public GameObject rewardDisplay;
     public TextMeshProUGUI visionText;
     public TextMeshProUGUI profitText;
     public TextMeshProUGUI rewardAdTimerText;
@@ -119,10 +119,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         // If there is internet
         internetReachable = true;
         ToggleDisplay();
-
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            return;
-        }
         
         timer++;
 
@@ -253,12 +249,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     {
         if (disableAds)
             return;
-        // If user watched an ad in the last 30 seconds or first time playing
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            RewardBoost();
-            DataPersistenceManager.Instance.SaveGame();
-            return;
-        }
 
         // ADMOB DISABLE
         if (rewardedAd != null && rewardedAd.CanShowAd())
@@ -296,11 +286,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         } catch {
         }
 
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            CrateRewardSuccess();
-            return;
-        }
-
         // ADMOB DISABLE
         if (crateAd != null && crateAd.CanShowAd())
         {
@@ -334,11 +319,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         try {
             LogAnalytics("Lobby");
         } catch {
-        }
-
-        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 2) {
-            LobbyRewardSuccess();
-            return;
         }
 
         // ADMOB DISABLE
@@ -389,8 +369,8 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     public IEnumerator TryShowLobbyReward(double rewardAmount) {
 
-        // show unless ads disabled or already showing or no internet or not on third mine yet or rewardAmount is less than 1000
-        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || DataPersistenceManager.Instance.GetGameData().mineCount <= 2 || rewardAmount < 1000) {
+        // show unless ads disabled or already showing or no internet or rewardAmount is less than 1000
+        if (disableAds || lobbyRewardTimer > 0 || !internetReachable || rewardAmount < 1000) {
             yield break;
         }
 
@@ -559,14 +539,6 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
 
     private void RewardBoost(int? totalTime = 300) {
 
-        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        originalSpeed = playerMovement.GetSpeed();
-        playerMovement.SetSpeed(originalSpeed * 1.5f);
-
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost + 6);
-        visionText.text = "+6";
-
         //refineryController.SetProfitMultiplier(upgradesDelegator.refineryProfitMultiplier * upgradesDelegator.refineryProfitMultiplierBoost);
         //profitText.text = upgradesDelegator.refineryProfitMultiplierBoost.ToString() + "X";
 
@@ -579,17 +551,16 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
     }
 
     private void LogAnalytics(string analyticToLog) {
-        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog);
+        AnalyticsDelegator.Instance.AdWatchAttempt(analyticToLog, MineRenderer.Instance.mineCount);
     }
 
     private IEnumerator StartRewardCountdown(int totalTime) {
 
         // So game doesnt crash on android
         yield return new WaitForEndOfFrame();
-        speedBoostActive = true;
 
         adButton.SetActive(false);
-        visionText.transform.parent.parent.gameObject.SetActive(true);
+        rewardDisplay.SetActive(true);
 
         int minutes;
         int seconds;
@@ -615,29 +586,25 @@ public class AdDelegator : MonoBehaviour, IDataPersistence
         rewardAdTimerText.text = "0:00";
         rewardAdTimer = 0;
 
+        rewardDisplay.SetActive(false);
         adButton.SetActive(true);
-        visionText.transform.parent.parent.gameObject.SetActive(false);
-        
-        MineRenderer mineRenderer = GameObject.Find("Mine").GetComponent<MineRenderer>();
-        mineRenderer.SetVisionRadius(upgradesDelegator.visionBoost);
 
         refineryController.SetProfitMultiplier(1);
-
-        speedBoostActive = false;
-        PlayerMovement playerMovement = GameObject.Find("Player Vehicle").GetComponent<PlayerMovement>();
-        playerMovement.SetSpeed(originalSpeed);
         yield break;
     }
 
-    public void LoadData(GameData data) {
+    public void LoadData(GameData data)
+    {
 
-        if (SceneManager.GetActiveScene().name.ToLower().Contains("co-op")) {
+        if (!data.finishedTutorial)
+        {
+            firstTimePlaying = true;
+        }
+        
+        if (DataPersistenceManager.Instance.GetGameData().mineCount <= 1) {
+            // No ads in tutorial
             disableAds = true;
             return;
-        }
-
-        if (!data.finishedTutorial) {
-            firstTimePlaying = true;
         }
     }
 

@@ -9,7 +9,6 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
 {
     [SerializeField] private PlayerState playerState;
     [SerializeField] private OreBlaster oreBlaster;
-    [SerializeField] private UIDelegation uIDelegation;
     [SerializeField] private OreBlasterDailyChallengeDelegator oreBlasterDailyChallengeDelegator;
 
     [SerializeField] private GameObject upgradeNoticeIcon;
@@ -30,7 +29,7 @@ public class OreBlasterUpgrades : MonoBehaviour, IDataPersistence
         int level = GetUpgradeLevel(upgradeType);
 
         if (!playerState.VerifyEnoughCredits(upgradePrices[level])) {
-            uIDelegation.ShowError("NOT ENOUGH CREDITS!");
+            UIDelegation.Instance.ShowError("NOT ENOUGH CREDITS!");
             return;
         }
 

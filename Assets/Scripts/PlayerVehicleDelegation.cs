@@ -6,7 +6,6 @@ using UnityEngine.UI;
 public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 {
     [Header("Vehicles")]
-    public GameObject[] drillers;
     public string currentVehicle;
     public string currentCoopVehicle;
     public GameObject playerVehicle;
@@ -15,32 +14,13 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     private float loadRotate;
 
     [Header("Other Scripts")]
-    public NPCManager nPCManager;
     public VehicleUpgradeBayManager vehicleUpgradeBayManager;
-    public RefineryUpgradePad refineryUpgradePad;
     private bool notSinglePlayerScene = false;
     public bool loaded = false;
 
     // For tutorial
     public bool firstTimePlaying = false;
     private float speedBoostAmount = 1.2f;
-
-    [Header("Visual")]
-    [SerializeField] private Image sliderImage;
-    [SerializeField] private Slider slider;
-    [SerializeField] private RectTransform sliderTransform;
-    static readonly Color hotColor = new(217f / 255f, 0f / 255f, 0f / 255f);
-    static readonly Color coldColor = new(0f / 255f, 235f / 255f, 0f / 255f);
-    static readonly Color mid = new Color(1f, 146f/255f, 0f);
-    static readonly Color pulseColor = new Color(150f / 255f, 0f, 0f, 1f);
-    Color baseColor;
-    [SerializeField] private TextMeshProUGUI sliderText;
-    private Vector3 initialScale;
-
-    void Start()
-    {
-        initialScale = sliderTransform.localScale;
-    }
 
     public void SwitchVehicle(GameObject newVehicle)
     {
@@ -87,11 +67,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
             currentCoopVehicle = playerVehicle.name;
         }
 
-        if (nPCManager)
-        {
-            nPCManager.ResetPlayerPos();
-        }
-
         float playerSpeed;
 
         DrillerController drillerController = playerVehicle.transform.GetChild(1).GetComponent<DrillerController>();
@@ -111,7 +86,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // In production this loads before the upgrade bay for some reason, whichever loads second should call the function
         if (vehicleUpgradeBayManager.loaded)
         {
-            vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
+            //vehicleUpgradeBayManager.MatchPlayerDrillToDrill();
         }
 
         AnalyticsDelegator.Instance.SelectVehicle(playerVehicle.name, "Driller", drillerController.GetDrillTier());
@@ -138,17 +113,11 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // Load the vehicle name
         // We need the last vehicle pos and rotation too, just for now though
         this.currentVehicle = data.currentVehicle;
-        this.loadPlayerPos = data.playerPos;
-        this.loadRotate = data.playerRotation;
 
         // Bypasses first if statement in SwitchVehicle
         loading = true;
         FindVehicle(currentVehicle);
         loaded = true;
-
-        // Set next vehicle to be the drill after the current one, or the first drill if this is the last drill
-        int nextIndex = GetNextVehicleIndex(data.mineCount);
-        refineryUpgradePad.SetProceedPanelVehicle(vehicleUpgradeBayManager.drillUIPositions[nextIndex]);
     }
 
     // ONLY USED WHEN LOADING
@@ -160,9 +129,9 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
         // Iterate through all vehicles and find which vehicle it is
 
-        for (int i = 0; i != drillers.Length; i++)
+        for (int i = 0; i != VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs().Length; i++)
         {
-            if (!vehicleName.Contains(drillers[i].name))
+            if (!vehicleName.Contains(VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs()[i].name))
             {
                 if (!(checkSecondaryName && vehicleName.Contains(secondaryName)))
                 {
@@ -173,7 +142,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
 
             if (switchVehicle)
             {
-                SwitchVehicle(drillers[i]);
+                SwitchVehicle(VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs()[i]);
                 if (!notSinglePlayerScene)
                 {
                     playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
@@ -187,7 +156,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         // If it reaches here, no vehicle was found, so we just set the player to use the first drill
         if (switchVehicle)
         {
-            SwitchVehicle(drillers[0]);
+            SwitchVehicle(VehicleUpgradeBayManager.Instance.GetAllDrillPrefabs()[0]);
             if (!notSinglePlayerScene)
             {
                 playerVehicle.transform.parent.SetPositionAndRotation(loadPlayerPos, Quaternion.Euler(0, 0, loadRotate));
@@ -200,7 +169,7 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
     public int GetNextVehicleIndex(int mineCount)
     {
         // No need to do mineCount + 1, because mineCount is not zero indexed
-        return (mineCount) % vehicleUpgradeBayManager.drillUIPositions.Length;
+        return mineCount % vehicleUpgradeBayManager.drillUIPositions.Length;
     }
 
     // Check to see if this vehicle was merged into another in a previous update
@@ -241,9 +210,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         if (!playerVehicle) {
             return;
         }
-
-        data.playerPos = playerVehicle.transform.parent.position;
-        data.playerRotation = playerVehicle.transform.parent.rotation.eulerAngles.z;
     }
 
     private float UpdateOriginalSpeed(float playerSpeed) {
@@ -258,57 +224,6 @@ public class PlayerVehicleDelegation : MonoBehaviour, IDataPersistence
         }
 
         return playerSpeed;
-    }
-
-    public void UpdateOverheatSlider(float heatPercentage, float drillHeat)
-    {
-        // Progress
-        slider.value = heatPercentage;
-        // Text
-        sliderText.text = ((int)drillHeat).ToString();
-
-        // Calculate base colour
-        if (heatPercentage < 0.5f)
-        {
-            // 0 → 0.5 : blue → yellow
-            baseColor = Color.Lerp(coldColor, mid, heatPercentage * 2f);
-        }
-        else
-        {
-            // 0.5 → 1 : yellow → red
-            baseColor = Color.Lerp(mid, hotColor, (heatPercentage - 0.5f) * 2f);
-        }
-        
-        // Pulse the progress bar if heat percentage is above threshold
-        const float pulseThreshold = 0.80f;
-        const float pulseSpeed = 10f;
-        const float pulseScaleAmount = 0.1f;
-
-        if (heatPercentage > pulseThreshold)
-        {
-            // Calculate a 0-1 value representing how far we are past the pulseThreshold
-            float rampUpFactor = (heatPercentage - pulseThreshold) / (1f - pulseThreshold);
-
-            // Oscillation
-            float pulseValue = (Mathf.Sin(Time.time * pulseSpeed) + 1f) / 2f;
-
-            // Factor the 2 together
-            float pulseValueToUse = pulseValue * rampUpFactor;
-
-            // Lerp between the current base color and the bright pulse color
-            sliderImage.color = Color.Lerp(baseColor, pulseColor, pulseValueToUse);
-
-            // Pulse the size of the progress bar too
-            float scaleMultiplier = 1f + (pulseValueToUse * pulseScaleAmount);
-            sliderTransform.localScale = initialScale * scaleMultiplier;
-        }
-        // If heat is below threshold, make progress look normal
-        else
-        {
-            // Don't modify colour or scale
-            sliderImage.color = baseColor;
-            sliderTransform.localScale = initialScale;
-        }
     }
 
 }

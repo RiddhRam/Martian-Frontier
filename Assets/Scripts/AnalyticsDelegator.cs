@@ -18,7 +18,7 @@ public class AnalyticsDelegator : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<AnalyticsDelegator>();
+                _instance = FindFirstObjectByType<AnalyticsDelegator>();
             }
             return _instance;
         }
@@ -39,11 +39,7 @@ public class AnalyticsDelegator : MonoBehaviour
         currentScene = SceneManager.GetActiveScene().name;
         sceneStartRealtime = Time.realtimeSinceStartup;
 
-        Debug.Log("ANALYTIC: Loading unity");
-
         await UnityServices.InitializeAsync();
-
-        Debug.Log("ANALYTIC: Waiting for firebase");
 
         while (CloudDelegator.Instance.auth == null)
         {
@@ -149,18 +145,21 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Initialize_Mine", new Parameter("Previous_Highest_Row", previousHighestRow));
     }
 
-    public void AdWatchAttempt(string reward)
+    public void AdWatchAttempt(string reward, int rebirthLevel)
     {
         if (!isInitialized)
         {
             return;
         }
         CustomEvent myEvent = new CustomEvent("Ad_Watch_Attempt") {
-            {"Reward", reward}
+            {"Reward", reward},
+            { "Rebirth_Level", rebirthLevel},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Ad_Watch_Attempt", new Parameter("Reward", reward));
+        FirebaseAnalytics.LogEvent("Ad_Watch_Attempt",
+            new Parameter("Reward", reward),
+            new Parameter("Rebirth_Level", rebirthLevel));
     }
 
     public void OpenUIPanel(string panelName)
@@ -303,10 +302,15 @@ public class AnalyticsDelegator : MonoBehaviour
     {
         yield return new WaitUntil(() => isInitialized);
 
-        CustomEvent myEvent = new CustomEvent("Start_Tutorial");
+        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
+
+        CustomEvent myEvent = new CustomEvent("Start_Tutorial") {
+            {"Cohort", cohort},
+        };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
-        FirebaseAnalytics.LogEvent("Start_Tutorial");
+        FirebaseAnalytics.LogEvent("Start_Tutorial",
+            new Parameter("Cohort", cohort));
     }
 
     public void FinishTutorial()
@@ -550,7 +554,7 @@ public class AnalyticsDelegator : MonoBehaviour
         FirebaseAnalytics.LogEvent("Tech_Lab_Upgrade", new Parameter("Upgrade_Name", upgradeName));
     }
 
-    public void VehicleUpgrade(string type, int upgradeLevel, int rebirthLevel)
+    public void VehicleUpgrade(string type, int rebirthLevel)
     {
         if (!isInitialized)
         {
@@ -558,14 +562,14 @@ public class AnalyticsDelegator : MonoBehaviour
         }
         CustomEvent myEvent = new CustomEvent("Vehicle_Upgrade") {
             {"Type", type},
-            {"Upgrade_Level", upgradeLevel},
+            //{"Upgrade_Level", upgradeLevel},
             {"Rebirth_Level", rebirthLevel},
         };
         AnalyticsService.Instance.RecordEvent(myEvent);
         AnalyticsService.Instance.Flush();
         FirebaseAnalytics.LogEvent("Vehicle_Upgrade",
             new Parameter("Type", type),
-            new Parameter("Upgrade_Level", upgradeLevel),
+            //new Parameter("Upgrade_Level", upgradeLevel),
             new Parameter("Rebirth_Level", rebirthLevel));
     }
 

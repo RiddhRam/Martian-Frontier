@@ -16,7 +16,6 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
     public GameObject doubleRewardsButtons;
 
     public TextMeshProUGUI[] crateDisplays;
-    public UIDelegation uIDelegation;
     public PlayerState playerState;
     public UpgradesDelegator upgradesDelegator;
     public Slider crateExtractionProgressBar;
@@ -42,7 +41,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     private int cratesAvailable = 1;
     private int progressToNextCrate = 0;
-    private readonly int blocksNeededToDestroy = 5000;
+    private const int blocksNeededToDestroy = 4000;
 
     public bool adWatchedAlready = false;
 
@@ -50,7 +49,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         int blocksLeft = blocksNeededToDestroy - progressToNextCrate;
 
         for (int i = 0; i != blocksNeededBars.Length; i++) {
-            blocksNeededBars[i].value = progressToNextCrate;
+            blocksNeededBars[i].value = (float) progressToNextCrate / blocksNeededToDestroy;
         }
 
         blocksNeededMiniBarText.text = blocksLeft.ToString();
@@ -103,7 +102,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public void OpenAllCrates() {
         if (cratesAvailable <= 0) {
-            uIDelegation.ShowError("NO CRATES AVAILABLE!");
+            UIDelegation.Instance.ShowError("NO CRATES AVAILABLE!");
             return;
         }
         StartOpeningCrate(true);
@@ -111,7 +110,7 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
 
     public void OpenOneCrate() {
         if (cratesAvailable <= 0) {
-            uIDelegation.ShowError("NO CRATES AVAILABLE!");
+            UIDelegation.Instance.ShowError("NO CRATES AVAILABLE!");
             return;
         }
         StartOpeningCrate(false);
@@ -242,6 +241,11 @@ public class SupplyCrateDelegator : MonoBehaviour, IDataPersistence
         
         this.cratesAvailable = data.cratesAvailable;
         this.progressToNextCrate = data.progressToNextCrate;
+
+        if (progressToNextCrate > blocksNeededToDestroy)
+        {
+            progressToNextCrate = blocksNeededToDestroy;
+        }
 
         UpdateCrateCount(cratesAvailable);
         UpdateProgressToNextCrate(progressToNextCrate);

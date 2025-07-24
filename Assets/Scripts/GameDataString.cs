@@ -8,19 +8,14 @@ public class GameDataString
     public string materialsSold;
     public string moneyEarned;
     public string highestMined;
-    public string playerPos;
-    public string playerRotation;
+    
     public string vehiclesOwned;
     public string currentVehicle;
 
-    public string refineryTimer;
-    public string destroyedTilemapsTileValues;
-    public string revealedTilemapsTileValues;
-    public string seed;
-    public string highestRow;
-    public string mineInitialization;
     public string mineCount;
+    public string highestLevelReached;
     public string oreUpgrades;
+    public string targetDepth;
 
     public string finishedTutorial;
     public string askedForReview;
@@ -35,6 +30,7 @@ public class GameDataString
     public string tutorialScreenIndex;
 
     public string vehicleUpgradeLevels;
+    public string upgradeBayOptionsPurchased;
     public string vehicleCustomizations;
     public string customizationsOwned;
 
@@ -66,6 +62,9 @@ public class GameDataString
     public string oreBlasterChallengeProgress;
     public string oreBlasterChallengeCollection;
     public string oreBlasterSuperChallengeTimer;
+
+    public string offlineTime;
+    
     public string bp;
     public string id;
 

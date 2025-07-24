@@ -18,7 +18,6 @@ using System.Collections.Generic;
 using System.Threading;
 using Unity.Services.Core;
 
-
 public class CloudDelegator : MonoBehaviour
 {
     [Header("Firebase")]
@@ -37,7 +36,7 @@ public class CloudDelegator : MonoBehaviour
             if (_instance == null)
             {
                 // Try to find an existing one in the scene
-                _instance = FindObjectOfType<CloudDelegator>();
+                _instance = FindFirstObjectByType<CloudDelegator>();
             }
             return _instance;
         }
@@ -56,10 +55,7 @@ public class CloudDelegator : MonoBehaviour
     public TMP_InputField signUpEmail;
     public TMP_InputField signUpPassword;
 
-    [Header("Scripts")]
-    public UIDelegation uIDelegation;
-
-    private readonly int currentVersionNumber = 123;
+    private readonly int currentVersionNumber = 144;
     private bool notSinglePlayerScene = false;
     public bool doingSigninProcess = false;
 
@@ -150,7 +146,7 @@ public class CloudDelegator : MonoBehaviour
     {
         if (logInPassword.text.Length == 0)
         {
-            uIDelegation.ShowError("MISSING PASSWORD!");
+            UIDelegation.Instance.ShowError("MISSING PASSWORD!");
             return;
         }
 
@@ -166,13 +162,13 @@ public class CloudDelegator : MonoBehaviour
             switch (error)
             {
                 case AuthError.InvalidEmail:
-                    uIDelegation.ShowError("EMAIL IS INVALID!"); break;
+                    UIDelegation.Instance.ShowError("EMAIL IS INVALID!"); break;
                 case AuthError.WrongPassword:
-                    uIDelegation.ShowError("WRONG PASSWORD!"); break;
+                    UIDelegation.Instance.ShowError("WRONG PASSWORD!"); break;
                 case AuthError.MissingEmail:
-                    uIDelegation.ShowError("MISSING EMAIL!"); break;
+                    UIDelegation.Instance.ShowError("MISSING EMAIL!"); break;
                 default:
-                    uIDelegation.ShowError("LOGIN FAILED!"); break;
+                    UIDelegation.Instance.ShowError("LOGIN FAILED!"); break;
             }
             Debug.LogError($"FirebaseException: {fe.ErrorCode}:{fe.Message}");
             return;
@@ -180,7 +176,7 @@ public class CloudDelegator : MonoBehaviour
         catch (Exception ex)
         {
             // any other errors
-            uIDelegation.ShowError("LOGIN FAILED!");
+            UIDelegation.Instance.ShowError("LOGIN FAILED!");
             Debug.LogError(ex);
             return;
         }
@@ -196,7 +192,7 @@ public class CloudDelegator : MonoBehaviour
 
         if (logInEmail.text.Trim().Length == 0)
         {
-            uIDelegation.ShowError("MISSING EMAIL!");
+            UIDelegation.Instance.ShowError("MISSING EMAIL!");
             return;
         }
 
@@ -209,7 +205,7 @@ public class CloudDelegator : MonoBehaviour
         catch (Exception ex)
         {
             // any other errors
-            uIDelegation.ShowError("EMAIL IS INVALID!");
+            UIDelegation.Instance.ShowError("EMAIL IS INVALID!");
             Debug.LogError(ex);
             return;
         }
@@ -222,7 +218,7 @@ public class CloudDelegator : MonoBehaviour
     {
         if (signUpPassword.text.Length == 0)
         {
-            uIDelegation.ShowError("MISSING PASSWORD!");
+            UIDelegation.Instance.ShowError("MISSING PASSWORD!");
             return;
         }
 
@@ -236,24 +232,24 @@ public class CloudDelegator : MonoBehaviour
         {
             if (fe.ErrorCode == 23)
             {
-                uIDelegation.ShowError("CHOOSE A STRONGER PASSWORD!"); return;
+                UIDelegation.Instance.ShowError("CHOOSE A STRONGER PASSWORD!"); return;
             }
             else if (fe.ErrorCode == 8)
             {
-                uIDelegation.ShowError("THIS EMAIL IS ALREADY IN USE!"); return;
+                UIDelegation.Instance.ShowError("THIS EMAIL IS ALREADY IN USE!"); return;
             }
 
             var error = (AuthError)fe.ErrorCode;
             switch (error)
             {
                 case AuthError.InvalidEmail:
-                    uIDelegation.ShowError("EMAIL IS INVALID!"); break;
+                    UIDelegation.Instance.ShowError("EMAIL IS INVALID!"); break;
                 case AuthError.WrongPassword:
-                    uIDelegation.ShowError("WRONG PASSWORD!"); break;
+                    UIDelegation.Instance.ShowError("WRONG PASSWORD!"); break;
                 case AuthError.MissingEmail:
-                    uIDelegation.ShowError("MISSING EMAIL!"); break;
+                    UIDelegation.Instance.ShowError("MISSING EMAIL!"); break;
                 default:
-                    uIDelegation.ShowError("SIGNUP FAILED!"); break;
+                    UIDelegation.Instance.ShowError("SIGNUP FAILED!"); break;
             }
             Debug.LogError($"FirebaseException: {fe.ErrorCode}:{fe.Message}");
             return;
@@ -261,7 +257,7 @@ public class CloudDelegator : MonoBehaviour
         catch (Exception ex)
         {
             // any other errors
-            uIDelegation.ShowError("SIGNUP FAILED!");
+            UIDelegation.Instance.ShowError("SIGNUP FAILED!");
             Debug.LogError(ex);
             return;
         }
@@ -289,13 +285,13 @@ public class CloudDelegator : MonoBehaviour
     {
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
-            uIDelegation.ShowError("NO INTERNET!");
+            UIDelegation.Instance.ShowError("NO INTERNET!");
             return;
         }
 
         if (newName.text.Length > 50 || Regex.IsMatch(newName.text, @"\s|[^\p{L}\p{N}_-]"))
         {
-            uIDelegation.ShowError("INVALID NAME!");
+            UIDelegation.Instance.ShowError("INVALID NAME!");
             return;
         }
 
@@ -326,7 +322,7 @@ public class CloudDelegator : MonoBehaviour
         catch
         {
             // If update failed
-            uIDelegation.ShowError("COULDN'T UPDATE NAME");
+            UIDelegation.Instance.ShowError("COULDN'T UPDATE NAME");
         }
     }
 
@@ -339,7 +335,7 @@ public class CloudDelegator : MonoBehaviour
     {
         if (Application.internetReachability == NetworkReachability.NotReachable)
         {
-            uIDelegation.ShowError("NO INTERNET!");
+            UIDelegation.Instance.ShowError("NO INTERNET!");
             return;
         }
 
@@ -360,7 +356,7 @@ public class CloudDelegator : MonoBehaviour
         catch
         {
             // If failed, player needs to relogin
-            uIDelegation.ShowError("PLEASE RE-LOGIN AND TRY AGAIN!");
+            UIDelegation.Instance.ShowError("PLEASE RE-LOGIN AND TRY AGAIN!");
         }
 
     }

@@ -1,187 +1,237 @@
 using UnityEngine;
 using TMPro;
 using UnityEngine.Purchasing;
-using UnityEngine.Purchasing.Extension;
+using System.Collections.Generic;
 using System;
 
-public class PremiumShopDelegator : MonoBehaviour, IDetailedStoreListener
+public class PremiumShopDelegator : MonoBehaviour
 {
+
     public PlayerState playerState;
-    public UIDelegation uIDelegation;
     public SupplyCrateDelegator supplyCrateDelegator;
-    
-    private IStoreController storeController;
+
     public GemIAPPanel[] gemIAPPanels;
     public BundleIAPPanel[] bundleIAPPanels;
     public TextMeshProUGUI[] priceTexts;
     public GameObject thankYouScreen;
 
-    void Start() {
-        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+    // NEW, Unity IAP v5
+    IStoreService storeService;
+    IProductService productService;
+    IPurchaseService purchaseService;
 
-        for (int i = 0; i != gemIAPPanels.Length; i++) {
-            builder.AddProduct(gemIAPPanels[i].productId, ProductType.Consumable);
-        }
+    // cache of fetched products
+    Dictionary<string, Product> availableProducts = new Dictionary<string, Product>();
 
-        for (int i = 0; i != bundleIAPPanels.Length; i++) {
-            builder.AddProduct(bundleIAPPanels[i].productId, ProductType.Consumable);
-        }
+    async void Start()
+    {
+        // grab the default services
+        storeService = UnityIAPServices.DefaultStore();
+        productService = UnityIAPServices.DefaultProduct();
+        purchaseService = UnityIAPServices.DefaultPurchase();
 
-        UnityPurchasing.Initialize(this, builder);
+        productService.OnProductsFetched += OnProductsFetched;
+        //productService.OnProductsFetchFailed += OnProductsFetchFailed;
+
+        purchaseService.OnPurchasePending += OnPurchasePending;
+        purchaseService.OnPurchaseConfirmed += OnPurchaseConfirmed;
+        purchaseService.OnPurchaseFailed += OnPurchaseFailed;
+
+        // Get past purchases for restorals
+        //purchaseService.OnPurchasesRetrieved += OnPurchasesRetrieved;
+
+        await storeService.Connect();
+
+        var productDefinitions = new List<ProductDefinition>
+        {
+            new ProductDefinition("gems20k", ProductType.Consumable),
+            new ProductDefinition("gems70k.", ProductType.Consumable),
+            new ProductDefinition("gems160k.", ProductType.Consumable),
+            new ProductDefinition("gems450k.", ProductType.Consumable),
+            new ProductDefinition("crates30", ProductType.Consumable),
+            new ProductDefinition("crates110.", ProductType.Consumable),
+            new ProductDefinition("crates275.", ProductType.Consumable),
+            new ProductDefinition("crates800.", ProductType.Consumable),
+            new ProductDefinition("gems20kcrates90", ProductType.Consumable),
+            new ProductDefinition("gems70kcrates300", ProductType.Consumable),
+            new ProductDefinition("gems160kcrates500", ProductType.Consumable),
+            new ProductDefinition("gems450kcrates1000", ProductType.Consumable),
+        };
+
+        productService.FetchProducts(productDefinitions);
     }
 
-    public void PurchaseCashWithGems(GameObject gemPanel) {
+    private void OnProductsFetched(List<Product> products)
+    {
+        Debug.Log($"[IAP] Fetched {products.Count} products");
+
+        foreach (var p in products)
+            availableProducts[p.definition.id] = p;
+
+        int textCount = 0;
+        for (int i = 0; i != gemIAPPanels.Length; i++)
+        {
+            var product = availableProducts[gemIAPPanels[i].productId];
+            priceTexts[textCount].text = product.metadata.localizedPriceString;
+
+            textCount++;
+        }
+
+        for (int i = 0; i != bundleIAPPanels.Length; i++)
+        {
+            var product = availableProducts[bundleIAPPanels[i].productId];
+            priceTexts[textCount].text = product.metadata.localizedPriceString;
+
+            textCount++;
+        }
+    }
+
+    private void OnPurchasePending(PendingOrder pendingOrder)
+    {
+        Debug.Log("Purchases pending: " + pendingOrder.Info.PurchasedProductInfo.Count);
+        purchaseService.ConfirmPurchase(pendingOrder);
+    }
+
+    private void OnPurchaseConfirmed(Order order)
+    {
+        // PurchaseProductInfo is a list of all purchased products (some apps let you put things in a cart)
+        // In this game, only 1 thing can be bought at a time, so get the first index and check its productId
+        string productId;
+        try
+        {
+            productId = order.Info.PurchasedProductInfo[0].productId;
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Couldn't complete purchase! reason={e.Message}");
+            UIDelegation.Instance.ShowError($"Couldn't complete purchase! reason={e.Message}");
+            return;
+        }
+
+        Debug.Log("Confirmed purchase for product: " + productId);
+
+        // First, check if it's a gem IAP
+        for (int i = 0; i < gemIAPPanels.Length; i++)
+        {
+            if (gemIAPPanels[i].productId == productId)
+            {
+                // Grant gem rewards based on the panel's configuration
+                int gemReward = gemIAPPanels[i].gems;
+                if (productId.Contains("crates"))
+                {
+                    supplyCrateDelegator.ChangeCrateCount(gemReward);
+                    Debug.Log("Added " + gemReward + " crates from bundle");
+                }
+                else
+                {
+                    playerState.AddGems(gemReward);
+                    Debug.Log("Added " + gemReward + " gems to player");
+                }
+
+                // Log analytics
+                AnalyticsDelegator.Instance.IAPPurchase(productId);
+
+                // Show confirmation if UI delegation is available
+                thankYouScreen.SetActive(true);
+                return;
+            }
+        }
+
+        // Then check if it's a bundle IAP
+        for (int i = 0; i < bundleIAPPanels.Length; i++)
+        {
+            if (bundleIAPPanels[i].productId == productId)
+            {
+                // Grant bundle rewards based on the panel's configuration
+                BundleIAPPanel bundle = bundleIAPPanels[i];
+
+                // Add gems if the bundle includes them
+                if (bundle.gems > 0)
+                {
+                    // Crates use the same logic
+                    playerState.AddGems(bundle.gems);
+                    Debug.Log("Added " + bundle.gems + " gems from bundle");
+                }
+
+                // Add cash if the bundle includes it
+                if (bundle.crates > 0)
+                {
+                    supplyCrateDelegator.ChangeCrateCount(bundle.crates);
+                    Debug.Log("Added " + bundle.crates + " crates from bundle");
+                }
+
+                // Add any other rewards that might be in your bundle
+                // Example: bundle.specialItemReward, etc.
+
+                // Log analytics
+                AnalyticsDelegator.Instance.IAPPurchase(productId);
+
+                // Show confirmation if UI delegation is available
+                thankYouScreen.SetActive(true);
+                return;
+            }
+        }
+
+        // If we get here, we didn't recognize the product ID
+        Debug.LogError("Purchase completed but product ID not recognized: " + productId);
+    }
+
+    private void OnPurchaseFailed(FailedOrder order)
+    {
+        if (order.FailureReason == PurchaseFailureReason.UserCancelled)
+        {
+            return;
+        }
+
+        Debug.LogError($"Purchase FAILED! reason={order.FailureReason}");
+        UIDelegation.Instance.ShowError($"Purchase FAILED! reason={order.FailureReason}");
+    }
+
+    public void PurchaseCashWithGems(GameObject gemPanel)
+    {
         GemCashPurchasePanel gemCashPurchasePanel = gemPanel.GetComponent<GemCashPurchasePanel>();
 
-        if (gemCashPurchasePanel.gemPrice > playerState.GetUserGems()) {
-            uIDelegation.ShowError("NOT ENOUGH GEMS!");
+        if (gemCashPurchasePanel.gemPrice > playerState.GetUserGems())
+        {
+            UIDelegation.Instance.ShowError("NOT ENOUGH GEMS!");
             return;
         }
 
-        playerState.AddCash((long) gemCashPurchasePanel.cashAmount);
+        playerState.AddCash((long)gemCashPurchasePanel.cashAmount);
         playerState.SubtractGems(gemCashPurchasePanel.gemPrice);
 
-        AnalyticsDelegator.Instance.PurchaseCashWithGems((float) gemCashPurchasePanel.cashAmount);
+        AnalyticsDelegator.Instance.PurchaseCashWithGems((float)gemCashPurchasePanel.cashAmount);
     }
 
-    public void PurchaseGemProduct(string productId) {
+    public void PurchaseGemProduct(string productId)
+    {
         Debug.Log($"Attempting to purchase: {productId}");
-        
-        if (storeController == null)
-        {
-            Debug.LogError("Store controller is null! Trying to reinitialize...");
-            // Consider re-initializing here
-            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-            // Re-add your products
-            UnityPurchasing.Initialize(this, builder);
-            return;
-        }
-        
-        Product product = storeController.products.WithID(productId);
-        
+
+        Product product = availableProducts[productId];
+
         if (product == null)
         {
             Debug.LogError($"Product not found in store: {productId}");
             return;
         }
-        
+
         if (!product.availableToPurchase)
         {
             Debug.LogError($"Product not available for purchase: {productId}");
             return;
         }
-        
+
         Debug.Log($"Initiating purchase for: {productId}");
-        storeController.InitiatePurchase(product);
+
+        purchaseService.PurchaseProduct(availableProducts[productId]);
+    }
+    
+    void OnDisable()
+    {
+        productService.OnProductsFetched    -= OnProductsFetched;
+        purchaseService.OnPurchasePending   -= OnPurchasePending;
+        purchaseService.OnPurchaseConfirmed -= OnPurchaseConfirmed;
+        purchaseService.OnPurchaseFailed    -= OnPurchaseFailed;
     }
 
-    public void OnInitialized(IStoreController controller, IExtensionProvider extensions) {
-        try {
-            storeController = controller;
-
-            int textCount = 0;
-            for (int i = 0; i != gemIAPPanels.Length; i++) {
-                var product = storeController.products.WithID(gemIAPPanels[i].productId);
-                priceTexts[textCount].text = product.metadata.localizedPriceString;
-
-                textCount++;
-            }
-
-            for (int i = 0; i != bundleIAPPanels.Length; i++) {
-                var product = storeController.products.WithID(bundleIAPPanels[i].productId);
-                priceTexts[textCount].text = product.metadata.localizedPriceString;
-
-                textCount++;
-            }
-
-        } catch (Exception ex) {
-            Debug.LogError(ex.Message);
-        }
-    }
-
-    public void OnInitializeFailed(InitializationFailureReason error) {
-        Debug.Log("IAP Initialization Failed: " + error);
-    }
-
-    public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args) {
-        string productId = args.purchasedProduct.definition.id;
-        Debug.Log("Processing purchase for product: " + productId);
-        
-        // First, check if it's a gem IAP
-        for (int i = 0; i < gemIAPPanels.Length; i++) {
-            if (gemIAPPanels[i].productId == productId) {
-                // Grant gem rewards based on the panel's configuration
-                int gemReward = gemIAPPanels[i].gems;
-                if (productId.Contains("crates")) {
-                    supplyCrateDelegator.ChangeCrateCount(gemReward);
-                    Debug.Log("Added " + gemReward + " crates from bundle");
-                } else {
-                    playerState.AddGems(gemReward);
-                    Debug.Log("Added " + gemReward + " gems to player");
-                }
-                
-                // Log analytics
-                AnalyticsDelegator.Instance.IAPPurchase(productId);
-                
-                // Show confirmation if UI delegation is available
-                thankYouScreen.SetActive(true);
-                
-                return PurchaseProcessingResult.Complete;
-            }
-        }
-        
-        // Then check if it's a bundle IAP
-        for (int i = 0; i < bundleIAPPanels.Length; i++) {
-            if (bundleIAPPanels[i].productId == productId) {
-                // Grant bundle rewards based on the panel's configuration
-                BundleIAPPanel bundle = bundleIAPPanels[i];
-                
-                // Add gems if the bundle includes them
-                if (bundle.gems > 0) {
-                    // Crates use the same logic
-                    playerState.AddGems(bundle.gems);
-                    Debug.Log("Added " + bundle.gems + " gems from bundle");
-                }
-                
-                // Add cash if the bundle includes it
-                if (bundle.crates > 0) {
-                    supplyCrateDelegator.ChangeCrateCount(bundle.crates);
-                    Debug.Log("Added " + bundle.crates + " crates from bundle");
-                }
-                
-                // Add any other rewards that might be in your bundle
-                // Example: bundle.specialItemReward, etc.
-                
-                // Log analytics
-                AnalyticsDelegator.Instance.IAPPurchase(productId);
-                
-                // Show confirmation if UI delegation is available
-                thankYouScreen.SetActive(true);
-                
-                return PurchaseProcessingResult.Complete;
-            }
-        }
-        
-        // If we get here, we didn't recognize the product ID
-        Debug.LogWarning("Purchase completed but product ID not recognized: " + productId);
-        return PurchaseProcessingResult.Complete;
-    }
-
-    public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason) {
-        Debug.Log("Purchase Failed: " + failureReason);
-        if (uIDelegation != null) {
-            uIDelegation.ShowError("Purchase Failed: " + failureReason);
-        }
-    }
-
-    public void OnPurchaseFailed(Product product, PurchaseFailureDescription failureDescription) {
-        Debug.Log("Purchase Failed: " + failureDescription);
-        if (uIDelegation != null) {
-            uIDelegation.ShowError("Purchase Failed: " + failureDescription.message);
-        }
-    }
-
-    public void OnInitializeFailed(InitializationFailureReason error, string message) {
-        Debug.Log("IAP Initialization Failed: " + error + " - " + message);
-    }
 }

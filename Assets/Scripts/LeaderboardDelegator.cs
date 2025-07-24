@@ -148,7 +148,7 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
             }
         }
 
-        // There's not cloud data to retrieve for now
+        // There's no cloud data to retrieve for now
         /*try
         {
             // Load the file from the cloud
@@ -357,7 +357,8 @@ public class LeaderboardDelegator : MonoBehaviour, IDataPersistence
 
     private void ResetLeaderboard()
     {
-        playerState.RewardPlayerWithGems(CalculatePlayerRewards());
+        gemRewardsToCollect += CalculatePlayerRewards();
+        CheckForRewards();
 
         // Start next leaderboard
         int uniqueUserInt = oreLeaderboardResultsPage.GetUniqueUserInt();

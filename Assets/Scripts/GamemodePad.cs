@@ -2,14 +2,13 @@ using UnityEngine;
 
 public class GamemodePad : MonoBehaviour
 {
-    [SerializeField] UIDelegation uIDelegation;
     [SerializeField] TutorialManager tutorialManager;
     [SerializeField] GameObject gamemodeScreen;
 
     void OnTriggerEnter2D(Collider2D collision) {
 
         if (tutorialManager && !tutorialManager.finishedTutorial) {
-            uIDelegation.ShowError("FINISH THE TUTORIAL FIRST!");
+            UIDelegation.Instance.ShowError("FINISH THE TUTORIAL FIRST!");
             return;
         }
 
@@ -24,8 +23,8 @@ public class GamemodePad : MonoBehaviour
         if (rb2d != null && rb2d.linearVelocity.sqrMagnitude < 0.01f)
             return;
 
-        uIDelegation.HideAll();
-        uIDelegation.RevealElement(gamemodeScreen);
+        UIDelegation.Instance.HideAll();
+        UIDelegation.Instance.RevealElement(gamemodeScreen);
 
         // Stops player from moving
         JoystickMovement.Instance.joystickVec = new();
