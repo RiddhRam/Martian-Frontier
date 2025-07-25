@@ -277,14 +277,16 @@ public class MineRenderer : MonoBehaviour, IDataPersistence
         {
             if (!camera.isActiveAndEnabled)
             {
-                return;
+                continue;
             }
 
             var planes = GeometryUtility.CalculateFrustumPlanes(camera);
             foreach (var tm in tilemapRenderers)
             {
                 bool visible = GeometryUtility.TestPlanesAABB(planes, tm.bounds);
-                tm.enabled = visible;
+
+                if (tm.enabled != visible)
+                    tm.enabled = visible;
             }
         }
     }

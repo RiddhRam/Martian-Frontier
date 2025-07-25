@@ -268,7 +268,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = UIDelegation.Instance.transform.GetChild(2);
-        string[] safeAreaChildrenNames = { "Important Info", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Refinery Alternate Panel", "Map Camera Panel", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Close Refinery", "Refinery Upgrade Panel", "Proceed Panel", "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Close Refinery", "Refinery Alternate Panel", "Map Camera Panel", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel", "Proceed Panel", "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {
