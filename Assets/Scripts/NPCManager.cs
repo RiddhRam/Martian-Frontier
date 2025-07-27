@@ -506,7 +506,7 @@ public class NPCManager : MonoBehaviour, IDataPersistence
     private void HideRefineryPanel()
     {
         UIDelegation.Instance.HideElement(refineryUpgradePanel);
-        OreDelegation.Instance.ClearGrid();
+        closeRefineryButton.SetActive(false);
         UIDelegation.Instance.RevealAll();
     }
 

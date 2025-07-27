@@ -48,7 +48,6 @@ public class OreDelegation : MonoBehaviour
     private RectTransform[] milestoneTransforms;
     private ButtonAffordability[] buttonAffordabilities;
 
-    [Header("Alternate")]
     public GameObject refineryAlternatePanel;
     public GameObject[] alternatePanels;
     private Image[] levelProgressBarsImages;
@@ -57,6 +56,7 @@ public class OreDelegation : MonoBehaviour
     // Lowercase verion of materialNames
     private bool[] isOre;
     private Coroutine flashOutlineCoroutine;
+    public Canvas canvas;
 
     void Awake() {
         mineRenderer = MineRenderer.Instance;
@@ -91,193 +91,6 @@ public class OreDelegation : MonoBehaviour
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
-        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
-
-        // A/B testing a new refinery upgrade panel
-        if (cohort == "A" || cohort == "B")
-        {
-            ClearAlternateGrid();
-            PrepareAlternateGrid();
-            return;
-        }
-
-        levelProgressBars = new Slider[length];
-
-        // Make sure everything else is clear for sure
-        ClearGrid();
-
-        int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
-        int requiredOreIndexTier = MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex);
-
-        int generatedPanels = 0;
-
-        for (int i = 0; i != length; i++)
-        {
-            // Determine which ores to show
-            bool foundOre = true;
-
-            // Always show the required ore no matter what
-            // Only show the other ores if player has previously mined this ore, otherwise show it as a mystery ore
-            // If the ore's tier is greater than the tier of the required ore, don't show anything at all after this index
-            if (i != requiredOreIndex)
-            {
-                // If tier is higher than the required ores tier
-                if (MineRenderer.Instance.GetOreTierByIndex(i) > requiredOreIndexTier)
-                {
-                    break;
-                }
-
-                // If not found ore yet
-                if (!mineRenderer.discoveredOres.Contains(i))
-                {
-                    foundOre = false;
-
-                    // If not found, and index is higher (but still same tier) then don't show anything at all after this index
-                    if (i > requiredOreIndex)
-                    {
-                        break;
-                    }
-                }
-            }
-
-            GameObject newMaterialPanel = Instantiate(oreMaterialPanel);
-            Transform panelTransform = newMaterialPanel.transform;
-            // Add panel to the content scroll view of the right tier panel
-            // This should just be a regular panel with a photo
-            panelTransform.SetParent(contentGO.transform);
-
-            panelTransform.localScale = new(1, 1, 1);
-
-            string oreName = mineRenderer.selectedMaterialNames[i];
-
-            // Set outline colour and top bar colour
-            orePanelOutlines[i] = panelTransform.GetChild(0).GetChild(0).GetComponent<Outline>();
-            orePanelOutlineBars[i] = panelTransform.GetChild(0).GetChild(1).GetComponent<Image>();
-            materialPriceTexts[i] = panelTransform.GetChild(1).GetChild(1).GetComponent<TextMeshProUGUI>();
-            materialLevelTexts[i] = panelTransform.GetChild(2).GetComponent<TextMeshProUGUI>();
-            materialUpgradePriceTexts[i] = panelTransform.GetChild(5).GetChild(0).GetChild(1).GetComponent<TextMeshProUGUI>();
-
-            if (foundOre)
-            {
-                // If found the ore, show its price, level, name, image and colours
-                //orePanelOutlines[i].effectColor = oreTileColours[GetOriginalTileIndexByName(oreName)];
-                //orePanelOutlineBars[i].color = oreTileColours[GetOriginalTileIndexByName(oreName)];
-
-                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = oreName;
-
-                materialPriceTexts[i].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(i)));
-                materialLevelTexts[i].text = GetLocalizedValue("LEVEL {0}", RefineryUpgradePad.Instance.GetOreUpgradeLevel(i));
-
-                Image image = panelTransform.GetChild(4).GetComponent<Image>();
-                image.sprite = materialHighResSprites[GetOriginalTileIndexByName(oreName)];
-                image.color = new(1, 1, 1);
-
-                // Save as its own variable, otherwise it keeps a reference to the variable i
-                int oreIndex = i;
-                // Add onclick listener and hold button component
-                panelTransform.GetChild(5).GetComponent<Button>().onClick.AddListener(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
-                // Hold to purchase
-                HoldButton holdButton = panelTransform.GetChild(5).gameObject.AddComponent<HoldButton>();
-                holdButton.SetAction(() => RefineryUpgradePad.Instance.PurchaseOreUpgrade(oreIndex));
-                // Button affordability
-                buttonAffordabilities[i] = panelTransform.GetChild(5).GetComponent<ButtonAffordability>();
-
-                levelProgressBars[i] = panelTransform.GetChild(6).GetComponent<Slider>();
-
-                milestoneTransforms[i] = panelTransform.GetChild(7).GetComponent<RectTransform>();
-
-                // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
-                UpdateOreMaterialPanel(i, false, false);
-            }
-            else
-            {
-                orePanelOutlines[i].effectColor = Color.black;
-                orePanelOutlineBars[i].color = Color.black;
-
-                // If not found, then show as mystery ore
-                panelTransform.GetChild(3).GetComponent<TextMeshProUGUI>().text = GetLocalizedValue("NOT FOUND");
-
-                materialPriceTexts[i].text = "?";
-
-                materialLevelTexts[i].text = "--";
-                materialLevelTexts[i].color = Color.white;
-
-                panelTransform.GetChild(5).GetComponent<Button>().interactable = false;
-
-                Destroy(panelTransform.GetChild(5).GetComponent<ButtonAffordability>());
-
-                materialUpgradePriceTexts[i].text = "--";
-            }
-
-            generatedPanels++;
-
-            // For tutorial
-            if (i == 0)
-            {
-                RefineryUpgradePad.Instance.limestoneUpgradeImage = newMaterialPanel.transform.GetChild(5).GetComponent<Image>();
-            }
-        }
-
-        // 3 per row
-        int rows = (int)Math.Ceiling(generatedPanels / 3d);
-
-        GridLayoutGroup contentGridLayoutGroup = contentGO.GetComponent<GridLayoutGroup>();
-        float bigContentHeight = oreMaterialPanel.GetComponent<RectTransform>().sizeDelta.y * rows + contentGridLayoutGroup.padding.top + contentGridLayoutGroup.padding.bottom + ((rows - 1) * contentGridLayoutGroup.spacing.y);
-
-        // Clamp height and adjust padding
-        float minHeight = contentGO.transform.parent.parent.GetComponent<RectTransform>().rect.height;
-        if (bigContentHeight < minHeight)
-        {
-            bigContentHeight = minHeight;
-            contentGridLayoutGroup.padding.top = 0;
-            contentGridLayoutGroup.padding.bottom = 350;
-        }
-
-        RectTransform bigContentRect = contentGO.GetComponent<RectTransform>();
-
-        // Resize the scroll view content height to fit the rows using the height of all panels
-        bigContentRect.sizeDelta = new Vector2(bigContentRect.sizeDelta.x, bigContentHeight);
-
-        ScrollRect scrollRect = contentGO.transform.parent.parent.GetComponent<ScrollRect>();
-
-        // If theres only 1 row, it will be in the Middle-Center by default
-        // If there's more, make it Upper-Center
-        if (rows > 1)
-        {
-            contentGridLayoutGroup.childAlignment = TextAnchor.UpperCenter;
-        }
-
-        // If larger than the minimum height, then scroll to make the target depth ores in the view
-        if (bigContentHeight > minHeight)
-        {
-            // 0 = bottom, 1 = top
-
-            // If first row, manually set it to the top
-            if (PlayerState.Instance.GetRecommendedDrillTier() == 1)
-            {
-                scrollRect.verticalNormalizedPosition = 1;
-            }
-            // Otherwise calculate the position
-            else
-            {
-                scrollRect.verticalNormalizedPosition = 1f - ((float)PlayerState.Instance.GetRecommendedDrillTier() / rows);
-            }
-
-            scrollRect.vertical = true;
-        }
-        else
-        {
-            scrollRect.vertical = false;
-        }
-
-        UIDelegation.Instance.HideAll();
-        UIDelegation.Instance.RevealElement(NPCManager.Instance.refineryUpgradePanel);
-    }
-
-    public Canvas canvas;
-
-    public void PrepareAlternateGrid()
-    {
         levelProgressBarsImages = new Image[orePanelOutlines.Length];
 
         int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
@@ -403,30 +216,6 @@ public class OreDelegation : MonoBehaviour
         refineryAlternatePanel.GetComponent<RectTransform>().anchoredPosition = localPoint;
 
         UIDelegation.Instance.RevealElement(refineryAlternatePanel);
-    }
-
-    // Clear grid when closing, then reprepare it when opening in case user changes language
-    public void ClearGrid()
-    {
-        string cohort = PlayerPrefs.GetString("Cohort", "No Cohort");
-
-        // A/B testing a new refinery upgrade panel
-        if (cohort == "A" || cohort == "B")
-        {
-            UIDelegation.Instance.HideElement(refineryAlternatePanel);
-            return;
-        }
-
-        int childCount = contentGO.transform.childCount;
-
-        for (int i = 0; i != childCount; i++)
-        {
-            Destroy(contentGO.transform.GetChild(i).gameObject);
-        }
-    }
-
-    public void ClearAlternateGrid() {
-
     }
 
     public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone, bool alternate = false)

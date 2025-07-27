@@ -37,12 +37,6 @@ public class RefineryUpgradePad : MonoBehaviour
     private static readonly int[] upgradeMilestones = new int[] { 10, 25, 50, 75, 100, 150, 200, 250 };
 
     [Header("Tab Delegation")]
-    [SerializeField] GameObject refineryScreen;
-    // The current panel showing in the refinery panel
-    private string currentTab = "Ores";
-    public Image oreTabButton;
-    public GameObject orePanel;
-    public Image proceedTabButton;
     public GameObject proceedPanel;
 
     [Header("Proceed Panel")]
@@ -258,41 +252,6 @@ public class RefineryUpgradePad : MonoBehaviour
 
         // Stops player from moving
         //JoystickMovement.Instance.joystickVec = new();
-    }
-
-    public void SwitchTabs(string newTab)
-    {
-        if (currentTab == newTab)
-        {
-            return;
-        }
-
-        // Ores, key: "Ores"
-        if (newTab == "Ores")
-        {
-            // Disable old tab
-            proceedTabButton.color = new(1, 1, 1, 90 / 255f);
-            proceedTabButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50 / 255f, 50 / 255f, 50 / 255f);
-            proceedPanel.SetActive(false);
-
-            // Enable new one
-            oreTabButton.color = new(1, 0, 0);
-            oreTabButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1);
-            orePanel.SetActive(true);
-        }
-        // Proceed to next mine, key: "Proceed"
-        else
-        {
-            oreTabButton.color = new(1, 1, 1, 90 / 255f);
-            oreTabButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(50 / 255f, 50 / 255f, 50 / 255f);
-            orePanel.SetActive(false);
-
-            proceedTabButton.color = new(1, 0, 0);
-            proceedTabButton.transform.GetChild(0).GetComponent<TextMeshProUGUI>().color = new(1, 1, 1);
-            proceedPanel.SetActive(true);
-        }
-
-        currentTab = newTab;
     }
 
     // Set next requirement needed

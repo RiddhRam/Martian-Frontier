@@ -34,7 +34,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     [Header("Refinery Upgrade Bay")]
     public GameObject refineryUpgradeBayPanel;
     public GameObject refineryProceedPanel;
-    public GameObject proceedArrow;
 
     [Header("Other")]
     public GameObject TutorialUIParent;
@@ -42,8 +41,6 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
     public bool finishedTutorial;
     public int tutorialScreenIndex = 0; // Tracks the current tutorial screen
     private int highestLevelReached;
-    public GameObject refineryInstruction;
-    public GameObject upgradeRefineryInstruction;
     public GameObject cameraInstruction;
     public GameObject targetDepthPanel;
     public Button cameraModeSwitch;
@@ -172,15 +169,15 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             // Close panel
             else if (tutorialScreenIndex == 5)
             {
-                refineryInstruction.SetActive(true);
-                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf || !OreDelegation.Instance.refineryAlternatePanel.activeSelf);
-                refineryInstruction.SetActive(false);
+                //refineryInstruction.SetActive(true);
+                yield return new WaitUntil(() => !refineryUpgradeBayPanel.activeSelf);
+                //refineryInstruction.SetActive(false);
             }
             // ENSURE that they bought at least 10
             else if (tutorialScreenIndex == 6)
             {
                 yield return new WaitUntil(() => RefineryUpgradePad.Instance.BoughtTenUpgrades());
-                refineryInstruction.SetActive(true);
+                //refineryInstruction.SetActive(true);
             }
             // Point to refinery upgrades
             else if (tutorialScreenIndex == 7)
@@ -189,7 +186,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
 
                 // Wait for panel to open
                 yield return new WaitUntil(() => refineryProceedPanel.activeSelf);
-                refineryInstruction.SetActive(false);
+                //refineryInstruction.SetActive(false);
 
                 if (arrowAnimation != null)
                 {
@@ -201,7 +198,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             else if (tutorialScreenIndex == 8)
             {
                 // Tell player to upgrade their ore
-                upgradeRefineryInstruction.SetActive(true);
+                //upgradeRefineryInstruction.SetActive(true);
 
                 // Wait to tell the player to buy the profit ugrade
                 yield return new WaitUntil(() => PlayerState.Instance.GetUserCash() >= VehicleUpgradeBayManager.Instance.firstProfitUpgradePrice || VehicleUpgradeBayManager.Instance.BoughtProfitUpgrade());
@@ -213,9 +210,9 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     continue;
                 }
 
-                upgradeRefineryInstruction.SetActive(false);
+                //upgradeRefineryInstruction.SetActive(false);
 
-                StartCoroutine(FlashMessage(refineryInstruction, 3, 0.5f));
+                //StartCoroutine(FlashMessage(refineryInstruction, 3, 0.5f));
             }
             else if (tutorialScreenIndex == 9)
             {
@@ -256,8 +253,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                 }
 
                 // Back to old instruction
-                refineryInstruction.SetActive(false);
-                upgradeRefineryInstruction.SetActive(true);
+                //refineryInstruction.SetActive(false);
+                //upgradeRefineryInstruction.SetActive(true);
 
                 VehicleUpgradeBayManager.Instance.FlashCloseButton();
 
@@ -490,7 +487,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
                     affordStartTime = Time.realtimeSinceStartup;
 
                 // Don't need arrow if panel is open
-                else if (refineryUpgradeBayPanel.activeSelf || refineryProceedPanel.activeSelf || OreDelegation.Instance.refineryAlternatePanel.activeSelf)
+                else if (refineryUpgradeBayPanel.activeSelf || refineryProceedPanel.activeSelf)
                 {
                     affordStartTime = Time.realtimeSinceStartup;
                     arrow.SetActive(false);
@@ -658,7 +655,8 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             System.Random cohortRNG = new();
             double rand = cohortRNG.NextDouble();
 
-            if (rand < 0.25)
+            // 35/15/35/15 split
+            if (rand < 0.35)
             {
                 cohort = "A";
             }
@@ -666,7 +664,7 @@ public class TutorialManager : MonoBehaviour, IDataPersistence
             {
                 cohort = "B";
             }
-            else if (rand < 0.75)
+            else if (rand < 0.85)
             {
                 cohort = "C";
             }
