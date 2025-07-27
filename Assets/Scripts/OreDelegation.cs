@@ -35,12 +35,8 @@ public class OreDelegation : MonoBehaviour
     public Color[] oreTileColours;
 
     [Header("UI")]
-    public GameObject oreMaterialPanel;
-    public GameObject contentGO;
 
     // Track components of each ore panel
-    private Outline[] orePanelOutlines;
-    private Image[] orePanelOutlineBars;
     private TextMeshProUGUI[] materialLevelTexts;
     private TextMeshProUGUI[] materialPriceTexts;
     private TextMeshProUGUI[] materialUpgradePriceTexts;
@@ -83,20 +79,18 @@ public class OreDelegation : MonoBehaviour
     public void PrepareGrid()
     {
         int length = mineRenderer.selectedMaterialNames.Length;
-        orePanelOutlines = new Outline[length];
-        orePanelOutlineBars = new Image[length];
         materialLevelTexts = new TextMeshProUGUI[length];
         materialPriceTexts = new TextMeshProUGUI[length];
         materialUpgradePriceTexts = new TextMeshProUGUI[length];
         milestoneTransforms = new RectTransform[length];
         buttonAffordabilities = new ButtonAffordability[length];
 
-        levelProgressBarsImages = new Image[orePanelOutlines.Length];
+        levelProgressBarsImages = new Image[length];
 
         int requiredOreIndex = RefineryUpgradePad.Instance.GetRequiredOreIndex();
         int requiredOreIndexTier = MineRenderer.Instance.GetOreTierByIndex(requiredOreIndex);
 
-        for (int i = 0; i != orePanelOutlines.Length; i++)
+        for (int i = 0; i != length; i++)
         {
             // Determine which ores to show
             bool foundOre = true;
@@ -182,7 +176,7 @@ public class OreDelegation : MonoBehaviour
                 milestoneTransforms[i] = panelTransform.GetChild(5).GetComponent<RectTransform>();
 
                 // We pass false for 'reachedMilestone', even though it may have been reached because it shouldn't show anything at all
-                UpdateOreMaterialPanel(i, false, false, true);
+                UpdateOreMaterialPanel(i, false, false);
             }
             else
             {
@@ -218,7 +212,7 @@ public class OreDelegation : MonoBehaviour
         UIDelegation.Instance.RevealElement(refineryAlternatePanel);
     }
 
-    public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone, bool alternate = false)
+    public void UpdateOreMaterialPanel(int oreIndex, bool flashOutline, bool reachedMilestone)
     {
         // Update text
         materialPriceTexts[oreIndex].text = RefineryUpgradePad.Instance.playerState.FormatPrice(new System.Numerics.BigInteger(RefineryUpgradePad.Instance.GetActualMaterialPrice(oreIndex)));
@@ -238,16 +232,8 @@ public class OreDelegation : MonoBehaviour
         {
             maxLevel = true;
             // Hide price tag, show MAX text
-            if (alternate)
-            {
-                buttonTransform.GetChild(1).gameObject.SetActive(false);
-                buttonTransform.GetChild(6).gameObject.SetActive(true);
-            }
-            else
-            {
-                buttonTransform.GetChild(0).gameObject.SetActive(false);
-                buttonTransform.GetChild(1).gameObject.SetActive(true);
-            }
+            buttonTransform.GetChild(1).gameObject.SetActive(false);
+            buttonTransform.GetChild(6).gameObject.SetActive(true);
 
             // Destroy hold button component, it may not have been added yet in some edge cases, that's why we do this
             if (buttonTransform.TryGetComponent(out HoldButton hold))
@@ -274,40 +260,19 @@ public class OreDelegation : MonoBehaviour
         int lastMilestone = RefineryUpgradePad.Instance.GetLastOreMilestone(oreIndex);
 
         // Update progress bar
-        if (alternate)
+        if (maxLevel)
         {
-            if (maxLevel)
-            {
-                levelProgressBarsImages[oreIndex].color = new(1, 112f / 255, 67f / 255);
-                levelProgressBarsImages[oreIndex].fillAmount = 1;
-            }
-            else
-            {
-                levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
-            }
+            levelProgressBarsImages[oreIndex].color = new(1, 112f / 255, 67f / 255);
+            levelProgressBarsImages[oreIndex].fillAmount = 1;
         }
         else
         {
-            levelProgressBars[oreIndex].maxValue = RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone;
-            if (maxLevel)
-            {
-                levelProgressBars[oreIndex].value = levelProgressBars[oreIndex].maxValue;
-            }
-            else
-            {
-                levelProgressBars[oreIndex].value = RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone;
-            }
+            levelProgressBarsImages[oreIndex].fillAmount = (float)(RefineryUpgradePad.Instance.GetOreUpgradeLevel(oreIndex) - lastMilestone) / (RefineryUpgradePad.Instance.GetNextOreMilestone(oreIndex) - lastMilestone);
         }
         
         // If we should flash the outline (an upgrade was made)
         if (flashOutline)
         {
-            // If there is no outline currently flashing
-            if (flashOutlineCoroutine == null && !alternate)
-            {
-                flashOutlineCoroutine = StartCoroutine(FlashOrePanelOutline(orePanelOutlines[oreIndex], orePanelOutlineBars[oreIndex]));
-            }
-
             // If upgrade milestone was reached
             if (reachedMilestone)
             {
@@ -315,45 +280,6 @@ public class OreDelegation : MonoBehaviour
             }
         }
 
-    }
-
-    private IEnumerator FlashOrePanelOutline(Outline outlineToFlash, Image outlineBarToFlash)
-    {
-        Color originalColor = outlineToFlash.effectColor;
-        // Don't multiply the alpha by 0.5
-        Color darkerColor = new Color(originalColor.r * 0.5f, originalColor.g * 0.5f, originalColor.b * 0.5f, originalColor.a);
-
-        float duration = 0.25f;
-        float halfDuration = duration / 2f;
-
-        Color newColor;
-
-        // Transition to darker color
-        float t = 0f;
-        while (t < halfDuration)
-        {
-            t += Time.deltaTime;
-            newColor = Color.Lerp(originalColor, darkerColor, t / halfDuration);
-            outlineToFlash.effectColor = newColor;
-            outlineBarToFlash.color = newColor;
-            yield return null;
-        }
-
-        // Transition back to original color
-        t = 0f;
-        while (t < halfDuration)
-        {
-            t += Time.deltaTime;
-            newColor = Color.Lerp(darkerColor, originalColor, t / halfDuration);
-            outlineToFlash.effectColor = newColor;
-            outlineBarToFlash.color = newColor;
-            yield return null;
-        }
-
-        outlineToFlash.effectColor = originalColor; // Ensure final color is exact
-        outlineBarToFlash.color = originalColor;
-
-        flashOutlineCoroutine = null;
     }
 
     private IEnumerator BobMilestonePanel(RectTransform doubleProfitPanel)

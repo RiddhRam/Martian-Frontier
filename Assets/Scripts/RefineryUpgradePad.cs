@@ -413,7 +413,7 @@ public class RefineryUpgradePad : MonoBehaviour
             }
         }
 
-        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone, alternate);
+        oreDelegation.UpdateOreMaterialPanel(oreIndex, true, reachedMilestone);
 
         CheckIfProceedAvailable();
 

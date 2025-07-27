@@ -155,6 +155,6 @@ public class GameData
         this.offlineTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
 
         this.bp = 0;
-        this.id = 146;
+        this.id = 147;
     }
 }

@@ -75,7 +75,7 @@ public class LoadingTest
         // Player State
         PlayerState playerState = GameObject.Find("PlayerState").GetComponent<PlayerState>();
 
-        int cashDisplayCount = 6;
+        int cashDisplayCount = 5;
         Assert.AreEqual(cashDisplayCount, playerState.cashDisplays.Length);
         for (int i = 0; i != cashDisplayCount; i++)
         {
@@ -268,7 +268,7 @@ public class LoadingTest
 
         // Safe Area - Make sure correct order
         Transform uISafeArea = UIDelegation.Instance.transform.GetChild(2);
-        string[] safeAreaChildrenNames = { "Important Info", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Close Refinery", "Refinery Alternate Panel", "Map Camera Panel", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Refinery Upgrade Panel", "Proceed Panel", "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
+        string[] safeAreaChildrenNames = { "Important Info", "Left Sidebar", "Settings", "Right Sidebar", "Bottom", "Close Refinery", "Refinery Upgrade Panel", "Map Camera Panel", "Cheats", "Tech Lab Panel", "Daily Challenges Panel", "Supply Crates Panel", "Weekly Leaderboards Panel", "Proceed Panel", "Drone Upgrades Panel", "Premium Shop Panel", "Teleport Panel", "Go To Team Panel", "Target Depth Panel", "Settings Panel" };
         Assert.AreEqual(safeAreaChildrenNames.Length, uISafeArea.childCount);
         for (int i = 0; i != safeAreaChildrenNames.Length; i++)
         {
@@ -357,9 +357,6 @@ public class LoadingTest
         {
             Assert.AreEqual(oreDelegation.GetOriginalMaterialPrices()[i], materialPrices[i]);
         }
-
-        Assert.AreEqual(oreDelegation.oreMaterialPanel.name, "Ore Material Panel");
-        Assert.AreEqual(oreDelegation.contentGO.name, "Content");
 
         yield return null;
     }
