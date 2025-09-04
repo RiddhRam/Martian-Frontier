@@ -1,0 +1,257 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETStandard,Version=v2.1": {
+      "Google.Play.Common/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/Google.Play.Common.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Google.Play.Common.dll": {}
+        }
+      },
+      "Google.Play.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/Google.Play.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Google.Play.Core.dll": {}
+        }
+      },
+      "Google.Play.Review/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "Google.Play.Common": "1.0.0",
+          "Google.Play.Core": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Google.Play.Review.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Google.Play.Review.dll": {}
+        }
+      },
+      "GoogleMobileAds.Editor/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/GoogleMobileAds.Editor.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GoogleMobileAds.Editor.dll": {}
+        }
+      },
+      "GoogleMobileAds.Mediation.UnityAds.Android/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "GoogleMobileAds.Mediation.UnityAds.Common": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Android.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Android.dll": {}
+        }
+      },
+      "GoogleMobileAds.Mediation.UnityAds.Api/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "GoogleMobileAds.Mediation.UnityAds.Android": "1.0.0",
+          "GoogleMobileAds.Mediation.UnityAds.Common": "1.0.0",
+          "GoogleMobileAds.Mediation.UnityAds.iOS": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Api.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Api.dll": {}
+        }
+      },
+      "GoogleMobileAds.Mediation.UnityAds.Common/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Common.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.Common.dll": {}
+        }
+      },
+      "GoogleMobileAds.Mediation.UnityAds.iOS/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "GoogleMobileAds.Mediation.UnityAds.Common": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.iOS.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/GoogleMobileAds.Mediation.UnityAds.iOS.dll": {}
+        }
+      },
+      "NavMeshPlus/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/NavMeshPlus.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/NavMeshPlus.dll": {}
+        }
+      },
+      "Scripts/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "dependencies": {
+          "Google.Play.Common": "1.0.0",
+          "Google.Play.Review": "1.0.0",
+          "GoogleMobileAds.Editor": "1.0.0",
+          "GoogleMobileAds.Mediation.UnityAds.Api": "1.0.0",
+          "NavMeshPlus": "1.0.0",
+          "Unity.LevelPlay": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Scripts.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Scripts.dll": {}
+        }
+      },
+      "Unity.LevelPlay/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/Unity.LevelPlay.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Unity.LevelPlay.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Google.Play.Common/1.0.0": {
+      "type": "project",
+      "path": "Google.Play.Common.csproj",
+      "msbuildProject": "Google.Play.Common.csproj"
+    },
+    "Google.Play.Core/1.0.0": {
+      "type": "project",
+      "path": "Google.Play.Core.csproj",
+      "msbuildProject": "Google.Play.Core.csproj"
+    },
+    "Google.Play.Review/1.0.0": {
+      "type": "project",
+      "path": "Google.Play.Review.csproj",
+      "msbuildProject": "Google.Play.Review.csproj"
+    },
+    "GoogleMobileAds.Editor/1.0.0": {
+      "type": "project",
+      "path": "GoogleMobileAds.Editor.csproj",
+      "msbuildProject": "GoogleMobileAds.Editor.csproj"
+    },
+    "GoogleMobileAds.Mediation.UnityAds.Android/1.0.0": {
+      "type": "project",
+      "path": "GoogleMobileAds.Mediation.UnityAds.Android.csproj",
+      "msbuildProject": "GoogleMobileAds.Mediation.UnityAds.Android.csproj"
+    },
+    "GoogleMobileAds.Mediation.UnityAds.Api/1.0.0": {
+      "type": "project",
+      "path": "GoogleMobileAds.Mediation.UnityAds.Api.csproj",
+      "msbuildProject": "GoogleMobileAds.Mediation.UnityAds.Api.csproj"
+    },
+    "GoogleMobileAds.Mediation.UnityAds.Common/1.0.0": {
+      "type": "project",
+      "path": "GoogleMobileAds.Mediation.UnityAds.Common.csproj",
+      "msbuildProject": "GoogleMobileAds.Mediation.UnityAds.Common.csproj"
+    },
+    "GoogleMobileAds.Mediation.UnityAds.iOS/1.0.0": {
+      "type": "project",
+      "path": "GoogleMobileAds.Mediation.UnityAds.iOS.csproj",
+      "msbuildProject": "GoogleMobileAds.Mediation.UnityAds.iOS.csproj"
+    },
+    "NavMeshPlus/1.0.0": {
+      "type": "project",
+      "path": "NavMeshPlus.csproj",
+      "msbuildProject": "NavMeshPlus.csproj"
+    },
+    "Scripts/1.0.0": {
+      "type": "project",
+      "path": "Scripts.csproj",
+      "msbuildProject": "Scripts.csproj"
+    },
+    "Unity.LevelPlay/1.0.0": {
+      "type": "project",
+      "path": "Unity.LevelPlay.csproj",
+      "msbuildProject": "Unity.LevelPlay.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETStandard,Version=v2.1": [
+      "Scripts >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/riddh/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/riddh/Cloud Repositories/Martian Frontier/EditMode.csproj",
+      "projectName": "EditMode",
+      "projectPath": "/Users/riddh/Cloud Repositories/Martian Frontier/EditMode.csproj",
+      "packagesPath": "/Users/riddh/.nuget/packages/",
+      "outputPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Temp/obj/EditMode/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/riddh/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "netstandard2.1"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "projectReferences": {
+            "/Users/riddh/Cloud Repositories/Martian Frontier/Scripts.csproj": {
+              "projectPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Scripts.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netstandard2.1": {
+        "targetAlias": "netstandard2.1",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.311/RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

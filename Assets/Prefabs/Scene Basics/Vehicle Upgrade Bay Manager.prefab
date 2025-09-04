@@ -1,0 +1,116 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7847215067739206082
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7830850851919390988}
+  - component: {fileID: 7980692916062527447}
+  m_Layer: 0
+  m_Name: Vehicle Upgrade Bay Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7830850851919390988
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7847215067739206082}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7980692916062527447
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7847215067739206082}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: adec068929f8e4969915578bf5ed8b02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  grinderDrill: {fileID: 3759712601038749159, guid: 488c9d4bb92384ee89dcb1bfa80d97c7, type: 3}
+  twinDrill: {fileID: 8111692216480784621, guid: 7d096543f75b7468192b21e42a3f831a, type: 3}
+  viperDrill: {fileID: 3160000344747207058, guid: e2c45374f389a46b0b0b424d0d31855f, type: 3}
+  boreDrill: {fileID: 4785479906097163357, guid: 9855eaf16c2814ee8ab1cfbea09ebd25, type: 3}
+  tempestDrill: {fileID: 1568260391241045082, guid: 0f7e69044237f4e9f8a6f8431aa1d701, type: 3}
+  specterDrill: {fileID: 3759712601038749159, guid: 125305df3670744dfa96b5a9277dff9f, type: 3}
+  grinderBodies:
+  - {fileID: 21300000, guid: c4aa7e1fee6884800ae5372d735f565b, type: 3}
+  - {fileID: 21300000, guid: 7f32e157500ac4c9aadb90258308c33c, type: 3}
+  - {fileID: 21300000, guid: 62df9d8d95d1f4540a86a0ca76664513, type: 3}
+  twinBodies:
+  - {fileID: 21300000, guid: 5f3279b4b6e0042a1828ac0a64c40c78, type: 3}
+  - {fileID: 21300000, guid: 4246c2d63d26440af835d1ecba5bc9d4, type: 3}
+  - {fileID: 21300000, guid: 0d57b5aba6ad7424a82a3b7f3ce8ced8, type: 3}
+  viperBodies:
+  - {fileID: 21300000, guid: 07dc59c784da54a28b546ead6f095f3e, type: 3}
+  - {fileID: 21300000, guid: 4aaa87922bf6b481584f525b53b3987b, type: 3}
+  - {fileID: 21300000, guid: 1258e686f39db4f67acf3d10b27b3de9, type: 3}
+  boreBodies:
+  - {fileID: 21300000, guid: a3ea3416832ec4bb8bb93735de6188b6, type: 3}
+  - {fileID: 21300000, guid: a54a7610376fd42408630ac13802a38a, type: 3}
+  - {fileID: 21300000, guid: e157346c5688a48039b9fdfa0aca8822, type: 3}
+  tempestBodies:
+  - {fileID: 21300000, guid: ccae25f8e080242a5b6b580bb73cba30, type: 3}
+  - {fileID: 21300000, guid: 1873d4972827b4ff58be30d55566f1a6, type: 3}
+  - {fileID: 21300000, guid: 91c9f08a1fa7b419a84c902cc0a97f49, type: 3}
+  specterBodies:
+  - {fileID: 21300000, guid: cc3e7932260ee4ac9a5bd1d2d2531634, type: 3}
+  - {fileID: 21300000, guid: 971f0d03a41c049a8b90c1d415ed9835, type: 3}
+  - {fileID: 21300000, guid: b484c0985a65146f7a0c8184d981fc8d, type: 3}
+  baseDrills:
+  - {fileID: 21300000, guid: c03747714475d45c5b68eeda95081097, type: 3}
+  - {fileID: 21300000, guid: 76802dd992168438cbd959bd37379344, type: 3}
+  - {fileID: 21300000, guid: 3272332d9b1fd48728dc822986ffbb39, type: 3}
+  wideDrills:
+  - {fileID: 21300000, guid: 260cfaeff2c324605b77d41459a1a844, type: 3}
+  - {fileID: 21300000, guid: 20dc8557bfb7e412faa1ac5e2763a389, type: 3}
+  - {fileID: 21300000, guid: fb0594fe487f547388d22e87689d7550, type: 3}
+  boreDrills:
+  - {fileID: 9100000, guid: 1b8195c84b07e423f8e4bae61c61bab9, type: 2}
+  - {fileID: 9100000, guid: 61163f213ab064da3becfbc219427633, type: 2}
+  - {fileID: 9100000, guid: dbee3f287d9b5438ca0e972a131cdd7d, type: 2}
+  boreUIDrills:
+  - {fileID: 9100000, guid: 5d5652c47341543728425b96f92f3135, type: 2}
+  - {fileID: 9100000, guid: 77763849878564b52a055cae3e1397a9, type: 2}
+  - {fileID: 9100000, guid: 93386050cc3194ebd815cc45ec8f94eb, type: 2}
+  drillerController: {fileID: 0}
+  drillUIPositions:
+  - {fileID: 5909788846806655625, guid: 8ada178ac58414fc08395fc88233998a, type: 3}
+  - {fileID: 7592012237566772067, guid: e9284f7cc6e4a42f98427369fedb86ec, type: 3}
+  - {fileID: 8287762817872767327, guid: e4900b17dbfe14cb78fe24e0c3146e93, type: 3}
+  - {fileID: 5832318685398606077, guid: 0e18dc77121f74242b40ac759c4d9de5, type: 3}
+  - {fileID: 317654178605630105, guid: b143115f84b86495eb0d6a5592cd6d1e, type: 3}
+  - {fileID: 540197792599650953, guid: f321c6eb8e2c441ebb738c729a5f2127, type: 3}
+  upgradeBayNoticeIcon: {fileID: 0}
+  upgradeBayOptionPrefab: {fileID: 0}
+  scrollViewContent: {fileID: 0}
+  playerState: {fileID: 0}
+  audioDelegator: {fileID: 0}
+  loaded: 0
+  upgradeSound: {fileID: 8300000, guid: f898ee83a6a1d4995ba571e34e95b2da, type: 3}
+  oreSoundEffectsSource: {fileID: 0}
+  flashButton: 0
+  closeButtonImage: {fileID: 0}
+  upgradeBenefitImages:
+  - {fileID: 21300000, guid: e5cc1193d5d1e46a4ac182317424b10f, type: 3}
+  - {fileID: 21300000, guid: 04d5bc40b4fb0468eb9aefb82b4ce98d, type: 3}
+  - {fileID: 21300000, guid: 7a8b177aac0d14f23a762618d9358101, type: 3}
+  - {fileID: 21300000, guid: eed6b8f7ba2c24c80a7e3f4c239f4ca4, type: 3}
+  - {fileID: 21300000, guid: f5ac51bfe62c54588834567ac048a6cb, type: 3}

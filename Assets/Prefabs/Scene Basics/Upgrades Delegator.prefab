@@ -1,0 +1,98 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6094845024594752151
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 389790893176188092}
+  - component: {fileID: 8174226141047515566}
+  m_Layer: 0
+  m_Name: Upgrades Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &389790893176188092
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6094845024594752151}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &8174226141047515566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6094845024594752151}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6da7e9d1b27a147b6be78265a9e567be, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerVehicle: {fileID: 0}
+  mineRenderer: {fileID: 0}
+  playerState: {fileID: 0}
+  explosionEffect: {fileID: 2721541819368725780, guid: b73b44a4cc58542c3ac3261b85b2c22c, type: 3}
+  uIDelegation: {fileID: 0}
+  teleportPanel: {fileID: 0}
+  powerIconImage: {fileID: 0}
+  powerButton: {fileID: 0}
+  powerCooldownTimer: {fileID: 0}
+  powerPanels:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  powerLockedPanels:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  unlockPowerButton: {fileID: 0}
+  powerUpAudioSource: {fileID: 0}
+  powerUpAudioClips:
+  - {fileID: 8300000, guid: f3f4d2051c93f46b99d9e310602811ab, type: 3}
+  - {fileID: 8300000, guid: 911be54d0e8364864862ce6e73d829a1, type: 3}
+  - {fileID: 8300000, guid: 472dbbff3c01a4dfbb69b94e8cd05169, type: 3}
+  audioVolumes:
+  - 0.6
+  - 0.8
+  - 0.6
+  defaultMaterial: {fileID: 10306, guid: 0000000000000000f000000000000000, type: 0}
+  surveyRadarColor: {r: 0, g: 1, b: 1, a: 1}
+  powerIconsWhite:
+  - {fileID: 21300000, guid: 45021d3faff6549f09f4cbf1eaed5a98, type: 3}
+  - {fileID: 21300000, guid: ef24b3d2afc244635a0ef4e163c2df86, type: 3}
+  - {fileID: 21300000, guid: 756482b8d477b42fd8647f7fba3247bc, type: 3}
+  cooldownTimer: 0
+  powerUpgradeLevels:
+    keys: []
+    values: 
+  cooldown: 90
+  crateMultiplier: 0
+  surveyVisionRadius: 0
+  destroyRadius: 0
+  profitMultiplier: 0
+  scannedForOres: 0
+  visionBoost: 3

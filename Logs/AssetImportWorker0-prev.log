@@ -1,0 +1,590 @@
+Unity Editor version:    6000.1.7f1 (13a8ffad9172)
+Branch:                  6000.1/staging
+Build type:              Release
+Batch mode:              YES
+macOS version:           Version 15.2 (Build 24C101)
+Darwin version:          24.2.0
+Architecture:            arm64
+Running under Rosetta:   NO
+Available memory:        8192 MB
+Date:                    2025-08-08T12:50:31Z
+Using pre-set license
+Pro License: YES
+
+COMMAND LINE ARGUMENTS:
+/Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/MacOS/Unity
+-adb2
+-batchMode
+-noUpm
+-name
+AssetImportWorker0
+-projectPath
+/Users/riddh/Cloud Repositories/Martian Frontier
+-logFile
+Logs/AssetImportWorker0.log
+-srvPort
+49490
+-job-worker-count
+3
+-background-job-worker-count
+8
+-gc-helper-count
+1
+-name AssetImport
+Successfully changed project path to: /Users/riddh/Cloud Repositories/Martian Frontier
+/Users/riddh/Cloud Repositories/Martian Frontier
+[UnityMemory] Configuration Parameters - Can be set up in boot.config
+    "memorysetup-allocator-temp-initial-block-size-main=262144"
+    "memorysetup-allocator-temp-initial-block-size-worker=262144"
+    "memorysetup-bucket-allocator-granularity=16"
+    "memorysetup-bucket-allocator-bucket-count=8"
+    "memorysetup-bucket-allocator-block-size=33554432"
+    "memorysetup-bucket-allocator-block-count=8"
+    "memorysetup-main-allocator-block-size=16777216"
+    "memorysetup-thread-allocator-block-size=16777216"
+    "memorysetup-gfx-main-allocator-block-size=16777216"
+    "memorysetup-gfx-thread-allocator-block-size=16777216"
+    "memorysetup-cache-allocator-block-size=4194304"
+    "memorysetup-typetree-allocator-block-size=2097152"
+    "memorysetup-profiler-bucket-allocator-granularity=16"
+    "memorysetup-profiler-bucket-allocator-bucket-count=8"
+    "memorysetup-profiler-bucket-allocator-block-size=33554432"
+    "memorysetup-profiler-bucket-allocator-block-count=8"
+    "memorysetup-profiler-allocator-block-size=16777216"
+    "memorysetup-profiler-editor-allocator-block-size=1048576"
+    "memorysetup-temp-allocator-size-main=16777216"
+    "memorysetup-job-temp-allocator-block-size=2097152"
+    "memorysetup-job-temp-allocator-block-size-background=1048576"
+    "memorysetup-job-temp-allocator-reduction-small-platforms=262144"
+    "memorysetup-temp-allocator-size-background-worker=32768"
+    "memorysetup-temp-allocator-size-job-worker=262144"
+    "memorysetup-temp-allocator-size-preload-manager=33554432"
+    "memorysetup-temp-allocator-size-nav-mesh-worker=65536"
+    "memorysetup-temp-allocator-size-audio-worker=65536"
+    "memorysetup-temp-allocator-size-cloud-worker=32768"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gi-baking-worker=262144"
+    "memorysetup-temp-allocator-size-gfx=262144"
+Player connection [8534245952]  Target information:
+
+Player connection [8534245952]  * "[IP] 192.168.2.43 [Port] 0 [Flags] 2 [Guid] 3561644248 [EditorId] 3561644248 [Version] 1048832 [Id] OSXEditor(0,Mac) [Debug] 1 [PackageName] OSXEditor [ProjectName] Editor" 
+
+Player connection [8534245952] Host joined multi-casting on [225.0.0.222:54997]...
+Player connection [8534245952] Host joined alternative multi-casting on [225.0.0.222:34997]...
+JobSystem: Creating JobQueue using job-worker-count value 3
+Input System module state changed to: Initialized.
+[Physics::Module] Initialized fallback backend.
+[Physics::Module] Id: 0xdecafbad
+Library Redirect Path: Library/
+[Physics::Module] Selected backend.
+[Physics::Module] Name: PhysX
+[Physics::Module] Id: 0xf2b8ea05
+[Physics::Module] SDK Version: 4.1.2
+[Physics::Module] Integration Version: 1.0.0
+[Physics::Module] Threading Mode: Multi-Threaded
+Refreshing native plugins compatible for Editor in 84.63 ms, found 12 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Initialize engine version: 6000.1.7f1 (13a8ffad9172)
+[Subsystems] Discovering subsystems at path /Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/Resources/UnitySubsystems
+[Subsystems] Discovering subsystems at path /Users/riddh/Cloud Repositories/Martian Frontier/Assets
+GfxDevice: creating device client; kGfxThreadingModeNonThreaded
+ preferred device: Apple M2 (high power)
+Metal devices available: 1
+0: Apple M2 (high power)
+Using device Apple M2 (high power)
+Initializing Metal device caps: Apple M2
+Initialize mono
+Mono path[0] = '/Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/Managed'
+Mono path[1] = '/Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/MonoBleedingEdge/lib/mono/unityjit-macos'
+Mono config path = '/Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/MonoBleedingEdge/etc'
+Using monoOptions --debugger-agent=transport=dt_socket,embedding=1,server=y,suspend=n,address=127.0.0.1:56673
+Begin MonoManager ReloadAssembly
+Registering precompiled unity dll's ...
+Register platform support module: /Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/PlaybackEngines/MacStandaloneSupport/UnityEditor.OSXStandalone.Extensions.dll
+Register platform support module: /Applications/Unity/Hub/Editor/6000.1.7f1/PlaybackEngines/AndroidPlayer/UnityEditor.Android.Extensions.dll
+Register platform support module: /Applications/Unity/Hub/Editor/6000.1.7f1/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.dll
+Registered in 0.004343 seconds.
+- Loaded All Assemblies, in  0.413 seconds
+[usbmuxd] Start listen thread
+[usbmuxd] Listen thread started
+[usbmuxd] Send listen message
+Native extension for iOS target not found
+Native extension for Android target not found
+Android Extension - Scanning For ADB Devices 202 ms
+Native extension for OSXStandalone target not found
+Mono: successfully reloaded assembly
+- Finished resetting the current domain, in  0.631 seconds
+Domain Reload Profiling: 1044ms
+	BeginReloadAssembly (180ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (0ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (1ms)
+	RebuildCommonClasses (34ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (44ms)
+	LoadAllAssembliesAndSetupDomain (145ms)
+		LoadAssemblies (181ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (142ms)
+			TypeCache.Refresh (139ms)
+				TypeCache.ScanAssembly (126ms)
+			BuildScriptInfoCaches (0ms)
+			ResolveRequiredComponents (1ms)
+	FinalizeReload (631ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (587ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (401ms)
+			SetLoadedEditorAssemblies (3ms)
+			BeforeProcessingInitializeOnLoad (53ms)
+			ProcessInitializeOnLoadAttributes (84ms)
+			ProcessInitializeOnLoadMethodAttributes (45ms)
+			AfterProcessingInitializeOnLoad (0ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (0ms)
+========================================================================
+Worker process is ready to serve import requests
+Import Worker Mode flag is 0x00
+Begin MonoManager ReloadAssembly
+Symbol file LoadedFromMemory is not a mono symbol file
+- Loaded All Assemblies, in  0.860 seconds
+Refreshing native plugins compatible for Editor in 5.09 ms, found 12 plugins.
+Native extension for iOS target not found
+Native extension for Android target not found
+Native extension for OSXStandalone target not found
+Package Manager log level set to [2]
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Refreshing native plugins compatible for Editor in 4.68 ms, found 12 plugins.
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+Mono: successfully reloaded assembly
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+[Package Manager] Failed to launch server process. Reason: Unity was launched with the -noUpm command-line argument
+[Package Manager] Unable to send message (not connected to server process).
+[Package Manager] Cannot connect to Unity Package Manager local server
+- Finished resetting the current domain, in  0.694 seconds
+Domain Reload Profiling: 1553ms
+	BeginReloadAssembly (104ms)
+		ExecutionOrderSort (0ms)
+		DisableScriptedObjects (4ms)
+		BackupInstance (0ms)
+		ReleaseScriptingObjects (0ms)
+		CreateAndSetChildDomain (33ms)
+	RebuildCommonClasses (28ms)
+	RebuildNativeTypeToScriptingClass (10ms)
+	initialDomainReloadingComplete (27ms)
+	LoadAllAssembliesAndSetupDomain (691ms)
+		LoadAssemblies (436ms)
+		RebuildTransferFunctionScriptingTraits (0ms)
+		AnalyzeDomain (292ms)
+			TypeCache.Refresh (226ms)
+				TypeCache.ScanAssembly (196ms)
+			BuildScriptInfoCaches (55ms)
+			ResolveRequiredComponents (7ms)
+	FinalizeReload (694ms)
+		ReleaseScriptCaches (0ms)
+		RebuildScriptCaches (0ms)
+		SetupLoadedEditorAssemblies (597ms)
+			LogAssemblyErrors (0ms)
+			InitializePlatformSupportModulesInManaged (17ms)
+			SetLoadedEditorAssemblies (4ms)
+			BeforeProcessingInitializeOnLoad (114ms)
+			ProcessInitializeOnLoadAttributes (392ms)
+			ProcessInitializeOnLoadMethodAttributes (70ms)
+			AfterProcessingInitializeOnLoad (1ms)
+			EditorAssembliesLoaded (0ms)
+		ExecutionOrderSort2 (0ms)
+		AwakeInstancesAfterBackupRestoration (2ms)
+Launching external process: /Applications/Unity/Hub/Editor/6000.1.7f1/Unity.app/Contents/Tools/UnityShaderCompiler
+Launched and connected shader compiler UnityShaderCompiler after 0.09 seconds
+Refreshing native plugins compatible for Editor in 4.70 ms, found 12 plugins.
+Preloading 0 native plugins for Editor in 0.00 ms.
+Unloading 154 Unused Serialized files (Serialized files now loaded: 0)
+Unloading 7800 unused Assets / (2.6 MB). Loaded Objects now: 8249.
+Memory consumption went from 154.0 MB to 151.4 MB.
+Total: 10.559542 ms (FindLiveObjects: 1.436583 ms CreateObjectMapping: 0.426625 ms MarkObjects: 6.824792 ms  DeleteObjects: 1.871125 ms)
+
+========================================================================
+Received Import Request.
+  Time since last request: 837.967045 seconds.
+  path: Assets/Prefabs/Customization Panel.prefab
+  artifactKey: Guid(1df480cb43a2d486f865d67b213f0485) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Customization Panel.prefab using Guid(1df480cb43a2d486f865d67b213f0485) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c7c0b09083a317148194c022b3b2247e') in 0.032968542 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 17
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000058 seconds.
+  path: Assets/Prefabs/Settings Panel.prefab
+  artifactKey: Guid(d1df344430c1d465b84973762319145e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Settings Panel.prefab using Guid(d1df344430c1d465b84973762319145e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '68f0e01e309cef527bc918d01c623045') in 0.126316541 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 273
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Prefabs/Error Message.prefab
+  artifactKey: Guid(6092a0253b3574cc4a97a9b5d4699a4e) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Error Message.prefab using Guid(6092a0253b3574cc4a97a9b5d4699a4e) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ff66ee05ae884d25ca87183638c41cac') in 0.064453208 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 32
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000042 seconds.
+  path: Assets/Prefabs/Power Up Locked.prefab
+  artifactKey: Guid(710e709be6a4b4bf0a5df06c490024fd) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Power Up Locked.prefab using Guid(710e709be6a4b4bf0a5df06c490024fd) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'eec4f997958313dccb836f3349d4fefa') in 0.064673 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 43
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000049 seconds.
+  path: Assets/Prefabs/Upgrade Bay Option.prefab
+  artifactKey: Guid(776a8f59b2b2c46a19ba96af676b2307) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Upgrade Bay Option.prefab using Guid(776a8f59b2b2c46a19ba96af676b2307) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '5b577a276b4f5641fc9a2404465fe737') in 0.063533042 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 76
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000034 seconds.
+  path: Assets/Prefabs/Power Panel.prefab
+  artifactKey: Guid(2821a612e714c435ebf9de2786df0045) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Power Panel.prefab using Guid(2821a612e714c435ebf9de2786df0045) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'c5fb6039388bf57a00b3714241fa3001') in 0.062702792 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 101
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000041 seconds.
+  path: Assets/Prefabs/Drill Display Panel.prefab
+  artifactKey: Guid(429101b86c8424c4887d8dd400b43f9d) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Drill Display Panel.prefab using Guid(429101b86c8424c4887d8dd400b43f9d) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter)Sprite Lobby Spritesheet_0 matches more than one built-in atlases. Default to use the first available atlas.
+ #0 PlatformStacktrace::GetStacktrace(int)
+ #1 DebugStringToFile(DebugStringToFileData const&)
+ #2 SpriteAtlasDatabase::GetDefaultAtlasForSprite(PPtr<Sprite> const&)
+ #3 Sprite::RefreshEditorAtlasBinding()
+ #4 Sprite::AwakeFromLoad(AwakeFromLoadMode)
+ #5 AwakeFromLoadQueue::InvokePersistentManagerAwake(AwakeFromLoadQueue::Item*, unsigned int, AwakeFromLoadMode, bool)
+ #6 AwakeFromLoadQueue::PersistentManagerSingleQueueAwakeFromLoad(int, AwakeFromLoadMode)
+ #7 AwakeFromLoadQueue::PersistentManagerAwakeFromLoad_NoChecks(AwakeFromLoadMode)
+ #8 PersistentManager::IntegrateAllThreadedObjects()
+ #9 PersistentManager::LoadAndIntegrateAllPreallocatedObjects(PersistentManager::LockFlags)
+ #10 PersistentManager::ReadObject(int, AwakeFromLoadMode)
+ #11 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #12 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #13 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #14 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #15 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #16 void RemapPPtrTransfer::Transfer<MonoPPtr>(MonoPPtr&, char const*, TransferMetaFlags)
+ #17 void Transfer_UnityEngineObject<RemapPPtrTransfer, false>(SerializationCommandArguments const&, RuntimeSerializationCommandInfo&)
+ #18 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)::'lambda'(bool, bool)::operator()(bool, bool) const
+ #19 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)
+ #20 void SerializableManagedRefTransfer::TransferScriptingObjectWithSerializedRefSupport<RemapPPtrTransfer>(Object*, SerializableManagedRef&, RemapPPtrTransfer&)
+ #21 ManagedObjectHostTransferRedirect<MonoBehaviour>::Transfer(MonoBehaviour&, RemapPPtrTransfer&)
+ #22 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #23 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #24 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #25 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #26 void RemapPPtrTransfer::Transfer<ImmediatePtr<GameObject>>(ImmediatePtr<GameObject>&, char const*, TransferMetaFlags)
+ #27 void Unity::Component::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #28 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #29 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #30 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #31 void RemapPPtrTransfer::Transfer<ImmediatePtr<Transform>>(ImmediatePtr<Transform>&, char const*, TransferMetaFlags)
+ #32 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #33 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #34 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #35 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #36 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #37 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #38 PreviewImporter::GenerateAssetData(AssetImportContext&)
+ #39 ImportToObjects(core::basic_string<char, core::StringStorageDefault<char>> const&, core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #40 ImportAsset(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #41 ImportAssetWithAutoReleasePool(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #42 AssetImportWorker::Import(AssetResolver&, ImportAssetInputs const&, TransientArtifactProvider const&, WorkerImportResponse&, IImportProgress*, bool*)
+ #43 invocation function for block in AssetImportWorkerClient::HandleMessage(ImportRequestMessage const&)::$_13::operator()() const
+ #44 _dispatch_client_callout
+ #45 _dispatch_async_and_wait_invoke
+ #46 _dispatch_client_callout
+ #47 _dispatch_main_queue_drain
+ #48 _dispatch_main_queue_callback_4CF
+ #49 __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__
+ #50 __CFRunLoopRun
+ #51 CFRunLoopRunSpecific
+ #52 RunCurrentEventLoopInMode
+ #53 ReceiveNextEventCommon
+ #54 _BlockUntilNextEventMatchingListInModeWithFilter
+ #55 _DPSNextEvent
+ #56 -[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]
+ #57 -[NSApplication run]
+ #58 NSApplicationMain
+ #59 EditorMain(int, char const**)
+ #60 main
+ #61 start
+
+Sprite Lobby Spritesheet_1 matches more than one built-in atlases. Default to use the first available atlas.
+ #0 PlatformStacktrace::GetStacktrace(int)
+ #1 DebugStringToFile(DebugStringToFileData const&)
+ #2 SpriteAtlasDatabase::GetDefaultAtlasForSprite(PPtr<Sprite> const&)
+ #3 Sprite::RefreshEditorAtlasBinding()
+ #4 Sprite::AwakeFromLoad(AwakeFromLoadMode)
+ #5 AwakeFromLoadQueue::InvokePersistentManagerAwake(AwakeFromLoadQueue::Item*, unsigned int, AwakeFromLoadMode, bool)
+ #6 AwakeFromLoadQueue::PersistentManagerSingleQueueAwakeFromLoad(int, AwakeFromLoadMode)
+ #7 AwakeFromLoadQueue::PersistentManagerAwakeFromLoad_NoChecks(AwakeFromLoadMode)
+ #8 PersistentManager::IntegrateAllThreadedObjects()
+ #9 PersistentManager::LoadAndIntegrateAllPreallocatedObjects(PersistentManager::LockFlags)
+ #10 PersistentManager::ReadObject(int, AwakeFromLoadMode)
+ #11 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #12 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #13 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #14 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #15 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #16 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #17 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #18 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #19 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #20 void RemapPPtrTransfer::Transfer<MonoPPtr>(MonoPPtr&, char const*, TransferMetaFlags)
+ #21 void Transfer_UnityEngineObject<RemapPPtrTransfer, false>(SerializationCommandArguments const&, RuntimeSerializationCommandInfo&)
+ #22 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)::'lambda'(bool, bool)::operator()(bool, bool) const
+ #23 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)
+ #24 void SerializableManagedRefTransfer::TransferScriptingObjectWithSerializedRefSupport<RemapPPtrTransfer>(Object*, SerializableManagedRef&, RemapPPtrTransfer&)
+ #25 ManagedObjectHostTransferRedirect<MonoBehaviour>::Transfer(MonoBehaviour&, RemapPPtrTransfer&)
+ #26 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #27 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #28 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #29 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #30 void RemapPPtrTransfer::Transfer<ImmediatePtr<GameObject>>(ImmediatePtr<GameObject>&, char const*, TransferMetaFlags)
+ #31 void Unity::Component::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #32 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #33 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #34 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #35 void RemapPPtrTransfer::Transfer<ImmediatePtr<Transform>>(ImmediatePtr<Transform>&, char const*, TransferMetaFlags)
+ #36 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #37 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #38 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #39 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #40 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #41 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #42 PreviewImporter::GenerateAssetData(AssetImportContext&)
+ #43 ImportToObjects(core::basic_string<char, core::StringStorageDefault<char>> const&, core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #44 ImportAsset(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #45 ImportAssetWithAutoReleasePool(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #46 AssetImportWorker::Import(AssetResolver&, ImportAssetInputs const&, TransientArtifactProvider const&, WorkerImportResponse&, IImportProgress*, bool*)
+ #47 invocation function for block in AssetImportWorkerClient::HandleMessage(ImportRequestMessage const&)::$_13::operator()() const
+ #48 _dispatch_client_callout
+ #49 _dispatch_async_and_wait_invoke
+ #50 _dispatch_client_callout
+ #51 _dispatch_main_queue_drain
+ #52 _dispatch_main_queue_callback_4CF
+ #53 __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__
+ #54 __CFRunLoopRun
+ #55 CFRunLoopRunSpecific
+ #56 RunCurrentEventLoopInMode
+ #57 ReceiveNextEventCommon
+ #58 _BlockUntilNextEventMatchingListInModeWithFilter
+ #59 _DPSNextEvent
+ #60 -[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]
+ #61 -[NSApplication run]
+ #62 NSApplicationMain
+ #63 EditorMain(int, char const**)
+ #64 main
+ #65 start
+
+Sprite Lobby Spritesheet_2 matches more than one built-in atlases. Default to use the first available atlas.
+ #0 PlatformStacktrace::GetStacktrace(int)
+ #1 DebugStringToFile(DebugStringToFileData const&)
+ #2 SpriteAtlasDatabase::GetDefaultAtlasForSprite(PPtr<Sprite> const&)
+ #3 Sprite::RefreshEditorAtlasBinding()
+ #4 Sprite::AwakeFromLoad(AwakeFromLoadMode)
+ #5 AwakeFromLoadQueue::InvokePersistentManagerAwake(AwakeFromLoadQueue::Item*, unsigned int, AwakeFromLoadMode, bool)
+ #6 AwakeFromLoadQueue::PersistentManagerSingleQueueAwakeFromLoad(int, AwakeFromLoadMode)
+ #7 AwakeFromLoadQueue::PersistentManagerAwakeFromLoad_NoChecks(AwakeFromLoadMode)
+ #8 PersistentManager::IntegrateAllThreadedObjects()
+ #9 PersistentManager::LoadAndIntegrateAllPreallocatedObjects(PersistentManager::LockFlags)
+ #10 PersistentManager::ReadObject(int, AwakeFromLoadMode)
+ #11 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #12 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #13 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #14 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #15 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #16 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #17 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #18 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #19 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #20 void RemapPPtrTransfer::Transfer<MonoPPtr>(MonoPPtr&, char const*, TransferMetaFlags)
+ #21 void Transfer_UnityEngineObject<RemapPPtrTransfer, false>(SerializationCommandArguments const&, RuntimeSerializationCommandInfo&)
+ #22 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)::'lambda'(bool, bool)::operator()(bool, bool) const
+ #23 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)
+ #24 void SerializableManagedRefTransfer::TransferScriptingObjectWithSerializedRefSupport<RemapPPtrTransfer>(Object*, SerializableManagedRef&, RemapPPtrTransfer&)
+ #25 ManagedObjectHostTransferRedirect<MonoBehaviour>::Transfer(MonoBehaviour&, RemapPPtrTransfer&)
+ #26 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #27 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #28 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #29 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #30 void RemapPPtrTransfer::Transfer<ImmediatePtr<GameObject>>(ImmediatePtr<GameObject>&, char const*, TransferMetaFlags)
+ #31 void Unity::Component::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #32 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #33 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #34 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #35 void RemapPPtrTransfer::Transfer<ImmediatePtr<Transform>>(ImmediatePtr<Transform>&, char const*, TransferMetaFlags)
+ #36 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #37 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #38 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #39 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #40 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #41 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #42 PreviewImporter::GenerateAssetData(AssetImportContext&)
+ #43 ImportToObjects(core::basic_string<char, core::StringStorageDefault<char>> const&, core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #44 ImportAsset(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #45 ImportAssetWithAutoReleasePool(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #46 AssetImportWorker::Import(AssetResolver&, ImportAssetInputs const&, TransientArtifactProvider const&, WorkerImportResponse&, IImportProgress*, bool*)
+ #47 invocation function for block in AssetImportWorkerClient::HandleMessage(ImportRequestMessage const&)::$_13::operator()() const
+ #48 _dispatch_client_callout
+ #49 _dispatch_async_and_wait_invoke
+ #50 _dispatch_client_callout
+ #51 _dispatch_main_queue_drain
+ #52 _dispatch_main_queue_callback_4CF
+ #53 __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__
+ #54 __CFRunLoopRun
+ #55 CFRunLoopRunSpecific
+ #56 RunCurrentEventLoopInMode
+ #57 ReceiveNextEventCommon
+ #58 _BlockUntilNextEventMatchingListInModeWithFilter
+ #59 _DPSNextEvent
+ #60 -[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]
+ #61 -[NSApplication run]
+ #62 NSApplicationMain
+ #63 EditorMain(int, char const**)
+ #64 main
+ #65 start
+
+Sprite Lobby Spritesheet_3 matches more than one built-in atlases. Default to use the first available atlas.
+ #0 PlatformStacktrace::GetStacktrace(int)
+ #1 DebugStringToFile(DebugStringToFileData const&)
+ #2 SpriteAtlasDatabase::GetDefaultAtlasForSprite(PPtr<Sprite> const&)
+ #3 Sprite::RefreshEditorAtlasBinding()
+ #4 Sprite::AwakeFromLoad(AwakeFromLoadMode)
+ #5 AwakeFromLoadQueue::InvokePersistentManagerAwake(AwakeFromLoadQueue::Item*, unsigned int, AwakeFromLoadMode, bool)
+ #6 AwakeFromLoadQueue::PersistentManagerSingleQueueAwakeFromLoad(int, AwakeFromLoadMode)
+ #7 AwakeFromLoadQueue::PersistentManagerAwakeFromLoad_NoChecks(AwakeFromLoadMode)
+ #8 PersistentManager::IntegrateAllThreadedObjects()
+ #9 PersistentManager::LoadAndIntegrateAllPreallocatedObjects(PersistentManager::LockFlags)
+ #10 PersistentManager::ReadObject(int, AwakeFromLoadMode)
+ #11 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #12 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #13 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #14 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #15 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #16 void SpriteAtlas::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #17 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #18 void Sprite::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #19 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #20 void RemapPPtrTransfer::Transfer<MonoPPtr>(MonoPPtr&, char const*, TransferMetaFlags)
+ #21 void Transfer_UnityEngineObject<RemapPPtrTransfer, false>(SerializationCommandArguments const&, RuntimeSerializationCommandInfo&)
+ #22 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)::'lambda'(bool, bool)::operator()(bool, bool) const
+ #23 void TransferScriptingObject<RemapPPtrTransfer>(RemapPPtrTransfer&, ScriptingObjectPtr, ScriptingClassPtr, SerializationCache::Data*&)
+ #24 void SerializableManagedRefTransfer::TransferScriptingObjectWithSerializedRefSupport<RemapPPtrTransfer>(Object*, SerializableManagedRef&, RemapPPtrTransfer&)
+ #25 ManagedObjectHostTransferRedirect<MonoBehaviour>::Transfer(MonoBehaviour&, RemapPPtrTransfer&)
+ #26 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #27 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #28 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #29 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #30 void RemapPPtrTransfer::Transfer<ImmediatePtr<GameObject>>(ImmediatePtr<GameObject>&, char const*, TransferMetaFlags)
+ #31 void Unity::Component::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #32 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #33 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #34 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #35 void RemapPPtrTransfer::Transfer<ImmediatePtr<Transform>>(ImmediatePtr<Transform>&, char const*, TransferMetaFlags)
+ #36 void Transform::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #37 UI::RectTransform::VirtualRedirectTransfer(RemapPPtrTransfer&)
+ #38 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #39 void RemapPPtrTransfer::Transfer<ImmediatePtr<Unity::Component>>(ImmediatePtr<Unity::Component>&, char const*, TransferMetaFlags)
+ #40 void GameObject::Transfer<RemapPPtrTransfer>(RemapPPtrTransfer&)
+ #41 (anonymous namespace)::DependencyCollector::GenerateInstanceID(int, TransferMetaFlags)
+ #42 PreviewImporter::GenerateAssetData(AssetImportContext&)
+ #43 ImportToObjects(core::basic_string<char, core::StringStorageDefault<char>> const&, core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #44 ImportAsset(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #45 ImportAssetWithAutoReleasePool(core::hash_map<AssetDatabase::ImporterID, ImporterInfo, core::hash<AssetDatabase::ImporterID>, std::__1::equal_to<AssetDatabase::ImporterID>> const&, core::vector<PostprocessorInfo, core::allocator<PostprocessorInfo, 0ul>> const&, TransientArtifactProvider const&, AssetResolveTracker const&, ImportAssetInputs const&, ImportAssetOutputs&, IImportProgress*)
+ #46 AssetImportWorker::Import(AssetResolver&, ImportAssetInputs const&, TransientArtifactProvider const&, WorkerImportResponse&, IImportProgress*, bool*)
+ #47 invocation function for block in AssetImportWorkerClient::HandleMessage(ImportRequestMessage const&)::$_13::operator()() const
+ #48 _dispatch_client_callout
+ #49 _dispatch_async_and_wait_invoke
+ #50 _dispatch_client_callout
+ #51 _dispatch_main_queue_drain
+ #52 _dispatch_main_queue_callback_4CF
+ #53 __CFRUNLOOP_IS_SERVICING_THE_MAIN_DISPATCH_QUEUE__
+ #54 __CFRunLoopRun
+ #55 CFRunLoopRunSpecific
+ #56 RunCurrentEventLoopInMode
+ #57 ReceiveNextEventCommon
+ #58 _BlockUntilNextEventMatchingListInModeWithFilter
+ #59 _DPSNextEvent
+ #60 -[NSApplication(NSEventRouting) _nextEventMatchingEventMask:untilDate:inMode:dequeue:]
+ #61 -[NSApplication run]
+ #62 NSApplicationMain
+ #63 EditorMain(int, char const**)
+ #64 main
+ #65 start
+
+ -> (artifact id: '3faf9c789193140de9eef482d704ea73') in 0.345466542 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 304
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.000037 seconds.
+  path: Assets/Prefabs/Daily Challenge Button.prefab
+  artifactKey: Guid(372426c36a29041679f9f843cbb36b33) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Daily Challenge Button.prefab using Guid(372426c36a29041679f9f843cbb36b33) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '1bf00d20c9dfc721ca9f6c97cb60fefd') in 0.068421417 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 84
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.305788 seconds.
+  path: Assets/Prefabs/Ore Materials
+  artifactKey: Guid(0bd915af72b8948e79f41ea5aafc88e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Ore Materials using Guid(0bd915af72b8948e79f41ea5aafc88e6) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '90eadc3e2b6bd56826f1158604f7c3c1') in 0.000310375 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 2.148033 seconds.
+  path: Assets/Prefabs/Ore Magnet
+  artifactKey: Guid(fa8cc87414be04c74bcc10b6fd06addb) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Ore Magnet using Guid(fa8cc87414be04c74bcc10b6fd06addb) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '2e3d9ac25284cbfca585a72cd6f8bb94') in 0.000300833 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 7.693023 seconds.
+  path: Assets/Prefabs/Generation Triggers
+  artifactKey: Guid(82d34b10af68447cf862c19f34ba44a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Generation Triggers using Guid(82d34b10af68447cf862c19f34ba44a0) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: '93d6f1f5345c15bf7c089b9b87258af3') in 0.0003115 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 0.863157 seconds.
+  path: Assets/Prefabs/Gem Purchase Panels
+  artifactKey: Guid(94ca0efba564b4d0ab9bbd8852b6041a) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Gem Purchase Panels using Guid(94ca0efba564b4d0ab9bbd8852b6041a) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ecead45512447299cae788830950881f') in 0.0002475 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+
+========================================================================
+Received Import Request.
+  Time since last request: 12.732695 seconds.
+  path: Assets/Prefabs/Drillers
+  artifactKey: Guid(e89cd7def39e3437ea5372b994281e68) Importer(815301076,1909f56bfc062723c751e8b465ee728b)
+Start importing Assets/Prefabs/Drillers using Guid(e89cd7def39e3437ea5372b994281e68) Importer(815301076,1909f56bfc062723c751e8b465ee728b) (PreviewImporter) -> (artifact id: 'ec6619b7fe62809168e79df999d6ab9f') in 0.000371959 seconds
+Number of updated asset objects reloaded before import = 0Number of asset objects unloaded after import = 0
+

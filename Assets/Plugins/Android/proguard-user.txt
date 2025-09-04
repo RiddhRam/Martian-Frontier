@@ -1,0 +1,21 @@
+-keep class com.google.unity.** {
+   *;
+}
+-keep public class com.google.android.gms.ads.** {
+   public *;
+}
+-keep public class com.google.ads.** {
+   public *;
+}
+-keep public class com.google.android.ump.** {
+   public *;
+}
+-keep class com.google.android.ump.consent.ConsentFormActivity { *; }
+-keepattributes *Annotation*
+-dontobfuscate
+-keep class com.unity.** { *;}
+-keep class com.unity.androidnotifications.** { *;}
+-keepclassmembers class com.unity.androidnotifications.** { *;}
+-keepnames class com.unity.androidnotifications.** { *;}
+-keepclassmembernames class com.unity.androidnotifications.** { *;}
+-keep class com.google.android.play.core.review.** { *;}

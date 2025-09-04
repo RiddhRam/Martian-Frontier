@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &7275943730824477302
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1689142783868977718}
+  - component: {fileID: 4177515218182183158}
+  m_Layer: 0
+  m_Name: Ad Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1689142783868977718
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7275943730824477302}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4177515218182183158
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7275943730824477302}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aeb61d4ad422a4f669e1e5d7628c8ea6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  adButton: {fileID: 0}
+  visionText: {fileID: 0}
+  profitText: {fileID: 0}
+  rewardAdTimerText: {fileID: 0}
+  rewardTypes:
+  - Profit
+  - Speed
+  - Vision
+  movementJoystick: {fileID: 0}
+  tutorial: {fileID: 0}
+  customAdScreen: {fileID: 0}
+  signupNoWifi: {fileID: 0}
+  signUpButton: {fileID: 0}
+  accountNoWifi: {fileID: 0}
+  changeNameButton: {fileID: 0}
+  deleteAccountButton: {fileID: 0}
+  leaderboardNoWifi: {fileID: 0}
+  doubleCrateRewardButton: {fileID: 0}
+  crateRewardNoWifi: {fileID: 0}
+  teamNoWifi: {fileID: 0}
+  lobbyAdDisplay: {fileID: 0}
+  lobbyAdRewardAmountText: {fileID: 0}
+  lobbyAdRewardTimerText: {fileID: 0}
+  leaderboardCashPanel: {fileID: 0}
+  originalSpeed: 0
+  speedBoostActive: 0
+  playerState: {fileID: 0}
+  refineryController: {fileID: 0}
+  supplyCrateDelegator: {fileID: 0}
+  upgradesDelegator: {fileID: 0}

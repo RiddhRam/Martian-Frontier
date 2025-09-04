@@ -1,0 +1,103 @@
+{
+  "version": 3,
+  "targets": {
+    ".NETStandard,Version=v2.1": {
+      "Google.Play.Common/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/Google.Play.Common.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Google.Play.Common.dll": {}
+        }
+      },
+      "Google.Play.Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETStandard,Version=v2.1",
+        "compile": {
+          "bin/placeholder/Google.Play.Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Google.Play.Core.dll": {}
+        }
+      }
+    }
+  },
+  "libraries": {
+    "Google.Play.Common/1.0.0": {
+      "type": "project",
+      "path": "Google.Play.Common.csproj",
+      "msbuildProject": "Google.Play.Common.csproj"
+    },
+    "Google.Play.Core/1.0.0": {
+      "type": "project",
+      "path": "Google.Play.Core.csproj",
+      "msbuildProject": "Google.Play.Core.csproj"
+    }
+  },
+  "projectFileDependencyGroups": {
+    ".NETStandard,Version=v2.1": [
+      "Google.Play.Common >= 1.0.0",
+      "Google.Play.Core >= 1.0.0"
+    ]
+  },
+  "packageFolders": {
+    "/Users/riddh/.nuget/packages/": {}
+  },
+  "project": {
+    "version": "1.0.0",
+    "restore": {
+      "projectUniqueName": "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Review.csproj",
+      "projectName": "Google.Play.Review",
+      "projectPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Review.csproj",
+      "packagesPath": "/Users/riddh/.nuget/packages/",
+      "outputPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Temp/obj/Google.Play.Review/",
+      "projectStyle": "PackageReference",
+      "configFilePaths": [
+        "/Users/riddh/.nuget/NuGet/NuGet.Config"
+      ],
+      "originalTargetFrameworks": [
+        "netstandard2.1"
+      ],
+      "sources": {
+        "https://api.nuget.org/v3/index.json": {}
+      },
+      "frameworks": {
+        "netstandard2.1": {
+          "targetAlias": "netstandard2.1",
+          "projectReferences": {
+            "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Common.csproj": {
+              "projectPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Common.csproj"
+            },
+            "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Core.csproj": {
+              "projectPath": "/Users/riddh/Cloud Repositories/Martian Frontier/Google.Play.Core.csproj"
+            }
+          }
+        }
+      },
+      "warningProperties": {
+        "warnAsError": [
+          "NU1605"
+        ]
+      }
+    },
+    "frameworks": {
+      "netstandard2.1": {
+        "targetAlias": "netstandard2.1",
+        "imports": [
+          "net461",
+          "net462",
+          "net47",
+          "net471",
+          "net472",
+          "net48",
+          "net481"
+        ],
+        "assetTargetFallback": true,
+        "warn": true,
+        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/7.0.311/RuntimeIdentifierGraph.json"
+      }
+    }
+  }
+}

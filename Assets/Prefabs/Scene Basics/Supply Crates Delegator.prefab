@@ -1,0 +1,71 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4382478674082706090
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 337973894490447104}
+  - component: {fileID: 6168990366809500150}
+  m_Layer: 0
+  m_Name: Supply Crates Delegator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &337973894490447104
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4382478674082706090}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6168990366809500150
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4382478674082706090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f7049eabcee64346952fcb5868ed3dd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  openCratePanel: {fileID: 0}
+  extractingSuppliesPanel: {fileID: 0}
+  collectRewardPanel: {fileID: 0}
+  doubleRewardsButtons: {fileID: 0}
+  crateDisplays:
+  - {fileID: 0}
+  - {fileID: 0}
+  uIDelegation: {fileID: 0}
+  playerState: {fileID: 0}
+  upgradesDelegator: {fileID: 0}
+  crateExtractionProgressBar: {fileID: 0}
+  crateExtractionPercentageText: {fileID: 0}
+  cashReward: {fileID: 0}
+  gemReward: {fileID: 0}
+  blocksNeededBars:
+  - {fileID: 0}
+  - {fileID: 0}
+  blocksNeededMiniBarText: {fileID: 0}
+  blocksNeededMainBarText: {fileID: 0}
+  crateUnlockSoundEffect: {fileID: 8300000, guid: d806da4d220594fb69137328cfdfafd0, type: 3}
+  UISoundEffects: {fileID: 0}
+  supplyCrateButtonIcon: {fileID: 0}
+  crateNoticeIcon: {fileID: 0}
+  disableAds: 0
+  adWatchedAlready: 0
