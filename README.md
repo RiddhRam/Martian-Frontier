@@ -6,9 +6,9 @@
 [![Get it on Google Play](https://img.shields.io/badge/Google%20Play-Download-3DDC84?logo=googleplay&logoColor=white)](https://play.google.com/store/apps/details?id=com.ryd.martianfrontier)
 [![Download on the App Store](https://img.shields.io/badge/App%20Store-Download-0D96F6?logo=appstore&logoColor=white)](https://apps.apple.com/ca/app/martian-frontier/id6740146979)
 
-## Demo
+## Video
 
-<video src="https://github.com/user-attachments/assets/09db2f87-7415-4567-9cfa-8dce6acde6d6" controls width="1000"></video>
+https://github.com/user-attachments/assets/bc49032a-564d-4e68-bd31-00ac0ad29202
 
 ## Features
 
